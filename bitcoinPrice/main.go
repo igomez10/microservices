@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 )
@@ -32,7 +33,8 @@ func main() {
 		fmt.Fprintln(w, price)
 	})
 
-	http.ListenAndServe(*port, nil)
+	err := http.ListenAndServe(*port, nil)
+	log.Fatal(err)
 
 }
 
