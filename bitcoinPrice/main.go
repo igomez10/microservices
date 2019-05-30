@@ -15,10 +15,11 @@ func main() {
 	portEnviron := os.Getenv("PORT")
 
 	if portEnviron == "" {
-		portEnviron = ":8080"
+		portEnviron = "8080"
 	}
 
 	port := flag.String("port", portEnviron, "port to listen")
+	*port = ":" + *port
 	flag.Parse()
 
 	http.HandleFunc("/bitcoinPrice", func(w http.ResponseWriter, r *http.Request) {
