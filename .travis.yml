@@ -28,13 +28,6 @@ install: true
 notifications:
   email: false
 
-# Anything in before_script that returns a nonzero exit code will flunk the
-# build and immediately stop. It's sorta like having set -e enabled in bash.
-# Make sure golangci-lint is vendored.
-before_script:
-  - go install github.com/golangci/golangci-lint/cmd/golangci-lint
-
-
 jobs:
   include:
     - stage: lint
@@ -42,4 +35,12 @@ jobs:
     - stage: test
       script: go test -v -race ./...
     - stage: build
-      script docker build -t igomeza/bitcoinPrice
+      script: docker build -t igomeza/bitcoinPrice
+
+# Anything in before_script that returns a nonzero exit code will flunk the
+# build and immediately stop. It's sorta like having set -e enabled in bash.
+# Make sure golangci-lint is vendored.
+before_script:
+  - go install github.com/golangci/golangci-lint/cmd/golangci-lint
+
+
