@@ -42,4 +42,6 @@ jobs:
     - stage: build
       script:
       - cd ./bitcoinPrice
+      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - docker build -t igomeza/bitcoinprice .
+      - docker push igomeza/bitcoinprice
