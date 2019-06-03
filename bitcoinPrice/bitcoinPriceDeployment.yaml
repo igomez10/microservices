@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bitcoinprice-deployment
+  labels:
+    app: bitcoinprice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bitcoinprice
+  template:
+    metadata:
+      labels:
+        app: bitcoinprice
+    spec:
+      containers:
+      - name: bitcoinprice
+        image: igomeza/bitcoinprice:latest
+        ports:
+        - containerPort: 8080
