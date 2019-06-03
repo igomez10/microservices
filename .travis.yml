@@ -36,6 +36,10 @@ jobs:
       - cd ./bitcoinPrice
       - golangci-lint run       # run a bunch of code checkers/linters in parallel
     - stage: test
-      script: go test -v -race ./...
+      script:
+      - cd ./bitcoinPrice
+      - go test -v -race ./...
     - stage: build
-      script: docker build -t igomeza/bitcoinprice
+      script:
+      - cd ./bitcoinPrice
+      - docker build -t igomeza/bitcoinprice .
