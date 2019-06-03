@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: travis-apps
+  namespace: squad-a-apps
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cicd-apps
+subjects:
+- kind: User
+  name: system:serviceaccount:serviceids:travis-service-account
+  apiGroup: rbac.authorization.k8s.io

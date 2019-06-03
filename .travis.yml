@@ -44,4 +44,6 @@ jobs:
       - cd ./bitcoinPrice
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - docker build -t igomeza/bitcoinprice:"$TRAVIS_BRANCH"-"$TRAVIS_COMMIT" .
-      - docker push igomeza/bitcoinprice
+      - docker build -t igomeza/bitcoinprice:latest .
+      - docker push igomeza/bitcoinprice:"$TRAVIS_BRANCH"-"$TRAVIS_COMMIT"
+      - docker push igomeza/bitcoinprice:latest
