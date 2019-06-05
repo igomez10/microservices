@@ -37,7 +37,7 @@ jobs:
       - golangci-lint run       # run a bunch of code checkers/linters in parallel
       cache:
         directories:
-          - /home/travis/go/
+          - /home/travis/gopath
     - stage: test
       script:
       - cd ./bitcoinPrice
