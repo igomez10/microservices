@@ -22,18 +22,24 @@ func main() {
 	*port = ":" + *port
 	flag.Parse()
 
-	http.HandleFunc("/bitcoinPrice", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("%+v\n", *r)
+		fmt.Fprintf(w, "OK")
+	})
 
+	http.HandleFunc("/bitcoinPrice", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("%+v\n", *r)
 
 		price, err := getBitcoinPrice()
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Println(err)
 			return
 		}
 		fmt.Fprintln(w, price)
 	})
 
+	fmt.Println("Started server on ", *port)
 	err := http.ListenAndServe(*port, nil)
 	log.Fatal(err)
 
