@@ -2,6 +2,9 @@ FROM golang:1.11-alpine as builder
 ENV CGO_ENABLED=0
 WORKDIR /src
 COPY ./ ./
+ENV env GOOS=linux
+ENV GOARCH=arm
+ENV GOARM=5
 RUN go mod download
 RUN go build -installsuffix 'static' -o /server .
 
