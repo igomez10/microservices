@@ -60,4 +60,4 @@ jobs:
       - kubectl config set clusters.default.server "$KUBE_CLUSTER_SERVER" # server
       - kubectl config set users.default.username "$KUBE_CLUSTER_USERNAME" # username
       - kubectl config set users.default.password "$KUBE_CLUSTER_PASSWORD" # password
-      - kubectl get pods
+      - kubectl --kubeconfig ~/.kube/config  get pods
