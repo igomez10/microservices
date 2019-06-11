@@ -52,11 +52,10 @@ jobs:
       - docker push igomeza/bitcoinprice:latest
     - stage: deploy
       script:
+      - mkdir ~/.kube
+      - curl -o ~/.kube/config -u $GITHUB_USERNAME:$GITHUb_TOKEN https://gist.githubusercontent.com/$GITHUB_USERNAME/$GIST_ID/raw/$GIST_COMMIT/$GIST_NAME
+      - export KUBECONFIG=/home/travis/.kube/config
       - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
       - chmod +x ./kubectl
       - sudo mv ./kubectl /usr/local/bin/kubectl
-      - mkdir ~/.kube
-      - git clone git@gist.github.com:56e3adc3ee7c3116fef4a22e84ebb1c3.git ~/.kube
-      - kubectl config set clusters.default.server "$KUBE_CLUSTER_SERVER" # server
-      - kubectl config set users.default.username "$KUBE_CLUSTER_USERNAME" # username
-      - kubectl config set users.default.password "$KUBE_CLUSTER_PASSWORD" # password
+      - kubectl get pods --insecure-skip-tls-verify
