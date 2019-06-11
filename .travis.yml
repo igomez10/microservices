@@ -57,9 +57,10 @@ jobs:
       - sudo mv ./kubectl /usr/local/bin/kubectl
       - mkdir ~/.kube
       - git clone https://gist.github.com/56e3adc3ee7c3116fef4a22e84ebb1c3.git ~/.kube
+      - sudo chown $(id -u):$(id -g) ~/.kube/config
+      - export KUBECONFIG=/home/travis/.kube/config
+      - kubectl config view
       - kubectl config set clusters.default.server "$KUBE_CLUSTER_SERVER" # server
       - kubectl config set users.default.username "$KUBE_CLUSTER_USERNAME" # username
       - kubectl config set users.default.password "$KUBE_CLUSTER_PASSWORD" # password
-      - sudo chown $(id -u):$(id -g) ~/.kube/config
-      - export KUBECONFIG=/home/travis/.kube/config
       - kubectl  get pods
