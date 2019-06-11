@@ -59,3 +59,4 @@ jobs:
       - chmod +x ./kubectl
       - sudo mv ./kubectl /usr/local/bin/kubectl
       - kubectl get pods --insecure-skip-tls-verify
+      - kubectl --insecure-skip-tls-verify set image deployment bitcoinprice-deployment bitcoinprice=igomeza/bitcoinprice:"$TRAVIS_BRANCH"-"$TRAVIS_COMMIT"
