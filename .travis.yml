@@ -62,4 +62,4 @@ jobs:
       - kubectl config set users.default.password "$KUBE_CLUSTER_PASSWORD" # password
       - sudo chown $(id -u):$(id -g) ~/.kube/config
       - export KUBECONFIG=/home/travis/.kube/config
-      - kubectl --kubeconfig ~/.kube/config  get pods
+      - kubectl  get pods
