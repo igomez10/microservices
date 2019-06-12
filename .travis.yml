@@ -58,5 +58,4 @@ jobs:
       - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
       - chmod +x ./kubectl
       - sudo mv ./kubectl /usr/local/bin/kubectl
-      - kubectl get pods --insecure-skip-tls-verify
       - kubectl --insecure-skip-tls-verify set image deployment bitcoinprice-deployment bitcoinprice=igomeza/bitcoinprice:"$TRAVIS_BRANCH"-"$TRAVIS_COMMIT"
