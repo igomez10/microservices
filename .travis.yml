@@ -53,7 +53,7 @@ jobs:
     - stage: deploy
       script:
       - mkdir ~/.kube
-      - curl -o ~/.kube/config -u $GITHUB_USERNAME:$GITHUb_TOKEN https://gist.githubusercontent.com/$GITHUB_USERNAME/$GIST_ID/raw/$GIST_COMMIT/$GIST_NAME
+      - curl -o ~/.kube/config -u $GITHUB_USERNAME:$GITHUB_TOKEN https://gist.githubusercontent.com/$GITHUB_USERNAME/$GIST_ID/raw/$GIST_COMMIT/$GIST_NAME
       - export KUBECONFIG=/home/travis/.kube/config
       - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
       - chmod +x ./kubectl
