@@ -14,7 +14,7 @@ env:
 # You don't need to test on very old versions of the Go compiler. It's the user's
 # responsibility to keep their compiler up to date.
 go:
-  - "1.12.5"
+  - "1.12.6"
 
 # Only clone the most recent commit.
 git:
@@ -53,9 +53,9 @@ jobs:
     - stage: deploy
       script:
       - mkdir ~/.kube
-      - curl -o ~/.kube/config -u $GITHUB_USERNAME:$GITHUb_TOKEN https://gist.githubusercontent.com/$GITHUB_USERNAME/$GIST_ID/raw/$GIST_COMMIT/$GIST_NAME
+      - curl -o ~/.kube/config -u $GITHUB_USERNAME:$GITHUB_TOKEN https://gist.githubusercontent.com/$GITHUB_USERNAME/$GIST_ID/raw/$GIST_COMMIT/$GIST_NAME
       - export KUBECONFIG=/home/travis/.kube/config
       - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
       - chmod +x ./kubectl
       - sudo mv ./kubectl /usr/local/bin/kubectl
-      - kubectl get pods --insecure-skip-tls-verify
+      - kubectl --insecure-skip-tls-verify set image deployment bitcoinprice-deployment bitcoinprice=igomeza/bitcoinprice:"$TRAVIS_BRANCH"-"$TRAVIS_COMMIT"
