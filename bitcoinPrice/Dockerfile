@@ -1,21 +1,38 @@
-FROM golang:1.11-alpine as builder
-ENV CGO_ENABLED=0
-WORKDIR /src
-COPY ./ ./
-ENV env GOOS=linux
-ENV GOARCH=arm
-ENV GOARM=5
+# This is a multi-stage Dockerfile and requires >= Docker 17.05
+# https://docs.docker.com/engine/userguide/eng-image/multistage-build/
+FROM gobuffalo/buffalo:v0.18.2 as builder
+
+ENV GOPROXY http://proxy.golang.org
+
+RUN mkdir -p /src/github.com/igomez10/microservices
+WORKDIR /src/github.com/igomez10/microservices
+
+# Copy the Go Modules manifests
+COPY go.mod go.mod
+COPY go.sum go.sum
+# cache deps before building and copying source so that we don't need to re-download as much
+# and so that source changes don't invalidate our downloaded layer
 RUN go mod download
-RUN go build -installsuffix 'static' -o /server .
+
+ADD . .
+RUN buffalo build --static -o /bin/app
 
 FROM alpine
+RUN apk add --no-cache bash
+RUN apk add --no-cache ca-certificates
 
-RUN apk update \
-        && apk upgrade \
-        && apk add --no-cache \
-        ca-certificates \
-        && update-ca-certificates 2>/dev/null || true
+WORKDIR /bin/
 
-EXPOSE 8080
-COPY --from=builder /server /server
-ENTRYPOINT ["/server"]
+COPY --from=builder /bin/app .
+
+# Uncomment to run the binary in "production" mode:
+# ENV GO_ENV=production
+
+# Bind the app to 0.0.0.0 so it can be seen from outside the container
+ENV ADDR=0.0.0.0
+
+EXPOSE 3000
+
+# Uncomment to run the migrations before running the binary:
+# CMD /bin/app migrate; /bin/app
+CMD exec /bin/app
