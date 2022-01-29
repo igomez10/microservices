@@ -15,6 +15,7 @@ jobs:
       - checkout
       - run: pwd
       - run: ls
+      - run: git rev-parse HEAD
       - run: cd bitcoinprice
       - run: mkdir -p $TEST_RESULTS
 
