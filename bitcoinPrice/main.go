@@ -1,68 +1,38 @@
 package main
 
 import (
-	"encoding/json"
-	"flag"
-	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"os"
+
+	"bitcoinprice/actions"
 )
 
+// main is the starting point for your Buffalo application.
+// You can feel free and add to this `main` method, change
+// what it does, etc...
+// All we ask is that, at some point, you make sure to
+// call `app.Serve()`, unless you don't want to start your
+// application that is. :)
 func main() {
-
-	portEnviron := os.Getenv("PORT")
-
-	if portEnviron == "" {
-		portEnviron = "8080"
+	app := actions.App()
+	if err := app.Serve(); err != nil {
+		log.Fatal(err)
 	}
-
-	port := flag.String("port", portEnviron, "port to listen")
-	*port = ":" + *port
-	flag.Parse()
-
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("%+v\n", *r)
-		fmt.Fprintf(w, "OK")
-	})
-
-	http.HandleFunc("/bitcoinPrice", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("%+v\n", *r)
-
-		price, err := getBitcoinPrice()
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Println(err)
-			return
-		}
-		fmt.Fprintln(w, price)
-	})
-
-	fmt.Println("Started server on ", *port)
-	err := http.ListenAndServe(*port, nil)
-	log.Fatal(err)
-
 }
 
-func getBitcoinPrice() (float64, error) {
+/*
+# Notes about `main.go`
 
-	resp, err := http.Get("https://api.coindesk.com/v1/bpi/currentprice.json")
-	if err != nil {
-		return 0, fmt.Errorf("error requesting data from website: %+v", err)
-	}
+## SSL Support
 
-	contents, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return 0, fmt.Errorf("invalid response from website %s", err)
-	}
+We recommend placing your application behind a proxy, such as
+Apache or Nginx and letting them do the SSL heavy lifting
+for you. https://gobuffalo.io/en/docs/proxy
 
-	var btcprice coindeskBTCResponse
-	jsonError := json.Unmarshal(contents, &btcprice)
-	if jsonError != nil {
-		return 0, fmt.Errorf("invalid response from website or modified struct def - %s", jsonError)
-	}
+## Buffalo Build
 
-	return btcprice.Bpi.USD.RateFloat, nil
+When `buffalo build` is run to compile your binary, this `main`
+function will be at the heart of that binary. It is expected
+that your `main` function will start your application using
+the `app.Serve()` method.
 
-}
+*/
