@@ -16,7 +16,7 @@ jobs:
       - run: pwd
       - run: ls
       - run: git rev-parse HEAD
-      - run: cd bitcoinprice
+      - run: cd bitcoinPrice
       - run: mkdir -p $TEST_RESULTS
 
       - restore_cache:
