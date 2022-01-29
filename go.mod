@@ -1,3 +1,3 @@
 module github.com/igomez10/microservices
 
-go 1.12
+go 1.16
