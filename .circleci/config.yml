@@ -27,6 +27,11 @@ jobs:
           go get github.com/jstemmer/go-junit-report
 
       - run:
+          wget https://github.com/gobuffalo/cli/releases/download/v0.18.2/buffalo_0.18.2_Linux_x86_64.tar.gz &&
+          tar -xvzf buffalo_0.18.2_Linux_x86_64.tar.gz &&
+          mv buffalo /usr/local/bin/buffalo
+
+      - run:
           name: Run unit tests
           command: |
             trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
