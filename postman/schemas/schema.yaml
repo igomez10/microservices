@@ -49,9 +49,3 @@ components:
           format: int32
         message:
           type: string
-  securitySchemes:
-    BasicAuth:
-      type: http
-      scheme: basic
-security:
-  - BasicAuth: []
