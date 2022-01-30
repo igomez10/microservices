@@ -24,8 +24,7 @@ jobs:
             - v1-pkg-cache
       - run: cd bitcoinPrice &&
           go mod download &&
-          go get github.com/jstemmer/go-junit-report &&
-          go get github.com/gobuffalo/buffalo/buffalo
+          go get github.com/jstemmer/go-junit-report
 
       - run:
           name: Run unit tests
