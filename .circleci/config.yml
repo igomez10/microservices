@@ -22,7 +22,8 @@ jobs:
       - restore_cache:
           keys:
             - v1-pkg-cache
-
+      - run: pwd
+      - run: ls
       - run: go mod download
       - run: go get github.com/jstemmer/go-junit-report
 
