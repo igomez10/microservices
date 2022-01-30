@@ -1,3 +1,7 @@
+# Microservices WIP
+
+[![CircleCI](https://circleci.com/gh/igomez10/microservices/tree/mainline.svg?style=svg)](https://circleci.com/gh/igomez10/microservices/tree/mainline)
+
 # Welcome to Buffalo
 
 Thank you for choosing Buffalo for your web development needs.
