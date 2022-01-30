@@ -1,0 +1,100 @@
+{
+    "info": {
+        "_postman_id": "b7a36106-e1d8-402e-813d-9c984218f9c2",
+        "name": "Microserices documentation",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Sample endpoint: Returns the price of one bitcoin in usd",
+            "id": "5e1a5f0f-b950-44e5-8cf5-915e9c9e0efd",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/api/v1/btc",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "btc"
+                    ]
+                }
+            },
+            "response": [
+                {
+                    "id": "62eb1f7e-f96c-46b1-bd76-ea20f7e80284",
+                    "name": "Sample response: Price of one bitcoin in usd",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/btc",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "btc"
+                            ]
+                        }
+                    },
+                    "status": "OK",
+                    "code": 200,
+                    "_postman_previewlanguage": "json",
+                    "header": [
+                        {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ],
+                    "cookie": [],
+                    "responseTime": null,
+                    "body": "{\n \"currency\": \"proident qui Duis Lorem mollit\",\n \"value\": 37819803\n}"
+                },
+                {
+                    "id": "f8908106-f544-4aca-9a8c-3433c4a55b12",
+                    "name": "Unexpected error",
+                    "originalRequest": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/btc",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "btc"
+                            ]
+                        }
+                    },
+                    "status": "Internal Server Error",
+                    "code": 500,
+                    "_postman_previewlanguage": "json",
+                    "header": [
+                        {
+                            "key": "Content-Type",
+                            "value": "application/json"
+                        }
+                    ],
+                    "cookie": [],
+                    "responseTime": null,
+                    "body": "{\n \"code\": 37551434,\n \"message\": \"Du\"\n}"
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "id": "23b3855e-37b4-4096-a512-01a950715e45",
+            "key": "baseUrl",
+            "value": "localhost:3000",
+            "type": "string"
+        }
+    ]
+}

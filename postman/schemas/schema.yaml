@@ -4,6 +4,7 @@ info:
   title: 'Microservices'
 servers:
   - url: 'localhost:3000'
+  - url: 'https://c54c82e2-7bcc-4743-88af-c57bfdea9ba9.mock.pstmn.io'
 paths:
   /api/v1/btc:
     get:
