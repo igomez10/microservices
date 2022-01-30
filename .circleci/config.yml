@@ -29,7 +29,7 @@ jobs:
       - run:
           wget https://github.com/gobuffalo/cli/releases/download/v0.18.2/buffalo_0.18.2_Linux_x86_64.tar.gz &&
           tar -xvzf buffalo_0.18.2_Linux_x86_64.tar.gz &&
-          mv buffalo /usr/local/bin/buffalo
+          sudo mv buffalo /usr/local/bin/buffalo
 
       - run:
           name: Run unit tests
