@@ -18,7 +18,7 @@ import (
 
 // ENV is used to help switch settings based on where the
 // application is being run. Default is "development".
-var ENV = envy.Get("GO_ENV", "development")
+var ENV = envy.Get("GO_ENV", "test")
 
 var (
 	app *buffalo.App
@@ -63,6 +63,7 @@ func App() *buffalo.App {
 		// Remove to disable this.
 		app.Use(popmw.Transaction(models.DB))
 		app.GET("/", HomeHandler)
+		app.GET("/api/v1/btc", BitcoinPriceHandler)
 	}
 
 	return app
