@@ -14,19 +14,18 @@ jobs:
     environment:
       TEST_RESULTS: /tmp/test-results
 
-    working_directory: /home/circleci/project/bitcoinPrice
-
     steps:
       - checkout
-      - run: pwd
-      - run: ls
-      - run: mkdir -p $TEST_RESULTS
+      - run: git rev-parse HEAD
+      - run: cd bitcoinPrice &&
+          mkdir -p $TEST_RESULTS
 
       - restore_cache:
           keys:
             - v1-pkg-cache
-      - run: go mod download
-      - run: go get github.com/jstemmer/go-junit-report
+      - run: cd bitcoinPrice &&
+          go mod download &&
+          go get github.com/jstemmer/go-junit-report
 
       - run:
           name: Setup Buffalo
@@ -39,7 +38,7 @@ jobs:
           name: Run unit tests
           command: |
             trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
-            buffalo test | tee ${TEST_RESULTS}/go-test.out
+            cd bitcoinPrice && buffalo test | tee ${TEST_RESULTS}/go-test.out
 
       - save_cache:
           key: v1-pkg-cache
