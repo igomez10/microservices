@@ -51,6 +51,14 @@ jobs:
 
       - store_test_results:
           path: /tmp/test-results
+
+      # slack notifications
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
   notify:
     docker:
       - image: "cimg/base:stable"
