@@ -56,11 +56,10 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
-          context: slack
       - slack/notify:
           event: pass
           template: success_tagged_deploy_1
-          context: slack
+
   notify:
     docker:
       - image: "cimg/base:stable"
@@ -90,5 +89,6 @@ workflows:
   send-notification-jira:
     jobs:
       - build:
+          context: slack
           post-steps:
             - jira/notify
