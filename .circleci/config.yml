@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   slack: circleci/slack@4.6.2
+  jira: circleci/jira@1.3.1
 jobs:
   build:
     docker:
@@ -74,7 +75,12 @@ jobs:
             }
           event: always
 workflows:
-  send-notification:
+  send-notification-slack:
     jobs:
       - notify:
           context: slack
+  send-notification-jira:
+    jobs:
+      - build:
+          post-steps:
+            - jira/notify
