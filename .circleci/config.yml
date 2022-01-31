@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - checkout
-      - run: git rev-parse HEAD
+      - run: pwd
       - run: mkdir -p $TEST_RESULTS
 
       - restore_cache:
