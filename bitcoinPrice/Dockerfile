@@ -4,8 +4,8 @@ FROM gobuffalo/buffalo:v0.18.2 as builder
 
 ENV GOPROXY http://proxy.golang.org
 
-RUN mkdir -p /src/github.com/igomez10/microservices
-WORKDIR /src/github.com/igomez10/microservices
+RUN mkdir -p /src/microservices
+WORKDIR /src/microservices
 
 # Copy the Go Modules manifests
 COPY go.mod go.mod

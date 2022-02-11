@@ -2,10 +2,8 @@ package actions
 
 import (
 	"bitcoinprice/locales"
-	"bitcoinprice/models"
 
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/buffalo-pop/v3/pop/popmw"
 	"github.com/gobuffalo/envy"
 	contenttype "github.com/gobuffalo/mw-contenttype"
 	forcessl "github.com/gobuffalo/mw-forcessl"
@@ -18,7 +16,7 @@ import (
 
 // ENV is used to help switch settings based on where the
 // application is being run. Default is "development".
-var ENV = envy.Get("GO_ENV", "test")
+var ENV = envy.Get("GO_ENV", "development")
 
 var (
 	app *buffalo.App
@@ -58,10 +56,6 @@ func App() *buffalo.App {
 		// Set the request content type to JSON
 		app.Use(contenttype.Set("application/json"))
 
-		// Wraps each request in a transaction.
-		//   c.Value("tx").(*pop.Connection)
-		// Remove to disable this.
-		app.Use(popmw.Transaction(models.DB))
 		app.GET("/", HomeHandler)
 		app.GET("/api/v1/btc", BitcoinPriceHandler)
 	}
