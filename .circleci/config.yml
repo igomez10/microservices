@@ -17,7 +17,7 @@ jobs:
     steps:
       - checkout
       - run: git rev-parse HEAD
-      - run: cd bitcoinPrice &&
+      - run: cd bitcoinprice &&
           mkdir -p $TEST_RESULTS
 
       - restore_cache:
@@ -38,7 +38,7 @@ jobs:
           name: Run unit tests
           command: |
             trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
-            cd bitcoinPrice && buffalo test | tee ${TEST_RESULTS}/go-test.out
+            cd bitcoinprice && buffalo test | tee ${TEST_RESULTS}/go-test.out
 
       - save_cache:
           key: v1-pkg-cache
