@@ -1,7 +1,7 @@
 name = "bitcoinprice"
 bin = "bin/bitcoinprice"
 vcs = "none"
-with_pop = true
+with_pop = false
 with_sqlite = false
 with_dep = false
 with_webpack = false
