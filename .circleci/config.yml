@@ -23,7 +23,7 @@ jobs:
       - restore_cache:
           keys:
             - v1-pkg-cache
-      - run: cd bitcoinPrice &&
+      - run: cd bitcoinprice &&
           go mod download &&
           go get github.com/jstemmer/go-junit-report
 
