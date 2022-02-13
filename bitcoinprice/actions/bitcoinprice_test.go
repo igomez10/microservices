@@ -2,12 +2,12 @@ package actions
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 )
 
-func (as *ActionSuite) Test_BitcoinPriceHandler() {
+func (as *ActionSuite) Test_BitcoinPriceHandlerWithBuffalo() {
+
 	res := as.JSON("/api/v1/btc").Get()
 
 	as.Equal(http.StatusOK, res.Code)
@@ -17,10 +17,12 @@ func (as *ActionSuite) Test_BitcoinPriceHandler() {
 	}
 
 	if currencyLength := len(btcResponse.Currency); currencyLength != 3 {
-		as.Error(errors.New(fmt.Sprintf("Unexpected currency %q with length: %d should be 3 characters long", btcResponse.Currency, currencyLength)))
+		msg := fmt.Sprintf("Unexpected currency %q with length: %d should be 3 characters long", btcResponse.Currency, currencyLength)
+		as.T().Error(msg)
 	}
 
 	if btcResponse.Value <= 0 {
-		as.Error(errors.New(fmt.Sprintf("Currency value cannot be negative or equal to 0 but was %d", btcResponse.Value)))
+		msg := fmt.Sprintf("Currency value cannot be negative or equal to 0 but was %d", btcResponse.Value)
+		as.T().Error(msg)
 	}
 }
