@@ -61,6 +61,8 @@ func App() *buffalo.App {
 
 		PriceProvider = coindesk.CoindDeskProvider{}
 		app.GET("/api/v1/btc", BitcoinPriceHandler)
+
+		app.GET("/health", HealthHandler)
 	}
 
 	return app
