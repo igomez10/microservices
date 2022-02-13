@@ -12,5 +12,6 @@ require (
 	github.com/gobuffalo/suite/v4 v4.0.2
 	github.com/gobuffalo/x v0.1.0
 	github.com/rs/cors v1.8.2
+	github.com/rs/zerolog v1.26.1
 	github.com/unrolled/secure v1.0.9
 )

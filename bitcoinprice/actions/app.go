@@ -2,6 +2,7 @@ package actions
 
 import (
 	"bitcoinprice/locales"
+	"bitcoinprice/providers/coindesk"
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/envy"
@@ -57,6 +58,8 @@ func App() *buffalo.App {
 		app.Use(contenttype.Set("application/json"))
 
 		app.GET("/", HomeHandler)
+
+		PriceProvider = coindesk.CoindDeskProvider{}
 		app.GET("/api/v1/btc", BitcoinPriceHandler)
 	}
 
