@@ -2,6 +2,7 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.6.2
   jira: circleci/jira@1.3.1
+  gcp-gcr: circleci/gcp-gcr@0.14.1
 jobs:
   build:
     docker:
@@ -81,6 +82,22 @@ jobs:
               ]
             }
           event: always
+  build-and-push:
+    executor: gcp-gcr/default
+    steps:
+      - checkout
+      - gcp-gcr/gcr-auth
+      - gcp-gcr/build-image:
+          image: orb-test
+          no_output_timeout: 20m
+          registry-url: us-central1-docker.pkg.dev
+      - gcp-gcr/push-image:
+          digest-path: /tmp/digest.txt
+          image: orb-test
+          registry-url: us-central1-docker.pkg.dev
+      - run:
+          command: |
+            echo "Digest is: $(</tmp/digest.txt)"
 workflows:
   send-notification-slack:
     jobs:
