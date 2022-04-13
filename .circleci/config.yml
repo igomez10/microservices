@@ -1,13 +1,13 @@
 version: 2.1
 orbs:
-  slack: circleci/slack@4.6.2
+  slack: circleci/slack@4.9.3
   jira: circleci/jira@1.3.1
-  gcp-gcr: circleci/gcp-gcr@0.14.1
+  gcp-gcr: circleci/gcp-gcr@0.15.0
 jobs:
   build:
     docker:
-      - image: circleci/golang:1.16
-      - image: circleci/postgres:9.6-alpine
+      - image: cimg/golang:1.17
+      - image: cimg/postgres:14.2
         environment:
           POSTGRES_USER: postgres
           POSTGRES_DB: bitcoinprice_test
