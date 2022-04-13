@@ -6,7 +6,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: cimg/golang:1.17
+      - image: cimg/go:1.17
       - image: cimg/postgres:14.2
         environment:
           POSTGRES_USER: postgres
