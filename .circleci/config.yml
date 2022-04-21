@@ -6,8 +6,8 @@ orbs:
 jobs:
   build:
     docker:
-      - image: cimg/go:1.17
-      - image: cimg/postgres:14.2
+      - image: circleci/golang:1.16
+      - image: circleci/postgres:9.6-alpine
         environment:
           POSTGRES_USER: postgres
           POSTGRES_DB: bitcoinprice_test
