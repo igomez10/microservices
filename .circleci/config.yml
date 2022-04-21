@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  slack: circleci/slack@4.9.3
+  slack: circleci/slack@4.6.2
   jira: circleci/jira@1.3.1
   gcp-gcr: circleci/gcp-gcr@0.15.0
 jobs:
@@ -72,6 +72,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
+          # Install awscli for deploying image to ecr
           name: Install dependencies
           command: |
             apk add --no-cache \
@@ -87,6 +88,7 @@ jobs:
           command: |
             set +o pipefail
             docker load -i /caches/app.tar | true
+      # Build image
       - run:
           name: Build application Docker image
           command: |
@@ -102,7 +104,8 @@ jobs:
           key: v1-{{ .Branch }}-{{ epoch }}
           paths:
             - /caches/app.tar
-      - deploy:
+      # Push image and update "latest" tag
+      - run:
           name: Push application Docker image
           command: |
             if [ "${CIRCLE_BRANCH}" == "mainline" ]; then
@@ -110,6 +113,9 @@ jobs:
               ${login}
               docker tag app "${ECR_ENDPOINT}/loadgenerator:${CIRCLE_SHA1}"
               docker push "${ECR_ENDPOINT}/loadgenerator:${CIRCLE_SHA1}"
+
+              docker tag app "${ECR_ENDPOINT}/loadgenerator:latest"
+              docker push "${ECR_ENDPOINT}/loadgenerator:latest"
             fi
 
       # slack notifications
