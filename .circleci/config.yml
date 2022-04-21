@@ -157,5 +157,3 @@ workflows:
           context:
             - slack
             - aws-microservices
-          post-steps:
-            - jira/notify
