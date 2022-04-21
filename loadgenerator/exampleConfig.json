@@ -1,6 +1,11 @@
 {
     "entries": [{
-        "url": "https://google.com",
-        "method": "GET"
-    }]
+            "url": "https://google.com",
+            "method": "GET"
+        },
+        {
+            "url": "https://microservices-ccsby5rbna-ue.a.run.app/api/v1/btc",
+            "method": "GET"
+        }
+    ]
 }
