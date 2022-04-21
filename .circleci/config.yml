@@ -4,7 +4,7 @@ orbs:
   jira: circleci/jira@1.3.1
   gcp-gcr: circleci/gcp-gcr@0.15.0
 jobs:
-  build:
+  build-bitcoin-service:
     docker:
       - image: circleci/golang:1.16
       - image: circleci/postgres:9.6-alpine
@@ -105,7 +105,7 @@ workflows:
           context: slack
   send-notification-jira:
     jobs:
-      - build:
+      - build-bitcoin-service:
           context: slack
           post-steps:
             - jira/notify
