@@ -71,7 +71,13 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-
+      - run:
+          name: Install dependencies
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" &&
+            unzip awscliv2.zip && 
+            ./aws/install &&
+            aws --version
       - restore_cache:
           keys:
             - v1-{{ .Branch }}
@@ -134,22 +140,7 @@ jobs:
               ]
             }
           event: always
-  build-and-push:
-    executor: gcp-gcr/default
-    steps:
-      - checkout
-      - gcp-gcr/gcr-auth
-      - gcp-gcr/build-image:
-          image: orb-test
-          no_output_timeout: 20m
-          registry-url: us-central1-docker.pkg.dev
-      - gcp-gcr/push-image:
-          digest-path: /tmp/digest.txt
-          image: orb-test
-          registry-url: us-central1-docker.pkg.dev
-      - run:
-          command: |
-            echo "Digest is: $(</tmp/digest.txt)"
+
 workflows:
   send-notification-slack:
     jobs:
