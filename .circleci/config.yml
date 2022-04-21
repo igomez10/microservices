@@ -159,3 +159,7 @@ workflows:
           context: slack
           post-steps:
             - jira/notify
+      - build-loadgenerator:
+          context: slack
+          post-steps:
+            - jira/notify
