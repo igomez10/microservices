@@ -117,6 +117,12 @@ jobs:
               docker tag app "${ECR_ENDPOINT}/loadgenerator:latest"
               docker push "${ECR_ENDPOINT}/loadgenerator:latest"
             fi
+      - run:
+          name: Deploy new image in fargate service
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "mainline" ]; then
+              aws ecs update-service --cluster loadgeneratorcluster --service loadgenerator --force-new-deployment --region us-west-2
+            fi
 
   notify:
     docker:
