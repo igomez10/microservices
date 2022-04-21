@@ -147,13 +147,17 @@ workflows:
     jobs:
       - notify:
           context: slack
-  send-notification-jira:
+  build-workflow:
     jobs:
       - build-bitcoin-service:
-          context: slack
+          context:
+            - slack
+            - aws-microservices
           post-steps:
             - jira/notify
       - build-loadgenerator:
-          context: slack
+          context:
+            - slack
+            - aws-microservices
           post-steps:
             - jira/notify
