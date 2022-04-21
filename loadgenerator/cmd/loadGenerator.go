@@ -25,7 +25,7 @@ var wg sync.WaitGroup
 
 var defaultWait = 1 * time.Second
 
-var httpClient = http.Client{Timeout: 60 * time.Second}
+var httpClient = http.Client{Timeout: 10 * time.Second}
 var maxRetry = 5
 
 func Run(conf LoadGeneratorConfig) {
@@ -50,17 +50,28 @@ func IssueRequest(reqConfig RequestConfig) {
 		// var res http.Response
 		for retryCount := 0; retryCount < maxRetry; retryCount++ {
 			res, err := httpClient.Do(req)
-			if err != nil || res.StatusCode == http.StatusTooManyRequests || res.StatusCode >= 500 {
-				log.Err(err).Msgf("Failed to issue request: Retry %d", retryCount)
-				time.Sleep(100 * time.Millisecond)
+			if err != nil || res.StatusCode == http.StatusTooManyRequests || res.StatusCode >= http.StatusInternalServerError {
+				log.Err(err).
+					Int("Retry", retryCount).
+					Int("StatusCode", res.StatusCode).
+					Str("URL", reqConfig.URL).
+					Str("Method", reqConfig.Method).
+					Msgf("Failed to issue request")
+
+				//  sleep with exponential backoff
+				time.Sleep(100 * time.Millisecond * time.Duration(retryCount))
 			} else {
-				log.Debug().Msgf("Processed %+v: status code: %d", reqConfig.URL, res.StatusCode)
+				log.Debug().
+					Str("URL", reqConfig.URL).
+					Str("Method", reqConfig.Method).
+					Int("StatusCode", res.StatusCode).
+					Msgf("Processed")
+
 				break // request was succesful
 			}
 
 		}
 
-		log.Debug().Msgf("Processing %+v", reqConfig.URL)
 		time.Sleep(defaultWait)
 	}
 
