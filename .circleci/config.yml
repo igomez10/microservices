@@ -83,10 +83,12 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
+            cd loadgenerator &&
             docker build --cache-from=app -t app .
       - run:
           name: Save Docker image layer cache
           command: |
+            cd loadgenerator &&
             mkdir -p /caches
             docker save -o /caches/app.tar app
       - save_cache:
