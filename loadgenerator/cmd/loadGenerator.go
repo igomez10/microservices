@@ -23,10 +23,10 @@ type RequestConfig struct {
 
 var wg sync.WaitGroup
 
-var defaultWait = 1 * time.Second
+const DEFAULT_WAIT = 500 * time.Millisecond
+const MAX_RETRY = 5
 
 var httpClient = http.Client{Timeout: 10 * time.Second}
-var maxRetry = 5
 
 func Run(conf LoadGeneratorConfig) {
 	wg.Add(len(conf.Entries))
@@ -44,9 +44,9 @@ func IssueRequest(reqConfig RequestConfig) {
 		req, err := http.NewRequest(reqConfig.Method, reqConfig.URL, nil)
 		if err != nil {
 			log.Err(err).Msg("Failed to create request")
-			return
 		}
 
+		for retryCount := 0; retryCount < MAX_RETRY; retryCount++ {
 			startTime := time.Now()
 			res, err := httpClient.Do(req)
 			if err != nil ||
@@ -69,14 +69,10 @@ func IssueRequest(reqConfig RequestConfig) {
 					Int("StatusCode", res.StatusCode).
 					Int64("Latency", time.Since(startTime).Milliseconds()).
 					Msgf("Processed")
-
 				break // request was succesful
 			}
 
 		}
-
-		time.Sleep(defaultWait)
+		time.Sleep(DEFAULT_WAIT)
 	}
-
-	log.Warn().Msgf("Exiting %+v", reqConfig.URL)
 }
