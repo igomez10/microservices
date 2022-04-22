@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"fmt"
 	"net"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
@@ -63,53 +63,45 @@ func Run(conf LoadGeneratorConfig) {
 
 func IssueRequest(reqConfig RequestConfig) {
 	for {
+		emfLogger := emf.New(emf.WithWriter(CWAGENT_CONNECTION), emf.WithLogGroup("ecsloadgenerator")).
+			Namespace("loadgenerator").
+			Dimension("URL", reqConfig.URL).
+			Dimension("Method", reqConfig.Method)
 
 		req, err := http.NewRequest(reqConfig.Method, reqConfig.URL, nil)
 		if err != nil {
 			log.Err(err).Msg("Failed to create request")
 		}
 
-		for retryCount := 0; retryCount < MAX_RETRY; retryCount++ {
-			startTime := time.Now()
-			res, err := httpClient.Do(req)
-			if err != nil ||
-				res.StatusCode == http.StatusTooManyRequests ||
-				res.StatusCode >= http.StatusInternalServerError {
+		startTime := time.Now()
+		res, err := httpClient.Do(req)
+		finishTime := time.Now()
+		if err != nil ||
+			res.StatusCode == http.StatusTooManyRequests ||
+			res.StatusCode >= http.StatusInternalServerError {
 
-				log.Err(err).
-					Int("Retry", retryCount).
-					Int("StatusCode", res.StatusCode).
-					Str("URL", reqConfig.URL).
-					Str("Method", reqConfig.Method).
-					Msgf("Failed to issue request")
-
-				//  retry with exponential backoff
-				time.Sleep(100 * time.Millisecond * time.Duration(retryCount))
-			} else {
-				log.Debug().
-					Str("URL", reqConfig.URL).
-					Str("Method", reqConfig.Method).
-					Int("StatusCode", res.StatusCode).
-					Int64("Latency", time.Since(startTime).Milliseconds()).
-					Msgf("Processed")
-
-				fmt.Println(`{ "_aws": { "Timestamp": 1574109732004, "CloudWatchMetrics": [{ "Namespace": "lambda-function-metrics", "Dimensions": [ ["functionVersion"] ], "Metrics": [{ "Name": "time", "Unit": "Milliseconds" }] }] }, "functionVersion": "$LATEST", "time": 100, "requestId": "989ffbf8-9ace-4817-a57c-e4dd734019ee" }`)
-
-				emf.New(emf.WithWriter(CWAGENT_CONNECTION), emf.WithLogGroup("ecsloadgenerator")).Namespace("mtg").Metric("totalWins", 1500).Log()
-
-				emf.New(emf.WithWriter(CWAGENT_CONNECTION), emf.WithLogGroup("ecsloadgenerator")).Dimension("colour", "red").
-					MetricAs("gameLength", 2, emf.Seconds).Log()
-
-				emf.New(emf.WithWriter(CWAGENT_CONNECTION), emf.WithLogGroup("ecsloadgenerator")).DimensionSet(
-					emf.NewDimension("format", "edh"),
-					emf.NewDimension("commander", "Muldrotha")).
-					MetricAs("wins", 1499, emf.Count).Log()
-
-				break // request was succesful
-			}
-
+			log.Err(err).
+				Int("StatusCode", res.StatusCode).
+				Str("URL", reqConfig.URL).
+				Str("Method", reqConfig.Method).
+				Msgf("Failed to issue request")
+			//  retry with exponential backoff
+		} else {
+			log.Debug().
+				Str("URL", reqConfig.URL).
+				Str("Method", reqConfig.Method).
+				Int("StatusCode", res.StatusCode).
+				Int64("Latency", time.Since(startTime).Milliseconds()).
+				Msgf("Processed")
 		}
+
+		latency := int(finishTime.Sub(startTime).Milliseconds())
+		emfLogger.
+			Dimension("StatusCode", strconv.Itoa(res.StatusCode)).
+			MetricAs("Latency", latency, emf.Milliseconds).
+			Log()
 
 		time.Sleep(DEFAULT_WAIT)
 	}
+
 }
