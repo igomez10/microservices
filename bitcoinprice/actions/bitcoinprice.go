@@ -3,6 +3,7 @@ package actions
 import (
 	"bitcoinprice/providers"
 	"net/http"
+	"time"
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/rs/zerolog/log"
@@ -13,11 +14,31 @@ type BitcoinPriceHandlerResponse struct {
 	Value    int    `json:"value,omitempty"`
 }
 
+type CacheEntry struct {
+	createdAt time.Time
+	response  BitcoinPriceHandlerResponse
+}
+
 var PriceProvider providers.PriceProvider
+
+var mostRecentResponse *CacheEntry
 
 // BitcoinPriceHandler is a handler to serve up
 // a the price of bitcoin.
 func BitcoinPriceHandler(c buffalo.Context) error {
+
+	if mostRecentResponse != nil {
+		elapsedTime := time.Now().Sub(mostRecentResponse.createdAt)
+		if elapsedTime < time.Duration(10*time.Second) {
+			log.Debug().Msg("Serving bitcoin price from cache")
+			if err := c.Render(http.StatusOK, r.JSON(mostRecentResponse.response)); err != nil {
+				log.Error().Err(err).Msg("Failed to render response")
+				return err
+			}
+			return nil
+		}
+	}
+
 	btcPrice, err := PriceProvider.GetPitcoinPriceInUSD()
 	if err != nil {
 		log.Err(err).Msg("failed to retrieve bitcoin price")
@@ -33,6 +54,16 @@ func BitcoinPriceHandler(c buffalo.Context) error {
 
 	btcPriceInCents := btcPrice * 100 // Always use price in cents
 	response := BitcoinPriceHandlerResponse{Currency: "USD", Value: int(btcPriceInCents * 100)}
-	res := c.Render(http.StatusOK, r.JSON(response))
-	return res
+
+	if err := c.Render(http.StatusOK, r.JSON(response)); err != nil {
+		log.Error().Err(err).Msg("Failed to render response")
+		return err
+	}
+
+	mostRecentResponse = &CacheEntry{
+		createdAt: time.Now(),
+		response:  response,
+	}
+
+	return nil
 }
