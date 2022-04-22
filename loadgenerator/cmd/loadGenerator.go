@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/prozz/aws-embedded-metrics-golang/emf"
 	"github.com/rs/zerolog/log"
 )
 
@@ -72,6 +73,8 @@ func IssueRequest(reqConfig RequestConfig) {
 					Msgf("Processed")
 
 				fmt.Println(`{ "_aws": { "Timestamp": 1574109732004, "CloudWatchMetrics": [{ "Namespace": "lambda-function-metrics", "Dimensions": [ ["functionVersion"] ], "Metrics": [{ "Name": "time", "Unit": "Milliseconds" }] }] }, "functionVersion": "$LATEST", "time": 100, "requestId": "989ffbf8-9ace-4817-a57c-e4dd734019ee" }`)
+				emf.New().Namespace("mtg").Metric("totalWins", 1500).Log()
+
 				break // request was succesful
 			}
 
