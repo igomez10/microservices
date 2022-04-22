@@ -2,7 +2,9 @@ package cmd
 
 import (
 	"fmt"
+	"net"
 	"net/http"
+	"os"
 	"sync"
 	"time"
 
@@ -29,8 +31,18 @@ const DEFAULT_WAIT = 500 * time.Millisecond
 const MAX_RETRY = 5
 
 var httpClient = http.Client{Timeout: 10 * time.Second}
+var CWAGENT_CONNECTION net.Conn
 
 func Run(conf LoadGeneratorConfig) {
+	log.Info().Msg("Sender: Dial OK.")
+
+	conn, err := net.DialTimeout("tcp", "127.0.0.1:25888", time.Millisecond*10000)
+	if err != nil {
+		log.Printf("Sender: DialTimeout Error: %s\n", err)
+		os.Exit(1)
+	}
+	CWAGENT_CONNECTION = conn
+	defer conn.Close()
 	wg.Add(len(conf.Entries))
 	for i := range conf.Entries {
 		log.Debug().Msgf("Processing: %+v", conf.Entries[i].URL)
@@ -73,15 +85,17 @@ func IssueRequest(reqConfig RequestConfig) {
 					Msgf("Processed")
 
 				fmt.Println(`{ "_aws": { "Timestamp": 1574109732004, "CloudWatchMetrics": [{ "Namespace": "lambda-function-metrics", "Dimensions": [ ["functionVersion"] ], "Metrics": [{ "Name": "time", "Unit": "Milliseconds" }] }] }, "functionVersion": "$LATEST", "time": 100, "requestId": "989ffbf8-9ace-4817-a57c-e4dd734019ee" }`)
-				emf.New().Namespace("mtg").Metric("totalWins", 1500).Log()
 
-				emf.New().Dimension("colour", "red").
+				emf.New(emf.WithWriter(CWAGENT_CONNECTION)).Namespace("mtg").Metric("totalWins", 1500).Log()
+
+				emf.New(emf.WithWriter(CWAGENT_CONNECTION)).Dimension("colour", "red").
 					MetricAs("gameLength", 2, emf.Seconds).Log()
 
-				emf.New().DimensionSet(
+				emf.New(emf.WithWriter(CWAGENT_CONNECTION)).DimensionSet(
 					emf.NewDimension("format", "edh"),
 					emf.NewDimension("commander", "Muldrotha")).
 					MetricAs("wins", 1499, emf.Count).Log()
+
 				break // request was succesful
 			}
 
