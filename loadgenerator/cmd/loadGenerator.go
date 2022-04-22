@@ -69,10 +69,46 @@ func IssueRequest(reqConfig RequestConfig) {
 					Int("StatusCode", res.StatusCode).
 					Int64("Latency", time.Since(startTime).Milliseconds()).
 					Msgf("Processed")
+
+				log.Debug().RawJSON("_aws", []byte(`{
+						"Version": "0",
+						"Type": "Cluster",
+						"ClusterName": "loadgeneratorcluster",
+						"Timestamp": 1650587280000,
+						"TaskCount": 1,
+						"ContainerInstanceCount": 0,
+						"ServiceCount": 1,
+						"CloudWatchMetrics": [
+							{
+								"Namespace": "microservices/loadgenerator",
+								"Metrics": [
+									{
+										"Name": "TaskCount",
+										"Unit": "Count"
+									},
+									{
+										"Name": "ContainerInstanceCount",
+										"Unit": "Count"
+									},
+									{
+										"Name": "ServiceCount",
+										"Unit": "Count"
+									}
+								],
+								"Dimensions": [
+									[
+										"ClusterName"
+									]
+								]
+							}
+						]
+					}`)).Msg("testing")
+
 				break // request was succesful
 			}
 
 		}
+
 		time.Sleep(DEFAULT_WAIT)
 	}
 }
