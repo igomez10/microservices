@@ -47,10 +47,12 @@ func IssueRequest(reqConfig RequestConfig) {
 			return
 		}
 
-		// var res http.Response
-		for retryCount := 0; retryCount < maxRetry; retryCount++ {
+			startTime := time.Now()
 			res, err := httpClient.Do(req)
-			if err != nil || res.StatusCode == http.StatusTooManyRequests || res.StatusCode >= http.StatusInternalServerError {
+			if err != nil ||
+				res.StatusCode == http.StatusTooManyRequests ||
+				res.StatusCode >= http.StatusInternalServerError {
+
 				log.Err(err).
 					Int("Retry", retryCount).
 					Int("StatusCode", res.StatusCode).
@@ -58,13 +60,14 @@ func IssueRequest(reqConfig RequestConfig) {
 					Str("Method", reqConfig.Method).
 					Msgf("Failed to issue request")
 
-				//  sleep with exponential backoff
+				//  retry with exponential backoff
 				time.Sleep(100 * time.Millisecond * time.Duration(retryCount))
 			} else {
 				log.Debug().
 					Str("URL", reqConfig.URL).
 					Str("Method", reqConfig.Method).
 					Int("StatusCode", res.StatusCode).
+					Int64("Latency", time.Since(startTime).Milliseconds()).
 					Msgf("Processed")
 
 				break // request was succesful
