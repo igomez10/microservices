@@ -95,12 +95,12 @@ func IssueRequest(reqConfig RequestConfig) {
 
 				fmt.Println(`{ "_aws": { "Timestamp": 1574109732004, "CloudWatchMetrics": [{ "Namespace": "lambda-function-metrics", "Dimensions": [ ["functionVersion"] ], "Metrics": [{ "Name": "time", "Unit": "Milliseconds" }] }] }, "functionVersion": "$LATEST", "time": 100, "requestId": "989ffbf8-9ace-4817-a57c-e4dd734019ee" }`)
 
-				emf.New(emf.WithWriter(CWAGENT_CONNECTION)).Namespace("mtg").Metric("totalWins", 1500).Log()
+				emf.New(emf.WithWriter(CWAGENT_CONNECTION), emf.WithLogGroup("ecsloadgenerator")).Namespace("mtg").Metric("totalWins", 1500).Log()
 
-				emf.New(emf.WithWriter(CWAGENT_CONNECTION)).Dimension("colour", "red").
+				emf.New(emf.WithWriter(CWAGENT_CONNECTION), emf.WithLogGroup("ecsloadgenerator")).Dimension("colour", "red").
 					MetricAs("gameLength", 2, emf.Seconds).Log()
 
-				emf.New(emf.WithWriter(CWAGENT_CONNECTION)).DimensionSet(
+				emf.New(emf.WithWriter(CWAGENT_CONNECTION), emf.WithLogGroup("ecsloadgenerator")).DimensionSet(
 					emf.NewDimension("format", "edh"),
 					emf.NewDimension("commander", "Muldrotha")).
 					MetricAs("wins", 1499, emf.Count).Log()
