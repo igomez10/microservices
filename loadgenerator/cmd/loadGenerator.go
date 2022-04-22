@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"sync"
 	"time"
 
@@ -36,13 +35,23 @@ var CWAGENT_CONNECTION net.Conn
 func Run(conf LoadGeneratorConfig) {
 	log.Info().Msg("Sender: Dial OK.")
 
-	conn, err := net.DialTimeout("tcp", "127.0.0.1:25888", time.Millisecond*10000)
-	if err != nil {
-		log.Printf("Sender: DialTimeout Error: %s\n", err)
-		os.Exit(1)
+	for i := 0; i < 10; i++ {
+		conn, err := net.DialTimeout("tcp", "127.0.0.1:25888", time.Millisecond*10000)
+		if err != nil {
+			log.Error().Err(err).Msgf("failed to connect to cloudwatch agent, attempt %d", i)
+			time.Sleep(1 * time.Second)
+
+			if i == 9 {
+				log.Fatal().Msgf("Exhausted all attempts (%d) to connect to cwagent: %s", i, err)
+			}
+
+			continue
+		}
+		CWAGENT_CONNECTION = conn
+		defer conn.Close()
+		break
 	}
-	CWAGENT_CONNECTION = conn
-	defer conn.Close()
+
 	wg.Add(len(conf.Entries))
 	for i := range conf.Entries {
 		log.Debug().Msgf("Processing: %+v", conf.Entries[i].URL)
