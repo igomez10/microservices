@@ -63,10 +63,6 @@ func Run(conf LoadGeneratorConfig) {
 
 func IssueRequest(reqConfig RequestConfig) {
 	for {
-		emfLogger := emf.New(emf.WithWriter(CWAGENT_CONNECTION), emf.WithLogGroup("ecsloadgenerator")).
-			Namespace("loadgenerator").
-			Property("URL", reqConfig.URL).
-			Property("Method", reqConfig.Method)
 
 		req, err := http.NewRequest(reqConfig.Method, reqConfig.URL, nil)
 		if err != nil {
@@ -96,8 +92,14 @@ func IssueRequest(reqConfig RequestConfig) {
 		}
 
 		latency := int(finishTime.Sub(startTime).Milliseconds())
-		emfLogger.
-			Property("StatusCode", strconv.Itoa(res.StatusCode)).
+
+		emf.New(emf.WithWriter(CWAGENT_CONNECTION), emf.WithLogGroup("ecsloadgenerator")).
+			Namespace("loadgenerator").
+			DimensionSet(
+				emf.NewDimension("URL", reqConfig.URL),
+				emf.NewDimension("Method", reqConfig.Method),
+				emf.NewDimension("StatusCode", strconv.Itoa(res.StatusCode)),
+			).
 			MetricAs("Latency", latency, emf.Milliseconds).
 			Log()
 
