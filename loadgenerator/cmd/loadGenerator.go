@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -70,8 +71,7 @@ func IssueRequest(reqConfig RequestConfig) {
 					Int64("Latency", time.Since(startTime).Milliseconds()).
 					Msgf("Processed")
 
-				log.Debug().RawJSON("_aws", []byte(`{ "Version": "0", "Type": "Cluster", "ClusterName": "loadgeneratorcluster", "Timestamp": 1650587280000, "TaskCount": 1, "ContainerInstanceCount": 0, "ServiceCount": 1, "CloudWatchMetrics": [{ "Namespace": "microservices/loadgenerator", "Metrics": [{ "Name": "TaskCount", "Unit": "Count" }, { "Name": "ContainerInstanceCount", "Unit": "Count" }, { "Name": "ServiceCount", "Unit": "Count" } ], "Dimensions": [ [ "ClusterName" ] ] }] }`)).Msg("testing")
-
+				fmt.Println(`{ "_aws": { "Timestamp": 1574109732004, "CloudWatchMetrics": [{ "Namespace": "lambda-function-metrics", "Dimensions": [ ["functionVersion"] ], "Metrics": [{ "Name": "time", "Unit": "Milliseconds" }] }] }, "functionVersion": "$LATEST", "time": 100, "requestId": "989ffbf8-9ace-4817-a57c-e4dd734019ee" }`)
 				break // request was succesful
 			}
 
