@@ -1,0 +1,13 @@
+{
+    "version": "1",
+    "packages": [{
+        "name": "db",
+        "path": "../pkg/db",
+        "engine": "postgresql",
+        "schema": "setup/init.sql",
+        "queries": "query.sql",
+        "emit_interface": true,
+        "emit_exported_queries": true,
+        "emit_methods_with_db_argument": true
+    }]
+}
