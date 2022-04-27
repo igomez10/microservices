@@ -1,0 +1,23 @@
+
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL NOT NULL PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL 
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+    id SERIAL NOT NULL,
+    content VARCHAR(8192) NOT NULL,
+    like_count INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    user_id INTEGER NOT NULL,
+    CONSTRAINT fk_user_id
+      FOREIGN KEY(user_id) 
+	  REFERENCES users(id),
+
+    deleted_at TIMESTAMP
+);
