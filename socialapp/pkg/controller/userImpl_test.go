@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"regexp"
 	"socialapp/pkg/db"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+
 	_ "github.com/lib/pq"
 )
 
@@ -35,39 +37,86 @@ func TestExampleUserControllerImpl_ListUsers(t *testing.T) {
 }
 
 func TestCreateUser(t *testing.T) {
-	mockDB, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	defer mockDB.Close()
 
-	dummyUser := User{
-		FirstName: "first",
-		LastName:  "last",
-		Email:     "first@last.com",
-	}
+	// verify regular creation
+	// verify long firstname, lastName, email
+	// verify invalid email
+	// verify empty firstName, lastNmae, email
 
-	created_at := time.Now()
-	rows := sqlmock.NewRows([]string{"id", "first_name", "last_name", "email", "create_at", "deleted_at"}).
-		AddRow(1, dummyUser.FirstName, dummyUser.LastName, dummyUser.Email, created_at, nil)
+	// verify duplicate email
+	// verify deleted and then created -> integration
 
-	mock.ExpectQuery(
-		regexp.QuoteMeta(db.CreateUser)).
-		WithArgs(dummyUser.FirstName, dummyUser.LastName, dummyUser.Email).
-		WillReturnRows(rows)
-
-	ctrlr := UserControllerImpl{}
-	ctx := context.Background()
-	newUser, err := ctrlr.CreateUser(ctx, mockDB, dummyUser)
-	if err != nil {
-		t.Fatal(err)
+	type testCase struct {
+		name          string
+		firstName     string
+		lastName      string
+		email         string
+		expectedError error
 	}
 
-	if dummyUser.Email != newUser.Email {
-		t.Fatal("unexpected user was created")
+	testCases := []testCase{
+		{
+			name:          "regularCreation",
+			firstName:     "first",
+			lastName:      "last",
+			email:         "first@last.com",
+			expectedError: nil,
+		},
+		{
+			name:          "emptyFirstName",
+			firstName:     "",
+			lastName:      "last",
+			email:         "email",
+			expectedError: errors.New(""),
+		},
 	}
 
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Fatal(err)
+	for i := range testCases {
+		currTest := testCases[i]
+		t.Run(currTest.name, func(t *testing.T) {
+
+			mockDB, mock, err := sqlmock.New()
+			if err != nil {
+				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+			}
+			defer mockDB.Close()
+
+			userToCreate := User{
+				FirstName: currTest.firstName,
+				LastName:  currTest.lastName,
+				Email:     currTest.email,
+			}
+
+			created_at := time.Now()
+			rows := sqlmock.NewRows([]string{"id", "first_name", "last_name", "email", "created_at", "deleted_at"}).
+				AddRow(1, userToCreate.FirstName, userToCreate.LastName, userToCreate.Email, created_at, nil)
+
+			mock.ExpectQuery(
+				regexp.QuoteMeta(db.CreateUser)).
+				WithArgs(userToCreate.FirstName, userToCreate.LastName, userToCreate.Email).
+				WillReturnRows(rows)
+
+			ctrlr := UserControllerImpl{}
+			ctx := context.Background()
+			newUser, err := ctrlr.CreateUser(ctx, mockDB, userToCreate)
+			// BUG
+			if currTest.expectedError != nil || err != nil {
+				if currTest.expectedError != err {
+					t.Error("Unexpected error", err)
+				} else {
+					return
+				}
+			}
+
+			if userToCreate.Email != newUser.Email {
+				t.Fatal("unexpected user was created")
+			}
+
+			if err := mock.ExpectationsWereMet(); err != nil {
+				t.Fatal(err)
+			}
+
+		})
+
 	}
 }

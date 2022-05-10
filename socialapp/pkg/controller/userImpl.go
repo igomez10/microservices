@@ -41,8 +41,14 @@ func (u *UserControllerImpl) GetUserByEmail(ctx context.Context, dbConn *sql.DB,
 }
 
 func (u *UserControllerImpl) CreateUser(ctx context.Context, dbConn *sql.DB, user User) (User, error) {
-	queries := db.New()
+	// validate input
+	if len(user.FirstName) == 0 ||
+		len(user.LastName) == 0 ||
+		len(user.Email) == 0 {
+		return User{}, fmt.Errorf("Invalid input")
+	}
 
+	queries := db.New()
 	createUserParams := db.CreateUserParams{
 		FirstName: user.FirstName,
 		LastName:  user.LastName,

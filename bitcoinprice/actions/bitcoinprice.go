@@ -27,6 +27,7 @@ var mostRecentResponse *CacheEntry
 // a the price of bitcoin.
 func BitcoinPriceHandler(c buffalo.Context) error {
 
+	// Check cache if exist and is valid
 	if mostRecentResponse != nil {
 		elapsedTime := time.Now().Sub(mostRecentResponse.createdAt)
 		if elapsedTime < time.Duration(10*time.Second) {
@@ -39,6 +40,7 @@ func BitcoinPriceHandler(c buffalo.Context) error {
 		}
 	}
 
+	//  Issue request to price provider
 	btcPrice, err := PriceProvider.GetPitcoinPriceInUSD()
 	if err != nil {
 		log.Err(err).Msg("failed to retrieve bitcoin price")
