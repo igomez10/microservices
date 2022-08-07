@@ -1,7 +1,7 @@
 package grifts
 
 import (
-	"bitcoinprice/actions"
+	"github.com/igomez10/microservices/bitcoinprice/actions"
 
 	"github.com/gobuffalo/buffalo"
 )
