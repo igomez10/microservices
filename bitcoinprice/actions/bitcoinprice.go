@@ -1,11 +1,11 @@
 package actions
 
 import (
-	"bitcoinprice/providers"
 	"net/http"
 	"time"
 
 	"github.com/gobuffalo/buffalo"
+	"github.com/igomez10/microservices/bitcoinprice/providers"
 	"github.com/rs/zerolog/log"
 )
 

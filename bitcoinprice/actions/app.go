@@ -1,9 +1,6 @@
 package actions
 
 import (
-	"bitcoinprice/locales"
-	"bitcoinprice/providers/coindesk"
-
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/envy"
 	contenttype "github.com/gobuffalo/mw-contenttype"
@@ -11,6 +8,8 @@ import (
 	i18n "github.com/gobuffalo/mw-i18n/v2"
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	"github.com/gobuffalo/x/sessions"
+	"github.com/igomez10/microservices/bitcoinprice/locales"
+	"github.com/igomez10/microservices/bitcoinprice/providers/coindesk"
 	"github.com/rs/cors"
 	"github.com/unrolled/secure"
 )
