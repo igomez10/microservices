@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"bitcoinprice/actions"
+	"github.com/igomez10/microservices/bitcoinprice/actions"
 )
 
 // main is the starting point for your Buffalo application.
