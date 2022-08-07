@@ -60,13 +60,8 @@ require (
 	github.com/jackc/pgx/v4 v4.16.1 // indirect
 	github.com/jmoiron/sqlx v1.3.5 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
-	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/luna-duclos/instrumentedsql v1.1.3 // indirect
-	github.com/markbates/grift v1.5.0 // indirect
-	github.com/markbates/oncer v1.0.0 // indirect
-	github.com/markbates/refresh v1.12.0 // indirect
-	github.com/markbates/safe v1.0.1 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-sqlite3 v1.14.14 // indirect
