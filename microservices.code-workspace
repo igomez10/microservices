@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": ".circleci"
+		},
+		{
+			"path": "bitcoinprice"
+		},
+		{
+			"path": "loadgenerator"
+		},
+		{
+			"path": "socialapp"
+		}
+	],
+	"settings": {}
+}
