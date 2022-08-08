@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"net"
+	"io"
 	"net/http"
 	"strconv"
 	"sync"
@@ -25,43 +25,23 @@ type RequestConfig struct {
 }
 
 var wg sync.WaitGroup
+var httpClient = http.Client{Timeout: 10 * time.Second}
 
 const DEFAULT_WAIT = 500 * time.Millisecond
 const MAX_RETRY = 5
 
-var httpClient = http.Client{Timeout: 10 * time.Second}
-var CWAGENT_CONNECTION net.Conn
-
-func Run(conf LoadGeneratorConfig) {
-	log.Info().Msg("Sender: Dial OK.")
-
-	for i := 0; i < 10; i++ {
-		conn, err := net.DialTimeout("tcp", "127.0.0.1:25888", time.Millisecond*10000)
-		if err != nil {
-			log.Error().Err(err).Msgf("failed to connect to cloudwatch agent, attempt %d", i)
-			time.Sleep(1 * time.Second)
-
-			if i == 9 {
-				log.Fatal().Msgf("Exhausted all attempts (%d) to connect to cwagent: %s", i, err)
-			}
-
-			continue
-		}
-		CWAGENT_CONNECTION = conn
-		defer conn.Close()
-		break
-	}
+func Run(conf LoadGeneratorConfig, metricOutput io.Writer) {
 
 	wg.Add(len(conf.Entries))
 	for i := range conf.Entries {
 		log.Debug().Msgf("Processing: %+v", conf.Entries[i].URL)
-		go IssueRequest(conf.Entries[i])
+		go IssueRequest(conf.Entries[i], metricOutput)
 	}
 	wg.Wait()
 	log.Warn().Msgf("Exiting Run")
 }
 
-func IssueRequest(reqConfig RequestConfig) {
+func IssueRequest(reqConfig RequestConfig, metricOutput io.Writer) {
 	for {
 
 		req, err := http.NewRequest(reqConfig.Method, reqConfig.URL, nil)
@@ -93,7 +73,7 @@ func IssueRequest(reqConfig RequestConfig) {
 
 		latency := int(finishTime.Sub(startTime).Milliseconds())
 
-		emf.New(emf.WithWriter(CWAGENT_CONNECTION), emf.WithLogGroup("ecsloadgenerator")).
+		emf.New(emf.WithWriter(metricOutput), emf.WithLogGroup("ecsloadgenerator")).
 			Namespace("loadgenerator").
 			DimensionSet(
 				emf.NewDimension("URL", reqConfig.URL),
