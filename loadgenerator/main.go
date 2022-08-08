@@ -34,6 +34,8 @@ func main() {
 		log.Fatal().Msgf("Failed to unmarshal config: %s", err)
 	}
 
+	log.Info().Msgf("LoadGeneratorConfig: %+v", config)
+
 	// fallback to stdout if cwagent is not reachable
 	var metricOutput io.Writer = os.Stdout
 	for i := 0; i < 10; i++ {
