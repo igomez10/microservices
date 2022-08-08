@@ -4,6 +4,30 @@
             "method": "GET"
         },
         {
+            "url": "https://amazon.com",
+            "method": "GET"
+        },
+        {
+            "url": "https://bloomberg.com",
+            "method": "GET"
+        },
+        {
+            "url": "https://apple.com",
+            "method": "GET"
+        },
+        {
+            "url": "https://cloudflare.com",
+            "method": "GET"
+        },
+        {
+            "url": "https://twitter.com",
+            "method": "GET"
+        },
+        {
+            "url": "https://facebook.com",
+            "method": "GET"
+        },
+        {
             "url": "https://microservices-ccsby5rbna-ue.a.run.app/api/v1/btc",
             "method": "GET"
         }
