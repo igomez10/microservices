@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM public.ecr.aws/docker/library/golang:1.17 AS builder
+FROM public.ecr.aws/docker/library/golang:1.19 AS builder
 WORKDIR /application
 COPY . .
 RUN GOPROXY=direct go mod download
