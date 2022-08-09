@@ -16,6 +16,10 @@
             "method": "GET"
         },
         {
+            "url": "https://www.googleapis.com/discovery/v1/apis",
+            "method": "GET"
+        },
+        {
             "url": "https://cloudflare.com",
             "method": "GET"
         },
@@ -25,6 +29,10 @@
         },
         {
             "url": "https://facebook.com",
+            "method": "GET"
+        },
+        {
+            "url": "https://ec2.us-west-2.amazonaws.com",
             "method": "GET"
         },
         {
