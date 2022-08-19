@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "socialapp"
+		},
+		{
+			"path": "../microservices-infrastructure"
 		}
 	],
 	"settings": {}
