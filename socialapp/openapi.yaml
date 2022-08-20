@@ -1,0 +1,207 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: "Socialapp"
+  license:
+    name: MIT
+  description: "Socialapp is a generic social network."
+servers:
+  - url: "localhost:8080"
+
+paths:
+  /user:
+    get:
+      summary: "Returns details about a particular user"
+      operationId: getUserByID
+      tags:
+        - user
+      parameters:
+        - name: id
+          in: query
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: "Sample response: Details about a user by ID"
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    post:
+      summary: "Create a new user"
+      operationId: createUser
+      tags:
+        - user
+      responses:
+        "200":
+          description: "User was created successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /comment:
+    get:
+      summary: "Returns details about a particular comment"
+      operationId: getComment
+      tags:
+        - comment
+      parameters:
+        - name: id
+          in: query
+          description: ID of the comment
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: "Sample response: Details about a comment by ID"
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: "Create a new comment"
+      operationId: createComment
+      tags:
+        - comment
+      responses:
+        "200":
+          description: "Get a comment by ID"
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users:
+    get:
+      summary: "Returns all the users"
+      operationId: listUsers
+      tags:
+        - user
+      responses:
+        "200":
+          description: "Sample response: Details about a user by ID"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - first_name
+        - last_name
+        - email
+        - created_at
+        - deleted_at
+      properties:
+        id:
+          type: integer
+          format: int64
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        created_at:
+          type: string
+        deleted_at:
+          type: string
+
+    Comment:
+      type: object
+      required:
+        - content
+        - like_count
+        - created_at
+        - user_id
+        - deleted_at
+      properties:
+        id:
+          type: integer
+          format: int64
+        content:
+          type: string
+        like_count:
+          type: string
+        created_at:
+          type: string
+        user_id:
+          type: integer
+          format: int64
+        deleted_at:
+          type: string
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+security:
+  - BasicAuth: []

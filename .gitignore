@@ -21,3 +21,6 @@ amplifytools.xcconfig
 **.sample
 #amplify-do-not-edit-end
 bitcoinprice/.vscode/bookmarks.json
+socialapp/.vscode/configurationCache.log
+socialapp/.vscode/settings.json
+socialapp/.vscode/targets.log
