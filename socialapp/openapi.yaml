@@ -6,47 +6,35 @@ info:
     name: MIT
   description: "Socialapp is a generic social network."
 servers:
-  - url: "localhost:8080"
+  - url: "http://localhost:8080"
 
 paths:
-  /user:
+  /users:
     get:
-      summary: "Returns details about a particular user"
-      operationId: getUserByID
+      summary: "Returns all the users"
+      operationId: listUsers
       tags:
-        - user
-      parameters:
-        - name: id
-          in: query
-          description: ID of the user
-          required: true
-          schema:
-            type: integer
-            format: int32
+        - User
       responses:
         "200":
-          description: "Sample response: Details about a user by ID"
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
+          description: "Details about a user by ID"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
         default:
           description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
     post:
       summary: "Create a new user"
       operationId: createUser
       tags:
-        - user
+        - User
       responses:
         "200":
           description: "User was created successfully"
@@ -61,31 +49,27 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /comment:
+  /users/{username}/comments:
     get:
-      summary: "Returns details about a particular comment"
-      operationId: getComment
+      summary: "Gets all comments for a user"
+      operationId: getUserComments
       tags:
-        - comment
+        - User
+        - Comment
       parameters:
-        - name: id
-          in: query
-          description: ID of the comment
+        - name: username
+          in: path
+          description: username of the user
           required: true
           schema:
-            type: integer
-            format: int32
+            type: string
       responses:
         "200":
-          description: "Sample response: Details about a comment by ID"
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
+          description: "User comments"
           content:
             application/json:
               schema:
+                type: array
                 $ref: "#/components/schemas/Comment"
         default:
           description: Unexpected error
@@ -97,15 +81,24 @@ paths:
       summary: "Create a new comment"
       operationId: createComment
       tags:
-        - comment
+        - Comment
+      parameters:
+        - name: username
+          in: path
+          description: username of the user
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Create a new pet in the store
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Comment"
+        required: true
       responses:
         "200":
           description: "Get a comment by ID"
-          headers:
-            x-next:
-              description: A link to the next page of responses
-              schema:
-                type: string
           content:
             application/json:
               schema:
@@ -117,21 +110,114 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
-  /users:
-    get:
-      summary: "Returns all the users"
-      operationId: listUsers
+  /users/{username}:
+    delete:
+      summary: "Deletes a particular user"
+      operationId: deleteUser
       tags:
-        - user
+        - User
+      parameters:
+        - name: username
+          in: path
+          description: username of the user
+          required: true
+          schema:
+            type: string
       responses:
         "200":
-          description: "Sample response: Details about a user by ID"
+          description: "User was deleted succesfully"
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/User"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      summary: "Get a particular user by username"
+      operationId: getUserByUsername
+      tags:
+        - User
+      parameters:
+        - name: username
+          in: path
+          description: username of the user
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Details about a user by ID"
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: "Update a user"
+      operationId: updateUser
+      tags:
+        - User
+      parameters:
+        - name: username
+          in: path
+          description: username of the user
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "User was updated successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /comments/{id}:
+    get:
+      summary: "Returns details about a particular comment"
+      operationId: getComment
+      tags:
+        - Comment
+      parameters:
+        - name: id
+          in: path
+          description: ID of the comment
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: "Details about a comment by ID"
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
         default:
           description: Unexpected error
           content:
@@ -144,15 +230,16 @@ components:
     User:
       type: object
       required:
+        - username
         - first_name
         - last_name
         - email
-        - created_at
-        - deleted_at
       properties:
         id:
           type: integer
           format: int64
+        username:
+          type: string
         first_name:
           type: string
         last_name:
@@ -161,17 +248,16 @@ components:
           type: string
         created_at:
           type: string
+          format: date-time
         deleted_at:
           type: string
+          format: date-time
 
     Comment:
       type: object
       required:
         - content
-        - like_count
-        - created_at
-        - user_id
-        - deleted_at
+        - username
       properties:
         id:
           type: integer
@@ -179,14 +265,16 @@ components:
         content:
           type: string
         like_count:
-          type: string
-        created_at:
-          type: string
-        user_id:
           type: integer
           format: int64
+        created_at:
+          type: string
+          format: date-time
+        username:
+          type: string
         deleted_at:
           type: string
+          format: date-time
 
     Error:
       type: object

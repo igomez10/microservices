@@ -10,11 +10,14 @@ import (
 
 type Querier interface {
 	CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (Comment, error)
+	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (Comment, error)
 	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (User, error)
 	DeleteUser(ctx context.Context, db DBTX, id int32) error
 	GetComment(ctx context.Context, db DBTX, id int32) (Comment, error)
 	GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error)
 	GetUserByID(ctx context.Context, db DBTX, id int32) (User, error)
+	GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error)
+	GetUserComments(ctx context.Context, db DBTX, username string) ([]Comment, error)
 	ListComment(ctx context.Context, db DBTX) ([]Comment, error)
 	ListUsers(ctx context.Context, db DBTX) ([]User, error)
 }

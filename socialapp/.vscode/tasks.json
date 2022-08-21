@@ -10,6 +10,24 @@
             "problemMatcher": []
         },
         {
+            "label": "generate-sqlc",
+            "type": "shell",
+            "command": "make sqlc-generate",
+            "problemMatcher": []
+        },
+        {
+            "label": "restart-db",
+            "type": "shell",
+            "command": "make restart-db",
+            "problemMatcher": []
+        },
+        {
+            "label": "start-dev-server",
+            "type": "shell",
+            "command": "make start-dev-server",
+            "problemMatcher": []
+        },
+        {
             "label": "go mod tidy",
             "type": "shell",
             "command": "go mod tidy",
