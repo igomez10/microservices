@@ -10,6 +10,7 @@
 package openapi
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -90,7 +91,18 @@ func (c *UserApiController) Routes() Routes {
 
 // CreateUser - Create a new user
 func (c *UserApiController) CreateUser(w http.ResponseWriter, r *http.Request) {
-	result, err := c.service.CreateUser(r.Context())
+	userParam := User{}
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&userParam); err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertUserRequired(userParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.CreateUser(r.Context(), userParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

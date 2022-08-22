@@ -33,6 +33,13 @@ paths:
       - User
     post:
       operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: Create a new user
+        required: true
       responses:
         "200":
           content:
@@ -94,7 +101,7 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Comment'
-        description: Create a new pet in the store
+        description: Create a new comment
         required: true
       responses:
         "200":

@@ -53,7 +53,7 @@ type CommentApiServicer interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type UserApiServicer interface { 
-	CreateUser(context.Context) (ImplResponse, error)
+	CreateUser(context.Context, User) (ImplResponse, error)
 	DeleteUser(context.Context, string) (ImplResponse, error)
 	GetUserByUsername(context.Context, string) (ImplResponse, error)
 	GetUserComments(context.Context, string) (ImplResponse, error)

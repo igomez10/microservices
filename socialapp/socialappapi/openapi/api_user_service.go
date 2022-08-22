@@ -27,7 +27,7 @@ func NewUserApiService() UserApiServicer {
 }
 
 // CreateUser - Create a new user
-func (s *UserApiService) CreateUser(ctx context.Context) (ImplResponse, error) {
+func (s *UserApiService) CreateUser(ctx context.Context, user User) (ImplResponse, error) {
 	// TODO - update CreateUser with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
