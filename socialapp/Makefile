@@ -11,6 +11,7 @@ generate-openapi:
 	--additional-properties=hideGenerationTimestamp=false \
 	--additional-properties=onlyInterfaces=false \
 	--additional-properties=router=chi
+	openapi-generator generate -i openapi.yaml  -g markdown --output socialappapi
 
 sqlc-generate:
 	sqlc generate --file db/sqlc.yaml
