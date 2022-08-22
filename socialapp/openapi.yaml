@@ -4,9 +4,9 @@ info:
   title: "Socialapp"
   license:
     name: MIT
-  description: "Socialapp is a generic social network."
+  description: Socialapp is a generic social network.
 servers:
-  - url: "http://localhost:8080"
+  - url: http://localhost:8080
 
 paths:
   /users:
@@ -17,7 +17,7 @@ paths:
         - User
       responses:
         "200":
-          description: "Details about a user by ID"
+          description: Details about a user by ID
           content:
             application/json:
               schema:
@@ -31,13 +31,20 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      summary: "Create a new user"
+      summary: Create a new user
       operationId: createUser
       tags:
         - User
+      requestBody:
+        description: Create a new user
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+        required: true
       responses:
         "200":
-          description: "User was created successfully"
+          description: User was created successfully
           content:
             application/json:
               schema:
@@ -65,7 +72,7 @@ paths:
             type: string
       responses:
         "200":
-          description: "User comments"
+          description: User comments
           content:
             application/json:
               schema:
@@ -78,7 +85,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      summary: "Create a new comment"
+      summary: Create a new comment
       operationId: createComment
       tags:
         - Comment
@@ -90,7 +97,7 @@ paths:
           schema:
             type: string
       requestBody:
-        description: Create a new pet in the store
+        description: Create a new comment
         content:
           application/json:
             schema:
@@ -98,7 +105,7 @@ paths:
         required: true
       responses:
         "200":
-          description: "Get a comment by ID"
+          description: Get a comment by ID
           content:
             application/json:
               schema:
@@ -112,7 +119,7 @@ paths:
 
   /users/{username}:
     delete:
-      summary: "Deletes a particular user"
+      summary: Deletes a particular user
       operationId: deleteUser
       tags:
         - User
@@ -125,7 +132,7 @@ paths:
             type: string
       responses:
         "200":
-          description: "User was deleted succesfully"
+          description: User was deleted succesfully
           content:
             application/json:
               schema:
@@ -137,7 +144,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     get:
-      summary: "Get a particular user by username"
+      summary: Get a particular user by username
       operationId: getUserByUsername
       tags:
         - User
@@ -150,7 +157,7 @@ paths:
             type: string
       responses:
         "200":
-          description: "Details about a user by ID"
+          description: Details about a user by ID
           headers:
             x-next:
               description: A link to the next page of responses
@@ -167,7 +174,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     put:
-      summary: "Update a user"
+      summary: Update a user
       operationId: updateUser
       tags:
         - User
@@ -180,7 +187,7 @@ paths:
             type: string
       responses:
         "200":
-          description: "User was updated successfully"
+          description: User was updated successfully
           content:
             application/json:
               schema:
@@ -194,7 +201,7 @@ paths:
 
   /comments/{id}:
     get:
-      summary: "Returns details about a particular comment"
+      summary: Returns details about a particular comment
       operationId: getComment
       tags:
         - Comment
@@ -208,7 +215,7 @@ paths:
             format: int32
       responses:
         "200":
-          description: "Details about a comment by ID"
+          description: Details about a comment by ID
           headers:
             x-next:
               description: A link to the next page of responses

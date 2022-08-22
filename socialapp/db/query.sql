@@ -29,6 +29,11 @@ UPDATE users
 SET deleted_at = NOW()
 WHERE id = $1 AND deleted_at IS NULL;
 
+-- name: DeleteUserByUsername :exec
+UPDATE users
+SET deleted_at = NOW()
+WHERE username = $1 AND deleted_at IS NULL;
+
 -- name: GetComment :one
 SELECT * FROM comments
 WHERE id = $1 AND deleted_at IS NULL LIMIT 1;

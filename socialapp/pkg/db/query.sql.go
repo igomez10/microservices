@@ -112,6 +112,17 @@ func (q *Queries) DeleteUser(ctx context.Context, db DBTX, id int32) error {
 	return err
 }
 
+const DeleteUserByUsername = `-- name: DeleteUserByUsername :exec
+UPDATE users
+SET deleted_at = NOW()
+WHERE username = $1 AND deleted_at IS NULL
+`
+
+func (q *Queries) DeleteUserByUsername(ctx context.Context, db DBTX, username string) error {
+	_, err := db.ExecContext(ctx, DeleteUserByUsername, username)
+	return err
+}
+
 const GetComment = `-- name: GetComment :one
 SELECT id, content, like_count, created_at, user_id, deleted_at FROM comments
 WHERE id = $1 AND deleted_at IS NULL LIMIT 1

@@ -13,6 +13,7 @@ type Querier interface {
 	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (Comment, error)
 	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (User, error)
 	DeleteUser(ctx context.Context, db DBTX, id int32) error
+	DeleteUserByUsername(ctx context.Context, db DBTX, username string) error
 	GetComment(ctx context.Context, db DBTX, id int32) (Comment, error)
 	GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error)
 	GetUserByID(ctx context.Context, db DBTX, id int32) (User, error)
