@@ -2,10 +2,10 @@ package user
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
+	"strings"
 
 	"github.com/rs/zerolog/log"
 )
@@ -18,14 +18,15 @@ type UserApiService struct {
 }
 
 func (s *UserApiService) CreateUser(ctx context.Context, user openapi.User) (openapi.ImplResponse, error) {
-
 	// validate we dont have a user with the same username that is not deleted
-	if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, user.Username); err == nil {
+	noCaseUsername := strings.ToLower(user.Username)
+	if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, noCaseUsername); err == nil {
 		return openapi.Response(http.StatusConflict, nil), nil
 	}
 
 	// validate we dont have a user with the same email that is not deleted
-	if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, user.Email); err == nil {
+	noCaseEmail := strings.ToLower(user.Email)
+	if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, noCaseEmail); err == nil {
 		return openapi.Response(http.StatusConflict, nil), nil
 	}
 
@@ -88,16 +89,32 @@ func (s *UserApiService) ListUsers(ctx context.Context) (openapi.ImplResponse, e
 	return openapi.Response(http.StatusOK, commnet), nil
 }
 
-// UpdateUser - Update a user
-func (s *UserApiService) UpdateUser(ctx context.Context, username string) (openapi.ImplResponse, error) {
-	// TODO - update UpdateUser with the required logic for this service method.
-	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+func (s *UserApiService) UpdateUser(ctx context.Context, username string, user openapi.User) (openapi.ImplResponse, error) {
+	// validate we dont have a user with the same username that is not deleted
+	noCaseUsername := strings.ToLower(user.Username)
+	if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, noCaseUsername); err == nil {
+		return openapi.Response(http.StatusConflict, nil), nil
+	}
 
-	//TODO: Uncomment the next line to return openapi.Response Response(200, User{}) or use other options such as http.Ok ...
-	//return openapi.Response(200, User{}), nil
+	// validate we dont have a user with the same email that is not deleted
+	noCaseEmail := strings.ToLower(user.Email)
+	if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, noCaseEmail); err == nil {
+		return openapi.Response(http.StatusConflict, nil), nil
+	}
 
-	//TODO: Uncomment the next line to return openapi.Response Response(0, Error{}) or use other options such as http.Ok ...
-	//return openapi.Response(0, Error{}), nil
+	params := db.UpdateUserByUsernameParams{
+		OldUsername: username,
+		NewUsername: user.Username,
+		FirstName:   user.FirstName,
+		LastName:    user.LastName,
+		Email:       user.Email,
+	}
 
-	return openapi.Response(http.StatusNotImplemented, nil), errors.New("UpdateUser method not implemented")
+	uUser, err := s.DB.UpdateUserByUsername(ctx, s.DBConn, params)
+	if err != nil {
+		log.Err(err).Msg("Error listing users")
+		return openapi.Response(http.StatusNotFound, nil), nil
+	}
+
+	return openapi.Response(http.StatusOK, uUser), nil
 }

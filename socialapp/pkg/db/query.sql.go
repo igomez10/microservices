@@ -318,3 +318,75 @@ func (q *Queries) ListUsers(ctx context.Context, db DBTX) ([]User, error) {
 	}
 	return items, nil
 }
+
+const UpdateUser = `-- name: UpdateUser :one
+UPDATE users 
+SET username = $2, first_name = $3, last_name=$4, email=$5
+WHERE id = $1 AND deleted_at IS NULL
+RETURNING id, username, first_name, last_name, email, created_at, deleted_at
+`
+
+type UpdateUserParams struct {
+	ID        int32  `json:"id"`
+	Username  string `json:"username"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Email     string `json:"email"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (User, error) {
+	row := db.QueryRowContext(ctx, UpdateUser,
+		arg.ID,
+		arg.Username,
+		arg.FirstName,
+		arg.LastName,
+		arg.Email,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const UpdateUserByUsername = `-- name: UpdateUserByUsername :one
+UPDATE users 
+SET username = $4::text, first_name = $1, last_name=$2, email=$3
+WHERE username = $5::text AND deleted_at IS NULL
+RETURNING id, username, first_name, last_name, email, created_at, deleted_at
+`
+
+type UpdateUserByUsernameParams struct {
+	FirstName   string `json:"firstName"`
+	LastName    string `json:"lastName"`
+	Email       string `json:"email"`
+	NewUsername string `json:"newUsername"`
+	OldUsername string `json:"oldUsername"`
+}
+
+func (q *Queries) UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (User, error) {
+	row := db.QueryRowContext(ctx, UpdateUserByUsername,
+		arg.FirstName,
+		arg.LastName,
+		arg.Email,
+		arg.NewUsername,
+		arg.OldUsername,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}

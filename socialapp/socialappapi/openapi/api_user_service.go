@@ -97,7 +97,7 @@ func (s *UserApiService) ListUsers(ctx context.Context) (ImplResponse, error) {
 }
 
 // UpdateUser - Update a user
-func (s *UserApiService) UpdateUser(ctx context.Context, username string) (ImplResponse, error) {
+func (s *UserApiService) UpdateUser(ctx context.Context, username string, user User) (ImplResponse, error) {
 	// TODO - update UpdateUser with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 

@@ -175,7 +175,18 @@ func (c *UserApiController) ListUsers(w http.ResponseWriter, r *http.Request) {
 func (c *UserApiController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
 
-	result, err := c.service.UpdateUser(r.Context(), usernameParam)
+	userParam := User{}
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&userParam); err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertUserRequired(userParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.UpdateUser(r.Context(), usernameParam, userParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

@@ -21,6 +21,8 @@ type Querier interface {
 	GetUserComments(ctx context.Context, db DBTX, username string) ([]Comment, error)
 	ListComment(ctx context.Context, db DBTX) ([]Comment, error)
 	ListUsers(ctx context.Context, db DBTX) ([]User, error)
+	UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (User, error)
+	UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)

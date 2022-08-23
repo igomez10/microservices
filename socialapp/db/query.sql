@@ -24,6 +24,18 @@ INSERT INTO users (
 )
 RETURNING *;
 
+-- name: UpdateUser :one
+UPDATE users 
+SET username = $2, first_name = $3, last_name=$4, email=$5
+WHERE id = $1 AND deleted_at IS NULL
+RETURNING *;
+
+-- name: UpdateUserByUsername :one
+UPDATE users 
+SET username = @new_username::text, first_name = $1, last_name=$2, email=$3
+WHERE username = @old_username::text AND deleted_at IS NULL
+RETURNING *;
+
 -- name: DeleteUser :exec
 UPDATE users
 SET deleted_at = NOW()

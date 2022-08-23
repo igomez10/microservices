@@ -136,7 +136,7 @@ This endpoint does not need any parameter.
 
 <a name="updateUser"></a>
 # **updateUser**
-> User updateUser(username)
+> User updateUser(username, User)
 
 Update a user
 
@@ -145,6 +145,7 @@ Update a user
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **username** | **String**| username of the user | [default to null] |
+| **User** | [**User**](../Models/User.md)| Update a user | [optional] |
 
 ### Return type
 
@@ -156,6 +157,6 @@ Update a user
 
 ### HTTP request headers
 
-- **Content-Type**: Not defined
+- **Content-Type**: application/json
 - **Accept**: application/json
 

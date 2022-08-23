@@ -58,5 +58,5 @@ type UserApiServicer interface {
 	GetUserByUsername(context.Context, string) (ImplResponse, error)
 	GetUserComments(context.Context, string) (ImplResponse, error)
 	ListUsers(context.Context) (ImplResponse, error)
-	UpdateUser(context.Context, string) (ImplResponse, error)
+	UpdateUser(context.Context, string, User) (ImplResponse, error)
 }
