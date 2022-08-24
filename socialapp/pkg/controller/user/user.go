@@ -89,27 +89,49 @@ func (s *UserApiService) ListUsers(ctx context.Context) (openapi.ImplResponse, e
 	return openapi.Response(http.StatusOK, commnet), nil
 }
 
-func (s *UserApiService) UpdateUser(ctx context.Context, username string, user openapi.User) (openapi.ImplResponse, error) {
-	// validate we dont have a user with the same username that is not deleted
-	noCaseUsername := strings.ToLower(user.Username)
-	if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, noCaseUsername); err == nil {
-		return openapi.Response(http.StatusConflict, nil), nil
+func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string, newUserData openapi.User) (openapi.ImplResponse, error) {
+	// get the user to update
+	existingUser, err := s.DB.GetUserByUsername(ctx, s.DBConn, existingUsername)
+	if err != nil {
+		log.Err(err).Str("username", existingUsername).Msg("Error getting user")
+		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
-	// validate we dont have a user with the same email that is not deleted
-	noCaseEmail := strings.ToLower(user.Email)
-	if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, noCaseEmail); err == nil {
-		return openapi.Response(http.StatusConflict, nil), nil
+	if newUserData.Username != "" && newUserData.Username != existingUser.Username {
+		// validate we dont have a user with the same username that is not deleted
+		noCaseUsername := strings.ToLower(newUserData.Username)
+		if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, noCaseUsername); err == nil {
+			log.Error().Msg("Username already exists")
+			return openapi.Response(http.StatusConflict, nil), nil
+		}
+		existingUser.Username = newUserData.Username
+	}
+
+	if newUserData.Email != "" && newUserData.Email != existingUser.Email {
+		// validate we dont have a user with the same email that is not deleted
+		noCaseEmail := strings.ToLower(newUserData.Email)
+		if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, noCaseEmail); err == nil {
+			return openapi.Response(http.StatusConflict, nil), nil
+		}
+		existingUser.Email = newUserData.Email
+	}
+
+	if newUserData.FirstName != "" {
+		existingUser.FirstName = newUserData.FirstName
+	}
+	if newUserData.LastName != "" {
+		existingUser.LastName = newUserData.LastName
 	}
 
 	params := db.UpdateUserByUsernameParams{
-		OldUsername: username,
-		NewUsername: user.Username,
-		FirstName:   user.FirstName,
-		LastName:    user.LastName,
-		Email:       user.Email,
+		OldUsername: existingUsername,
+		NewUsername: newUserData.Username,
+		FirstName:   newUserData.FirstName,
+		LastName:    newUserData.LastName,
+		Email:       newUserData.Email,
 	}
 
+	log.Debug().Msgf("UpdateUserByUsernameParams: \n%+v\n", params)
 	uUser, err := s.DB.UpdateUserByUsername(ctx, s.DBConn, params)
 	if err != nil {
 		log.Err(err).Msg("Error listing users")
