@@ -16,9 +16,9 @@
             "problemMatcher": []
         },
         {
-            "label": "restart-db",
+            "label": "compose-up",
             "type": "shell",
-            "command": "make restart-db",
+            "command": "make compose-up",
             "problemMatcher": []
         },
         {
