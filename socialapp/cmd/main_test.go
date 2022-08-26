@@ -7,7 +7,6 @@ import (
 	"socialapp/pkg/controller/user"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
-	"sync"
 	"testing"
 	"time"
 
@@ -71,22 +70,14 @@ func TestCreateUsers(t *testing.T) {
 
 	ctx := context.Background()
 	UserApiService := &user.UserApiService{DB: queries, DBConn: dbConn}
-	for {
-		wg := sync.WaitGroup{}
-		numUsers := 500
-		wg.Add(numUsers)
-		for i := 0; i < numUsers; i++ {
-			go func(i int) {
-				UserApiService.CreateUser(ctx, openapi.User{
-					Username:  fmt.Sprintf("Test-%d-%d", time.Now().UnixNano(), i),
-					FirstName: "first",
-					LastName:  "last",
-					Email:     fmt.Sprintf("Test-%d-%d@test.com", time.Now().UnixNano(), i),
-				})
-				wg.Done()
-				// time.Sleep(10 * time.Millisecond)
-			}(i)
-		}
-		wg.Wait()
+	for i := 0; i < 10; i++ {
+		UserApiService.CreateUser(ctx, openapi.User{
+			Username:  fmt.Sprintf("Test-%d-%d", time.Now().UnixNano(), i),
+			FirstName: "first",
+			LastName:  "last",
+			Email:     fmt.Sprintf("Test-%d-%d@test.com", time.Now().UnixNano(), i),
+		})
+
+		time.Sleep(10 * time.Millisecond)
 	}
 }
