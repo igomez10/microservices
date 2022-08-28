@@ -13,7 +13,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// implements the UserService interface
+// implements the UserServicer interface
 // s *UserApiService openapi.UserApiServicer
 type UserApiService struct {
 	DB     db.Querier
