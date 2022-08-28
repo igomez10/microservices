@@ -19,14 +19,13 @@ import (
 	"strings"
 )
 
-
 // UserApiService UserApi service
 type UserApiService service
 
 type UserApiCreateUserRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *UserApiService
-	user *User
+	user       *User
 }
 
 // Create a new user
@@ -42,24 +41,25 @@ func (r UserApiCreateUserRequest) Execute() (*User, *http.Response, error) {
 /*
 CreateUser Create a new user
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return UserApiCreateUserRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return UserApiCreateUserRequest
 */
 func (a *UserApiService) CreateUser(ctx context.Context) UserApiCreateUserRequest {
 	return UserApiCreateUserRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return User
+//
+//	@return User
 func (a *UserApiService) CreateUserExecute(r UserApiCreateUserRequest) (*User, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *User
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *User
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserApiService.CreateUser")
@@ -117,13 +117,13 @@ func (a *UserApiService) CreateUserExecute(r UserApiCreateUserRequest) (*User, *
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v Error
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.model = v
+		var v Error
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -140,9 +140,9 @@ func (a *UserApiService) CreateUserExecute(r UserApiCreateUserRequest) (*User, *
 }
 
 type UserApiDeleteUserRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *UserApiService
-	username string
+	username   string
 }
 
 func (r UserApiDeleteUserRequest) Execute() (*User, *http.Response, error) {
@@ -152,26 +152,27 @@ func (r UserApiDeleteUserRequest) Execute() (*User, *http.Response, error) {
 /*
 DeleteUser Deletes a particular user
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param username username of the user
- @return UserApiDeleteUserRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param username username of the user
+	@return UserApiDeleteUserRequest
 */
 func (a *UserApiService) DeleteUser(ctx context.Context, username string) UserApiDeleteUserRequest {
 	return UserApiDeleteUserRequest{
 		ApiService: a,
-		ctx: ctx,
-		username: username,
+		ctx:        ctx,
+		username:   username,
 	}
 }
 
 // Execute executes the request
-//  @return User
+//
+//	@return User
 func (a *UserApiService) DeleteUserExecute(r UserApiDeleteUserRequest) (*User, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *User
+		localVarHTTPMethod  = http.MethodDelete
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *User
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserApiService.DeleteUser")
@@ -225,13 +226,13 @@ func (a *UserApiService) DeleteUserExecute(r UserApiDeleteUserRequest) (*User, *
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v Error
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.model = v
+		var v Error
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -248,9 +249,9 @@ func (a *UserApiService) DeleteUserExecute(r UserApiDeleteUserRequest) (*User, *
 }
 
 type UserApiGetUserByUsernameRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *UserApiService
-	username string
+	username   string
 }
 
 func (r UserApiGetUserByUsernameRequest) Execute() (*User, *http.Response, error) {
@@ -260,26 +261,27 @@ func (r UserApiGetUserByUsernameRequest) Execute() (*User, *http.Response, error
 /*
 GetUserByUsername Get a particular user by username
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param username username of the user
- @return UserApiGetUserByUsernameRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param username username of the user
+	@return UserApiGetUserByUsernameRequest
 */
 func (a *UserApiService) GetUserByUsername(ctx context.Context, username string) UserApiGetUserByUsernameRequest {
 	return UserApiGetUserByUsernameRequest{
 		ApiService: a,
-		ctx: ctx,
-		username: username,
+		ctx:        ctx,
+		username:   username,
 	}
 }
 
 // Execute executes the request
-//  @return User
+//
+//	@return User
 func (a *UserApiService) GetUserByUsernameExecute(r UserApiGetUserByUsernameRequest) (*User, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *User
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *User
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserApiService.GetUserByUsername")
@@ -333,13 +335,13 @@ func (a *UserApiService) GetUserByUsernameExecute(r UserApiGetUserByUsernameRequ
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v Error
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.model = v
+		var v Error
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -356,9 +358,9 @@ func (a *UserApiService) GetUserByUsernameExecute(r UserApiGetUserByUsernameRequ
 }
 
 type UserApiGetUserCommentsRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *UserApiService
-	username string
+	username   string
 }
 
 func (r UserApiGetUserCommentsRequest) Execute() (*Comment, *http.Response, error) {
@@ -368,26 +370,27 @@ func (r UserApiGetUserCommentsRequest) Execute() (*Comment, *http.Response, erro
 /*
 GetUserComments Gets all comments for a user
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param username username of the user
- @return UserApiGetUserCommentsRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param username username of the user
+	@return UserApiGetUserCommentsRequest
 */
 func (a *UserApiService) GetUserComments(ctx context.Context, username string) UserApiGetUserCommentsRequest {
 	return UserApiGetUserCommentsRequest{
 		ApiService: a,
-		ctx: ctx,
-		username: username,
+		ctx:        ctx,
+		username:   username,
 	}
 }
 
 // Execute executes the request
-//  @return Comment
+//
+//	@return Comment
 func (a *UserApiService) GetUserCommentsExecute(r UserApiGetUserCommentsRequest) (*Comment, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Comment
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Comment
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserApiService.GetUserComments")
@@ -441,13 +444,13 @@ func (a *UserApiService) GetUserCommentsExecute(r UserApiGetUserCommentsRequest)
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v Error
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.model = v
+		var v Error
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -464,7 +467,7 @@ func (a *UserApiService) GetUserCommentsExecute(r UserApiGetUserCommentsRequest)
 }
 
 type UserApiListUsersRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *UserApiService
 }
 
@@ -475,24 +478,25 @@ func (r UserApiListUsersRequest) Execute() ([]User, *http.Response, error) {
 /*
 ListUsers Returns all the users
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return UserApiListUsersRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return UserApiListUsersRequest
 */
 func (a *UserApiService) ListUsers(ctx context.Context) UserApiListUsersRequest {
 	return UserApiListUsersRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []User
+//
+//	@return []User
 func (a *UserApiService) ListUsersExecute(r UserApiListUsersRequest) ([]User, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []User
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []User
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserApiService.ListUsers")
@@ -545,13 +549,13 @@ func (a *UserApiService) ListUsersExecute(r UserApiListUsersRequest) ([]User, *h
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v Error
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.model = v
+		var v Error
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -568,10 +572,10 @@ func (a *UserApiService) ListUsersExecute(r UserApiListUsersRequest) ([]User, *h
 }
 
 type UserApiUpdateUserRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *UserApiService
-	username string
-	user *User
+	username   string
+	user       *User
 }
 
 // Update a user
@@ -587,26 +591,27 @@ func (r UserApiUpdateUserRequest) Execute() (*User, *http.Response, error) {
 /*
 UpdateUser Update a user
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param username username of the user
- @return UserApiUpdateUserRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param username username of the user
+	@return UserApiUpdateUserRequest
 */
 func (a *UserApiService) UpdateUser(ctx context.Context, username string) UserApiUpdateUserRequest {
 	return UserApiUpdateUserRequest{
 		ApiService: a,
-		ctx: ctx,
-		username: username,
+		ctx:        ctx,
+		username:   username,
 	}
 }
 
 // Execute executes the request
-//  @return User
+//
+//	@return User
 func (a *UserApiService) UpdateUserExecute(r UserApiUpdateUserRequest) (*User, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *User
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *User
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserApiService.UpdateUser")
@@ -662,13 +667,13 @@ func (a *UserApiService) UpdateUserExecute(r UserApiUpdateUserRequest) (*User, *
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v Error
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.model = v
+		var v Error
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 

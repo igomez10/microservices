@@ -19,14 +19,13 @@ import (
 	"strings"
 )
 
-
 // CommentApiService CommentApi service
 type CommentApiService service
 
 type CommentApiCreateCommentRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *CommentApiService
-	comment *Comment
+	comment    *Comment
 }
 
 // Create a new comment
@@ -42,24 +41,25 @@ func (r CommentApiCreateCommentRequest) Execute() (*Comment, *http.Response, err
 /*
 CreateComment Create a new comment
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return CommentApiCreateCommentRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return CommentApiCreateCommentRequest
 */
 func (a *CommentApiService) CreateComment(ctx context.Context) CommentApiCreateCommentRequest {
 	return CommentApiCreateCommentRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return Comment
+//
+//	@return Comment
 func (a *CommentApiService) CreateCommentExecute(r CommentApiCreateCommentRequest) (*Comment, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Comment
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Comment
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CommentApiService.CreateComment")
@@ -117,13 +117,13 @@ func (a *CommentApiService) CreateCommentExecute(r CommentApiCreateCommentReques
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v Error
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.model = v
+		var v Error
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -140,9 +140,9 @@ func (a *CommentApiService) CreateCommentExecute(r CommentApiCreateCommentReques
 }
 
 type CommentApiGetCommentRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *CommentApiService
-	id int32
+	id         int32
 }
 
 func (r CommentApiGetCommentRequest) Execute() (*Comment, *http.Response, error) {
@@ -152,26 +152,27 @@ func (r CommentApiGetCommentRequest) Execute() (*Comment, *http.Response, error)
 /*
 GetComment Returns details about a particular comment
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id ID of the comment
- @return CommentApiGetCommentRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id ID of the comment
+	@return CommentApiGetCommentRequest
 */
 func (a *CommentApiService) GetComment(ctx context.Context, id int32) CommentApiGetCommentRequest {
 	return CommentApiGetCommentRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return Comment
+//
+//	@return Comment
 func (a *CommentApiService) GetCommentExecute(r CommentApiGetCommentRequest) (*Comment, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Comment
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Comment
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CommentApiService.GetComment")
@@ -225,13 +226,13 @@ func (a *CommentApiService) GetCommentExecute(r CommentApiGetCommentRequest) (*C
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v Error
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.model = v
+		var v Error
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 
@@ -248,9 +249,9 @@ func (a *CommentApiService) GetCommentExecute(r CommentApiGetCommentRequest) (*C
 }
 
 type CommentApiGetUserCommentsRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService *CommentApiService
-	username string
+	username   string
 }
 
 func (r CommentApiGetUserCommentsRequest) Execute() (*Comment, *http.Response, error) {
@@ -260,26 +261,27 @@ func (r CommentApiGetUserCommentsRequest) Execute() (*Comment, *http.Response, e
 /*
 GetUserComments Gets all comments for a user
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param username username of the user
- @return CommentApiGetUserCommentsRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param username username of the user
+	@return CommentApiGetUserCommentsRequest
 */
 func (a *CommentApiService) GetUserComments(ctx context.Context, username string) CommentApiGetUserCommentsRequest {
 	return CommentApiGetUserCommentsRequest{
 		ApiService: a,
-		ctx: ctx,
-		username: username,
+		ctx:        ctx,
+		username:   username,
 	}
 }
 
 // Execute executes the request
-//  @return Comment
+//
+//	@return Comment
 func (a *CommentApiService) GetUserCommentsExecute(r CommentApiGetUserCommentsRequest) (*Comment, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Comment
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Comment
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CommentApiService.GetUserComments")
@@ -333,13 +335,13 @@ func (a *CommentApiService) GetUserCommentsExecute(r CommentApiGetUserCommentsRe
 			body:  localVarBody,
 			error: localVarHTTPResponse.Status,
 		}
-			var v Error
-			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
-			if err != nil {
-				newErr.error = err.Error()
-				return localVarReturnValue, localVarHTTPResponse, newErr
-			}
-			newErr.model = v
+		var v Error
+		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+		if err != nil {
+			newErr.error = err.Error()
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
 

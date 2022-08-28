@@ -17,11 +17,11 @@ import (
 
 // Comment struct for Comment
 type Comment struct {
-	Id *int64 `json:"id,omitempty"`
-	Content string `json:"content"`
-	LikeCount *int64 `json:"like_count,omitempty"`
+	Id        *int64     `json:"id,omitempty"`
+	Content   string     `json:"content"`
+	LikeCount *int64     `json:"like_count,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
-	Username string `json:"username"`
+	Username  string     `json:"username"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
 
@@ -278,5 +278,3 @@ func (v *NullableComment) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

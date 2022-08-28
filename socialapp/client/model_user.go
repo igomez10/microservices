@@ -17,11 +17,11 @@ import (
 
 // User struct for User
 type User struct {
-	Id *int64 `json:"id,omitempty"`
-	Username string `json:"username"`
-	FirstName string `json:"first_name"`
-	LastName string `json:"last_name"`
-	Email string `json:"email"`
+	Id        *int64     `json:"id,omitempty"`
+	Username  string     `json:"username"`
+	FirstName string     `json:"first_name"`
+	LastName  string     `json:"last_name"`
+	Email     string     `json:"email"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
@@ -300,5 +300,3 @@ func (v *NullableUser) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-
