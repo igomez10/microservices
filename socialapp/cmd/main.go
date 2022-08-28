@@ -9,8 +9,6 @@ import (
 	"socialapp/socialappapi/openapi"
 
 	_ "github.com/lib/pq"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
 )
@@ -44,21 +42,7 @@ func main() {
 
 func startPrometheusServer() error {
 	addr := ":9095"
-	// Create a new registry.
-	reg := prometheus.NewRegistry()
-	// Add Go module build info.
-	reg.MustRegister(collectors.NewBuildInfoCollector())
-	reg.MustRegister(collectors.NewGoCollector(
-		collectors.WithGoCollections(collectors.GoRuntimeMemStatsCollection | collectors.GoRuntimeMetricsCollection),
-	))
-
 	// Expose the registered metrics via HTTP.
-	http.Handle("/metrics", promhttp.HandlerFor(
-		reg,
-		promhttp.HandlerOpts{
-			// Opt into OpenMetrics to support exemplars.
-			EnableOpenMetrics: true,
-		},
-	))
+	http.Handle("/metrics", promhttp.Handler())
 	return http.ListenAndServe(addr, nil)
 }

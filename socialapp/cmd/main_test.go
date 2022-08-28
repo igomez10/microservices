@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net/http"
 	"socialapp/pkg/controller/user"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
@@ -70,14 +71,28 @@ func TestCreateUsers(t *testing.T) {
 
 	ctx := context.Background()
 	UserApiService := &user.UserApiService{DB: queries, DBConn: dbConn}
-	for i := 0; i < 10; i++ {
-		UserApiService.CreateUser(ctx, openapi.User{
-			Username:  fmt.Sprintf("Test-%d-%d", time.Now().UnixNano(), i),
-			FirstName: "first",
-			LastName:  "last",
-			Email:     fmt.Sprintf("Test-%d-%d@test.com", time.Now().UnixNano(), i),
-		})
+	counter := 0
+	for {
+		for i := 0; i < 10; i++ {
+			UserApiService.CreateUser(ctx, openapi.User{
+				Username:  fmt.Sprintf("Test-%d-%d", time.Now().UnixNano(), i),
+				FirstName: "first",
+				LastName:  "last",
+				Email:     fmt.Sprintf("Test-%d-%d@test.com", time.Now().UnixNano(), i),
+			})
 
-		time.Sleep(10 * time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
+		}
+		counter++
+		fmt.Printf("new users: %d\n", counter*10)
+		time.Sleep(200 * time.Millisecond)
+	}
+}
+
+func TestListUsers(t *testing.T) {
+	// call get localhost:8080/users
+	for {
+		http.Get("http://localhost:8080/users")
+		time.Sleep(200 * time.Millisecond)
 	}
 }
