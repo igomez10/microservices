@@ -7,6 +7,7 @@ info:
   description: Socialapp is a generic social network.
 servers:
   - url: http://localhost:8080
+  - url: http://localhost:8085
 
 paths:
   /users:
@@ -77,38 +78,6 @@ paths:
             application/json:
               schema:
                 type: array
-                $ref: "#/components/schemas/Comment"
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-    post:
-      summary: Create a new comment
-      operationId: createComment
-      tags:
-        - Comment
-      parameters:
-        - name: username
-          in: path
-          description: username of the user
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Create a new comment
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/Comment"
-        required: true
-      responses:
-        "200":
-          description: Get a comment by ID
-          content:
-            application/json:
-              schema:
                 $ref: "#/components/schemas/Comment"
         default:
           description: Unexpected error
@@ -227,6 +196,33 @@ paths:
               description: A link to the next page of responses
               schema:
                 type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /comments:
+    post:
+      summary: Create a new comment
+      operationId: createComment
+      tags:
+        - Comment
+      requestBody:
+        description: Create a new comment
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Comment"
+        required: true
+      responses:
+        "200":
+          description: New comment was created
           content:
             application/json:
               schema:

@@ -7,7 +7,7 @@ All URIs are relative to *http://localhost:8080*
 
 | Class | Method | HTTP request | Description |
 |------------ | ------------- | ------------- | -------------|
-| *CommentApi* | [**createComment**](Apis/CommentApi.md#createcomment) | **POST** /users/{username}/comments | Create a new comment |
+| *CommentApi* | [**createComment**](Apis/CommentApi.md#createcomment) | **POST** /comments | Create a new comment |
 *CommentApi* | [**getComment**](Apis/CommentApi.md#getcomment) | **GET** /comments/{id} | Returns details about a particular comment |
 *CommentApi* | [**getUserComments**](Apis/CommentApi.md#getusercomments) | **GET** /users/{username}/comments | Gets all comments for a user |
 | *UserApi* | [**createUser**](Apis/UserApi.md#createuser) | **POST** /users | Create a new user |
