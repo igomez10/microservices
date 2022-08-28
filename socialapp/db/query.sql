@@ -66,7 +66,7 @@ ORDER BY
 -- name: ListComment :many
 SELECT * FROM comments
 WHERE deleted_at IS NULL
-ORDER BY name;
+ORDER BY created_at DESC;
 
 -- name: CreateComment :one
 INSERT INTO comments (
