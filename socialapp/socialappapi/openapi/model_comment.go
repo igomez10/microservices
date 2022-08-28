@@ -14,7 +14,6 @@ import (
 )
 
 type Comment struct {
-
 	Id int64 `json:"id,omitempty"`
 
 	Content string `json:"content"`
@@ -31,7 +30,7 @@ type Comment struct {
 // AssertCommentRequired checks if the required fields are not zero-ed
 func AssertCommentRequired(obj Comment) error {
 	elements := map[string]interface{}{
-		"content": obj.Content,
+		"content":  obj.Content,
 		"username": obj.Username,
 	}
 	for name, el := range elements {

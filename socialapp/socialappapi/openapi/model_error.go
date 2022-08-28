@@ -10,7 +10,6 @@
 package openapi
 
 type Error struct {
-
 	Code int32 `json:"code"`
 
 	Message string `json:"message"`
@@ -19,7 +18,7 @@ type Error struct {
 // AssertErrorRequired checks if the required fields are not zero-ed
 func AssertErrorRequired(obj Error) error {
 	elements := map[string]interface{}{
-		"code": obj.Code,
+		"code":    obj.Code,
 		"message": obj.Message,
 	}
 	for name, el := range elements {

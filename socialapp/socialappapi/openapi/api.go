@@ -14,20 +14,19 @@ import (
 	"net/http"
 )
 
-
-
 // CommentApiRouter defines the required methods for binding the api requests to a responses for the CommentApi
 // The CommentApiRouter implementation should parse necessary information from the http request,
 // pass the data to a CommentApiServicer to perform the required actions, then write the service results to the http response.
-type CommentApiRouter interface { 
+type CommentApiRouter interface {
 	CreateComment(http.ResponseWriter, *http.Request)
 	GetComment(http.ResponseWriter, *http.Request)
 	GetUserComments(http.ResponseWriter, *http.Request)
 }
+
 // UserApiRouter defines the required methods for binding the api requests to a responses for the UserApi
 // The UserApiRouter implementation should parse necessary information from the http request,
 // pass the data to a UserApiServicer to perform the required actions, then write the service results to the http response.
-type UserApiRouter interface { 
+type UserApiRouter interface {
 	CreateUser(http.ResponseWriter, *http.Request)
 	DeleteUser(http.ResponseWriter, *http.Request)
 	GetUserByUsername(http.ResponseWriter, *http.Request)
@@ -36,23 +35,21 @@ type UserApiRouter interface {
 	UpdateUser(http.ResponseWriter, *http.Request)
 }
 
-
 // CommentApiServicer defines the api actions for the CommentApi service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type CommentApiServicer interface { 
+type CommentApiServicer interface {
 	CreateComment(context.Context, Comment) (ImplResponse, error)
 	GetComment(context.Context, int32) (ImplResponse, error)
 	GetUserComments(context.Context, string) (ImplResponse, error)
 }
 
-
 // UserApiServicer defines the api actions for the UserApi service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type UserApiServicer interface { 
+type UserApiServicer interface {
 	CreateUser(context.Context, User) (ImplResponse, error)
 	DeleteUser(context.Context, string) (ImplResponse, error)
 	GetUserByUsername(context.Context, string) (ImplResponse, error)
