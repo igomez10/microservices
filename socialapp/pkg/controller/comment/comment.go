@@ -14,9 +14,9 @@ type CommentService struct {
 	DBConn db.DBTX
 }
 
-func (s *CommentService) CreateComment(ctx context.Context, username string, comment openapi.Comment) (openapi.ImplResponse, error) {
+func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comment) (openapi.ImplResponse, error) {
 	params := db.CreateCommentForUserParams{
-		Username: username,
+		Username: comment.Username,
 		Content:  comment.Content,
 	}
 

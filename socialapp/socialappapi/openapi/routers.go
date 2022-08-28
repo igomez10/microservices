@@ -12,23 +12,22 @@ package openapi
 import (
 	"encoding/json"
 	"errors"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 )
 
 // A Route defines the parameters for an api endpoint
 type Route struct {
-	Name        string
-	Method      string
-	Pattern     string
+	Name		string
+	Method	  string
+	Pattern	 string
 	HandlerFunc http.HandlerFunc
 }
 
@@ -46,11 +45,7 @@ const errMsgRequiredMissing = "required parameter is missing"
 func NewRouter(routers ...Router) chi.Router {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
-	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins: []string{"*"},
-		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders: []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-	}))
+	router.Use(cors.Handler(cors.Options{}))
 	for _, api := range routers {
 		for _, route := range api.Routes() {
 			var handler http.Handler

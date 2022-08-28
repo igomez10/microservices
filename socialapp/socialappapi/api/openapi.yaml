@@ -7,6 +7,7 @@ info:
   version: 1.0.0
 servers:
 - url: http://localhost:8080
+- url: http://localhost:8085
 security:
 - BasicAuth: []
 paths:
@@ -84,40 +85,6 @@ paths:
       summary: Gets all comments for a user
       tags:
       - User
-      - Comment
-    post:
-      operationId: createComment
-      parameters:
-      - description: username of the user
-        explode: false
-        in: path
-        name: username
-        required: true
-        schema:
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Comment'
-        description: Create a new comment
-        required: true
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Comment'
-          description: Get a comment by ID
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Unexpected error
-      summary: Create a new comment
-      tags:
       - Comment
   /users/{username}:
     delete:
@@ -248,6 +215,32 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
       summary: Returns details about a particular comment
+      tags:
+      - Comment
+  /comments:
+    post:
+      operationId: createComment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        description: Create a new comment
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: New comment was created
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Create a new comment
       tags:
       - Comment
 components:

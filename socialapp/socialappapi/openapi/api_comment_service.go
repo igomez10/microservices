@@ -11,8 +11,8 @@ package openapi
 
 import (
 	"context"
-	"errors"
 	"net/http"
+	"errors"
 )
 
 // CommentApiService is a service that implements the logic for the CommentApiServicer
@@ -27,7 +27,7 @@ func NewCommentApiService() CommentApiServicer {
 }
 
 // CreateComment - Create a new comment
-func (s *CommentApiService) CreateComment(ctx context.Context, username string, comment Comment) (ImplResponse, error) {
+func (s *CommentApiService) CreateComment(ctx context.Context, comment Comment) (ImplResponse, error) {
 	// TODO - update CreateComment with the required logic for this service method.
 	// Add api_comment_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 

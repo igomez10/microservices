@@ -42,7 +42,7 @@ type UserApiRouter interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type CommentApiServicer interface { 
-	CreateComment(context.Context, string, Comment) (ImplResponse, error)
+	CreateComment(context.Context, Comment) (ImplResponse, error)
 	GetComment(context.Context, int32) (ImplResponse, error)
 	GetUserComments(context.Context, string) (ImplResponse, error)
 }
