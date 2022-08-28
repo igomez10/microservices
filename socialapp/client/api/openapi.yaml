@@ -1,0 +1,324 @@
+openapi: 3.0.0
+info:
+  description: Socialapp is a generic social network.
+  license:
+    name: MIT
+  title: Socialapp
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+- url: http://localhost:8085
+security:
+- BasicAuth: []
+paths:
+  /users:
+    get:
+      operationId: listUsers
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/User'
+                type: array
+          description: Details about a user by ID
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Returns all the users
+      tags:
+      - User
+    post:
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: Create a new user
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: User was created successfully
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Create a new user
+      tags:
+      - User
+  /users/{username}/comments:
+    get:
+      operationId: getUserComments
+      parameters:
+      - description: username of the user
+        explode: false
+        in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: User comments
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Gets all comments for a user
+      tags:
+      - User
+      - Comment
+  /users/{username}:
+    delete:
+      operationId: deleteUser
+      parameters:
+      - description: username of the user
+        explode: false
+        in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: User was deleted succesfully
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Deletes a particular user
+      tags:
+      - User
+    get:
+      operationId: getUserByUsername
+      parameters:
+      - description: username of the user
+        explode: false
+        in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Details about a user by ID
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              explode: false
+              schema:
+                type: string
+              style: simple
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Get a particular user by username
+      tags:
+      - User
+    put:
+      operationId: updateUser
+      parameters:
+      - description: username of the user
+        explode: false
+        in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: Update a user
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: User was updated successfully
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Update a user
+      tags:
+      - User
+  /comments/{id}:
+    get:
+      operationId: getComment
+      parameters:
+      - description: ID of the comment
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          format: int32
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: Details about a comment by ID
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              explode: false
+              schema:
+                type: string
+              style: simple
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Returns details about a particular comment
+      tags:
+      - Comment
+  /comments:
+    post:
+      operationId: createComment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        description: Create a new comment
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: New comment was created
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Create a new comment
+      tags:
+      - Comment
+components:
+  schemas:
+    User:
+      example:
+        last_name: last_name
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: 0
+        first_name: first_name
+        deleted_at: 2000-01-23T04:56:07.000+00:00
+        email: email
+        username: username
+      properties:
+        id:
+          format: int64
+          type: integer
+        username:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        deleted_at:
+          format: date-time
+          type: string
+      required:
+      - email
+      - first_name
+      - last_name
+      - username
+      type: object
+    Comment:
+      example:
+        like_count: 6
+        created_at: 2000-01-23T04:56:07.000+00:00
+        id: 0
+        deleted_at: 2000-01-23T04:56:07.000+00:00
+        content: content
+        username: username
+      properties:
+        id:
+          format: int64
+          type: integer
+        content:
+          type: string
+        like_count:
+          format: int64
+          type: integer
+        created_at:
+          format: date-time
+          type: string
+        username:
+          type: string
+        deleted_at:
+          format: date-time
+          type: string
+      required:
+      - content
+      - username
+      type: object
+    Error:
+      properties:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
+      required:
+      - code
+      - message
+      type: object
+  securitySchemes:
+    BasicAuth:
+      scheme: basic
+      type: http
