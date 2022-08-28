@@ -6,7 +6,10 @@ import (
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
 	"strings"
+	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog/log"
 )
 
@@ -17,7 +20,36 @@ type UserApiService struct {
 	DBConn db.DBTX
 }
 
+var (
+	createUserLatency = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "socialapp_user_operation_create_user_latency",
+		Help: "The latency of create user operations",
+	})
+	getUserByUsernameLatency = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "socialapp_user_operation_get_use_by_username_latency",
+		Help: "The latency of get user operations",
+	})
+	listUsersLatency = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "socialapp_user_operation_list_users_latency",
+		Help: "The latency of list users operations",
+	})
+	updateUsersLatency = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "socialapp_user_operation_update_user_latency",
+		Help: "The latency of update user operations",
+	})
+	deleteUsersLatency = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "socialapp_user_operation_delete_user_latency",
+		Help: "The latency of delete user operations",
+	})
+	getUserCommentsLatency = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "socialapp_user_operation_get_user_comments_latency",
+		Help: "The latency of get user comments operations",
+	})
+)
+
 func (s *UserApiService) CreateUser(ctx context.Context, user openapi.User) (openapi.ImplResponse, error) {
+	start := time.Now()
+	defer createUserLatency.Set(float64(time.Since(start).Milliseconds()))
 	// validate we dont have a user with the same username that is not deleted
 	noCaseUsername := strings.ToLower(user.Username)
 	if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, noCaseUsername); err == nil {
@@ -58,6 +90,8 @@ func (s *UserApiService) DeleteUser(ctx context.Context, username string) (opena
 
 // GetUserByUsername - Get a particular user by username
 func (s *UserApiService) GetUserByUsername(ctx context.Context, username string) (openapi.ImplResponse, error) {
+	start := time.Now()
+	defer getUserByUsernameLatency.Set(float64(time.Since(start).Nanoseconds()))
 	u, err := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if err != nil {
 		log.Err(err).Msg("Error getting user")
@@ -69,6 +103,8 @@ func (s *UserApiService) GetUserByUsername(ctx context.Context, username string)
 
 // GetUserComments - Gets all comments for a user
 func (s *UserApiService) GetUserComments(ctx context.Context, username string) (openapi.ImplResponse, error) {
+	start := time.Now()
+	defer getUserCommentsLatency.Set(float64(time.Since(start).Nanoseconds()))
 	commnet, err := s.DB.GetUserComments(ctx, s.DBConn, username)
 	if err != nil {
 		log.Err(err).Msg("Error getting user comments")
@@ -80,6 +116,8 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string) (
 
 // ListUsers - Returns all the users
 func (s *UserApiService) ListUsers(ctx context.Context) (openapi.ImplResponse, error) {
+	start := time.Now()
+	defer listUsersLatency.Set(float64(time.Since(start).Nanoseconds()))
 	commnet, err := s.DB.ListUsers(ctx, s.DBConn)
 	if err != nil {
 		log.Err(err).Msg("Error listing users")
@@ -91,6 +129,8 @@ func (s *UserApiService) ListUsers(ctx context.Context) (openapi.ImplResponse, e
 
 func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string, newUserData openapi.User) (openapi.ImplResponse, error) {
 	// get the user to update
+	start := time.Now()
+	defer updateUsersLatency.Set(float64(time.Since(start).Nanoseconds()))
 	existingUser, err := s.DB.GetUserByUsername(ctx, s.DBConn, existingUsername)
 	if err != nil {
 		log.Err(err).Str("username", existingUsername).Msg("Error getting user")
