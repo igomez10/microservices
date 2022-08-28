@@ -19,5 +19,9 @@
 			"path": "socialapp/socialappapi"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"githubPullRequests.ignoredPullRequestBranches": [
+			"mainline"
+		]
+	}
 }
