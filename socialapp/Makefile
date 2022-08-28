@@ -21,3 +21,9 @@ compose-up:
 
 start-dev-server:
 	reflex -r .go -s --  go run ./...
+
+build:
+	go build ./...
+
+test:
+	go test ./...
