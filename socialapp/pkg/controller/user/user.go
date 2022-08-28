@@ -51,14 +51,12 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.User) (ope
 	start := time.Now()
 	defer createUserLatency.Set(float64(time.Since(start).Milliseconds()))
 	// validate we dont have a user with the same username that is not deleted
-	noCaseUsername := strings.ToLower(user.Username)
-	if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, noCaseUsername); err == nil {
+	if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, user.Username); err == nil {
 		return openapi.Response(http.StatusConflict, nil), nil
 	}
 
 	// validate we dont have a user with the same email that is not deleted
-	noCaseEmail := strings.ToLower(user.Email)
-	if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, noCaseEmail); err == nil {
+	if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, user.Email); err == nil {
 		return openapi.Response(http.StatusConflict, nil), nil
 	}
 

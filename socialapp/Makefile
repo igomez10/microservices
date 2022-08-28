@@ -1,4 +1,5 @@
 generate-openapi:
+	#  generate server:
 	openapi-generator generate --input-spec openapi.yaml  \
 	--generator-name go-server \
 	--output socialappapi \
@@ -11,8 +12,31 @@ generate-openapi:
 	--additional-properties=hideGenerationTimestamp=false \
 	--additional-properties=onlyInterfaces=false \
 	--additional-properties=router=chi
-	openapi-generator generate -i openapi.yaml  -g markdown
+	rm -rf socialappapi/openapi
+	mv socialappapi/go socialappapi/openapi
+	
+	# generate client
+	openapi-generator generate --input-spec openapi.yaml  \
+        --generator-name go \
+        --output client \
+		--additional-properties=isGoSubmodule=true \
+		--additional-properties=packageName=client \
+		--additional-properties=structPrefix=true
+	rm client/go.mod
+	rm client/go.sum
 
+	# generate documentation
+	openapi-generator generate -i openapi.yaml  \
+	--generator-name markdown
+	
+	# generate schema
+	openapi-generator generate -i openapi.yaml  \
+	--generator-name mysql-schema \
+	--output generated-schema \
+	--additional-properties=namedParametersEnabled=true
+
+	go fmt ./...
+	
 sqlc-generate:
 	sqlc generate --file db/sqlc.yaml
 
