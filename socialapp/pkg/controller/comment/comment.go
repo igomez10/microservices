@@ -9,6 +9,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// s *CommentService openapi.CommentApiServicer
 type CommentService struct {
 	DB     db.Querier
 	DBConn db.DBTX

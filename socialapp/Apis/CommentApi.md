@@ -4,14 +4,14 @@ All URIs are relative to *http://localhost:8080*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**createComment**](CommentApi.md#createComment) | **POST** /users/{username}/comments | Create a new comment |
+| [**createComment**](CommentApi.md#createComment) | **POST** /comments | Create a new comment |
 | [**getComment**](CommentApi.md#getComment) | **GET** /comments/{id} | Returns details about a particular comment |
 | [**getUserComments**](CommentApi.md#getUserComments) | **GET** /users/{username}/comments | Gets all comments for a user |
 
 
 <a name="createComment"></a>
 # **createComment**
-> Comment createComment(username, Comment)
+> Comment createComment(Comment)
 
 Create a new comment
 
@@ -19,7 +19,6 @@ Create a new comment
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **username** | **String**| username of the user | [default to null] |
 | **Comment** | [**Comment**](../Models/Comment.md)| Create a new comment | |
 
 ### Return type
