@@ -11,4 +11,4 @@ sql:
         emit_exported_queries: true
         emit_methods_with_db_argument: true
         emit_json_tags: true
-        json_tags_case_style: "camel"
+        json_tags_case_style: "snake"

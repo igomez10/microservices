@@ -62,6 +62,7 @@ paths:
       operationId: getUserComments
       parameters:
       - description: username of the user
+        example: johndoe
         explode: false
         in: path
         name: username
@@ -91,6 +92,7 @@ paths:
       operationId: deleteUser
       parameters:
       - description: username of the user
+        example: johndoe
         explode: false
         in: path
         name: username
@@ -118,6 +120,7 @@ paths:
       operationId: getUserByUsername
       parameters:
       - description: username of the user
+        example: johndoe
         explode: false
         in: path
         name: username
@@ -152,6 +155,7 @@ paths:
       operationId: updateUser
       parameters:
       - description: username of the user
+        example: johndoe
         explode: false
         in: path
         name: username
@@ -186,6 +190,7 @@ paths:
       operationId: getComment
       parameters:
       - description: ID of the comment
+        example: 123
         explode: false
         in: path
         name: id

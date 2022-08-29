@@ -96,7 +96,7 @@ import (
 )
 
 func main() {
-    username := "username_example" // string | username of the user
+    username := "johndoe" // string | username of the user
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
@@ -164,7 +164,7 @@ import (
 )
 
 func main() {
-    username := "username_example" // string | username of the user
+    username := "johndoe" // string | username of the user
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
@@ -232,7 +232,7 @@ import (
 )
 
 func main() {
-    username := "username_example" // string | username of the user
+    username := "johndoe" // string | username of the user
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
@@ -359,7 +359,7 @@ import (
 )
 
 func main() {
-    username := "username_example" // string | username of the user
+    username := "johndoe" // string | username of the user
     user := *openapiclient.NewUser("Username_example", "FirstName_example", "LastName_example", "Email_example") // User | Update a user (optional)
 
     configuration := openapiclient.NewConfiguration()

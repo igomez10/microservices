@@ -71,6 +71,7 @@ paths:
           required: true
           schema:
             type: string
+          example: "johndoe"
       responses:
         "200":
           description: User comments
@@ -99,6 +100,7 @@ paths:
           required: true
           schema:
             type: string
+          example: "johndoe"
       responses:
         "200":
           description: User was deleted succesfully
@@ -124,6 +126,7 @@ paths:
           required: true
           schema:
             type: string
+          example: "johndoe"
       responses:
         "200":
           description: Details about a user by ID
@@ -154,6 +157,7 @@ paths:
           required: true
           schema:
             type: string
+          example: "johndoe"
       requestBody:
         description: Update a user
         content:
@@ -188,6 +192,7 @@ paths:
           schema:
             type: integer
             format: int32
+          example: 123
       responses:
         "200":
           description: Details about a comment by ID

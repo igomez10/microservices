@@ -12,18 +12,18 @@ import (
 type Comment struct {
 	ID        int32        `json:"id"`
 	Content   string       `json:"content"`
-	LikeCount int32        `json:"likeCount"`
-	CreatedAt time.Time    `json:"createdAt"`
-	UserID    int32        `json:"userID"`
-	DeletedAt sql.NullTime `json:"deletedAt"`
+	LikeCount int32        `json:"like_count"`
+	CreatedAt time.Time    `json:"created_at"`
+	UserID    int32        `json:"user_id"`
+	DeletedAt sql.NullTime `json:"deleted_at"`
 }
 
 type User struct {
 	ID        int32        `json:"id"`
 	Username  string       `json:"username"`
-	FirstName string       `json:"firstName"`
-	LastName  string       `json:"lastName"`
+	FirstName string       `json:"first_name"`
+	LastName  string       `json:"last_name"`
 	Email     string       `json:"email"`
-	CreatedAt time.Time    `json:"createdAt"`
-	DeletedAt sql.NullTime `json:"deletedAt"`
+	CreatedAt time.Time    `json:"created_at"`
+	DeletedAt sql.NullTime `json:"deleted_at"`
 }

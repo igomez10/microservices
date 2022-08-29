@@ -19,7 +19,7 @@ RETURNING id, content, like_count, created_at, user_id, deleted_at
 `
 
 type CreateCommentParams struct {
-	UserID  int32  `json:"userID"`
+	UserID  int32  `json:"user_id"`
 	Content string `json:"content"`
 }
 
@@ -76,8 +76,8 @@ RETURNING id, username, first_name, last_name, email, created_at, deleted_at
 
 type CreateUserParams struct {
 	Username  string `json:"username"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 }
 
@@ -249,7 +249,7 @@ func (q *Queries) GetUserComments(ctx context.Context, db DBTX, username string)
 const ListComment = `-- name: ListComment :many
 SELECT id, content, like_count, created_at, user_id, deleted_at FROM comments
 WHERE deleted_at IS NULL
-ORDER BY name
+ORDER BY created_at DESC
 `
 
 func (q *Queries) ListComment(ctx context.Context, db DBTX) ([]Comment, error) {
@@ -329,8 +329,8 @@ RETURNING id, username, first_name, last_name, email, created_at, deleted_at
 type UpdateUserParams struct {
 	ID        int32  `json:"id"`
 	Username  string `json:"username"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 }
 
@@ -363,11 +363,11 @@ RETURNING id, username, first_name, last_name, email, created_at, deleted_at
 `
 
 type UpdateUserByUsernameParams struct {
-	FirstName   string `json:"firstName"`
-	LastName    string `json:"lastName"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
 	Email       string `json:"email"`
-	NewUsername string `json:"newUsername"`
-	OldUsername string `json:"oldUsername"`
+	NewUsername string `json:"new_username"`
+	OldUsername string `json:"old_username"`
 }
 
 func (q *Queries) UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (User, error) {

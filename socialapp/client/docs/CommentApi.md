@@ -93,7 +93,7 @@ import (
 )
 
 func main() {
-    id := int32(56) // int32 | ID of the comment
+    id := int32(123) // int32 | ID of the comment
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
@@ -161,7 +161,7 @@ import (
 )
 
 func main() {
-    username := "username_example" // string | username of the user
+    username := "johndoe" // string | username of the user
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
