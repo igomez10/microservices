@@ -35,8 +35,16 @@ generate-openapi:
 	--output generated-schema \
 	--additional-properties=namedParametersEnabled=true
 
+	# format go code
 	go fmt ./...
 	
+	# generate cli 
+	openapi-generator generate --input-spec openapi.yaml \
+		--generator-name bash \
+        --output cli \
+		--additional-properties=generateZshCompletion=true \
+		--additional-properties=scriptName=socialapp-cli
+
 sqlc-generate:
 	sqlc generate --file db/sqlc.yaml
 
