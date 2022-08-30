@@ -25,3 +25,5 @@ socialapp/.vscode/configurationCache.log
 socialapp/.vscode/settings.json
 socialapp/.vscode/targets.log
 socialapp/cmd/__debug_bin
+socialapp/.openapi-generator/FILES
+socialapp/.openapi-generator/VERSION
