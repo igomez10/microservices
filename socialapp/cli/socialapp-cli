@@ -519,25 +519,27 @@ EOF
     echo -e ""
     echo -e "  - ${BLUE}Basic AUTH${OFF} - add '-u <username>:<password>' before ${YELLOW}<operation>${OFF}"
     
+    echo -e "  - ${BLUE}Basic AUTH${OFF} - add '-u <username>:<password>' before ${YELLOW}<operation>${OFF}"
+    
     echo ""
     echo -e "${BOLD}${WHITE}Operations (grouped by tags)${OFF}"
     echo ""
     echo -e "${BOLD}${WHITE}[comment]${OFF}"
 read -r -d '' ops <<EOF
-  ${CYAN}createComment${OFF};Create a new comment (AUTH)
-  ${CYAN}getComment${OFF};Returns details about a particular comment (AUTH)
-  ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH)
+  ${CYAN}createComment${OFF};Create a new comment (AUTH) (AUTH)
+  ${CYAN}getComment${OFF};Returns details about a particular comment (AUTH) (AUTH)
+  ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH) (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
     echo -e "${BOLD}${WHITE}[user]${OFF}"
 read -r -d '' ops <<EOF
-  ${CYAN}createUser${OFF};Create a new user (AUTH)
-  ${CYAN}deleteUser${OFF};Deletes a particular user (AUTH)
-  ${CYAN}getUserByUsername${OFF};Get a particular user by username (AUTH)
-  ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH)
-  ${CYAN}listUsers${OFF};Returns all the users (AUTH)
-  ${CYAN}updateUser${OFF};Update a user (AUTH)
+  ${CYAN}createUser${OFF};Create a new user (AUTH) (AUTH)
+  ${CYAN}deleteUser${OFF};Deletes a particular user (AUTH) (AUTH)
+  ${CYAN}getUserByUsername${OFF};Get a particular user by username (AUTH) (AUTH)
+  ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH) (AUTH)
+  ${CYAN}listUsers${OFF};Returns all the users (AUTH) (AUTH)
+  ${CYAN}updateUser${OFF};Update a user (AUTH) (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
@@ -598,7 +600,7 @@ print_version() {
 ##############################################################################
 print_createComment_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}createComment - Create a new comment${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}createComment - Create a new comment${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Create a new comment" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -617,7 +619,7 @@ print_createComment_help() {
 ##############################################################################
 print_getComment_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getComment - Returns details about a particular comment${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getComment - Returns details about a particular comment${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - ID of the comment ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -637,7 +639,7 @@ print_getComment_help() {
 ##############################################################################
 print_getUserComments_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUserComments - Gets all comments for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUserComments - Gets all comments for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -655,7 +657,7 @@ print_getUserComments_help() {
 ##############################################################################
 print_createUser_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}createUser - Create a new user${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}createUser - Create a new user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Create a new user" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -674,7 +676,7 @@ print_createUser_help() {
 ##############################################################################
 print_deleteUser_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}deleteUser - Deletes a particular user${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}deleteUser - Deletes a particular user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -692,7 +694,7 @@ print_deleteUser_help() {
 ##############################################################################
 print_getUserByUsername_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUserByUsername - Get a particular user by username${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUserByUsername - Get a particular user by username${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -712,7 +714,7 @@ print_getUserByUsername_help() {
 ##############################################################################
 print_getUserComments_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUserComments - Gets all comments for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUserComments - Gets all comments for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -730,7 +732,7 @@ print_getUserComments_help() {
 ##############################################################################
 print_listUsers_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}listUsers - Returns all the users${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}listUsers - Returns all the users${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
@@ -746,7 +748,7 @@ print_listUsers_help() {
 ##############################################################################
 print_updateUser_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}updateUser - Update a user${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}updateUser - Update a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -772,7 +774,7 @@ call_createComment() {
     local path_parameter_names=()
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(  )
+    local query_parameter_names=(    )
     local path
 
     if ! path=$(build_request_path "/comments" path_parameter_names query_parameter_names); then
@@ -850,7 +852,7 @@ call_getComment() {
     local path_parameter_names=(id)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(  )
+    local query_parameter_names=(    )
     local path
 
     if ! path=$(build_request_path "/comments/{id}" path_parameter_names query_parameter_names); then
@@ -886,7 +888,7 @@ call_getUserComments() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(  )
+    local query_parameter_names=(    )
     local path
 
     if ! path=$(build_request_path "/users/{username}/comments" path_parameter_names query_parameter_names); then
@@ -922,7 +924,7 @@ call_createUser() {
     local path_parameter_names=()
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(  )
+    local query_parameter_names=(    )
     local path
 
     if ! path=$(build_request_path "/users" path_parameter_names query_parameter_names); then
@@ -1000,7 +1002,7 @@ call_deleteUser() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(  )
+    local query_parameter_names=(    )
     local path
 
     if ! path=$(build_request_path "/users/{username}" path_parameter_names query_parameter_names); then
@@ -1036,7 +1038,7 @@ call_getUserByUsername() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(  )
+    local query_parameter_names=(    )
     local path
 
     if ! path=$(build_request_path "/users/{username}" path_parameter_names query_parameter_names); then
@@ -1072,7 +1074,7 @@ call_getUserComments() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(  )
+    local query_parameter_names=(    )
     local path
 
     if ! path=$(build_request_path "/users/{username}/comments" path_parameter_names query_parameter_names); then
@@ -1108,7 +1110,7 @@ call_listUsers() {
     local path_parameter_names=()
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(  )
+    local query_parameter_names=(    )
     local path
 
     if ! path=$(build_request_path "/users" path_parameter_names query_parameter_names); then
@@ -1144,7 +1146,7 @@ call_updateUser() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(  )
+    local query_parameter_names=(    )
     local path
 
     if ! path=$(build_request_path "/users/{username}" path_parameter_names query_parameter_names); then

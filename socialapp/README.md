@@ -34,3 +34,8 @@ All URIs are relative to *http://localhost:8080*
 
 - **Type**: HTTP basic authentication
 
+<a name="BearerAuth"></a>
+### BearerAuth
+
+- **Type**: HTTP basic authentication
+

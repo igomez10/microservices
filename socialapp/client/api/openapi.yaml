@@ -10,6 +10,7 @@ servers:
 - url: http://localhost:8085
 security:
 - BasicAuth: []
+- BearerAuth: []
 paths:
   /users:
     get:
@@ -326,4 +327,7 @@ components:
   securitySchemes:
     BasicAuth:
       scheme: basic
+      type: http
+    BearerAuth:
+      scheme: bearer
       type: http
