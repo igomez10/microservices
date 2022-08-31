@@ -1,6 +1,6 @@
-
+CREATE SEQUENCE IF NOT EXISTS users_id_seq;
 CREATE TABLE IF NOT EXISTS users (
-    id SERIAL NOT NULL PRIMARY KEY,
+    id int4 NOT NULL PRIMARY KEY DEFAULT nextval('users_id_seq'::regclass),
     username VARCHAR(100) NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
