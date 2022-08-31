@@ -23,7 +23,7 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 
 	newComment, err := s.DB.CreateCommentForUser(ctx, s.DBConn, params)
 	if err != nil {
-		log.Err(err).Msg("Error creating comment")
+		log.Error().Err(err).Msg("Error creating comment")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -33,7 +33,7 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.ImplResponse, error) {
 	commnet, err := s.DB.GetComment(ctx, s.DBConn, id)
 	if err != nil {
-		log.Err(err).Msg("Error getting comment")
+		log.Error().Err(err).Msg("Error getting comment")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -43,7 +43,7 @@ func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.Impl
 func (s *CommentService) GetUserComments(ctx context.Context, username string) (openapi.ImplResponse, error) {
 	commnet, err := s.DB.GetUserComments(ctx, s.DBConn, username)
 	if err != nil {
-		log.Err(err).Msg("Error getting comment")
+		log.Error().Err(err).Msg("Error getting comment")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 

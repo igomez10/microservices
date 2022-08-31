@@ -69,7 +69,7 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.User) (ope
 
 	createdUser, err := s.DB.CreateUser(ctx, s.DBConn, params)
 	if err != nil {
-		log.Err(err).Msg("Error creating user")
+		log.Error().Err(err).Msg("Error creating user")
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
@@ -81,7 +81,7 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.User) (ope
 // DeleteUser - Deletes a particular user
 func (s *UserApiService) DeleteUser(ctx context.Context, username string) (openapi.ImplResponse, error) {
 	if err := s.DB.DeleteUserByUsername(ctx, s.DBConn, username); err != nil {
-		log.Err(err).Msg("Error deleting user")
+		log.Error().Err(err).Msg("Error deleting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -92,13 +92,15 @@ func (s *UserApiService) DeleteUser(ctx context.Context, username string) (opena
 func (s *UserApiService) GetUserByUsername(ctx context.Context, username string) (openapi.ImplResponse, error) {
 	start := time.Now()
 	defer getUserByUsernameLatency.Set(float64(time.Since(start).Nanoseconds()))
-	u, err := s.DB.GetUserByUsername(ctx, s.DBConn, username)
+	dbUser, err := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if err != nil {
-		log.Err(err).Msg("Error getting user")
+		log.Error().Err(err).Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
-	return openapi.Response(http.StatusOK, u), nil
+	apiUser := FromDBUserToOpenAPIUser(dbUser)
+
+	return openapi.Response(http.StatusOK, apiUser), nil
 }
 
 // GetUserComments - Gets all comments for a user
@@ -107,7 +109,7 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string) (
 	defer getUserCommentsLatency.Set(float64(time.Since(start).Nanoseconds()))
 	commnet, err := s.DB.GetUserComments(ctx, s.DBConn, username)
 	if err != nil {
-		log.Err(err).Msg("Error getting user comments")
+		log.Error().Err(err).Msg("Error getting user comments")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -120,7 +122,7 @@ func (s *UserApiService) ListUsers(ctx context.Context) (openapi.ImplResponse, e
 	defer listUsersLatency.Set(float64(time.Since(start).Nanoseconds()))
 	dbUsers, err := s.DB.ListUsers(ctx, s.DBConn)
 	if err != nil {
-		log.Err(err).Msg("Error listing users")
+		log.Error().Err(err).Msg("Error listing users")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -138,7 +140,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	defer updateUsersLatency.Set(float64(time.Since(start).Nanoseconds()))
 	existingUser, err := s.DB.GetUserByUsername(ctx, s.DBConn, existingUsername)
 	if err != nil {
-		log.Err(err).Str("username", existingUsername).Msg("Error getting user")
+		log.Error().Err(err).Str("username", existingUsername).Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -179,7 +181,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	log.Debug().Msgf("UpdateUserByUsernameParams: \n%+v\n", params)
 	uUser, err := s.DB.UpdateUserByUsername(ctx, s.DBConn, params)
 	if err != nil {
-		log.Err(err).Msg("Error listing users")
+		log.Error().Err(err).Msg("Error listing users")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -190,13 +192,13 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 	// validate the user exists
 	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, s.DBConn, followedUsername)
 	if errGetFollowed != nil {
-		log.Err(errGetFollowed).Msg("Error getting user")
+		log.Error().Err(errGetFollowed).Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
 	followerUser, errGetFollower := s.DB.GetUserByUsername(ctx, s.DBConn, followerUsername)
 	if errGetFollower != nil {
-		log.Err(errGetFollower).Msg("Error getting user")
+		log.Error().Err(errGetFollower).Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -206,7 +208,7 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 		FollowedID: followedUser.ID,
 	})
 	if err != nil {
-		log.Err(err).Msg("Error following user")
+		log.Error().Err(err).Msg("Error following user")
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
@@ -217,30 +219,35 @@ func (s *UserApiService) GetUserFollowers(ctx context.Context, username string) 
 	// validate the user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
-		log.Err(errGetUser).Msg("Error getting user")
+		log.Error().Err(errGetUser).Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
-	followers, err := s.DB.GetFollowers(ctx, s.DBConn, user.ID)
+	dbFollowers, err := s.DB.GetFollowers(ctx, s.DBConn, user.ID)
 	if err != nil {
-		log.Err(err).Msg("Error getting user followers")
+		log.Error().Err(err).Msg("Error getting user followers")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
-	return openapi.Response(http.StatusOK, followers), nil
+	apiFollowers := make([]openapi.User, len(dbFollowers))
+	for i := range dbFollowers {
+		apiFollowers[i] = FromDBUserToOpenAPIUser(dbFollowers[i])
+	}
+
+	return openapi.Response(http.StatusOK, apiFollowers), nil
 }
 
 func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername string, followerUsername string) (openapi.ImplResponse, error) {
 	// validate the user exists
 	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, s.DBConn, followedUsername)
 	if errGetFollowed != nil {
-		log.Err(errGetFollowed).Msg("Error getting user")
+		log.Error().Err(errGetFollowed).Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
 	followerUser, errGetFollower := s.DB.GetUserByUsername(ctx, s.DBConn, followerUsername)
 	if errGetFollower != nil {
-		log.Err(errGetFollower).Msg("Error getting user")
+		log.Error().Err(errGetFollower).Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -250,7 +257,7 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 		FollowedID: followedUser.ID,
 	})
 	if err != nil {
-		log.Err(err).Msg("Error following user")
+		log.Error().Err(err).Msg("Error following user")
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 

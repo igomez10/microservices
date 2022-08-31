@@ -41,10 +41,10 @@ func BitcoinPriceHandler(c buffalo.Context) error {
 
 	btcPrice, err := PriceProvider.GetPitcoinPriceInUSD()
 	if err != nil {
-		log.Err(err).Msg("failed to retrieve bitcoin price")
+		log.Error().Err(err).Msg("failed to retrieve bitcoin price")
 		response := map[string]string{"error": "failed to retrieve bitcoin price"}
 		if errRender := c.Render(http.StatusInternalServerError, r.JSON(response)); errRender != nil {
-			log.Err(err).Msg("failed to send response")
+			log.Error().Err(err).Msg("failed to send response")
 			// TODO add metrics for failed to send response
 		}
 

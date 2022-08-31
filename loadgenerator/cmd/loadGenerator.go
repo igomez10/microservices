@@ -46,7 +46,7 @@ func IssueRequest(reqConfig RequestConfig, metricOutput io.Writer) {
 
 		req, err := http.NewRequest(reqConfig.Method, reqConfig.URL, nil)
 		if err != nil {
-			log.Err(err).Msg("Failed to create request")
+			log.Error().Err(err).Msg("Failed to create request")
 		}
 
 		startTime := time.Now()
@@ -56,7 +56,7 @@ func IssueRequest(reqConfig RequestConfig, metricOutput io.Writer) {
 			res.StatusCode == http.StatusTooManyRequests ||
 			res.StatusCode >= http.StatusInternalServerError {
 
-			log.Err(err).
+			log.Error().Err(err).
 				Int("StatusCode", res.StatusCode).
 				Str("URL", reqConfig.URL).
 				Str("Method", reqConfig.Method).
