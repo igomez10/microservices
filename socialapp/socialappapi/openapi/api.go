@@ -29,9 +29,12 @@ type CommentApiRouter interface {
 type UserApiRouter interface {
 	CreateUser(http.ResponseWriter, *http.Request)
 	DeleteUser(http.ResponseWriter, *http.Request)
+	FollowUser(http.ResponseWriter, *http.Request)
 	GetUserByUsername(http.ResponseWriter, *http.Request)
 	GetUserComments(http.ResponseWriter, *http.Request)
+	GetUserFollowers(http.ResponseWriter, *http.Request)
 	ListUsers(http.ResponseWriter, *http.Request)
+	UnfollowUser(http.ResponseWriter, *http.Request)
 	UpdateUser(http.ResponseWriter, *http.Request)
 }
 
@@ -52,8 +55,11 @@ type CommentApiServicer interface {
 type UserApiServicer interface {
 	CreateUser(context.Context, User) (ImplResponse, error)
 	DeleteUser(context.Context, string) (ImplResponse, error)
+	FollowUser(context.Context, string, string) (ImplResponse, error)
 	GetUserByUsername(context.Context, string) (ImplResponse, error)
 	GetUserComments(context.Context, string) (ImplResponse, error)
+	GetUserFollowers(context.Context, string) (ImplResponse, error)
 	ListUsers(context.Context) (ImplResponse, error)
+	UnfollowUser(context.Context, string, string) (ImplResponse, error)
 	UpdateUser(context.Context, string, User) (ImplResponse, error)
 }

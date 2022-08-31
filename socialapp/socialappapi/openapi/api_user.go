@@ -63,6 +63,12 @@ func (c *UserApiController) Routes() Routes {
 			c.DeleteUser,
 		},
 		{
+			"FollowUser",
+			strings.ToUpper("Post"),
+			"/users/{followedUsername}/followers/{followerUsername}",
+			c.FollowUser,
+		},
+		{
 			"GetUserByUsername",
 			strings.ToUpper("Get"),
 			"/users/{username}",
@@ -75,10 +81,22 @@ func (c *UserApiController) Routes() Routes {
 			c.GetUserComments,
 		},
 		{
+			"GetUserFollowers",
+			strings.ToUpper("Get"),
+			"/users/{username}/followers",
+			c.GetUserFollowers,
+		},
+		{
 			"ListUsers",
 			strings.ToUpper("Get"),
 			"/users",
 			c.ListUsers,
+		},
+		{
+			"UnfollowUser",
+			strings.ToUpper("Delete"),
+			"/users/{followedUsername}/followers/{followerUsername}",
+			c.UnfollowUser,
 		},
 		{
 			"UpdateUser",
@@ -128,6 +146,23 @@ func (c *UserApiController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// FollowUser - Add a user as a follower
+func (c *UserApiController) FollowUser(w http.ResponseWriter, r *http.Request) {
+	followedUsernameParam := chi.URLParam(r, "followedUsername")
+
+	followerUsernameParam := chi.URLParam(r, "followerUsername")
+
+	result, err := c.service.FollowUser(r.Context(), followedUsernameParam, followerUsernameParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+
+}
+
 // GetUserByUsername - Get a particular user by username
 func (c *UserApiController) GetUserByUsername(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
@@ -158,9 +193,41 @@ func (c *UserApiController) GetUserComments(w http.ResponseWriter, r *http.Reque
 
 }
 
+// GetUserFollowers - Get all followers for a user
+func (c *UserApiController) GetUserFollowers(w http.ResponseWriter, r *http.Request) {
+	usernameParam := chi.URLParam(r, "username")
+
+	result, err := c.service.GetUserFollowers(r.Context(), usernameParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+
+}
+
 // ListUsers - Returns all the users
 func (c *UserApiController) ListUsers(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListUsers(r.Context())
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+
+}
+
+// UnfollowUser - Remove a user as a follower
+func (c *UserApiController) UnfollowUser(w http.ResponseWriter, r *http.Request) {
+	followedUsernameParam := chi.URLParam(r, "followedUsername")
+
+	followerUsernameParam := chi.URLParam(r, "followerUsername")
+
+	result, err := c.service.UnfollowUser(r.Context(), followedUsernameParam, followerUsernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

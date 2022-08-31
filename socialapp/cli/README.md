@@ -108,9 +108,12 @@ Class | Method | HTTP request | Description
 *CommentApi* | [**getUserComments**](docs/CommentApi.md#getusercomments) | **GET** /users/{username}/comments | Gets all comments for a user
 *UserApi* | [**createUser**](docs/UserApi.md#createuser) | **POST** /users | Create a new user
 *UserApi* | [**deleteUser**](docs/UserApi.md#deleteuser) | **DELETE** /users/{username} | Deletes a particular user
+*UserApi* | [**followUser**](docs/UserApi.md#followuser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
 *UserApi* | [**getUserByUsername**](docs/UserApi.md#getuserbyusername) | **GET** /users/{username} | Get a particular user by username
 *UserApi* | [**getUserComments**](docs/UserApi.md#getusercomments) | **GET** /users/{username}/comments | Gets all comments for a user
+*UserApi* | [**getUserFollowers**](docs/UserApi.md#getuserfollowers) | **GET** /users/{username}/followers | Get all followers for a user
 *UserApi* | [**listUsers**](docs/UserApi.md#listusers) | **GET** /users | Returns all the users
+*UserApi* | [**unfollowUser**](docs/UserApi.md#unfollowuser) | **DELETE** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
 *UserApi* | [**updateUser**](docs/UserApi.md#updateuser) | **PUT** /users/{username} | Update a user
 
 

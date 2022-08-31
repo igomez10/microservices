@@ -14,13 +14,16 @@ type Querier interface {
 	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (User, error)
 	DeleteUser(ctx context.Context, db DBTX, id int32) error
 	DeleteUserByUsername(ctx context.Context, db DBTX, username string) error
+	FollowUser(ctx context.Context, db DBTX, arg FollowUserParams) error
 	GetComment(ctx context.Context, db DBTX, id int32) (Comment, error)
+	GetFollowers(ctx context.Context, db DBTX, followedID int32) ([]User, error)
 	GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error)
 	GetUserByID(ctx context.Context, db DBTX, id int32) (User, error)
 	GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error)
 	GetUserComments(ctx context.Context, db DBTX, username string) ([]Comment, error)
 	ListComment(ctx context.Context, db DBTX) ([]Comment, error)
 	ListUsers(ctx context.Context, db DBTX) ([]User, error)
+	UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error
 	UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (User, error)
 	UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (User, error)
 }

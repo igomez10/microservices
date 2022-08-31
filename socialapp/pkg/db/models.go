@@ -18,6 +18,12 @@ type Comment struct {
 	DeletedAt sql.NullTime `json:"deleted_at"`
 }
 
+type Follower struct {
+	ID         int32 `json:"id"`
+	FollowerID int32 `json:"follower_id"`
+	FollowedID int32 `json:"followed_id"`
+}
+
 type User struct {
 	ID        int32        `json:"id"`
 	Username  string       `json:"username"`

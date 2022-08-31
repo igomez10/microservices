@@ -87,6 +87,97 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /users/{username}/followers:
+    get:
+      summary: "Get all followers for a user"
+      operationId: getUserFollowers
+      tags:
+        - User
+      parameters:
+        - name: username
+          in: path
+          description: username of the user
+          required: true
+          schema:
+            type: string
+          example: "johndoe"
+      responses:
+        "200":
+          description: User followers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /users/{followedUsername}/followers/{followerUsername}:
+    post:
+      summary: "Add a user as a follower"
+      operationId: followUser
+      tags:
+        - User
+      parameters:
+        - name: followedUsername
+          in: path
+          description: username of the user
+          required: true
+          schema:
+            type: string
+          example: "johndoe"
+        - name: followerUsername
+          in: path
+          description: username of the follower
+          required: true
+          schema:
+            type: string
+          example: "jackdoe"
+      responses:
+        "200":
+          description: User was followed successfully
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: "Remove a user as a follower"
+      operationId: unfollowUser
+      tags:
+        - User
+      parameters:
+        - name: followedUsername
+          in: path
+          description: username of the user
+          required: true
+          schema:
+            type: string
+          example: "johndoe"
+        - name: followerUsername
+          in: path
+          description: username of the follower
+          required: true
+          schema:
+            type: string
+          example: "jackdoe"
+      responses:
+        "200":
+          description: User was unfollowed successfully
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /users/{username}:
     delete:
       summary: Deletes a particular user

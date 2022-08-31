@@ -123,6 +123,24 @@ func (q *Queries) DeleteUserByUsername(ctx context.Context, db DBTX, username st
 	return err
 }
 
+const FollowUser = `-- name: FollowUser :exec
+INSERT INTO followers (
+  follower_id, followed_id
+) VALUES (
+  $1, $2
+)
+`
+
+type FollowUserParams struct {
+	FollowerID int32 `json:"follower_id"`
+	FollowedID int32 `json:"followed_id"`
+}
+
+func (q *Queries) FollowUser(ctx context.Context, db DBTX, arg FollowUserParams) error {
+	_, err := db.ExecContext(ctx, FollowUser, arg.FollowerID, arg.FollowedID)
+	return err
+}
+
 const GetComment = `-- name: GetComment :one
 SELECT id, content, like_count, created_at, user_id, deleted_at FROM comments
 WHERE id = $1 AND deleted_at IS NULL LIMIT 1
@@ -140,6 +158,51 @@ func (q *Queries) GetComment(ctx context.Context, db DBTX, id int32) (Comment, e
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const GetFollowers = `-- name: GetFollowers :many
+SELECT
+	u.id, u.username, u.first_name, u.last_name, u.email, u.created_at, u.deleted_at
+FROM
+	users u,
+	followers f
+WHERE
+	f.followed_id = $1
+	AND f.follower_id = u.id
+	AND u.deleted_at IS NULL
+ORDER BY
+	u.first_name
+`
+
+func (q *Queries) GetFollowers(ctx context.Context, db DBTX, followedID int32) ([]User, error) {
+	rows, err := db.QueryContext(ctx, GetFollowers, followedID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
+			&i.FirstName,
+			&i.LastName,
+			&i.Email,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const GetUserByEmail = `-- name: GetUserByEmail :one
@@ -317,6 +380,21 @@ func (q *Queries) ListUsers(ctx context.Context, db DBTX) ([]User, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const UnfollowUser = `-- name: UnfollowUser :exec
+DELETE FROM followers
+WHERE follower_id = $1 AND followed_id = $2
+`
+
+type UnfollowUserParams struct {
+	FollowerID int32 `json:"follower_id"`
+	FollowedID int32 `json:"followed_id"`
+}
+
+func (q *Queries) UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error {
+	_, err := db.ExecContext(ctx, UnfollowUser, arg.FollowerID, arg.FollowedID)
+	return err
 }
 
 const UpdateUser = `-- name: UpdateUser :one

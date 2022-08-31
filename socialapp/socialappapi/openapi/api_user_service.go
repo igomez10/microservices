@@ -54,6 +54,20 @@ func (s *UserApiService) DeleteUser(ctx context.Context, username string) (ImplR
 	return Response(http.StatusNotImplemented, nil), errors.New("DeleteUser method not implemented")
 }
 
+// FollowUser - Add a user as a follower
+func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string, followerUsername string) (ImplResponse, error) {
+	// TODO - update FollowUser with the required logic for this service method.
+	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	//TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
+	//return Response(200, nil),nil
+
+	//TODO: Uncomment the next line to return response Response(0, Error{}) or use other options such as http.Ok ...
+	//return Response(0, Error{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("FollowUser method not implemented")
+}
+
 // GetUserByUsername - Get a particular user by username
 func (s *UserApiService) GetUserByUsername(ctx context.Context, username string) (ImplResponse, error) {
 	// TODO - update GetUserByUsername with the required logic for this service method.
@@ -82,6 +96,20 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string) (
 	return Response(http.StatusNotImplemented, nil), errors.New("GetUserComments method not implemented")
 }
 
+// GetUserFollowers - Get all followers for a user
+func (s *UserApiService) GetUserFollowers(ctx context.Context, username string) (ImplResponse, error) {
+	// TODO - update GetUserFollowers with the required logic for this service method.
+	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	//TODO: Uncomment the next line to return response Response(200, []User{}) or use other options such as http.Ok ...
+	//return Response(200, []User{}), nil
+
+	//TODO: Uncomment the next line to return response Response(0, Error{}) or use other options such as http.Ok ...
+	//return Response(0, Error{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("GetUserFollowers method not implemented")
+}
+
 // ListUsers - Returns all the users
 func (s *UserApiService) ListUsers(ctx context.Context) (ImplResponse, error) {
 	// TODO - update ListUsers with the required logic for this service method.
@@ -94,6 +122,20 @@ func (s *UserApiService) ListUsers(ctx context.Context) (ImplResponse, error) {
 	//return Response(0, Error{}), nil
 
 	return Response(http.StatusNotImplemented, nil), errors.New("ListUsers method not implemented")
+}
+
+// UnfollowUser - Remove a user as a follower
+func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername string, followerUsername string) (ImplResponse, error) {
+	// TODO - update UnfollowUser with the required logic for this service method.
+	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	//TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
+	//return Response(200, nil),nil
+
+	//TODO: Uncomment the next line to return response Response(0, Error{}) or use other options such as http.Ok ...
+	//return Response(0, Error{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("UnfollowUser method not implemented")
 }
 
 // UpdateUser - Update a user

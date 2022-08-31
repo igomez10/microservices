@@ -6,9 +6,12 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**CreateUser**](UserApi.md#CreateUser) | **Post** /users | Create a new user
 [**DeleteUser**](UserApi.md#DeleteUser) | **Delete** /users/{username} | Deletes a particular user
+[**FollowUser**](UserApi.md#FollowUser) | **Post** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
 [**GetUserByUsername**](UserApi.md#GetUserByUsername) | **Get** /users/{username} | Get a particular user by username
 [**GetUserComments**](UserApi.md#GetUserComments) | **Get** /users/{username}/comments | Gets all comments for a user
+[**GetUserFollowers**](UserApi.md#GetUserFollowers) | **Get** /users/{username}/followers | Get all followers for a user
 [**ListUsers**](UserApi.md#ListUsers) | **Get** /users | Returns all the users
+[**UnfollowUser**](UserApi.md#UnfollowUser) | **Delete** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
 [**UpdateUser**](UserApi.md#UpdateUser) | **Put** /users/{username} | Update a user
 
 
@@ -130,6 +133,75 @@ Name | Type | Description  | Notes
 ### Return type
 
 [**User**](User.md)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## FollowUser
+
+> FollowUser(ctx, followedUsername, followerUsername).Execute()
+
+Add a user as a follower
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "./openapi"
+)
+
+func main() {
+    followedUsername := "johndoe" // string | username of the user
+    followerUsername := "jackdoe" // string | username of the follower
+
+    configuration := openapiclient.NewConfiguration()
+    apiClient := openapiclient.NewAPIClient(configuration)
+    resp, r, err := apiClient.UserApi.FollowUser(context.Background(), followedUsername, followerUsername).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.FollowUser``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**followedUsername** | **string** | username of the user | 
+**followerUsername** | **string** | username of the follower | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiFollowUserRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+
+### Return type
+
+ (empty response body)
 
 ### Authorization
 
@@ -281,6 +353,74 @@ Name | Type | Description  | Notes
 [[Back to README]](../README.md)
 
 
+## GetUserFollowers
+
+> []User GetUserFollowers(ctx, username).Execute()
+
+Get all followers for a user
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "./openapi"
+)
+
+func main() {
+    username := "johndoe" // string | username of the user
+
+    configuration := openapiclient.NewConfiguration()
+    apiClient := openapiclient.NewAPIClient(configuration)
+    resp, r, err := apiClient.UserApi.GetUserFollowers(context.Background(), username).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.GetUserFollowers``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+    // response from `GetUserFollowers`: []User
+    fmt.Fprintf(os.Stdout, "Response from `UserApi.GetUserFollowers`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**username** | **string** | username of the user | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetUserFollowersRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+### Return type
+
+[**[]User**](User.md)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
 ## ListUsers
 
 > []User ListUsers(ctx).Execute()
@@ -325,6 +465,75 @@ Other parameters are passed through a pointer to a apiListUsersRequest struct vi
 ### Return type
 
 [**[]User**](User.md)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## UnfollowUser
+
+> UnfollowUser(ctx, followedUsername, followerUsername).Execute()
+
+Remove a user as a follower
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "./openapi"
+)
+
+func main() {
+    followedUsername := "johndoe" // string | username of the user
+    followerUsername := "jackdoe" // string | username of the follower
+
+    configuration := openapiclient.NewConfiguration()
+    apiClient := openapiclient.NewAPIClient(configuration)
+    resp, r, err := apiClient.UserApi.UnfollowUser(context.Background(), followedUsername, followerUsername).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.UnfollowUser``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**followedUsername** | **string** | username of the user | 
+**followerUsername** | **string** | username of the follower | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiUnfollowUserRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+
+### Return type
+
+ (empty response body)
 
 ### Authorization
 

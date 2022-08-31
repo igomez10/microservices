@@ -24,6 +24,18 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 
 
+CREATE SEQUENCE IF NOT EXISTS followers_id_seq;
+CREATE TABLE "public"."followers" (
+    "id" int4 NOT NULL DEFAULT nextval('followers_id_seq'::regclass),
+    "follower_id" int4 NOT NULL,
+    "followed_id" int4 NOT NULL,
+    CONSTRAINT "followers_follower_id_fkey" FOREIGN KEY ("follower_id") REFERENCES "public"."users"("id"),
+    CONSTRAINT "followers_followed_id_fkey" FOREIGN KEY ("followed_id") REFERENCES "public"."users"("id"),
+    UNIQUE ("follower_id", "followed_id"),
+    PRIMARY KEY ("id")
+);
+
+
 INSERT INTO "public"."users" ("id", "username", "first_name", "last_name", "email", "created_at", "deleted_at") VALUES
 (1, 'igomez', 'first', 'last', 'first@last.com', '2022-08-20 11:50:28.522646', NULL),
 (2, 'second', 'first', 'last', 'first@last.com', '2022-08-20 11:50:28.522646', NULL);

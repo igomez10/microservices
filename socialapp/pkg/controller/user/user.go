@@ -73,7 +73,9 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.User) (ope
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
-	return openapi.Response(http.StatusOK, createdUser), nil
+	apiUser := FromDBUserToOpenAPIUser(createdUser)
+
+	return openapi.Response(http.StatusOK, apiUser), nil
 }
 
 // DeleteUser - Deletes a particular user
@@ -116,13 +118,18 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string) (
 func (s *UserApiService) ListUsers(ctx context.Context) (openapi.ImplResponse, error) {
 	start := time.Now()
 	defer listUsersLatency.Set(float64(time.Since(start).Nanoseconds()))
-	commnet, err := s.DB.ListUsers(ctx, s.DBConn)
+	dbUsers, err := s.DB.ListUsers(ctx, s.DBConn)
 	if err != nil {
 		log.Err(err).Msg("Error listing users")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
-	return openapi.Response(http.StatusOK, commnet), nil
+	apiUsers := make([]openapi.User, len(dbUsers))
+	for i := range dbUsers {
+		apiUsers[i] = FromDBUserToOpenAPIUser(dbUsers[i])
+	}
+
+	return openapi.Response(http.StatusOK, apiUsers), nil
 }
 
 func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string, newUserData openapi.User) (openapi.ImplResponse, error) {
@@ -177,4 +184,91 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	}
 
 	return openapi.Response(http.StatusOK, uUser), nil
+}
+
+func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string, followerUsername string) (openapi.ImplResponse, error) {
+	// validate the user exists
+	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, s.DBConn, followedUsername)
+	if errGetFollowed != nil {
+		log.Err(errGetFollowed).Msg("Error getting user")
+		return openapi.Response(http.StatusNotFound, nil), nil
+	}
+
+	followerUser, errGetFollower := s.DB.GetUserByUsername(ctx, s.DBConn, followerUsername)
+	if errGetFollower != nil {
+		log.Err(errGetFollower).Msg("Error getting user")
+		return openapi.Response(http.StatusNotFound, nil), nil
+	}
+
+	//  add follow connection
+	err := s.DB.FollowUser(ctx, s.DBConn, db.FollowUserParams{
+		FollowerID: followerUser.ID,
+		FollowedID: followedUser.ID,
+	})
+	if err != nil {
+		log.Err(err).Msg("Error following user")
+		return openapi.Response(http.StatusInternalServerError, nil), nil
+	}
+
+	return openapi.Response(http.StatusOK, nil), nil
+}
+
+func (s *UserApiService) GetUserFollowers(ctx context.Context, username string) (openapi.ImplResponse, error) {
+	// validate the user exists
+	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
+	if errGetUser != nil {
+		log.Err(errGetUser).Msg("Error getting user")
+		return openapi.Response(http.StatusNotFound, nil), nil
+	}
+
+	followers, err := s.DB.GetFollowers(ctx, s.DBConn, user.ID)
+	if err != nil {
+		log.Err(err).Msg("Error getting user followers")
+		return openapi.Response(http.StatusNotFound, nil), nil
+	}
+
+	return openapi.Response(http.StatusOK, followers), nil
+}
+
+func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername string, followerUsername string) (openapi.ImplResponse, error) {
+	// validate the user exists
+	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, s.DBConn, followedUsername)
+	if errGetFollowed != nil {
+		log.Err(errGetFollowed).Msg("Error getting user")
+		return openapi.Response(http.StatusNotFound, nil), nil
+	}
+
+	followerUser, errGetFollower := s.DB.GetUserByUsername(ctx, s.DBConn, followerUsername)
+	if errGetFollower != nil {
+		log.Err(errGetFollower).Msg("Error getting user")
+		return openapi.Response(http.StatusNotFound, nil), nil
+	}
+
+	//  add follow connection
+	err := s.DB.UnfollowUser(ctx, s.DBConn, db.UnfollowUserParams{
+		FollowerID: followerUser.ID,
+		FollowedID: followedUser.ID,
+	})
+	if err != nil {
+		log.Err(err).Msg("Error following user")
+		return openapi.Response(http.StatusInternalServerError, nil), nil
+	}
+
+	return openapi.Response(http.StatusOK, nil), nil
+}
+
+func FromDBUserToOpenAPIUser(u db.User) openapi.User {
+	apiUser := openapi.User{
+		Username:  u.Username,
+		FirstName: u.FirstName,
+		LastName:  u.LastName,
+		Email:     u.Email,
+		CreatedAt: u.CreatedAt,
+	}
+
+	if u.DeletedAt.Valid {
+		apiUser.DeletedAt = u.DeletedAt.Time
+	}
+
+	return apiUser
 }

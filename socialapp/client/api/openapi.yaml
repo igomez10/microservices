@@ -88,6 +88,104 @@ paths:
       tags:
       - User
       - Comment
+  /users/{username}/followers:
+    get:
+      operationId: getUserFollowers
+      parameters:
+      - description: username of the user
+        example: johndoe
+        explode: false
+        in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/User'
+                type: array
+          description: User followers
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Get all followers for a user
+      tags:
+      - User
+  /users/{followedUsername}/followers/{followerUsername}:
+    delete:
+      operationId: unfollowUser
+      parameters:
+      - description: username of the user
+        example: johndoe
+        explode: false
+        in: path
+        name: followedUsername
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: username of the follower
+        example: jackdoe
+        explode: false
+        in: path
+        name: followerUsername
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: User was unfollowed successfully
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Remove a user as a follower
+      tags:
+      - User
+    post:
+      operationId: followUser
+      parameters:
+      - description: username of the user
+        example: johndoe
+        explode: false
+        in: path
+        name: followedUsername
+        required: true
+        schema:
+          type: string
+        style: simple
+      - description: username of the follower
+        example: jackdoe
+        explode: false
+        in: path
+        name: followerUsername
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: User was followed successfully
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Add a user as a follower
+      tags:
+      - User
   /users/{username}:
     delete:
       operationId: deleteUser

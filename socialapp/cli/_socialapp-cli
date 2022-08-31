@@ -300,9 +300,12 @@ case $state in
             "getComment[Returns details about a particular comment]" \
             "getUserComments[Gets all comments for a user]"             "createUser[Create a new user]" \
             "deleteUser[Deletes a particular user]" \
+            "followUser[Add a user as a follower]" \
             "getUserByUsername[Get a particular user by username]" \
             "getUserComments[Gets all comments for a user]" \
+            "getUserFollowers[Get all followers for a user]" \
             "listUsers[Returns all the users]" \
+            "unfollowUser[Remove a user as a follower]" \
             "updateUser[Update a user]" \
 
     _arguments "(--help)--help[Print information about operation]"
@@ -344,6 +347,14 @@ case $state in
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
+      followUser)
+        local -a _op_arguments
+        _op_arguments=(
+          "followedUsername=:[PATH] username of the user"
+"followerUsername=:[PATH] username of the follower"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
       getUserByUsername)
         local -a _op_arguments
         _op_arguments=(
@@ -358,10 +369,25 @@ case $state in
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
+      getUserFollowers)
+        local -a _op_arguments
+        _op_arguments=(
+          "username=:[PATH] username of the user"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
       listUsers)
         local -a _op_arguments
         _op_arguments=(
                               )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      unfollowUser)
+        local -a _op_arguments
+        _op_arguments=(
+          "followedUsername=:[PATH] username of the user"
+"followerUsername=:[PATH] username of the follower"
+                    )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       updateUser)

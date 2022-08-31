@@ -88,3 +88,29 @@ RETURNING *;
 UPDATE comments
 SET deleted_at = NOW()
 WHERE id = $1 AND deleted_at IS NULL;
+
+-- name: FollowUser :exec
+INSERT INTO followers (
+  follower_id, followed_id
+) VALUES (
+  $1, $2
+);
+
+-- name: UnfollowUser :exec
+DELETE FROM followers
+WHERE follower_id = $1 AND followed_id = $2;
+
+-- name: GetFollowers :many
+SELECT
+	u.*
+FROM
+	users u,
+	followers f
+WHERE
+	f.followed_id = $1
+	AND f.follower_id = u.id
+	AND u.deleted_at IS NULL
+ORDER BY
+	u.first_name;
+	
+

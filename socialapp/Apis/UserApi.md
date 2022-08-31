@@ -6,9 +6,12 @@ All URIs are relative to *http://localhost:8080*
 |------------- | ------------- | -------------|
 | [**createUser**](UserApi.md#createUser) | **POST** /users | Create a new user |
 | [**deleteUser**](UserApi.md#deleteUser) | **DELETE** /users/{username} | Deletes a particular user |
+| [**followUser**](UserApi.md#followUser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower |
 | [**getUserByUsername**](UserApi.md#getUserByUsername) | **GET** /users/{username} | Get a particular user by username |
 | [**getUserComments**](UserApi.md#getUserComments) | **GET** /users/{username}/comments | Gets all comments for a user |
+| [**getUserFollowers**](UserApi.md#getUserFollowers) | **GET** /users/{username}/followers | Get all followers for a user |
 | [**listUsers**](UserApi.md#listUsers) | **GET** /users | Returns all the users |
+| [**unfollowUser**](UserApi.md#unfollowUser) | **DELETE** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower |
 | [**updateUser**](UserApi.md#updateUser) | **PUT** /users/{username} | Update a user |
 
 
@@ -52,6 +55,32 @@ Deletes a particular user
 ### Return type
 
 [**User**](../Models/User.md)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="followUser"></a>
+# **followUser**
+> followUser(followedUsername, followerUsername)
+
+Add a user as a follower
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **followedUsername** | **String**| username of the user | [default to null] |
+| **followerUsername** | **String**| username of the follower | [default to null] |
+
+### Return type
+
+null (empty response body)
 
 ### Authorization
 
@@ -112,6 +141,31 @@ Gets all comments for a user
 - **Content-Type**: Not defined
 - **Accept**: application/json
 
+<a name="getUserFollowers"></a>
+# **getUserFollowers**
+> List getUserFollowers(username)
+
+Get all followers for a user
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **username** | **String**| username of the user | [default to null] |
+
+### Return type
+
+[**List**](../Models/User.md)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
 <a name="listUsers"></a>
 # **listUsers**
 > List listUsers()
@@ -124,6 +178,32 @@ This endpoint does not need any parameter.
 ### Return type
 
 [**List**](../Models/User.md)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="unfollowUser"></a>
+# **unfollowUser**
+> unfollowUser(followedUsername, followerUsername)
+
+Remove a user as a follower
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **followedUsername** | **String**| username of the user | [default to null] |
+| **followerUsername** | **String**| username of the follower | [default to null] |
+
+### Return type
+
+null (empty response body)
 
 ### Authorization
 
