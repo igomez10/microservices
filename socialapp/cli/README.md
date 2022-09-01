@@ -106,9 +106,11 @@ Class | Method | HTTP request | Description
 *CommentApi* | [**createComment**](docs/CommentApi.md#createcomment) | **POST** /comments | Create a new comment
 *CommentApi* | [**getComment**](docs/CommentApi.md#getcomment) | **GET** /comments/{id} | Returns details about a particular comment
 *CommentApi* | [**getUserComments**](docs/CommentApi.md#getusercomments) | **GET** /users/{username}/comments | Gets all comments for a user
+*CommentApi* | [**getUserFeed**](docs/CommentApi.md#getuserfeed) | **GET** /users/{username}/feed | Returns a users feed
 *UserApi* | [**createUser**](docs/UserApi.md#createuser) | **POST** /users | Create a new user
 *UserApi* | [**deleteUser**](docs/UserApi.md#deleteuser) | **DELETE** /users/{username} | Deletes a particular user
 *UserApi* | [**followUser**](docs/UserApi.md#followuser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
+*UserApi* | [**getFollowingUsers**](docs/UserApi.md#getfollowingusers) | **GET** /users/{username}/following | Get all followed users for a user
 *UserApi* | [**getUserByUsername**](docs/UserApi.md#getuserbyusername) | **GET** /users/{username} | Get a particular user by username
 *UserApi* | [**getUserComments**](docs/UserApi.md#getusercomments) | **GET** /users/{username}/comments | Gets all comments for a user
 *UserApi* | [**getUserFollowers**](docs/UserApi.md#getuserfollowers) | **GET** /users/{username}/followers | Get all followers for a user

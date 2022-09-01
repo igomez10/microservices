@@ -49,3 +49,6 @@ INSERT INTO "public"."comments" ("id", "content", "like_count", "created_at", "u
 (5, 'something', 0, '2022-08-20 11:53:21.218349', 2, NULL),
 (6, 'something', 0, '2022-08-20 11:53:21.218349', 2, NULL),
 (7, 'something', 0, '2022-08-20 11:53:21.218349', 2, NULL);
+
+INSERT INTO "public"."followers" ("follower_id", "followed_id") VALUES
+(1, 2);

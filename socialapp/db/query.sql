@@ -54,12 +54,12 @@ WHERE id = $1 AND deleted_at IS NULL LIMIT 1;
 SELECT
 	c.*
 FROM
-	users u,
-	comments c
+	comments c JOIN users u
+	ON c.user_id = u.id
 WHERE
 	u.username = $1
-	AND u.id = c.user_id
 	AND c.deleted_at IS NULL
+	AND u.deleted_at IS NULL
 ORDER BY
 	c.created_at DESC;
 
@@ -114,3 +114,15 @@ ORDER BY
 	u.first_name;
 	
 
+-- name: GetFollowedUsers :many
+SELECT
+	u.*
+FROM
+	users u,
+	followers f
+WHERE
+	f.follower_id = $1
+	AND f.followed_id = u.id
+	AND u.deleted_at IS NULL
+ORDER BY
+	u.first_name;

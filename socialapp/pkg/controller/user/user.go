@@ -264,6 +264,28 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 	return openapi.Response(http.StatusOK, nil), nil
 }
 
+func (s *UserApiService) GetFollowingUsers(ctx context.Context, username string) (openapi.ImplResponse, error) {
+	// validate the user exists
+	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
+	if errGetUser != nil {
+		log.Error().Err(errGetUser).Msg("Error getting user")
+		return openapi.Response(http.StatusNotFound, nil), nil
+	}
+
+	dbFollowing, err := s.DB.GetFollowedUsers(ctx, s.DBConn, user.ID)
+	if err != nil {
+		log.Error().Err(err).Msg("Error getting user following")
+		return openapi.Response(http.StatusNotFound, nil), nil
+	}
+
+	apiFollowing := make([]openapi.User, len(dbFollowing))
+	for i := range dbFollowing {
+		apiFollowing[i] = FromDBUserToOpenAPIUser(dbFollowing[i])
+	}
+
+	return openapi.Response(http.StatusOK, apiFollowing), nil
+}
+
 func FromDBUserToOpenAPIUser(u db.User) openapi.User {
 	apiUser := openapi.User{
 		Username:  u.Username,

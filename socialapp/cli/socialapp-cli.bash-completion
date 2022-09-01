@@ -71,9 +71,11 @@ _socialapp-cli()
     operations["createComment"]=1
     operations["getComment"]=1
     operations["getUserComments"]=1
+    operations["getUserFeed"]=1
     operations["createUser"]=1
     operations["deleteUser"]=1
     operations["followUser"]=1
+    operations["getFollowingUsers"]=1
     operations["getUserByUsername"]=1
     operations["getUserComments"]=1
     operations["getUserFollowers"]=1
@@ -87,9 +89,11 @@ _socialapp-cli()
     operation_parameters["createComment"]=""
     operation_parameters["getComment"]="id= "
     operation_parameters["getUserComments"]="username= "
+    operation_parameters["getUserFeed"]="username= "
     operation_parameters["createUser"]=""
     operation_parameters["deleteUser"]="username= "
     operation_parameters["followUser"]="followedUsername= followerUsername= "
+    operation_parameters["getFollowingUsers"]="username= "
     operation_parameters["getUserByUsername"]="username= "
     operation_parameters["getUserComments"]="username= "
     operation_parameters["getUserFollowers"]="username= "

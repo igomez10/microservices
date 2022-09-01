@@ -68,6 +68,12 @@ func (c *CommentApiController) Routes() Routes {
 			"/users/{username}/comments",
 			c.GetUserComments,
 		},
+		{
+			"GetUserFeed",
+			strings.ToUpper("Get"),
+			"/users/{username}/feed",
+			c.GetUserFeed,
+		},
 	}
 }
 
@@ -119,6 +125,21 @@ func (c *CommentApiController) GetUserComments(w http.ResponseWriter, r *http.Re
 	usernameParam := chi.URLParam(r, "username")
 
 	result, err := c.service.GetUserComments(r.Context(), usernameParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+
+}
+
+// GetUserFeed - Returns a users feed
+func (c *CommentApiController) GetUserFeed(w http.ResponseWriter, r *http.Request) {
+	usernameParam := chi.URLParam(r, "username")
+
+	result, err := c.service.GetUserFeed(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

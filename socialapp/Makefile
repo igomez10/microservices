@@ -1,5 +1,6 @@
 generate-openapi:
 	#  generate server:
+	rm -rf ./socialappapi
 	openapi-generator generate --input-spec openapi.yaml  \
 	--generator-name go-server \
 	--output socialappapi \
@@ -52,7 +53,7 @@ compose-up:
 	docker compose down && docker-compose up
 
 start-dev-server:
-	reflex -r .go -s --  go run ./...
+	reflex -r .go -s --decoration="fancy" --  go run ./...
 
 build:
 	go build ./...

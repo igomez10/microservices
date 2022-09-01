@@ -160,6 +160,51 @@ func (q *Queries) GetComment(ctx context.Context, db DBTX, id int32) (Comment, e
 	return i, err
 }
 
+const GetFollowedUsers = `-- name: GetFollowedUsers :many
+SELECT
+	u.id, u.username, u.first_name, u.last_name, u.email, u.created_at, u.deleted_at
+FROM
+	users u,
+	followers f
+WHERE
+	f.follower_id = $1
+	AND f.followed_id = u.id
+	AND u.deleted_at IS NULL
+ORDER BY
+	u.first_name
+`
+
+func (q *Queries) GetFollowedUsers(ctx context.Context, db DBTX, followerID int32) ([]User, error) {
+	rows, err := db.QueryContext(ctx, GetFollowedUsers, followerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
+			&i.FirstName,
+			&i.LastName,
+			&i.Email,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const GetFollowers = `-- name: GetFollowers :many
 SELECT
 	u.id, u.username, u.first_name, u.last_name, u.email, u.created_at, u.deleted_at
@@ -269,12 +314,12 @@ const GetUserComments = `-- name: GetUserComments :many
 SELECT
 	c.id, c.content, c.like_count, c.created_at, c.user_id, c.deleted_at
 FROM
-	users u,
-	comments c
+	comments c JOIN users u
+	ON c.user_id = u.id
 WHERE
 	u.username = $1
-	AND u.id = c.user_id
 	AND c.deleted_at IS NULL
+	AND u.deleted_at IS NULL
 ORDER BY
 	c.created_at DESC
 `

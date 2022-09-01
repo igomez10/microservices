@@ -298,9 +298,11 @@ case $state in
     _values "Operations" \
             "createComment[Create a new comment]" \
             "getComment[Returns details about a particular comment]" \
-            "getUserComments[Gets all comments for a user]"             "createUser[Create a new user]" \
+            "getUserComments[Gets all comments for a user]" \
+            "getUserFeed[Returns a users feed]"             "createUser[Create a new user]" \
             "deleteUser[Deletes a particular user]" \
             "followUser[Add a user as a follower]" \
+            "getFollowingUsers[Get all followed users for a user]" \
             "getUserByUsername[Get a particular user by username]" \
             "getUserComments[Gets all comments for a user]" \
             "getUserFollowers[Get all followers for a user]" \
@@ -334,6 +336,13 @@ case $state in
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
+      getUserFeed)
+        local -a _op_arguments
+        _op_arguments=(
+          "username=:[PATH] The username of the user"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
       createUser)
         local -a _op_arguments
         _op_arguments=(
@@ -352,6 +361,13 @@ case $state in
         _op_arguments=(
           "followedUsername=:[PATH] username of the user"
 "followerUsername=:[PATH] username of the follower"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      getFollowingUsers)
+        local -a _op_arguments
+        _op_arguments=(
+          "username=:[PATH] username of the user"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;

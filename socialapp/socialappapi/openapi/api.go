@@ -21,6 +21,7 @@ type CommentApiRouter interface {
 	CreateComment(http.ResponseWriter, *http.Request)
 	GetComment(http.ResponseWriter, *http.Request)
 	GetUserComments(http.ResponseWriter, *http.Request)
+	GetUserFeed(http.ResponseWriter, *http.Request)
 }
 
 // UserApiRouter defines the required methods for binding the api requests to a responses for the UserApi
@@ -30,6 +31,7 @@ type UserApiRouter interface {
 	CreateUser(http.ResponseWriter, *http.Request)
 	DeleteUser(http.ResponseWriter, *http.Request)
 	FollowUser(http.ResponseWriter, *http.Request)
+	GetFollowingUsers(http.ResponseWriter, *http.Request)
 	GetUserByUsername(http.ResponseWriter, *http.Request)
 	GetUserComments(http.ResponseWriter, *http.Request)
 	GetUserFollowers(http.ResponseWriter, *http.Request)
@@ -46,6 +48,7 @@ type CommentApiServicer interface {
 	CreateComment(context.Context, Comment) (ImplResponse, error)
 	GetComment(context.Context, int32) (ImplResponse, error)
 	GetUserComments(context.Context, string) (ImplResponse, error)
+	GetUserFeed(context.Context, string) (ImplResponse, error)
 }
 
 // UserApiServicer defines the api actions for the UserApi service
@@ -56,6 +59,7 @@ type UserApiServicer interface {
 	CreateUser(context.Context, User) (ImplResponse, error)
 	DeleteUser(context.Context, string) (ImplResponse, error)
 	FollowUser(context.Context, string, string) (ImplResponse, error)
+	GetFollowingUsers(context.Context, string) (ImplResponse, error)
 	GetUserByUsername(context.Context, string) (ImplResponse, error)
 	GetUserComments(context.Context, string) (ImplResponse, error)
 	GetUserFollowers(context.Context, string) (ImplResponse, error)

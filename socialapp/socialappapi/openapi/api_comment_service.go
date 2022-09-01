@@ -67,3 +67,17 @@ func (s *CommentApiService) GetUserComments(ctx context.Context, username string
 
 	return Response(http.StatusNotImplemented, nil), errors.New("GetUserComments method not implemented")
 }
+
+// GetUserFeed - Returns a users feed
+func (s *CommentApiService) GetUserFeed(ctx context.Context, username string) (ImplResponse, error) {
+	// TODO - update GetUserFeed with the required logic for this service method.
+	// Add api_comment_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	//TODO: Uncomment the next line to return response Response(200, []Comment{}) or use other options such as http.Ok ...
+	//return Response(200, []Comment{}), nil
+
+	//TODO: Uncomment the next line to return response Response(0, Error{}) or use other options such as http.Ok ...
+	//return Response(0, Error{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("GetUserFeed method not implemented")
+}

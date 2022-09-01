@@ -15,8 +15,8 @@ import (
 var apiClient *client.APIClient
 
 func TestListUsers(t *testing.T) {
-	os.Setenv("HTTP_PROXY", "http://192.168.68.103:9091")
-	os.Setenv("HTTPS_PROXY", "http://192.168.68.103:9091")
+	os.Setenv("HTTP_PROXY", "http://localhost:9091")
+	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
 
 	configuration := client.NewConfiguration()
 	proxyStr := "http://localhost:9091"
@@ -46,8 +46,8 @@ func TestListUsers(t *testing.T) {
 }
 
 func TestCreateUser(t *testing.T) {
-	os.Setenv("HTTP_PROXY", "localhost:9091")
-	os.Setenv("HTTPS_PROXY", "localhost:9091")
+	os.Setenv("HTTP_PROXY", "http://localhost:9091")
+	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
 
 	configuration := client.NewConfiguration()
 	proxyStr := "http://localhost:9091"
@@ -118,11 +118,8 @@ func TestCreateUser(t *testing.T) {
 
 func TestFollowCycle(t *testing.T) {
 	// create two users
-	os.Setenv("HTTP_PROXY", "localhost:9091")
-	os.Setenv("HTTPS_PROXY", "localhost:9091")
-
-	os.Setenv("HTTP_PROXY", "http://192.168.68.103:9091")
-	os.Setenv("HTTPS_PROXY", "http://192.168.68.103:9091")
+	os.Setenv("HTTP_PROXY", "http://localhost:9091")
+	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
 
 	configuration := client.NewConfiguration()
 	proxyStr := "http://localhost:9091"
@@ -155,15 +152,11 @@ func TestFollowCycle(t *testing.T) {
 		_, r1, err1 := apiClient.UserApi.CreateUser(context.Background()).User(user1).Execute()
 		if err1 != nil {
 			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err1, r1)
-			fmt.Fprintf(os.Stderr, "Error when calling `UserApi.CreateUser``: %v\n", err1)
-			fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r1)
 		}
 
 		_, r2, err2 := apiClient.UserApi.CreateUser(context.Background()).User(user2).Execute()
 		if err2 != nil {
 			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err2, r2)
-			fmt.Fprintf(os.Stderr, "Error when calling `UserApi.CreateUser``: %v\n", err2)
-			fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r2)
 		}
 	}()
 
@@ -172,8 +165,6 @@ func TestFollowCycle(t *testing.T) {
 		r, err := apiClient.UserApi.FollowUser(context.Background(), username2, username1).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
-			fmt.Fprintf(os.Stderr, "Error when calling `UserApi.FollowUser``: %v\n", err)
-			fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 		}
 	}()
 
@@ -182,8 +173,6 @@ func TestFollowCycle(t *testing.T) {
 		followers, r, err := apiClient.UserApi.GetUserFollowers(context.Background(), username2).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
-			fmt.Fprintf(os.Stderr, "Error when calling `UserApi.FollowUser``: %v\n", err)
-			fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 		}
 		if len(followers) != 1 {
 			t.Errorf("Expected 1 follower, got %d", len(followers))
@@ -198,8 +187,6 @@ func TestFollowCycle(t *testing.T) {
 		r, err := apiClient.UserApi.UnfollowUser(context.Background(), username2, username1).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
-			fmt.Fprintf(os.Stderr, "Error when calling `UserApi.FollowUser``: %v\n", err)
-			fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 		}
 	}()
 
@@ -208,12 +195,103 @@ func TestFollowCycle(t *testing.T) {
 		followers, r, err := apiClient.UserApi.GetUserFollowers(context.Background(), username2).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
-			fmt.Fprintf(os.Stderr, "Error when calling `UserApi.FollowUser``: %v\n", err)
-			fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
 		}
 
 		if len(followers) != 0 {
 			t.Errorf("Expected 0 followers, got %d", len(followers))
 		}
 	}()
+}
+
+func TestGetExpectedFeed(t *testing.T) {
+	// create two users
+	os.Setenv("HTTP_PROXY", "http://localhost:9091")
+	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
+
+	configuration := client.NewConfiguration()
+
+	proxyStr := "http://localhost:9091"
+	proxyURL, err := url.Parse(proxyStr)
+	if err != nil {
+		log.Println(err)
+	}
+
+	//adding the proxy settings to the Transport object
+	transport := &http.Transport{
+		Proxy: http.ProxyURL(proxyURL),
+	}
+	configuration.HTTPClient = &http.Client{
+		Timeout:   time.Second * 10,
+		Transport: transport,
+	}
+
+	apiClient = client.NewAPIClient(configuration)
+
+	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
+	email1 := fmt.Sprintf("Test-%d-1@social.com", time.Now().UnixNano())
+	user1 := *client.NewUser(username1, "FirstName_example", "LastName_example", email1) // User | Create a new user
+
+	username2 := fmt.Sprintf("Test-%d2", time.Now().UnixNano())
+	email2 := fmt.Sprintf("Test-%d-2@social.com", time.Now().UnixNano())
+	user2 := *client.NewUser(username2, "FirstName_example", "LastName_example", email2) // User | Create a new user
+
+	// create users
+	func() {
+		_, r1, err1 := apiClient.UserApi.
+			CreateUser(context.Background()).
+			User(user1).
+			Execute()
+		if err1 != nil {
+			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err1, r1)
+		}
+
+		_, r2, err2 := apiClient.UserApi.
+			CreateUser(context.Background()).
+			User(user2).
+			Execute()
+		if err2 != nil {
+			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err2, r2)
+		}
+	}()
+
+	// user 1 follows user 2
+	func() {
+		r, err := apiClient.UserApi.FollowUser(
+			context.Background(),
+			username2,
+			username1).
+			Execute()
+		if err != nil {
+			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
+		}
+	}()
+
+	// user 2 posts a comment
+	func() {
+		comment := *client.NewComment("Test comment", username2)
+		_, r, err := apiClient.CommentApi.
+			CreateComment(context.Background()).
+			Comment(comment).
+			Execute()
+		if err != nil {
+			t.Errorf("Error when calling `UserApi.PostComment`: %v\n %+v\n", err, r)
+		}
+	}()
+
+	// validate feed in user 1's feed
+	func() {
+		feed, r, err := apiClient.CommentApi.
+			GetUserFeed(context.Background(), username1).
+			Execute()
+		if err != nil {
+			t.Errorf("Error when calling `UserApi.GetUserFeed`: %v\n %+v\n", err, r)
+		}
+		if len(feed) != 1 {
+			t.Errorf("Expected 1 post in feed, got %d", len(feed))
+		}
+		if feed[0].Username != username2 {
+			t.Errorf("Expected post from %s, got %s", username2, feed[0].Username)
+		}
+	}()
+
 }

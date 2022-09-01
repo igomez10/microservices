@@ -68,6 +68,20 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 	return Response(http.StatusNotImplemented, nil), errors.New("FollowUser method not implemented")
 }
 
+// GetFollowingUsers - Get all followed users for a user
+func (s *UserApiService) GetFollowingUsers(ctx context.Context, username string) (ImplResponse, error) {
+	// TODO - update GetFollowingUsers with the required logic for this service method.
+	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	//TODO: Uncomment the next line to return response Response(200, []User{}) or use other options such as http.Ok ...
+	//return Response(200, []User{}), nil
+
+	//TODO: Uncomment the next line to return response Response(0, Error{}) or use other options such as http.Ok ...
+	//return Response(0, Error{}), nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("GetFollowingUsers method not implemented")
+}
+
 // GetUserByUsername - Get a particular user by username
 func (s *UserApiService) GetUserByUsername(ctx context.Context, username string) (ImplResponse, error) {
 	// TODO - update GetUserByUsername with the required logic for this service method.

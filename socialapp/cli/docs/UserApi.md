@@ -7,6 +7,7 @@ Method | HTTP request | Description
 [**createUser**](UserApi.md#createUser) | **POST** /users | Create a new user
 [**deleteUser**](UserApi.md#deleteUser) | **DELETE** /users/{username} | Deletes a particular user
 [**followUser**](UserApi.md#followUser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
+[**getFollowingUsers**](UserApi.md#getFollowingUsers) | **GET** /users/{username}/following | Get all followed users for a user
 [**getUserByUsername**](UserApi.md#getUserByUsername) | **GET** /users/{username} | Get a particular user by username
 [**getUserComments**](UserApi.md#getUserComments) | **GET** /users/{username}/comments | Gets all comments for a user
 [**getUserFollowers**](UserApi.md#getUserFollowers) | **GET** /users/{username}/followers | Get all followers for a user
@@ -103,6 +104,39 @@ Name | Type | Description  | Notes
 ### Return type
 
 (empty response body)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not Applicable
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+
+## getFollowingUsers
+
+Get all followed users for a user
+
+### Example
+
+```bash
+socialapp-cli getFollowingUsers username=value
+```
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **username** | **string** | username of the user | [default to null]
+
+### Return type
+
+[**array[User]**](User.md)
 
 ### Authorization
 

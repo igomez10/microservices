@@ -57,6 +57,35 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /users/{username}/feed:
+    get:
+      summary: "Returns a users feed"
+      operationId: getUserFeed
+      tags:
+        - Comment
+      parameters:
+        - name: username
+          in: path
+          description: The username of the user
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Get a users feed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Comment"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /users/{username}/comments:
     get:
       summary: "Gets all comments for a user"
@@ -104,6 +133,35 @@ paths:
       responses:
         "200":
           description: User followers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /users/{username}/following:
+    get:
+      summary: "Get all followed users for a user"
+      operationId: getFollowingUsers
+      tags:
+        - User
+      parameters:
+        - name: username
+          in: path
+          description: username of the user
+          required: true
+          schema:
+            type: string
+          example: "johndoe"
+      responses:
+        "200":
+          description: Followed users
           content:
             application/json:
               schema:

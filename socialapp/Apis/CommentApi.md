@@ -7,6 +7,7 @@ All URIs are relative to *http://localhost:8080*
 | [**createComment**](CommentApi.md#createComment) | **POST** /comments | Create a new comment |
 | [**getComment**](CommentApi.md#getComment) | **GET** /comments/{id} | Returns details about a particular comment |
 | [**getUserComments**](CommentApi.md#getUserComments) | **GET** /users/{username}/comments | Gets all comments for a user |
+| [**getUserFeed**](CommentApi.md#getUserFeed) | **GET** /users/{username}/feed | Returns a users feed |
 
 
 <a name="createComment"></a>
@@ -74,6 +75,31 @@ Gets all comments for a user
 ### Return type
 
 [**Comment**](../Models/Comment.md)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="getUserFeed"></a>
+# **getUserFeed**
+> List getUserFeed(username)
+
+Returns a users feed
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **username** | **String**| The username of the user | [default to null] |
+
+### Return type
+
+[**List**](../Models/Comment.md)
 
 ### Authorization
 

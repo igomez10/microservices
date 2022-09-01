@@ -98,10 +98,12 @@ declare -A operation_parameters_minimum_occurrences
 operation_parameters_minimum_occurrences["createComment:::Comment"]=1
 operation_parameters_minimum_occurrences["getComment:::id"]=1
 operation_parameters_minimum_occurrences["getUserComments:::username"]=1
+operation_parameters_minimum_occurrences["getUserFeed:::username"]=1
 operation_parameters_minimum_occurrences["createUser:::User"]=1
 operation_parameters_minimum_occurrences["deleteUser:::username"]=1
 operation_parameters_minimum_occurrences["followUser:::followedUsername"]=1
 operation_parameters_minimum_occurrences["followUser:::followerUsername"]=1
+operation_parameters_minimum_occurrences["getFollowingUsers:::username"]=1
 operation_parameters_minimum_occurrences["getUserByUsername:::username"]=1
 operation_parameters_minimum_occurrences["getUserComments:::username"]=1
 operation_parameters_minimum_occurrences["getUserFollowers:::username"]=1
@@ -120,10 +122,12 @@ declare -A operation_parameters_maximum_occurrences
 operation_parameters_maximum_occurrences["createComment:::Comment"]=0
 operation_parameters_maximum_occurrences["getComment:::id"]=0
 operation_parameters_maximum_occurrences["getUserComments:::username"]=0
+operation_parameters_maximum_occurrences["getUserFeed:::username"]=0
 operation_parameters_maximum_occurrences["createUser:::User"]=0
 operation_parameters_maximum_occurrences["deleteUser:::username"]=0
 operation_parameters_maximum_occurrences["followUser:::followedUsername"]=0
 operation_parameters_maximum_occurrences["followUser:::followerUsername"]=0
+operation_parameters_maximum_occurrences["getFollowingUsers:::username"]=0
 operation_parameters_maximum_occurrences["getUserByUsername:::username"]=0
 operation_parameters_maximum_occurrences["getUserComments:::username"]=0
 operation_parameters_maximum_occurrences["getUserFollowers:::username"]=0
@@ -139,10 +143,12 @@ declare -A operation_parameters_collection_type
 operation_parameters_collection_type["createComment:::Comment"]=""
 operation_parameters_collection_type["getComment:::id"]=""
 operation_parameters_collection_type["getUserComments:::username"]=""
+operation_parameters_collection_type["getUserFeed:::username"]=""
 operation_parameters_collection_type["createUser:::User"]=""
 operation_parameters_collection_type["deleteUser:::username"]=""
 operation_parameters_collection_type["followUser:::followedUsername"]=""
 operation_parameters_collection_type["followUser:::followerUsername"]=""
+operation_parameters_collection_type["getFollowingUsers:::username"]=""
 operation_parameters_collection_type["getUserByUsername:::username"]=""
 operation_parameters_collection_type["getUserComments:::username"]=""
 operation_parameters_collection_type["getUserFollowers:::username"]=""
@@ -544,6 +550,7 @@ read -r -d '' ops <<EOF
   ${CYAN}createComment${OFF};Create a new comment (AUTH) (AUTH)
   ${CYAN}getComment${OFF};Returns details about a particular comment (AUTH) (AUTH)
   ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH) (AUTH)
+  ${CYAN}getUserFeed${OFF};Returns a users feed (AUTH) (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
@@ -552,6 +559,7 @@ read -r -d '' ops <<EOF
   ${CYAN}createUser${OFF};Create a new user (AUTH) (AUTH)
   ${CYAN}deleteUser${OFF};Deletes a particular user (AUTH) (AUTH)
   ${CYAN}followUser${OFF};Add a user as a follower (AUTH) (AUTH)
+  ${CYAN}getFollowingUsers${OFF};Get all followed users for a user (AUTH) (AUTH)
   ${CYAN}getUserByUsername${OFF};Get a particular user by username (AUTH) (AUTH)
   ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH) (AUTH)
   ${CYAN}getUserFollowers${OFF};Get all followers for a user (AUTH) (AUTH)
@@ -670,6 +678,24 @@ print_getUserComments_help() {
 }
 ##############################################################################
 #
+# Print help for getUserFeed operation
+#
+##############################################################################
+print_getUserFeed_help() {
+    echo ""
+    echo -e "${BOLD}${WHITE}getUserFeed - Returns a users feed${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "${BOLD}${WHITE}Parameters${OFF}"
+    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo ""
+    echo -e "${BOLD}${WHITE}Responses${OFF}"
+    code=200
+    echo -e "${result_color_table[${code:0:1}]}  200;Get a users feed${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=0
+    echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+}
+##############################################################################
+#
 # Print help for createUser operation
 #
 ##############################################################################
@@ -721,6 +747,24 @@ print_followUser_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;User was followed successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=0
+    echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+}
+##############################################################################
+#
+# Print help for getFollowingUsers operation
+#
+##############################################################################
+print_getFollowingUsers_help() {
+    echo ""
+    echo -e "${BOLD}${WHITE}getFollowingUsers - Get all followed users for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "${BOLD}${WHITE}Parameters${OFF}"
+    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo ""
+    echo -e "${BOLD}${WHITE}Responses${OFF}"
+    code=200
+    echo -e "${result_color_table[${code:0:1}]}  200;Followed users${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -989,6 +1033,42 @@ call_getUserComments() {
 
 ##############################################################################
 #
+# Call getUserFeed operation
+#
+##############################################################################
+call_getUserFeed() {
+    # ignore error about 'path_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local path_parameter_names=(username)
+    # ignore error about 'query_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local query_parameter_names=(    )
+    local path
+
+    if ! path=$(build_request_path "/users/{username}/feed" path_parameter_names query_parameter_names); then
+        ERROR_MSG=$path
+        exit 1
+    fi
+    local method="GET"
+    local headers_curl
+    headers_curl=$(header_arguments_to_curl)
+    if [[ -n $header_accept ]]; then
+        headers_curl="${headers_curl} -H 'Accept: ${header_accept}'"
+    fi
+
+    local basic_auth_option=""
+    if [[ -n $basic_auth_credential ]]; then
+        basic_auth_option="-u ${basic_auth_credential}"
+    fi
+    if [[ "$print_curl" = true ]]; then
+        echo "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    else
+        eval "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    fi
+}
+
+##############################################################################
+#
 # Call createUser operation
 #
 ##############################################################################
@@ -1120,6 +1200,42 @@ call_followUser() {
         exit 1
     fi
     local method="POST"
+    local headers_curl
+    headers_curl=$(header_arguments_to_curl)
+    if [[ -n $header_accept ]]; then
+        headers_curl="${headers_curl} -H 'Accept: ${header_accept}'"
+    fi
+
+    local basic_auth_option=""
+    if [[ -n $basic_auth_credential ]]; then
+        basic_auth_option="-u ${basic_auth_credential}"
+    fi
+    if [[ "$print_curl" = true ]]; then
+        echo "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    else
+        eval "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    fi
+}
+
+##############################################################################
+#
+# Call getFollowingUsers operation
+#
+##############################################################################
+call_getFollowingUsers() {
+    # ignore error about 'path_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local path_parameter_names=(username)
+    # ignore error about 'query_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local query_parameter_names=(    )
+    local path
+
+    if ! path=$(build_request_path "/users/{username}/following" path_parameter_names query_parameter_names); then
+        ERROR_MSG=$path
+        exit 1
+    fi
+    local method="GET"
     local headers_curl
     headers_curl=$(header_arguments_to_curl)
     if [[ -n $header_accept ]]; then
@@ -1501,6 +1617,9 @@ case $key in
     getUserComments)
     operation="getUserComments"
     ;;
+    getUserFeed)
+    operation="getUserFeed"
+    ;;
     createUser)
     operation="createUser"
     ;;
@@ -1509,6 +1628,9 @@ case $key in
     ;;
     followUser)
     operation="followUser"
+    ;;
+    getFollowingUsers)
+    operation="getFollowingUsers"
     ;;
     getUserByUsername)
     operation="getUserByUsername"
@@ -1614,6 +1736,9 @@ case $operation in
     getUserComments)
     call_getUserComments
     ;;
+    getUserFeed)
+    call_getUserFeed
+    ;;
     createUser)
     call_createUser
     ;;
@@ -1622,6 +1747,9 @@ case $operation in
     ;;
     followUser)
     call_followUser
+    ;;
+    getFollowingUsers)
+    call_getFollowingUsers
     ;;
     getUserByUsername)
     call_getUserByUsername

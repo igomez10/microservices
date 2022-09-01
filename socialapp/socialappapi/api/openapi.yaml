@@ -58,6 +58,36 @@ paths:
       summary: Create a new user
       tags:
       - User
+  /users/{username}/feed:
+    get:
+      operationId: getUserFeed
+      parameters:
+      - description: The username of the user
+        explode: false
+        in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Comment'
+                type: array
+          description: Get a users feed
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Returns a users feed
+      tags:
+      - Comment
   /users/{username}/comments:
     get:
       operationId: getUserComments
@@ -117,6 +147,37 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
       summary: Get all followers for a user
+      tags:
+      - User
+  /users/{username}/following:
+    get:
+      operationId: getFollowingUsers
+      parameters:
+      - description: username of the user
+        example: johndoe
+        explode: false
+        in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/User'
+                type: array
+          description: Followed users
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Get all followed users for a user
       tags:
       - User
   /users/{followedUsername}/followers/{followerUsername}:

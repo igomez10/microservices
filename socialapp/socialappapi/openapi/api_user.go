@@ -69,6 +69,12 @@ func (c *UserApiController) Routes() Routes {
 			c.FollowUser,
 		},
 		{
+			"GetFollowingUsers",
+			strings.ToUpper("Get"),
+			"/users/{username}/following",
+			c.GetFollowingUsers,
+		},
+		{
 			"GetUserByUsername",
 			strings.ToUpper("Get"),
 			"/users/{username}",
@@ -153,6 +159,21 @@ func (c *UserApiController) FollowUser(w http.ResponseWriter, r *http.Request) {
 	followerUsernameParam := chi.URLParam(r, "followerUsername")
 
 	result, err := c.service.FollowUser(r.Context(), followedUsernameParam, followerUsernameParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+
+}
+
+// GetFollowingUsers - Get all followed users for a user
+func (c *UserApiController) GetFollowingUsers(w http.ResponseWriter, r *http.Request) {
+	usernameParam := chi.URLParam(r, "username")
+
+	result, err := c.service.GetFollowingUsers(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

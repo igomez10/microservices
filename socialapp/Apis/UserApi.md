@@ -7,6 +7,7 @@ All URIs are relative to *http://localhost:8080*
 | [**createUser**](UserApi.md#createUser) | **POST** /users | Create a new user |
 | [**deleteUser**](UserApi.md#deleteUser) | **DELETE** /users/{username} | Deletes a particular user |
 | [**followUser**](UserApi.md#followUser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower |
+| [**getFollowingUsers**](UserApi.md#getFollowingUsers) | **GET** /users/{username}/following | Get all followed users for a user |
 | [**getUserByUsername**](UserApi.md#getUserByUsername) | **GET** /users/{username} | Get a particular user by username |
 | [**getUserComments**](UserApi.md#getUserComments) | **GET** /users/{username}/comments | Gets all comments for a user |
 | [**getUserFollowers**](UserApi.md#getUserFollowers) | **GET** /users/{username}/followers | Get all followers for a user |
@@ -81,6 +82,31 @@ Add a user as a follower
 ### Return type
 
 null (empty response body)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="getFollowingUsers"></a>
+# **getFollowingUsers**
+> List getFollowingUsers(username)
+
+Get all followed users for a user
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **username** | **String**| username of the user | [default to null] |
+
+### Return type
+
+[**List**](../Models/User.md)
 
 ### Authorization
 
