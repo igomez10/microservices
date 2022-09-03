@@ -15,6 +15,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/slok/go-http-metrics/metrics/prometheus"
@@ -92,7 +93,7 @@ func NewRouter(routers ...openapi.Router) chi.Router {
 	})
 	router.Use(std.HandlerProvider("", mdlw))
 
-	// Custom Logging middleware
+	// Custom misc middleware
 	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			customW := NewCustomResponseWriter(w)
@@ -101,6 +102,7 @@ func NewRouter(routers ...openapi.Router) chi.Router {
 				if customW.statusCode == http.StatusUnauthorized {
 					log.Warn().
 						Str("Path", r.URL.Path).
+						Str("RequestID", r.Header.Get("X-Request-ID")).
 						Str("AuthHeader", r.Header.Get("Authorization")).
 						Str("Secret", r.Header.Get("Secret")).
 						Str("ngrok", r.Header.Get("ngrok")).
@@ -111,6 +113,10 @@ func NewRouter(routers ...openapi.Router) chi.Router {
 				}
 				log.Info().Msgf("%s %s %d", r.Method, r.RequestURI, customW.statusCode)
 			}()
+
+			requestID := uuid.NewString()
+			customW.Header().Set("X-Request-ID", requestID)
+			r.Header.Set("X-Request-ID", requestID)
 			next.ServeHTTP(customW, r)
 
 		})
