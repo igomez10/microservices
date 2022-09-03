@@ -101,8 +101,8 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string) (
 	// TODO - update GetUserComments with the required logic for this service method.
 	// Add api_user_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
-	//TODO: Uncomment the next line to return response Response(200, Comment{}) or use other options such as http.Ok ...
-	//return Response(200, Comment{}), nil
+	//TODO: Uncomment the next line to return response Response(200, []Comment{}) or use other options such as http.Ok ...
+	//return Response(200, []Comment{}), nil
 
 	//TODO: Uncomment the next line to return response Response(0, Error{}) or use other options such as http.Ok ...
 	//return Response(0, Error{}), nil

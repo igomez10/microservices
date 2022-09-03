@@ -108,7 +108,8 @@ paths:
             application/json:
               schema:
                 type: array
-                $ref: "#/components/schemas/Comment"
+                items:
+                  $ref: "#/components/schemas/Comment"
         default:
           description: Unexpected error
           content:

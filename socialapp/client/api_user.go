@@ -573,7 +573,7 @@ type UserApiGetUserCommentsRequest struct {
 	username   string
 }
 
-func (r UserApiGetUserCommentsRequest) Execute() (*Comment, *http.Response, error) {
+func (r UserApiGetUserCommentsRequest) Execute() ([]Comment, *http.Response, error) {
 	return r.ApiService.GetUserCommentsExecute(r)
 }
 
@@ -594,13 +594,13 @@ func (a *UserApiService) GetUserComments(ctx context.Context, username string) U
 
 // Execute executes the request
 //
-//	@return Comment
-func (a *UserApiService) GetUserCommentsExecute(r UserApiGetUserCommentsRequest) (*Comment, *http.Response, error) {
+//	@return []Comment
+func (a *UserApiService) GetUserCommentsExecute(r UserApiGetUserCommentsRequest) ([]Comment, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *Comment
+		localVarReturnValue []Comment
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserApiService.GetUserComments")

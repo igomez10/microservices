@@ -62,7 +62,7 @@ Returns details about a particular comment
 
 <a name="getUserComments"></a>
 # **getUserComments**
-> Comment getUserComments(username)
+> List getUserComments(username)
 
 Gets all comments for a user
 
@@ -74,7 +74,7 @@ Gets all comments for a user
 
 ### Return type
 
-[**Comment**](../Models/Comment.md)
+[**List**](../Models/Comment.md)
 
 ### Authorization
 

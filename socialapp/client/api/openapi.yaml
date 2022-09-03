@@ -106,7 +106,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Comment'
+                items:
+                  $ref: '#/components/schemas/Comment'
+                type: array
           description: User comments
         default:
           content:

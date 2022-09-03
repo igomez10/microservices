@@ -35,8 +35,13 @@ func TestListUsers(t *testing.T) {
 	}
 
 	apiClient = client.NewAPIClient(configuration)
+	auth := context.WithValue(context.Background(), client.ContextBasicAuth, client.BasicAuth{
+		UserName: "admin",
+		Password: "admin",
+	})
+
 	// List users
-	resp, r, err := apiClient.UserApi.ListUsers(context.Background()).Execute()
+	resp, r, err := apiClient.UserApi.ListUsers(auth).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `UserApi.ListUsers``: %v\n", err)
 		t.Errorf("Full HTTP response: %v\n", r)
@@ -71,9 +76,14 @@ func TestCreateUser(t *testing.T) {
 	email := fmt.Sprintf("Test-%d-@social.com", time.Now().UnixNano())
 	user := *client.NewUser(username, "FirstName_example", "LastName_example", email) // User | Create a new user
 
+	auth := context.WithValue(context.Background(), client.ContextBasicAuth, client.BasicAuth{
+		UserName: "admin",
+		Password: "admin",
+	})
+
 	// verify a user doesnt exist yet
 	func() {
-		_, r, err := apiClient.UserApi.GetUserByUsername(context.Background(), username).Execute()
+		_, r, err := apiClient.UserApi.GetUserByUsername(auth, username).Execute()
 		if err == nil {
 			t.Errorf("User %s already exists: %+v", username, r)
 		}
@@ -83,7 +93,7 @@ func TestCreateUser(t *testing.T) {
 	}()
 
 	func() {
-		_, r, err := apiClient.UserApi.CreateUser(context.Background()).User(user).Execute()
+		_, r, err := apiClient.UserApi.CreateUser(auth).User(user).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err, r)
 		}
@@ -93,7 +103,7 @@ func TestCreateUser(t *testing.T) {
 	}()
 
 	func() {
-		resp, r, err := apiClient.UserApi.GetUserByUsername(context.Background(), username).Execute()
+		resp, r, err := apiClient.UserApi.GetUserByUsername(auth, username).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.GetUserByUsername`: %v\n %+v\n", err, r)
 		}
@@ -139,6 +149,11 @@ func TestFollowCycle(t *testing.T) {
 
 	apiClient = client.NewAPIClient(configuration)
 
+	auth := context.WithValue(context.Background(), client.ContextBasicAuth, client.BasicAuth{
+		UserName: "admin",
+		Password: "admin",
+	})
+
 	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
 	email1 := fmt.Sprintf("Test-%d-1@social.com", time.Now().UnixNano())
 	user1 := *client.NewUser(username1, "FirstName_example", "LastName_example", email1) // User | Create a new user
@@ -149,12 +164,12 @@ func TestFollowCycle(t *testing.T) {
 
 	// create users
 	func() {
-		_, r1, err1 := apiClient.UserApi.CreateUser(context.Background()).User(user1).Execute()
+		_, r1, err1 := apiClient.UserApi.CreateUser(auth).User(user1).Execute()
 		if err1 != nil {
 			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err1, r1)
 		}
 
-		_, r2, err2 := apiClient.UserApi.CreateUser(context.Background()).User(user2).Execute()
+		_, r2, err2 := apiClient.UserApi.CreateUser(auth).User(user2).Execute()
 		if err2 != nil {
 			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err2, r2)
 		}
@@ -162,7 +177,7 @@ func TestFollowCycle(t *testing.T) {
 
 	// user 1 follows user 2
 	func() {
-		r, err := apiClient.UserApi.FollowUser(context.Background(), username2, username1).Execute()
+		r, err := apiClient.UserApi.FollowUser(auth, username2, username1).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
 		}
@@ -170,7 +185,7 @@ func TestFollowCycle(t *testing.T) {
 
 	// validate user 1 follows user 2
 	func() {
-		followers, r, err := apiClient.UserApi.GetUserFollowers(context.Background(), username2).Execute()
+		followers, r, err := apiClient.UserApi.GetUserFollowers(auth, username2).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
 		}
@@ -184,7 +199,7 @@ func TestFollowCycle(t *testing.T) {
 
 	// user 1 unfollows user 2
 	func() {
-		r, err := apiClient.UserApi.UnfollowUser(context.Background(), username2, username1).Execute()
+		r, err := apiClient.UserApi.UnfollowUser(auth, username2, username1).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
 		}
@@ -192,7 +207,7 @@ func TestFollowCycle(t *testing.T) {
 
 	// validate user 1 unfollows user 2
 	func() {
-		followers, r, err := apiClient.UserApi.GetUserFollowers(context.Background(), username2).Execute()
+		followers, r, err := apiClient.UserApi.GetUserFollowers(auth, username2).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
 		}
@@ -235,10 +250,15 @@ func TestGetExpectedFeed(t *testing.T) {
 	email2 := fmt.Sprintf("Test-%d-2@social.com", time.Now().UnixNano())
 	user2 := *client.NewUser(username2, "FirstName_example", "LastName_example", email2) // User | Create a new user
 
+	auth := context.WithValue(context.Background(), client.ContextBasicAuth, client.BasicAuth{
+		UserName: "admin",
+		Password: "admin",
+	})
+
 	// create users
 	func() {
 		_, r1, err1 := apiClient.UserApi.
-			CreateUser(context.Background()).
+			CreateUser(auth).
 			User(user1).
 			Execute()
 		if err1 != nil {
@@ -246,7 +266,7 @@ func TestGetExpectedFeed(t *testing.T) {
 		}
 
 		_, r2, err2 := apiClient.UserApi.
-			CreateUser(context.Background()).
+			CreateUser(auth).
 			User(user2).
 			Execute()
 		if err2 != nil {
@@ -257,7 +277,7 @@ func TestGetExpectedFeed(t *testing.T) {
 	// user 1 follows user 2
 	func() {
 		r, err := apiClient.UserApi.FollowUser(
-			context.Background(),
+			auth,
 			username2,
 			username1).
 			Execute()
@@ -270,7 +290,7 @@ func TestGetExpectedFeed(t *testing.T) {
 	func() {
 		comment := *client.NewComment("Test comment", username2)
 		_, r, err := apiClient.CommentApi.
-			CreateComment(context.Background()).
+			CreateComment(auth).
 			Comment(comment).
 			Execute()
 		if err != nil {
@@ -281,7 +301,7 @@ func TestGetExpectedFeed(t *testing.T) {
 	// validate feed in user 1's feed
 	func() {
 		feed, r, err := apiClient.CommentApi.
-			GetUserFeed(context.Background(), username1).
+			GetUserFeed(auth, username1).
 			Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.GetUserFeed`: %v\n %+v\n", err, r)

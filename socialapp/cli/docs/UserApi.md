@@ -202,7 +202,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Comment**](Comment.md)
+[**array[Comment]**](Comment.md)
 
 ### Authorization
 

@@ -356,7 +356,7 @@ Name | Type | Description  | Notes
 
 ## GetUserComments
 
-> Comment GetUserComments(ctx, username).Execute()
+> []Comment GetUserComments(ctx, username).Execute()
 
 Gets all comments for a user
 
@@ -382,7 +382,7 @@ func main() {
         fmt.Fprintf(os.Stderr, "Error when calling `UserApi.GetUserComments``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
-    // response from `GetUserComments`: Comment
+    // response from `GetUserComments`: []Comment
     fmt.Fprintf(os.Stdout, "Response from `UserApi.GetUserComments`: %v\n", resp)
 }
 ```
@@ -406,7 +406,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Comment**](Comment.md)
+[**[]Comment**](Comment.md)
 
 ### Authorization
 
