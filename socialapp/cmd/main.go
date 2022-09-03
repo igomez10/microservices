@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -102,7 +103,7 @@ func NewRouter(routers ...openapi.Router) chi.Router {
 				if customW.statusCode == http.StatusUnauthorized {
 					log.Warn().
 						Str("Path", r.URL.Path).
-						Str("RequestID", r.Header.Get("X-Request-ID")).
+						Str("X-Request-ID", r.Header.Get("X-Request-ID")).
 						Str("AuthHeader", r.Header.Get("Authorization")).
 						Str("Secret", r.Header.Get("Secret")).
 						Str("ngrok", r.Header.Get("ngrok")).
@@ -117,6 +118,7 @@ func NewRouter(routers ...openapi.Router) chi.Router {
 			requestID := uuid.NewString()
 			customW.Header().Set("X-Request-ID", requestID)
 			r.Header.Set("X-Request-ID", requestID)
+			r = r.WithContext(context.WithValue(r.Context(), "X-Request-ID", requestID))
 			next.ServeHTTP(customW, r)
 
 		})

@@ -19,7 +19,10 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 	// validate user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, comment.Username)
 	if errGetUser != nil {
-		log.Error().Err(errGetUser).Msg("Error getting user")
+		log.Error().
+			Err(errGetUser).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -30,7 +33,7 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 
 	newComment, err := s.DB.CreateCommentForUser(ctx, s.DBConn, params)
 	if err != nil {
-		log.Error().Err(err).Msg("Error creating comment")
+		log.Error().Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).Err(err).Msg("Error creating comment")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -47,13 +50,13 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.ImplResponse, error) {
 	comment, err := s.DB.GetComment(ctx, s.DBConn, id)
 	if err != nil {
-		log.Error().Err(err).Msg("Error getting comment")
+		log.Error().Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).Err(err).Msg("Error getting comment")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 	// get username
 	user, errGetUser := s.DB.GetUserByID(ctx, s.DBConn, comment.UserID)
 	if errGetUser != nil {
-		log.Error().Err(errGetUser).Msg("Error getting usrname for comment author")
+		log.Error().Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).Err(errGetUser).Msg("Error getting usrname for comment author")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -71,13 +74,19 @@ func (s *CommentService) GetUserComments(ctx context.Context, username string) (
 	// validate the user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
-		log.Error().Err(errGetUser).Msg("Error getting user")
+		log.Error().
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Err(errGetUser).
+			Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
 	comments, err := s.DB.GetUserComments(ctx, s.DBConn, username)
 	if err != nil {
-		log.Error().Err(err).Msg("Error getting comment")
+		log.Error().
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Err(err).
+			Msg("Error getting comment")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -105,14 +114,20 @@ func (s *CommentService) GetUserFeed(ctx context.Context, username string) (open
 	// validate the user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
-		log.Error().Err(errGetUser).Msg("Error getting user")
+		log.Error().
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Err(errGetUser).
+			Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
 	// get followed users
 	followedUsers, err := s.DB.GetFollowedUsers(ctx, s.DBConn, user.ID)
 	if err != nil {
-		log.Error().Err(err).Msg("Error getting followed users")
+		log.Error().
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Err(err).
+			Msg("Error getting followed users")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -124,7 +139,10 @@ func (s *CommentService) GetUserFeed(ctx context.Context, username string) (open
 		userComments, err := s.DB.GetUserComments(ctx, s.DBConn, currentFollowedUser.Username)
 		log.Info().Msgf("userComments: \n%v\n", userComments)
 		if err != nil {
-			log.Error().Err(err).Msg("Error getting user comments")
+			log.Error().
+				Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+				Err(err).
+				Msg("Error getting user comments")
 			return openapi.Response(http.StatusNotFound, nil), nil
 		}
 		for _, currentComment := range userComments {

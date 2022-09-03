@@ -52,11 +52,19 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.User) (ope
 	defer createUserLatency.Set(float64(time.Since(start).Milliseconds()))
 	// validate we dont have a user with the same username that is not deleted
 	if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, user.Username); err == nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Username already exists")
 		return openapi.Response(http.StatusConflict, nil), nil
 	}
 
 	// validate we dont have a user with the same email that is not deleted
 	if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, user.Email); err == nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Email already exists")
 		return openapi.Response(http.StatusConflict, nil), nil
 	}
 
@@ -69,7 +77,10 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.User) (ope
 
 	createdUser, err := s.DB.CreateUser(ctx, s.DBConn, params)
 	if err != nil {
-		log.Error().Err(err).Msg("Error creating user")
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error creating user")
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
@@ -81,7 +92,9 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.User) (ope
 // DeleteUser - Deletes a particular user
 func (s *UserApiService) DeleteUser(ctx context.Context, username string) (openapi.ImplResponse, error) {
 	if err := s.DB.DeleteUserByUsername(ctx, s.DBConn, username); err != nil {
-		log.Error().Err(err).Msg("Error deleting user")
+		log.Error().Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error deleting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -94,7 +107,10 @@ func (s *UserApiService) GetUserByUsername(ctx context.Context, username string)
 	defer getUserByUsernameLatency.Set(float64(time.Since(start).Nanoseconds()))
 	dbUser, err := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if err != nil {
-		log.Error().Err(err).Msg("Error getting user")
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -109,7 +125,10 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string) (
 	defer getUserCommentsLatency.Set(float64(time.Since(start).Nanoseconds()))
 	commnet, err := s.DB.GetUserComments(ctx, s.DBConn, username)
 	if err != nil {
-		log.Error().Err(err).Msg("Error getting user comments")
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting user comments")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -122,7 +141,10 @@ func (s *UserApiService) ListUsers(ctx context.Context) (openapi.ImplResponse, e
 	defer listUsersLatency.Set(float64(time.Since(start).Nanoseconds()))
 	dbUsers, err := s.DB.ListUsers(ctx, s.DBConn)
 	if err != nil {
-		log.Error().Err(err).Msg("Error listing users")
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error listing users")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -140,7 +162,10 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	defer updateUsersLatency.Set(float64(time.Since(start).Nanoseconds()))
 	existingUser, err := s.DB.GetUserByUsername(ctx, s.DBConn, existingUsername)
 	if err != nil {
-		log.Error().Err(err).Str("username", existingUsername).Msg("Error getting user")
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -148,7 +173,11 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 		// validate we dont have a user with the same username that is not deleted
 		noCaseUsername := strings.ToLower(newUserData.Username)
 		if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, noCaseUsername); err == nil {
-			log.Error().Msg("Username already exists")
+			log.Error().
+				Err(err).
+				Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+				Msg("Username already exists")
+
 			return openapi.Response(http.StatusConflict, nil), nil
 		}
 		existingUser.Username = newUserData.Username
@@ -158,6 +187,10 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 		// validate we dont have a user with the same email that is not deleted
 		noCaseEmail := strings.ToLower(newUserData.Email)
 		if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, noCaseEmail); err == nil {
+			log.Error().
+				Err(err).
+				Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+				Msg("Email already exists")
 			return openapi.Response(http.StatusConflict, nil), nil
 		}
 		existingUser.Email = newUserData.Email
@@ -181,7 +214,11 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	log.Debug().Msgf("UpdateUserByUsernameParams: \n%+v\n", params)
 	uUser, err := s.DB.UpdateUserByUsername(ctx, s.DBConn, params)
 	if err != nil {
-		log.Error().Err(err).Msg("Error listing users")
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error updating user")
+
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -192,13 +229,19 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 	// validate the user exists
 	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, s.DBConn, followedUsername)
 	if errGetFollowed != nil {
-		log.Error().Err(errGetFollowed).Msg("Error getting user")
+		log.Error().
+			Err(errGetFollowed).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting followed user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
 	followerUser, errGetFollower := s.DB.GetUserByUsername(ctx, s.DBConn, followerUsername)
 	if errGetFollower != nil {
-		log.Error().Err(errGetFollower).Msg("Error getting user")
+		log.Error().
+			Err(errGetFollower).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting follower user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -208,7 +251,10 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 		FollowedID: followedUser.ID,
 	})
 	if err != nil {
-		log.Error().Err(err).Msg("Error following user")
+		log.Error().
+			Err(errGetFollower).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error following user")
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
@@ -219,13 +265,19 @@ func (s *UserApiService) GetUserFollowers(ctx context.Context, username string) 
 	// validate the user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
-		log.Error().Err(errGetUser).Msg("Error getting user")
+		log.Error().
+			Err(errGetUser).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
 	dbFollowers, err := s.DB.GetFollowers(ctx, s.DBConn, user.ID)
 	if err != nil {
-		log.Error().Err(err).Msg("Error getting user followers")
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting followers")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -241,13 +293,19 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 	// validate the user exists
 	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, s.DBConn, followedUsername)
 	if errGetFollowed != nil {
-		log.Error().Err(errGetFollowed).Msg("Error getting user")
+		log.Error().
+			Err(errGetFollowed).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting followed user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
 	followerUser, errGetFollower := s.DB.GetUserByUsername(ctx, s.DBConn, followerUsername)
 	if errGetFollower != nil {
-		log.Error().Err(errGetFollower).Msg("Error getting user")
+		log.Error().
+			Err(errGetFollower).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting follower user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -257,7 +315,10 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 		FollowedID: followedUser.ID,
 	})
 	if err != nil {
-		log.Error().Err(err).Msg("Error following user")
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error unfollowing user")
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
@@ -268,13 +329,19 @@ func (s *UserApiService) GetFollowingUsers(ctx context.Context, username string)
 	// validate the user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
-		log.Error().Err(errGetUser).Msg("Error getting user")
+		log.Error().
+			Err(errGetUser).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting user")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
 	dbFollowing, err := s.DB.GetFollowedUsers(ctx, s.DBConn, user.ID)
 	if err != nil {
-		log.Error().Err(err).Msg("Error getting user following")
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting followed users")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
