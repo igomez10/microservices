@@ -34,7 +34,7 @@ func Run(conf LoadGeneratorConfig, metricOutput io.Writer) {
 
 	wg.Add(len(conf.Entries))
 	for i := range conf.Entries {
-		log.Debug().Msgf("Processing: %+v", conf.Entries[i].URL)
+		// log.Debug().Msgf("Processing: %+v", conf.Entries[i].URL)
 		go IssueRequest(conf.Entries[i], metricOutput)
 	}
 	wg.Wait()
@@ -62,13 +62,7 @@ func IssueRequest(reqConfig RequestConfig, metricOutput io.Writer) {
 				Str("Method", reqConfig.Method).
 				Msgf("Failed to issue request")
 			//  retry with exponential backoff
-		} else {
-			log.Debug().
-				Str("URL", reqConfig.URL).
-				Str("Method", reqConfig.Method).
-				Int("StatusCode", res.StatusCode).
-				Int64("Latency", time.Since(startTime).Milliseconds()).
-				Msgf("Processed")
+
 		}
 
 		latency := int(finishTime.Sub(startTime).Milliseconds())
