@@ -3,7 +3,7 @@
 <a name="documentation-for-api-endpoints"></a>
 ## Documentation for API Endpoints
 
-All URIs are relative to *http://localhost:8080*
+All URIs are relative to *https://microservices.onrender.com*
 
 | Class | Method | HTTP request | Description |
 |------------ | ------------- | ------------- | -------------|

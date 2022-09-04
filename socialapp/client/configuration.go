@@ -105,6 +105,10 @@ func NewConfiguration() *Configuration {
 		Debug:         false,
 		Servers: ServerConfigurations{
 			{
+				URL:         "https://microservices.onrender.com",
+				Description: "No description provided",
+			},
+			{
 				URL:         "http://localhost:8080",
 				Description: "No description provided",
 			},

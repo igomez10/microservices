@@ -6,6 +6,7 @@ info:
   title: Socialapp
   version: 1.0.0
 servers:
+- url: https://microservices.onrender.com
 - url: http://localhost:8080
 - url: http://localhost:8085
 security:
