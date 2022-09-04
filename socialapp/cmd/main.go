@@ -88,6 +88,9 @@ func startPrometheusServer(port int) error { // Expose the registered metrics vi
 func NewRouter(routers ...openapi.Router) chi.Router {
 	router := chi.NewRouter()
 
+	// Health endpoint
+	router.Use(middleware.Heartbeat("/health"))
+
 	// metrics middleware
 	mdlw := metricsMiddleware.New(metricsMiddleware.Config{
 		Recorder: prometheus.NewRecorder(prometheus.Config{}),
