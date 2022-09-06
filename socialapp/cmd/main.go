@@ -88,8 +88,8 @@ func startPrometheusServer(port int) error { // Expose the registered metrics vi
 func NewRouter(routers ...openapi.Router) chi.Router {
 	router := chi.NewRouter()
 
-	// Health endpoint
-	router.Use(middleware.Heartbeat("/health"))
+	// cors middleware
+	router.Use(cors.AllowAll().Handler)
 
 	// metrics middleware
 	mdlw := metricsMiddleware.New(metricsMiddleware.Config{
@@ -140,8 +140,6 @@ func NewRouter(routers ...openapi.Router) chi.Router {
 	// timeout middleware
 	router.Use(middleware.Timeout(60 * time.Second))
 
-	// cors middleware
-	router.Use(cors.Handler(cors.Options{}))
 	for _, api := range routers {
 		for _, route := range api.Routes() {
 			var handler http.Handler
