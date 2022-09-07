@@ -91,6 +91,9 @@ func NewRouter(routers ...openapi.Router) chi.Router {
 	// cors middleware
 	router.Use(cors.AllowAll().Handler)
 
+	// health check
+	router.Use(middleware.Heartbeat("/health"))
+
 	// metrics middleware
 	mdlw := metricsMiddleware.New(metricsMiddleware.Config{
 		Recorder: prometheus.NewRecorder(prometheus.Config{}),
