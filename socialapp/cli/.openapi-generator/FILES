@@ -1,9 +1,12 @@
 Dockerfile
 README.md
 _socialapp-cli
+docs/AccessToken.md
+docs/AuthenticationApi.md
 docs/Comment.md
 docs/CommentApi.md
 docs/Error.md
+docs/FollowingApi.md
 docs/User.md
 docs/UserApi.md
 socialapp-cli

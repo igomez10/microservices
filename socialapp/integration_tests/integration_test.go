@@ -315,3 +315,30 @@ func TestGetExpectedFeed(t *testing.T) {
 	}()
 
 }
+
+func TestGetAccessTo(t *testing.T) {
+	// create two users
+	os.Setenv("HTTP_PROXY", "http://localhost:9091")
+	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
+
+	configuration := client.NewConfiguration()
+
+	proxyStr := "http://localhost:9091"
+	proxyURL, err := url.Parse(proxyStr)
+	if err != nil {
+		log.Println(err)
+	}
+
+	//adding the proxy settings to the Transport object
+	transport := &http.Transport{
+		Proxy: http.ProxyURL(proxyURL),
+	}
+	configuration.HTTPClient = &http.Client{
+		Timeout:   time.Second * 10,
+		Transport: transport,
+	}
+
+	apiClient = client.NewAPIClient(configuration)
+
+	apiClient.AuthenticationApi.GetAccessToken(context.Background())
+}

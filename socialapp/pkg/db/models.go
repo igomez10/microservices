@@ -10,22 +10,22 @@ import (
 )
 
 type Comment struct {
-	ID        int32        `json:"id"`
+	ID        int64        `json:"id"`
 	Content   string       `json:"content"`
 	LikeCount int32        `json:"like_count"`
 	CreatedAt time.Time    `json:"created_at"`
-	UserID    int32        `json:"user_id"`
+	UserID    int64        `json:"user_id"`
 	DeletedAt sql.NullTime `json:"deleted_at"`
 }
 
 type Follower struct {
-	ID         int32 `json:"id"`
-	FollowerID int32 `json:"follower_id"`
-	FollowedID int32 `json:"followed_id"`
+	ID         int64 `json:"id"`
+	FollowerID int64 `json:"follower_id"`
+	FollowedID int64 `json:"followed_id"`
 }
 
 type User struct {
-	ID        int32        `json:"id"`
+	ID        int64        `json:"id"`
 	Username  string       `json:"username"`
 	FirstName string       `json:"first_name"`
 	LastName  string       `json:"last_name"`

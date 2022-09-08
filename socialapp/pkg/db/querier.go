@@ -6,27 +6,29 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 type Querier interface {
-	CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (Comment, error)
-	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (Comment, error)
-	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (User, error)
-	DeleteUser(ctx context.Context, db DBTX, id int32) error
+	CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (sql.Result, error)
+	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (sql.Result, error)
+	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (sql.Result, error)
+	DeleteComment(ctx context.Context, db DBTX, id int64) error
+	DeleteUser(ctx context.Context, db DBTX, id int64) error
 	DeleteUserByUsername(ctx context.Context, db DBTX, username string) error
 	FollowUser(ctx context.Context, db DBTX, arg FollowUserParams) error
-	GetComment(ctx context.Context, db DBTX, id int32) (Comment, error)
-	GetFollowedUsers(ctx context.Context, db DBTX, followerID int32) ([]User, error)
-	GetFollowers(ctx context.Context, db DBTX, followedID int32) ([]User, error)
+	GetComment(ctx context.Context, db DBTX, id int64) (Comment, error)
+	GetFollowedUsers(ctx context.Context, db DBTX, followerID int64) ([]User, error)
+	GetFollowers(ctx context.Context, db DBTX, followedID int64) ([]User, error)
 	GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error)
-	GetUserByID(ctx context.Context, db DBTX, id int32) (User, error)
+	GetUserByID(ctx context.Context, db DBTX, id int64) (User, error)
 	GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error)
 	GetUserComments(ctx context.Context, db DBTX, username string) ([]Comment, error)
 	ListComment(ctx context.Context, db DBTX) ([]Comment, error)
 	ListUsers(ctx context.Context, db DBTX) ([]User, error)
 	UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error
-	UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (User, error)
-	UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (User, error)
+	UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (sql.Result, error)
+	UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (sql.Result, error)
 }
 
 var _ Querier = (*Queries)(nil)

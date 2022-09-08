@@ -68,10 +68,12 @@ _socialapp-cli()
     # The list of available operation in the REST service
     # It's modelled as an associative array for efficient key lookup
     declare -A operations
+    operations["getAccessToken"]=1
     operations["createComment"]=1
     operations["getComment"]=1
     operations["getUserComments"]=1
     operations["getUserFeed"]=1
+    operations["getUserFollowers"]=1
     operations["createUser"]=1
     operations["deleteUser"]=1
     operations["followUser"]=1
@@ -86,10 +88,12 @@ _socialapp-cli()
     # An associative array of operations to their parameters
     # Only include path, query and header parameters
     declare -A operation_parameters
+    operation_parameters["getAccessToken"]=""
     operation_parameters["createComment"]=""
     operation_parameters["getComment"]="id= "
     operation_parameters["getUserComments"]="username= "
     operation_parameters["getUserFeed"]="username= "
+    operation_parameters["getUserFollowers"]="username= "
     operation_parameters["createUser"]=""
     operation_parameters["deleteUser"]="username= "
     operation_parameters["followUser"]="followedUsername= followerUsername= "

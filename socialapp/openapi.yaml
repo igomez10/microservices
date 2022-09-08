@@ -124,6 +124,7 @@ paths:
       operationId: getUserFollowers
       tags:
         - User
+        - Following
       parameters:
         - name: username
           in: path
@@ -390,6 +391,28 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  /oauth/token:
+    post:
+      summary: "Get an access token"
+      operationId: getAccessToken
+      tags:
+        - Authentication
+      security:
+        - basicAuth: []
+      responses:
+        "200":
+          description: Access token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessToken"
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   schemas:
     User:
@@ -441,6 +464,23 @@ components:
           type: string
           format: date-time
 
+    AccessToken:
+      type: object
+      required:
+        - access_token
+        - token_type
+        - expires_in
+      properties:
+        access_token:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        expires_at:
+          type: string
+          format: date-time
+
     Error:
       type: object
       required:
@@ -459,6 +499,17 @@ components:
     BearerAuth:
       type: http
       scheme: bearer
+    oauth2:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: localhost:8080/oauth/token
+          scopes:
+            write: modify your data in your account
+            read: read your data
 security:
   - BasicAuth: []
   - BearerAuth: []
+  - oauth2:
+      - write
+      - read

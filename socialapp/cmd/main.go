@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"socialapp/pkg/controller/authentication"
 	"socialapp/pkg/controller/comment"
 	"socialapp/pkg/controller/user"
 	"socialapp/pkg/db"
@@ -16,8 +17,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
-	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/slok/go-http-metrics/metrics/prometheus"
 	metricsMiddleware "github.com/slok/go-http-metrics/middleware"
@@ -35,7 +36,9 @@ func main() {
 	flag.Parse()
 	log.Info().Msgf("Starting PORT: %d, METAPORT: %d", *appPort, *metaPort)
 	go startPrometheusServer(*metaPort)
-	dbConn, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+
+	dbConn, err := sql.Open("mysql", os.Getenv("DATABASE_URL"))
+
 	if err != nil {
 		log.Fatal().Err(err)
 	}
@@ -56,7 +59,11 @@ func main() {
 	UserApiService := &user.UserApiService{DB: queries, DBConn: dbConn}
 	UserApiController := openapi.NewUserApiController(UserApiService)
 
-	router := NewRouter(CommentApiController, UserApiController)
+	// Auth service
+	AuthApiService := &authentication.AuthenticationService{DB: queries, DBConn: dbConn}
+	AuthApiController := openapi.NewAuthenticationApiController(AuthApiService)
+
+	router := NewRouter(CommentApiController, UserApiController, AuthApiController)
 
 	// http.HandleFunc("/apispec", func(w http.ResponseWriter, r *http.Request) {
 	router.HandleFunc("/apispec", func(w http.ResponseWriter, r *http.Request) {

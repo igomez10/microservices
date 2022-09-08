@@ -12,6 +12,9 @@ servers:
 security:
 - BasicAuth: []
 - BearerAuth: []
+- oauth2:
+  - write
+  - read
 paths:
   /users:
     get:
@@ -152,6 +155,7 @@ paths:
       summary: Get all followers for a user
       tags:
       - User
+      - Following
   /users/{username}/following:
     get:
       operationId: getFollowingUsers
@@ -411,6 +415,27 @@ paths:
       summary: Create a new comment
       tags:
       - Comment
+  /oauth/token:
+    post:
+      operationId: getAccessToken
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessToken'
+          description: Access token
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - basicAuth: []
+      summary: Get an access token
+      tags:
+      - Authentication
 components:
   schemas:
     User:
@@ -475,6 +500,28 @@ components:
       - content
       - username
       type: object
+    AccessToken:
+      example:
+        access_token: access_token
+        expires_at: 2000-01-23T04:56:07.000+00:00
+        scopes:
+        - scopes
+        - scopes
+      properties:
+        access_token:
+          type: string
+        scopes:
+          items:
+            type: string
+          type: array
+        expires_at:
+          format: date-time
+          type: string
+      required:
+      - access_token
+      - expires_in
+      - token_type
+      type: object
     Error:
       properties:
         code:
@@ -493,3 +540,11 @@ components:
     BearerAuth:
       scheme: bearer
       type: http
+    oauth2:
+      flows:
+        clientCredentials:
+          scopes:
+            write: modify your data in your account
+            read: read your data
+          tokenUrl: localhost:8080/oauth/token
+      type: oauth2

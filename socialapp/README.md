@@ -7,10 +7,12 @@ All URIs are relative to *https://microservices.onrender.com*
 
 | Class | Method | HTTP request | Description |
 |------------ | ------------- | ------------- | -------------|
+| *AuthenticationApi* | [**getAccessToken**](Apis/AuthenticationApi.md#getaccesstoken) | **POST** /oauth/token | Get an access token |
 | *CommentApi* | [**createComment**](Apis/CommentApi.md#createcomment) | **POST** /comments | Create a new comment |
 *CommentApi* | [**getComment**](Apis/CommentApi.md#getcomment) | **GET** /comments/{id} | Returns details about a particular comment |
 *CommentApi* | [**getUserComments**](Apis/CommentApi.md#getusercomments) | **GET** /users/{username}/comments | Gets all comments for a user |
 *CommentApi* | [**getUserFeed**](Apis/CommentApi.md#getuserfeed) | **GET** /users/{username}/feed | Returns a users feed |
+| *FollowingApi* | [**getUserFollowers**](Apis/FollowingApi.md#getuserfollowers) | **GET** /users/{username}/followers | Get all followers for a user |
 | *UserApi* | [**createUser**](Apis/UserApi.md#createuser) | **POST** /users | Create a new user |
 *UserApi* | [**deleteUser**](Apis/UserApi.md#deleteuser) | **DELETE** /users/{username} | Deletes a particular user |
 *UserApi* | [**followUser**](Apis/UserApi.md#followuser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower |
@@ -26,6 +28,7 @@ All URIs are relative to *https://microservices.onrender.com*
 <a name="documentation-for-models"></a>
 ## Documentation for Models
 
+ - [AccessToken](./Models/AccessToken.md)
  - [Comment](./Models/Comment.md)
  - [Error](./Models/Error.md)
  - [User](./Models/User.md)
@@ -43,4 +46,14 @@ All URIs are relative to *https://microservices.onrender.com*
 ### BearerAuth
 
 - **Type**: HTTP basic authentication
+
+<a name="oauth2"></a>
+### oauth2
+
+- **Type**: OAuth
+- **Flow**: application
+- **Authorization URL**: 
+- **Scopes**: 
+  - write: modify your data in your account
+  - read: read your data
 

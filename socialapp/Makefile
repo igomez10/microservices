@@ -35,6 +35,7 @@ generate-openapi:
 	--generator-name mysql-schema \
 	--output generated-schema \
 	--additional-properties=namedParametersEnabled=true
+	--additional-properties=identifierNamingConvention=snake_case
 
 	# format go code
 	go fmt ./...
@@ -60,3 +61,6 @@ build:
 
 test:
 	go test ./...
+
+start-cady:
+	 caddy reverse-proxy --from localhost:4545  --to localhost:8080

@@ -103,10 +103,12 @@ All URIs are relative to **
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AuthenticationApi* | [**getAccessToken**](docs/AuthenticationApi.md#getaccesstoken) | **POST** /oauth/token | Get an access token
 *CommentApi* | [**createComment**](docs/CommentApi.md#createcomment) | **POST** /comments | Create a new comment
 *CommentApi* | [**getComment**](docs/CommentApi.md#getcomment) | **GET** /comments/{id} | Returns details about a particular comment
 *CommentApi* | [**getUserComments**](docs/CommentApi.md#getusercomments) | **GET** /users/{username}/comments | Gets all comments for a user
 *CommentApi* | [**getUserFeed**](docs/CommentApi.md#getuserfeed) | **GET** /users/{username}/feed | Returns a users feed
+*FollowingApi* | [**getUserFollowers**](docs/FollowingApi.md#getuserfollowers) | **GET** /users/{username}/followers | Get all followers for a user
 *UserApi* | [**createUser**](docs/UserApi.md#createuser) | **POST** /users | Create a new user
 *UserApi* | [**deleteUser**](docs/UserApi.md#deleteuser) | **DELETE** /users/{username} | Deletes a particular user
 *UserApi* | [**followUser**](docs/UserApi.md#followuser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
@@ -121,6 +123,7 @@ Class | Method | HTTP request | Description
 
 ## Documentation For Models
 
+ - [AccessToken](docs/AccessToken.md)
  - [Comment](docs/Comment.md)
  - [Error](docs/Error.md)
  - [User](docs/User.md)
@@ -136,4 +139,14 @@ Class | Method | HTTP request | Description
 ## BearerAuth
 
 - **Type**: HTTP basic authentication
+
+## oauth2
+
+
+- **Type**: OAuth
+- **Flow**: application
+- **Token URL**: localhost:8080/oauth/token
+- **Scopes**:
+  - **write**: modify your data in your account
+  - **read**: read your data
 

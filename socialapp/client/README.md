@@ -78,10 +78,12 @@ All URIs are relative to *https://microservices.onrender.com*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*AuthenticationApi* | [**GetAccessToken**](docs/AuthenticationApi.md#getaccesstoken) | **Post** /oauth/token | Get an access token
 *CommentApi* | [**CreateComment**](docs/CommentApi.md#createcomment) | **Post** /comments | Create a new comment
 *CommentApi* | [**GetComment**](docs/CommentApi.md#getcomment) | **Get** /comments/{id} | Returns details about a particular comment
 *CommentApi* | [**GetUserComments**](docs/CommentApi.md#getusercomments) | **Get** /users/{username}/comments | Gets all comments for a user
 *CommentApi* | [**GetUserFeed**](docs/CommentApi.md#getuserfeed) | **Get** /users/{username}/feed | Returns a users feed
+*FollowingApi* | [**GetUserFollowers**](docs/FollowingApi.md#getuserfollowers) | **Get** /users/{username}/followers | Get all followers for a user
 *UserApi* | [**CreateUser**](docs/UserApi.md#createuser) | **Post** /users | Create a new user
 *UserApi* | [**DeleteUser**](docs/UserApi.md#deleteuser) | **Delete** /users/{username} | Deletes a particular user
 *UserApi* | [**FollowUser**](docs/UserApi.md#followuser) | **Post** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
@@ -96,6 +98,7 @@ Class | Method | HTTP request | Description
 
 ## Documentation For Models
 
+ - [AccessToken](docs/AccessToken.md)
  - [Comment](docs/Comment.md)
  - [Error](docs/Error.md)
  - [User](docs/User.md)
@@ -128,6 +131,36 @@ Example
 
 ```golang
 auth := context.WithValue(context.Background(), sw.ContextAccessToken, "BEARER_TOKEN_STRING")
+r, err := client.Service.Operation(auth, args)
+```
+
+
+### oauth2
+
+
+- **Type**: OAuth
+- **Flow**: application
+- **Authorization URL**: 
+- **Scopes**: 
+ - **write**: modify your data in your account
+ - **read**: read your data
+
+Example
+
+```golang
+auth := context.WithValue(context.Background(), sw.ContextAccessToken, "ACCESSTOKENSTRING")
+r, err := client.Service.Operation(auth, args)
+```
+
+Or via OAuth2 module to automatically refresh tokens and perform user authentication.
+
+```golang
+import "golang.org/x/oauth2"
+
+/* Perform OAuth2 round trip request and obtain a token */
+
+tokenSource := oauth2cfg.TokenSource(createContext(httpClient), &token)
+auth := context.WithValue(oauth2.NoContext, sw.ContextOAuth2, tokenSource)
 r, err := client.Service.Operation(auth, args)
 ```
 

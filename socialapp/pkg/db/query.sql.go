@@ -7,43 +7,32 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
-const CreateComment = `-- name: CreateComment :one
+const CreateComment = `-- name: CreateComment :execresult
 INSERT INTO comments (
   user_id, content
 ) VALUES (
-  $1, $2
+  ?, ?
 )
-RETURNING id, content, like_count, created_at, user_id, deleted_at
 `
 
 type CreateCommentParams struct {
-	UserID  int32  `json:"user_id"`
+	UserID  int64  `json:"user_id"`
 	Content string `json:"content"`
 }
 
-func (q *Queries) CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (Comment, error) {
-	row := db.QueryRowContext(ctx, CreateComment, arg.UserID, arg.Content)
-	var i Comment
-	err := row.Scan(
-		&i.ID,
-		&i.Content,
-		&i.LikeCount,
-		&i.CreatedAt,
-		&i.UserID,
-		&i.DeletedAt,
-	)
-	return i, err
+func (q *Queries) CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (sql.Result, error) {
+	return db.ExecContext(ctx, CreateComment, arg.UserID, arg.Content)
 }
 
-const CreateCommentForUser = `-- name: CreateCommentForUser :one
+const CreateCommentForUser = `-- name: CreateCommentForUser :execresult
 INSERT INTO comments (
   user_id, content
 ) VALUES (
-  (SELECT id FROM users WHERE username = $1 AND deleted_at IS NULL), $2
+  (SELECT id FROM users WHERE username = ? AND deleted_at IS NULL), ?
 )
-RETURNING id, content, like_count, created_at, user_id, deleted_at
 `
 
 type CreateCommentForUserParams struct {
@@ -51,27 +40,16 @@ type CreateCommentForUserParams struct {
 	Content  string `json:"content"`
 }
 
-func (q *Queries) CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (Comment, error) {
-	row := db.QueryRowContext(ctx, CreateCommentForUser, arg.Username, arg.Content)
-	var i Comment
-	err := row.Scan(
-		&i.ID,
-		&i.Content,
-		&i.LikeCount,
-		&i.CreatedAt,
-		&i.UserID,
-		&i.DeletedAt,
-	)
-	return i, err
+func (q *Queries) CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (sql.Result, error) {
+	return db.ExecContext(ctx, CreateCommentForUser, arg.Username, arg.Content)
 }
 
-const CreateUser = `-- name: CreateUser :one
+const CreateUser = `-- name: CreateUser :execresult
 INSERT INTO users (
   username, first_name, last_name, email
 ) VALUES (
-  $1, $2, $3, $4
+  ?, ?, ?, ?
 )
-RETURNING id, username, first_name, last_name, email, created_at, deleted_at
 `
 
 type CreateUserParams struct {
@@ -81,33 +59,33 @@ type CreateUserParams struct {
 	Email     string `json:"email"`
 }
 
-func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (User, error) {
-	row := db.QueryRowContext(ctx, CreateUser,
+func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (sql.Result, error) {
+	return db.ExecContext(ctx, CreateUser,
 		arg.Username,
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,
 	)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.FirstName,
-		&i.LastName,
-		&i.Email,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
+}
+
+const DeleteComment = `-- name: DeleteComment :exec
+UPDATE comments
+SET deleted_at = NOW()
+WHERE id = ? AND deleted_at IS NULL
+`
+
+func (q *Queries) DeleteComment(ctx context.Context, db DBTX, id int64) error {
+	_, err := db.ExecContext(ctx, DeleteComment, id)
+	return err
 }
 
 const DeleteUser = `-- name: DeleteUser :exec
 UPDATE users
 SET deleted_at = NOW()
-WHERE id = $1 AND deleted_at IS NULL
+WHERE id = ? AND deleted_at IS NULL
 `
 
-func (q *Queries) DeleteUser(ctx context.Context, db DBTX, id int32) error {
+func (q *Queries) DeleteUser(ctx context.Context, db DBTX, id int64) error {
 	_, err := db.ExecContext(ctx, DeleteUser, id)
 	return err
 }
@@ -115,7 +93,7 @@ func (q *Queries) DeleteUser(ctx context.Context, db DBTX, id int32) error {
 const DeleteUserByUsername = `-- name: DeleteUserByUsername :exec
 UPDATE users
 SET deleted_at = NOW()
-WHERE username = $1 AND deleted_at IS NULL
+WHERE username = ? AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteUserByUsername(ctx context.Context, db DBTX, username string) error {
@@ -127,13 +105,13 @@ const FollowUser = `-- name: FollowUser :exec
 INSERT INTO followers (
   follower_id, followed_id
 ) VALUES (
-  $1, $2
+  ?, ?
 )
 `
 
 type FollowUserParams struct {
-	FollowerID int32 `json:"follower_id"`
-	FollowedID int32 `json:"followed_id"`
+	FollowerID int64 `json:"follower_id"`
+	FollowedID int64 `json:"followed_id"`
 }
 
 func (q *Queries) FollowUser(ctx context.Context, db DBTX, arg FollowUserParams) error {
@@ -143,10 +121,10 @@ func (q *Queries) FollowUser(ctx context.Context, db DBTX, arg FollowUserParams)
 
 const GetComment = `-- name: GetComment :one
 SELECT id, content, like_count, created_at, user_id, deleted_at FROM comments
-WHERE id = $1 AND deleted_at IS NULL LIMIT 1
+WHERE id = ? AND deleted_at IS NULL LIMIT 1
 `
 
-func (q *Queries) GetComment(ctx context.Context, db DBTX, id int32) (Comment, error) {
+func (q *Queries) GetComment(ctx context.Context, db DBTX, id int64) (Comment, error) {
 	row := db.QueryRowContext(ctx, GetComment, id)
 	var i Comment
 	err := row.Scan(
@@ -167,14 +145,14 @@ FROM
 	users u,
 	followers f
 WHERE
-	f.follower_id = $1
+	f.follower_id = ?
 	AND f.followed_id = u.id
 	AND u.deleted_at IS NULL
 ORDER BY
 	u.first_name
 `
 
-func (q *Queries) GetFollowedUsers(ctx context.Context, db DBTX, followerID int32) ([]User, error) {
+func (q *Queries) GetFollowedUsers(ctx context.Context, db DBTX, followerID int64) ([]User, error) {
 	rows, err := db.QueryContext(ctx, GetFollowedUsers, followerID)
 	if err != nil {
 		return nil, err
@@ -212,14 +190,14 @@ FROM
 	users u,
 	followers f
 WHERE
-	f.followed_id = $1
+	f.followed_id = ?
 	AND f.follower_id = u.id
 	AND u.deleted_at IS NULL
 ORDER BY
 	u.first_name
 `
 
-func (q *Queries) GetFollowers(ctx context.Context, db DBTX, followedID int32) ([]User, error) {
+func (q *Queries) GetFollowers(ctx context.Context, db DBTX, followedID int64) ([]User, error) {
 	rows, err := db.QueryContext(ctx, GetFollowers, followedID)
 	if err != nil {
 		return nil, err
@@ -252,7 +230,7 @@ func (q *Queries) GetFollowers(ctx context.Context, db DBTX, followedID int32) (
 
 const GetUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, username, first_name, last_name, email, created_at, deleted_at FROM users
-WHERE email = $1 AND deleted_at IS NULL LIMIT 1
+WHERE email = ? AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error) {
@@ -272,10 +250,10 @@ func (q *Queries) GetUserByEmail(ctx context.Context, db DBTX, email string) (Us
 
 const GetUserByID = `-- name: GetUserByID :one
 SELECT id, username, first_name, last_name, email, created_at, deleted_at FROM users
-WHERE id = $1 AND deleted_at IS NULL LIMIT 1
+WHERE id = ? AND deleted_at IS NULL LIMIT 1
 `
 
-func (q *Queries) GetUserByID(ctx context.Context, db DBTX, id int32) (User, error) {
+func (q *Queries) GetUserByID(ctx context.Context, db DBTX, id int64) (User, error) {
 	row := db.QueryRowContext(ctx, GetUserByID, id)
 	var i User
 	err := row.Scan(
@@ -292,7 +270,7 @@ func (q *Queries) GetUserByID(ctx context.Context, db DBTX, id int32) (User, err
 
 const GetUserByUsername = `-- name: GetUserByUsername :one
 SELECT id, username, first_name, last_name, email, created_at, deleted_at FROM users
-WHERE username = $1 AND deleted_at IS NULL LIMIT 1
+WHERE username = ? AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error) {
@@ -317,7 +295,7 @@ FROM
 	comments c JOIN users u
 	ON c.user_id = u.id
 WHERE
-	u.username = $1
+	u.username = ?
 	AND c.deleted_at IS NULL
 	AND u.deleted_at IS NULL
 ORDER BY
@@ -429,12 +407,12 @@ func (q *Queries) ListUsers(ctx context.Context, db DBTX) ([]User, error) {
 
 const UnfollowUser = `-- name: UnfollowUser :exec
 DELETE FROM followers
-WHERE follower_id = $1 AND followed_id = $2
+WHERE follower_id = ? AND followed_id = ?
 `
 
 type UnfollowUserParams struct {
-	FollowerID int32 `json:"follower_id"`
-	FollowedID int32 `json:"followed_id"`
+	FollowerID int64 `json:"follower_id"`
+	FollowedID int64 `json:"followed_id"`
 }
 
 func (q *Queries) UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error {
@@ -442,74 +420,50 @@ func (q *Queries) UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserPar
 	return err
 }
 
-const UpdateUser = `-- name: UpdateUser :one
+const UpdateUser = `-- name: UpdateUser :execresult
 UPDATE users 
-SET username = $2, first_name = $3, last_name=$4, email=$5
-WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, username, first_name, last_name, email, created_at, deleted_at
+SET username = ?, first_name = ?, last_name=?, email=?
+WHERE id = ? AND deleted_at IS NULL
 `
 
 type UpdateUserParams struct {
-	ID        int32  `json:"id"`
 	Username  string `json:"username"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
+	ID        int64  `json:"id"`
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (User, error) {
-	row := db.QueryRowContext(ctx, UpdateUser,
-		arg.ID,
+func (q *Queries) UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (sql.Result, error) {
+	return db.ExecContext(ctx, UpdateUser,
 		arg.Username,
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,
+		arg.ID,
 	)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.FirstName,
-		&i.LastName,
-		&i.Email,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
 }
 
-const UpdateUserByUsername = `-- name: UpdateUserByUsername :one
+const UpdateUserByUsername = `-- name: UpdateUserByUsername :execresult
 UPDATE users 
-SET username = $4::text, first_name = $1, last_name=$2, email=$3
-WHERE username = $5::text AND deleted_at IS NULL
-RETURNING id, username, first_name, last_name, email, created_at, deleted_at
+SET username = ?, first_name=?, last_name=?, email=?
+WHERE username = ? AND deleted_at IS NULL
 `
 
 type UpdateUserByUsernameParams struct {
+	NewUsername string `json:"new_username"`
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
 	Email       string `json:"email"`
-	NewUsername string `json:"new_username"`
 	OldUsername string `json:"old_username"`
 }
 
-func (q *Queries) UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (User, error) {
-	row := db.QueryRowContext(ctx, UpdateUserByUsername,
+func (q *Queries) UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (sql.Result, error) {
+	return db.ExecContext(ctx, UpdateUserByUsername,
+		arg.NewUsername,
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,
-		arg.NewUsername,
 		arg.OldUsername,
 	)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Username,
-		&i.FirstName,
-		&i.LastName,
-		&i.Email,
-		&i.CreatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
 }

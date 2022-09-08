@@ -14,6 +14,13 @@ import (
 	"net/http"
 )
 
+// AuthenticationApiRouter defines the required methods for binding the api requests to a responses for the AuthenticationApi
+// The AuthenticationApiRouter implementation should parse necessary information from the http request,
+// pass the data to a AuthenticationApiServicer to perform the required actions, then write the service results to the http response.
+type AuthenticationApiRouter interface {
+	GetAccessToken(http.ResponseWriter, *http.Request)
+}
+
 // CommentApiRouter defines the required methods for binding the api requests to a responses for the CommentApi
 // The CommentApiRouter implementation should parse necessary information from the http request,
 // pass the data to a CommentApiServicer to perform the required actions, then write the service results to the http response.
@@ -22,6 +29,13 @@ type CommentApiRouter interface {
 	GetComment(http.ResponseWriter, *http.Request)
 	GetUserComments(http.ResponseWriter, *http.Request)
 	GetUserFeed(http.ResponseWriter, *http.Request)
+}
+
+// FollowingApiRouter defines the required methods for binding the api requests to a responses for the FollowingApi
+// The FollowingApiRouter implementation should parse necessary information from the http request,
+// pass the data to a FollowingApiServicer to perform the required actions, then write the service results to the http response.
+type FollowingApiRouter interface {
+	GetUserFollowers(http.ResponseWriter, *http.Request)
 }
 
 // UserApiRouter defines the required methods for binding the api requests to a responses for the UserApi
@@ -40,6 +54,14 @@ type UserApiRouter interface {
 	UpdateUser(http.ResponseWriter, *http.Request)
 }
 
+// AuthenticationApiServicer defines the api actions for the AuthenticationApi service
+// This interface intended to stay up to date with the openapi yaml used to generate it,
+// while the service implementation can be ignored with the .openapi-generator-ignore file
+// and updated with the logic required for the API.
+type AuthenticationApiServicer interface {
+	GetAccessToken(context.Context) (ImplResponse, error)
+}
+
 // CommentApiServicer defines the api actions for the CommentApi service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
@@ -49,6 +71,14 @@ type CommentApiServicer interface {
 	GetComment(context.Context, int32) (ImplResponse, error)
 	GetUserComments(context.Context, string) (ImplResponse, error)
 	GetUserFeed(context.Context, string) (ImplResponse, error)
+}
+
+// FollowingApiServicer defines the api actions for the FollowingApi service
+// This interface intended to stay up to date with the openapi yaml used to generate it,
+// while the service implementation can be ignored with the .openapi-generator-ignore file
+// and updated with the logic required for the API.
+type FollowingApiServicer interface {
+	GetUserFollowers(context.Context, string) (ImplResponse, error)
 }
 
 // UserApiServicer defines the api actions for the UserApi service

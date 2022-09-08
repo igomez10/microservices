@@ -84,7 +84,22 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.User) (ope
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
-	apiUser := FromDBUserToOpenAPIUser(createdUser)
+	createdUserID, err := createdUser.LastInsertId()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error getting created user id")
+		return openapi.Response(http.StatusNotFound, nil), nil
+	}
+
+	// get user from db
+	dbUser, err := s.DB.GetUserByID(ctx, s.DBConn, createdUserID)
+	if err != nil {
+		log.Error()
+	}
+
+	apiUser := FromDBUserToOpenAPIUser(dbUser)
 
 	return openapi.Response(http.StatusOK, apiUser), nil
 }
@@ -142,9 +157,11 @@ func (s *UserApiService) ListUsers(ctx context.Context) (openapi.ImplResponse, e
 	dbUsers, err := s.DB.ListUsers(ctx, s.DBConn)
 	if err != nil {
 		log.Error().
+			Stack().
 			Err(err).
 			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
 			Msg("Error listing users")
+
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 

@@ -1,3 +1,4 @@
+Model/AccessToken.sql
 Model/Comment.sql
 Model/Error.sql
 Model/User.sql

@@ -296,10 +296,10 @@ case $state in
   ops)
     # Operations
     _values "Operations" \
-            "createComment[Create a new comment]" \
+            "getAccessToken[Get an access token]"             "createComment[Create a new comment]" \
             "getComment[Returns details about a particular comment]" \
             "getUserComments[Gets all comments for a user]" \
-            "getUserFeed[Returns a users feed]"             "createUser[Create a new user]" \
+            "getUserFeed[Returns a users feed]"             "getUserFollowers[Get all followers for a user]"             "createUser[Create a new user]" \
             "deleteUser[Deletes a particular user]" \
             "followUser[Add a user as a follower]" \
             "getFollowingUsers[Get all followed users for a user]" \
@@ -316,6 +316,12 @@ case $state in
     ;;
   args)
     case $line[1] in
+      getAccessToken)
+        local -a _op_arguments
+        _op_arguments=(
+                              )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
       createComment)
         local -a _op_arguments
         _op_arguments=(
@@ -340,6 +346,13 @@ case $state in
         local -a _op_arguments
         _op_arguments=(
           "username=:[PATH] The username of the user"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      getUserFollowers)
+        local -a _op_arguments
+        _op_arguments=(
+          "username=:[PATH] username of the user"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;

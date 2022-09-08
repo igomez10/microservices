@@ -31,24 +31,37 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 		Content:  comment.Content,
 	}
 
-	newComment, err := s.DB.CreateCommentForUser(ctx, s.DBConn, params)
+	newCommentResult, err := s.DB.CreateCommentForUser(ctx, s.DBConn, params)
 	if err != nil {
 		log.Error().Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).Err(err).Msg("Error creating comment")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
+	newCommentID, err := newCommentResult.LastInsertId()
+	if err != nil {
+		log.Error().Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).Err(err).Msg("Error getting last insert id")
+		return openapi.Response(http.StatusNotFound, nil), nil
+	}
+
+	// get comment from db
+	newComment, errGetComment := s.DB.GetComment(ctx, s.DBConn, newCommentID)
+	if errGetComment != nil {
+		log.Error().Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).Err(errGetComment).Msg("Error getting comment from db")
+		return openapi.Response(http.StatusNotFound, nil), nil
+	}
 
 	openAPIComment := openapi.Comment{
-		Id:        int64(newComment.ID),
+		Id:        newComment.ID,
 		Content:   newComment.Content,
 		LikeCount: int64(newComment.LikeCount),
 		CreatedAt: newComment.CreatedAt,
 		Username:  user.Username,
 	}
+
 	return openapi.Response(http.StatusOK, openAPIComment), nil
 }
 
 func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.ImplResponse, error) {
-	comment, err := s.DB.GetComment(ctx, s.DBConn, id)
+	comment, err := s.DB.GetComment(ctx, s.DBConn, int64(id))
 	if err != nil {
 		log.Error().Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).Err(err).Msg("Error getting comment")
 		return openapi.Response(http.StatusNotFound, nil), nil
@@ -61,7 +74,7 @@ func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.Impl
 	}
 
 	openAPIComment := openapi.Comment{
-		Id:        int64(comment.ID),
+		Id:        comment.ID,
 		Content:   comment.Content,
 		LikeCount: int64(comment.LikeCount),
 		CreatedAt: comment.CreatedAt,
@@ -97,7 +110,7 @@ func (s *CommentService) GetUserComments(ctx context.Context, username string) (
 		}
 
 		c := openapi.Comment{
-			Id:        int64(comments[i].ID),
+			Id:        comments[i].ID,
 			Content:   comments[i].Content,
 			LikeCount: int64(comments[i].LikeCount),
 			CreatedAt: comments[i].CreatedAt,
@@ -151,7 +164,7 @@ func (s *CommentService) GetUserFeed(ctx context.Context, username string) (open
 				continue
 			}
 			apiComment := openapi.Comment{
-				Id:        int64(currentComment.ID),
+				Id:        currentComment.ID,
 				Content:   currentComment.Content,
 				LikeCount: int64(currentComment.LikeCount),
 				CreatedAt: currentComment.CreatedAt,

@@ -1,0 +1,34 @@
+# FollowingApi
+
+All URIs are relative to *https://microservices.onrender.com*
+
+| Method | HTTP request | Description |
+|------------- | ------------- | -------------|
+| [**getUserFollowers**](FollowingApi.md#getUserFollowers) | **GET** /users/{username}/followers | Get all followers for a user |
+
+
+<a name="getUserFollowers"></a>
+# **getUserFollowers**
+> List getUserFollowers(username)
+
+Get all followers for a user
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **username** | **String**| username of the user | [default to null] |
+
+### Return type
+
+[**List**](../Models/User.md)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth), [oauth2](../README.md#oauth2)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
