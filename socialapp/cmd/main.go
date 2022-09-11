@@ -28,14 +28,12 @@ import (
 )
 
 var (
-	appPort  *int = flag.Int("port", 8080, "main port for application")
-	metaPort *int = flag.Int("meta_port", 9095, "meta port for metric/service_discovery/etc")
+	appPort *int = flag.Int("port", 8080, "main port for application")
 )
 
 func main() {
 	flag.Parse()
-	log.Info().Msgf("Starting PORT: %d, METAPORT: %d", *appPort, *metaPort)
-	go startPrometheusServer(*metaPort)
+	log.Info().Msgf("Starting PORT: %d", *appPort)
 
 	dbConn, err := sql.Open("mysql", os.Getenv("DATABASE_URL"))
 
@@ -65,7 +63,10 @@ func main() {
 
 	router := NewRouter(CommentApiController, UserApiController, AuthApiController)
 
-	// http.HandleFunc("/apispec", func(w http.ResponseWriter, r *http.Request) {
+	// Expose the registered metrics via HTTP.
+	router.Handle("/metrics", promhttp.Handler())
+
+	// Expose the api spec via HTTP.
 	router.HandleFunc("/apispec", func(w http.ResponseWriter, r *http.Request) {
 		log.Info().Msg("H . ealth check")
 		// send open api file
@@ -85,11 +86,6 @@ func main() {
 		log.Fatal().Err(err).Msgf("Shutting down")
 	}
 
-}
-
-func startPrometheusServer(port int) error { // Expose the registered metrics via HTTP.
-	http.Handle("/metrics", promhttp.Handler())
-	return http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 }
 
 func NewRouter(routers ...openapi.Router) chi.Router {
