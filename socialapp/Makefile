@@ -10,8 +10,8 @@ generate-openapi:
 	--additional-properties=packageVersion=1.18.0 \
 	--additional-properties=serverPort=8080 \
 	--additional-properties=featureCORS=true \
-	--additional-properties=hideGenerationTimestamp=false \
-	--additional-properties=onlyInterfaces=false \
+	--additional-properties=hideGenerationTimestamp=true \
+	--additional-properties=onlyInterfaces=true \
 	--additional-properties=router=chi
 	rm -rf socialappapi/openapi
 	mv socialappapi/go socialappapi/openapi

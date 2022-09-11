@@ -3,13 +3,9 @@ README.md
 api/openapi.yaml
 go/api.go
 go/api_authentication.go
-go/api_authentication_service.go
 go/api_comment.go
-go/api_comment_service.go
 go/api_following.go
-go/api_following_service.go
 go/api_user.go
-go/api_user_service.go
 go/error.go
 go/helpers.go
 go/impl.go
