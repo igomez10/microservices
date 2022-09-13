@@ -97,12 +97,6 @@ func NewRouter(routers ...openapi.Router) chi.Router {
 	// health check
 	router.Use(middleware.Heartbeat("/health"))
 
-	// metrics middleware
-	mdlw := metricsMiddleware.New(metricsMiddleware.Config{
-		Recorder: prometheus.NewRecorder(prometheus.Config{}),
-	})
-	router.Use(std.HandlerProvider("", mdlw))
-
 	// Custom misc middleware
 	router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -146,11 +140,21 @@ func NewRouter(routers ...openapi.Router) chi.Router {
 	// timeout middleware
 	router.Use(middleware.Timeout(60 * time.Second))
 
+	mdlw := metricsMiddleware.New(metricsMiddleware.Config{
+		Recorder: prometheus.NewRecorder(prometheus.Config{}),
+	})
+
 	for _, api := range routers {
 		for _, route := range api.Routes() {
 			var handler http.Handler
 			handler = route.HandlerFunc
-			router.Method(route.Method, route.Pattern, handler)
+
+			router.Group(func(r chi.Router) {
+				// use a middleware to record the metrics on the route pattern.
+				r.Use(std.HandlerProvider(route.Pattern, mdlw))
+
+				r.Method(route.Method, route.Pattern, handler)
+			})
 		}
 	}
 
