@@ -12,7 +12,6 @@
             "program": "cmd/main.go",
             "args": [
                 "--port=8085",
-                "--meta_port=8086"
             ],
         }
     ]
