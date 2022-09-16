@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const CreateComment = `-- name: CreateComment :execresult
@@ -44,24 +45,47 @@ func (q *Queries) CreateCommentForUser(ctx context.Context, db DBTX, arg CreateC
 	return db.ExecContext(ctx, CreateCommentForUser, arg.Username, arg.Content)
 }
 
+const CreateToken = `-- name: CreateToken :execresult
+INSERT INTO tokens (
+  credential_id, token
+) VALUES (
+  ?, ?
+)
+`
+
+type CreateTokenParams struct {
+	CredentialID int64  `json:"credential_id"`
+	Token        string `json:"token"`
+}
+
+func (q *Queries) CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (sql.Result, error) {
+	return db.ExecContext(ctx, CreateToken, arg.CredentialID, arg.Token)
+}
+
 const CreateUser = `-- name: CreateUser :execresult
 INSERT INTO users (
-  username, first_name, last_name, email
+    username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email
 ) VALUES (
-  ?, ?, ?, ?
+	?, ?, ?, ?, ?, ?, ?
 )
 `
 
 type CreateUserParams struct {
-	Username  string `json:"username"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
+	Username                string    `json:"username"`
+	HashedPassword          string    `json:"hashed_password"`
+	HashedPasswordExpiresAt time.Time `json:"hashed_password_expires_at"`
+	Salt                    string    `json:"salt"`
+	FirstName               string    `json:"first_name"`
+	LastName                string    `json:"last_name"`
+	Email                   string    `json:"email"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (sql.Result, error) {
 	return db.ExecContext(ctx, CreateUser,
 		arg.Username,
+		arg.HashedPassword,
+		arg.HashedPasswordExpiresAt,
+		arg.Salt,
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,
@@ -76,6 +100,17 @@ WHERE id = ? AND deleted_at IS NULL
 
 func (q *Queries) DeleteComment(ctx context.Context, db DBTX, id int64) error {
 	_, err := db.ExecContext(ctx, DeleteComment, id)
+	return err
+}
+
+const DeleteToken = `-- name: DeleteToken :exec
+UPDATE tokens
+SET deleted_at = NOW()
+WHERE token = ? AND deleted_at IS NULL
+`
+
+func (q *Queries) DeleteToken(ctx context.Context, db DBTX, token string) error {
+	_, err := db.ExecContext(ctx, DeleteToken, token)
 	return err
 }
 
@@ -120,7 +155,7 @@ func (q *Queries) FollowUser(ctx context.Context, db DBTX, arg FollowUserParams)
 }
 
 const GetComment = `-- name: GetComment :one
-SELECT id, content, like_count, created_at, user_id, deleted_at FROM comments
+SELECT id, content, like_count, user_id, created_at, updated_at, deleted_at FROM comments
 WHERE id = ? AND deleted_at IS NULL LIMIT 1
 `
 
@@ -131,8 +166,9 @@ func (q *Queries) GetComment(ctx context.Context, db DBTX, id int64) (Comment, e
 		&i.ID,
 		&i.Content,
 		&i.LikeCount,
-		&i.CreatedAt,
 		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -140,7 +176,7 @@ func (q *Queries) GetComment(ctx context.Context, db DBTX, id int64) (Comment, e
 
 const GetFollowedUsers = `-- name: GetFollowedUsers :many
 SELECT
-	u.id, u.username, u.first_name, u.last_name, u.email, u.created_at, u.deleted_at
+	u.id, u.username, u.hashed_password, u.hashed_password_expires_at, u.salt, u.first_name, u.last_name, u.email, u.created_at, u.updated_at, u.deleted_at
 FROM
 	users u,
 	followers f
@@ -164,10 +200,14 @@ func (q *Queries) GetFollowedUsers(ctx context.Context, db DBTX, followerID int6
 		if err := rows.Scan(
 			&i.ID,
 			&i.Username,
+			&i.HashedPassword,
+			&i.HashedPasswordExpiresAt,
+			&i.Salt,
 			&i.FirstName,
 			&i.LastName,
 			&i.Email,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 			&i.DeletedAt,
 		); err != nil {
 			return nil, err
@@ -185,7 +225,7 @@ func (q *Queries) GetFollowedUsers(ctx context.Context, db DBTX, followerID int6
 
 const GetFollowers = `-- name: GetFollowers :many
 SELECT
-	u.id, u.username, u.first_name, u.last_name, u.email, u.created_at, u.deleted_at
+	u.id, u.username, u.hashed_password, u.hashed_password_expires_at, u.salt, u.first_name, u.last_name, u.email, u.created_at, u.updated_at, u.deleted_at
 FROM
 	users u,
 	followers f
@@ -209,10 +249,14 @@ func (q *Queries) GetFollowers(ctx context.Context, db DBTX, followedID int64) (
 		if err := rows.Scan(
 			&i.ID,
 			&i.Username,
+			&i.HashedPassword,
+			&i.HashedPasswordExpiresAt,
+			&i.Salt,
 			&i.FirstName,
 			&i.LastName,
 			&i.Email,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 			&i.DeletedAt,
 		); err != nil {
 			return nil, err
@@ -228,8 +272,26 @@ func (q *Queries) GetFollowers(ctx context.Context, db DBTX, followedID int64) (
 	return items, nil
 }
 
+const GetToken = `-- name: GetToken :one
+SELECT id, credential_id, token, valid_from, valid_until FROM tokens
+WHERE token = ? AND deleted_at IS NULL LIMIT 1
+`
+
+func (q *Queries) GetToken(ctx context.Context, db DBTX, token string) (Token, error) {
+	row := db.QueryRowContext(ctx, GetToken, token)
+	var i Token
+	err := row.Scan(
+		&i.ID,
+		&i.CredentialID,
+		&i.Token,
+		&i.ValidFrom,
+		&i.ValidUntil,
+	)
+	return i, err
+}
+
 const GetUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, username, first_name, last_name, email, created_at, deleted_at FROM users
+SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, created_at, updated_at, deleted_at FROM users
 WHERE email = ? AND deleted_at IS NULL LIMIT 1
 `
 
@@ -239,17 +301,21 @@ func (q *Queries) GetUserByEmail(ctx context.Context, db DBTX, email string) (Us
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
+		&i.HashedPassword,
+		&i.HashedPasswordExpiresAt,
+		&i.Salt,
 		&i.FirstName,
 		&i.LastName,
 		&i.Email,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const GetUserByID = `-- name: GetUserByID :one
-SELECT id, username, first_name, last_name, email, created_at, deleted_at FROM users
+SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, created_at, updated_at, deleted_at FROM users
 WHERE id = ? AND deleted_at IS NULL LIMIT 1
 `
 
@@ -259,17 +325,21 @@ func (q *Queries) GetUserByID(ctx context.Context, db DBTX, id int64) (User, err
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
+		&i.HashedPassword,
+		&i.HashedPasswordExpiresAt,
+		&i.Salt,
 		&i.FirstName,
 		&i.LastName,
 		&i.Email,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const GetUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, first_name, last_name, email, created_at, deleted_at FROM users
+SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, created_at, updated_at, deleted_at FROM users
 WHERE username = ? AND deleted_at IS NULL LIMIT 1
 `
 
@@ -279,10 +349,14 @@ func (q *Queries) GetUserByUsername(ctx context.Context, db DBTX, username strin
 	err := row.Scan(
 		&i.ID,
 		&i.Username,
+		&i.HashedPassword,
+		&i.HashedPasswordExpiresAt,
+		&i.Salt,
 		&i.FirstName,
 		&i.LastName,
 		&i.Email,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -290,7 +364,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, db DBTX, username strin
 
 const GetUserComments = `-- name: GetUserComments :many
 SELECT
-	c.id, c.content, c.like_count, c.created_at, c.user_id, c.deleted_at
+	c.id, c.content, c.like_count, c.user_id, c.created_at, c.updated_at, c.deleted_at
 FROM
 	comments c JOIN users u
 	ON c.user_id = u.id
@@ -315,8 +389,9 @@ func (q *Queries) GetUserComments(ctx context.Context, db DBTX, username string)
 			&i.ID,
 			&i.Content,
 			&i.LikeCount,
-			&i.CreatedAt,
 			&i.UserID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 			&i.DeletedAt,
 		); err != nil {
 			return nil, err
@@ -333,7 +408,7 @@ func (q *Queries) GetUserComments(ctx context.Context, db DBTX, username string)
 }
 
 const ListComment = `-- name: ListComment :many
-SELECT id, content, like_count, created_at, user_id, deleted_at FROM comments
+SELECT id, content, like_count, user_id, created_at, updated_at, deleted_at FROM comments
 WHERE deleted_at IS NULL
 ORDER BY created_at DESC
 `
@@ -351,8 +426,9 @@ func (q *Queries) ListComment(ctx context.Context, db DBTX) ([]Comment, error) {
 			&i.ID,
 			&i.Content,
 			&i.LikeCount,
-			&i.CreatedAt,
 			&i.UserID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 			&i.DeletedAt,
 		); err != nil {
 			return nil, err
@@ -369,7 +445,7 @@ func (q *Queries) ListComment(ctx context.Context, db DBTX) ([]Comment, error) {
 }
 
 const ListUsers = `-- name: ListUsers :many
-SELECT id, username, first_name, last_name, email, created_at, deleted_at FROM users
+SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, created_at, updated_at, deleted_at FROM users
 WHERE deleted_at IS NULL
 ORDER BY first_name
 `
@@ -386,10 +462,14 @@ func (q *Queries) ListUsers(ctx context.Context, db DBTX) ([]User, error) {
 		if err := rows.Scan(
 			&i.ID,
 			&i.Username,
+			&i.HashedPassword,
+			&i.HashedPasswordExpiresAt,
+			&i.Salt,
 			&i.FirstName,
 			&i.LastName,
 			&i.Email,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 			&i.DeletedAt,
 		); err != nil {
 			return nil, err

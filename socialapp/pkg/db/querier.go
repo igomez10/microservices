@@ -12,14 +12,17 @@ import (
 type Querier interface {
 	CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (sql.Result, error)
 	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (sql.Result, error)
+	CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (sql.Result, error)
 	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (sql.Result, error)
 	DeleteComment(ctx context.Context, db DBTX, id int64) error
+	DeleteToken(ctx context.Context, db DBTX, token string) error
 	DeleteUser(ctx context.Context, db DBTX, id int64) error
 	DeleteUserByUsername(ctx context.Context, db DBTX, username string) error
 	FollowUser(ctx context.Context, db DBTX, arg FollowUserParams) error
 	GetComment(ctx context.Context, db DBTX, id int64) (Comment, error)
 	GetFollowedUsers(ctx context.Context, db DBTX, followerID int64) ([]User, error)
 	GetFollowers(ctx context.Context, db DBTX, followedID int64) ([]User, error)
+	GetToken(ctx context.Context, db DBTX, token string) (Token, error)
 	GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error)
 	GetUserByID(ctx context.Context, db DBTX, id int64) (User, error)
 	GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error)

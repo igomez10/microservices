@@ -15,11 +15,13 @@ paths:
     get:
       summary: "Returns all the users"
       operationId: listUsers
+      security:
+        - OAuth2: [readUsers]
       tags:
         - User
       responses:
         "200":
-          description: Details about a user by ID
+          description: List of all the users
           content:
             application/json:
               schema:
@@ -37,6 +39,8 @@ paths:
       operationId: createUser
       tags:
         - User
+      security:
+        - OAuth2: [writeUsers]
       requestBody:
         description: Create a new user
         content:
@@ -71,6 +75,7 @@ paths:
           required: true
           schema:
             type: string
+          example: "johndoe"
       responses:
         "200":
           description: Get a users feed
@@ -260,6 +265,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        "404":
+          description: Username not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         default:
           description: Unexpected error
           content:
@@ -422,6 +433,11 @@ components:
         - first_name
         - last_name
         - email
+      example:
+        username: "johndoe"
+        first_name: "John"
+        last_name: "Doe"
+        email: "johndoe@mail.com"
       properties:
         id:
           type: integer
@@ -437,15 +453,15 @@ components:
         created_at:
           type: string
           format: date-time
-        deleted_at:
-          type: string
-          format: date-time
 
     Comment:
       type: object
       required:
         - content
         - username
+      example:
+        content: "This is a comment"
+        username: "johndoe"
       properties:
         id:
           type: integer
@@ -460,9 +476,6 @@ components:
           format: date-time
         username:
           type: string
-        deleted_at:
-          type: string
-          format: date-time
 
     AccessToken:
       type: object
@@ -470,6 +483,10 @@ components:
         - access_token
         - token_type
         - expires_in
+      example:
+        - access_token: 123token123
+        - token_type: "Bearer"
+        - expires_in: 3600
       properties:
         access_token:
           type: string
@@ -486,6 +503,9 @@ components:
       required:
         - code
         - message
+      example:
+        code: 404
+        message: "Not found"
       properties:
         code:
           type: integer
@@ -510,6 +530,6 @@ components:
 security:
   - BasicAuth: []
   - BearerAuth: []
-  - oauth2:
-      - write
-      - read
+  - OAuth2:
+      - readUsers
+      - writeUsers

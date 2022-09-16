@@ -12,9 +12,9 @@ servers:
 security:
 - BasicAuth: []
 - BearerAuth: []
-- oauth2:
-  - write
-  - read
+- OAuth2:
+  - readUsers
+  - writeUsers
 paths:
   /users:
     get:
@@ -27,13 +27,16 @@ paths:
                 items:
                   $ref: '#/components/schemas/User'
                 type: array
-          description: Details about a user by ID
+          description: List of all the users
         default:
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+      security:
+      - OAuth2:
+        - readUsers
       summary: Returns all the users
       tags:
       - User
@@ -59,6 +62,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+      security:
+      - OAuth2:
+        - writeUsers
       summary: Create a new user
       tags:
       - User
@@ -67,6 +73,7 @@ paths:
       operationId: getUserFeed
       parameters:
       - description: The username of the user
+        example: johndoe
         explode: false
         in: path
         name: username
@@ -274,6 +281,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: User was deleted succesfully
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Username not found
         default:
           content:
             application/json:
@@ -440,13 +453,10 @@ components:
   schemas:
     User:
       example:
-        last_name: last_name
-        created_at: 2000-01-23T04:56:07.000+00:00
-        id: 0
-        first_name: first_name
-        deleted_at: 2000-01-23T04:56:07.000+00:00
-        email: email
-        username: username
+        username: johndoe
+        first_name: John
+        last_name: Doe
+        email: johndoe@mail.com
       properties:
         id:
           format: int64
@@ -462,9 +472,6 @@ components:
         created_at:
           format: date-time
           type: string
-        deleted_at:
-          format: date-time
-          type: string
       required:
       - email
       - first_name
@@ -473,12 +480,8 @@ components:
       type: object
     Comment:
       example:
-        like_count: 6
-        created_at: 2000-01-23T04:56:07.000+00:00
-        id: 0
-        deleted_at: 2000-01-23T04:56:07.000+00:00
-        content: content
-        username: username
+        content: This is a comment
+        username: johndoe
       properties:
         id:
           format: int64
@@ -493,20 +496,15 @@ components:
           type: string
         username:
           type: string
-        deleted_at:
-          format: date-time
-          type: string
       required:
       - content
       - username
       type: object
     AccessToken:
       example:
-        access_token: access_token
-        expires_at: 2000-01-23T04:56:07.000+00:00
-        scopes:
-        - scopes
-        - scopes
+      - access_token: 123token123
+      - token_type: Bearer
+      - expires_in: 3600
       properties:
         access_token:
           type: string
@@ -523,6 +521,9 @@ components:
       - token_type
       type: object
     Error:
+      example:
+        code: 404
+        message: Not found
       properties:
         code:
           format: int32

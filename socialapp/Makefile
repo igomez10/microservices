@@ -31,6 +31,7 @@ generate-openapi:
 	--generator-name markdown
 	
 	# generate schema
+	rm -rf mysql-schema
 	openapi-generator generate -i openapi.yaml  \
 	--generator-name mysql-schema \
 	--output generated-schema \
@@ -39,13 +40,28 @@ generate-openapi:
 
 	# format go code
 	go fmt ./...
+	goimports -w .
 	
 	# generate cli 
+	rm -rf cli
 	openapi-generator generate --input-spec openapi.yaml \
 		--generator-name bash \
         --output cli \
 		--additional-properties=generateZshCompletion=true \
 		--additional-properties=scriptName=socialapp-cli
+
+	# generate jmeter
+	rm -rf jmeter
+	openapi-generator generate --input-spec openapi.yaml \
+		--generator-name jmeter \
+		--output jmeter
+	
+	## generate k6
+	rm -rf k6
+	openapi-generator generate --input-spec openapi.yaml \
+		--generator-name k6 \
+		--output k6
+
 
 sqlc-generate:
 	sqlc generate --file db/sqlc.yaml

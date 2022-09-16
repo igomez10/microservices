@@ -23,8 +23,6 @@ type Comment struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 
 	Username string `json:"username"`
-
-	DeletedAt time.Time `json:"deleted_at,omitempty"`
 }
 
 // AssertCommentRequired checks if the required fields are not zero-ed

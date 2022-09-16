@@ -25,8 +25,6 @@ type User struct {
 	Email string `json:"email"`
 
 	CreatedAt time.Time `json:"created_at,omitempty"`
-
-	DeletedAt time.Time `json:"deleted_at,omitempty"`
 }
 
 // AssertUserRequired checks if the required fields are not zero-ed

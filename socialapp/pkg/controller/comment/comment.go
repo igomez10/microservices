@@ -2,6 +2,7 @@ package comment
 
 import (
 	"context"
+	"database/sql"
 	"net/http"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
@@ -19,11 +20,24 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 	// validate user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, comment.Username)
 	if errGetUser != nil {
-		log.Error().
-			Err(errGetUser).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
-			Msg("Error getting user")
-		return openapi.Response(http.StatusNotFound, nil), nil
+		switch errGetUser {
+		case sql.ErrNoRows:
+			return openapi.Response(http.StatusNotFound, openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "User not found",
+			}), nil
+
+		default:
+			log.Error().
+				Err(errGetUser).
+				Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+				Msg("Error getting user")
+
+			return openapi.Response(http.StatusInternalServerError, openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Internal server error",
+			}), nil
+		}
 	}
 
 	params := db.CreateCommentForUserParams{
@@ -34,8 +48,12 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 	newCommentResult, err := s.DB.CreateCommentForUser(ctx, s.DBConn, params)
 	if err != nil {
 		log.Error().Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).Err(err).Msg("Error creating comment")
-		return openapi.Response(http.StatusNotFound, nil), nil
+		return openapi.Response(http.StatusNotFound, openapi.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}), nil
 	}
+
 	newCommentID, err := newCommentResult.LastInsertId()
 	if err != nil {
 		log.Error().Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).Err(err).Msg("Error getting last insert id")
@@ -46,18 +64,11 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 	newComment, errGetComment := s.DB.GetComment(ctx, s.DBConn, newCommentID)
 	if errGetComment != nil {
 		log.Error().Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).Err(errGetComment).Msg("Error getting comment from db")
-		return openapi.Response(http.StatusNotFound, nil), nil
+		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
-	openAPIComment := openapi.Comment{
-		Id:        newComment.ID,
-		Content:   newComment.Content,
-		LikeCount: int64(newComment.LikeCount),
-		CreatedAt: newComment.CreatedAt,
-		Username:  user.Username,
-	}
-
-	return openapi.Response(http.StatusOK, openAPIComment), nil
+	c := FromDBCmtToAPICmt(newComment, user)
+	return openapi.Response(http.StatusOK, c), nil
 }
 
 func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.ImplResponse, error) {
@@ -73,14 +84,8 @@ func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.Impl
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
-	openAPIComment := openapi.Comment{
-		Id:        comment.ID,
-		Content:   comment.Content,
-		LikeCount: int64(comment.LikeCount),
-		CreatedAt: comment.CreatedAt,
-		Username:  user.Username,
-	}
-	return openapi.Response(http.StatusOK, openAPIComment), nil
+	c := FromDBCmtToAPICmt(comment, user)
+	return openapi.Response(http.StatusOK, c), nil
 }
 
 func (s *CommentService) GetUserComments(ctx context.Context, username string) (openapi.ImplResponse, error) {
@@ -109,14 +114,7 @@ func (s *CommentService) GetUserComments(ctx context.Context, username string) (
 			continue
 		}
 
-		c := openapi.Comment{
-			Id:        comments[i].ID,
-			Content:   comments[i].Content,
-			LikeCount: int64(comments[i].LikeCount),
-			CreatedAt: comments[i].CreatedAt,
-			Username:  user.Username,
-		}
-
+		c := FromDBCmtToAPICmt(comments[i], user)
 		apiComments = append(apiComments, c)
 	}
 
@@ -163,13 +161,7 @@ func (s *CommentService) GetUserFeed(ctx context.Context, username string) (open
 				// skip deleted comments
 				continue
 			}
-			apiComment := openapi.Comment{
-				Id:        currentComment.ID,
-				Content:   currentComment.Content,
-				LikeCount: int64(currentComment.LikeCount),
-				CreatedAt: currentComment.CreatedAt,
-				Username:  currentFollowedUser.Username,
-			}
+			apiComment := FromDBCmtToAPICmt(currentComment, currentFollowedUser)
 			comments = append(comments, apiComment)
 		}
 	}
@@ -178,4 +170,14 @@ func (s *CommentService) GetUserFeed(ctx context.Context, username string) (open
 	}
 
 	return openapi.Response(http.StatusOK, comments), nil
+}
+
+func FromDBCmtToAPICmt(comment db.Comment, user db.User) openapi.Comment {
+	return openapi.Comment{
+		Id:        comment.ID,
+		Content:   comment.Content,
+		LikeCount: int64(comment.LikeCount),
+		CreatedAt: comment.CreatedAt,
+		Username:  user.Username,
+	}
 }
