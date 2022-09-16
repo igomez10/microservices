@@ -24,8 +24,7 @@ CREATE TABLE IF NOT EXISTS `Comment` (
   `content` TEXT NOT NULL,
   `like_count` BIGINT DEFAULT NULL,
   `created_at` DATETIME DEFAULT NULL,
-  `username` TEXT NOT NULL,
-  `deleted_at` DATETIME DEFAULT NULL
+  `username` TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -47,8 +46,7 @@ CREATE TABLE IF NOT EXISTS `User` (
   `first_name` TEXT NOT NULL,
   `last_name` TEXT NOT NULL,
   `email` TEXT NOT NULL,
-  `created_at` DATETIME DEFAULT NULL,
-  `deleted_at` DATETIME DEFAULT NULL
+  `created_at` DATETIME DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 

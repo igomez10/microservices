@@ -25,7 +25,7 @@ Get all followers for a user
 
 ### Authorization
 
-[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth), [oauth2](../README.md#oauth2)
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
 
 ### HTTP request headers
 

@@ -22,7 +22,6 @@ type Comment struct {
 	LikeCount *int64     `json:"like_count,omitempty"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	Username  string     `json:"username"`
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
 
 // NewComment instantiates a new Comment object
@@ -188,38 +187,6 @@ func (o *Comment) SetUsername(v string) {
 	o.Username = v
 }
 
-// GetDeletedAt returns the DeletedAt field value if set, zero value otherwise.
-func (o *Comment) GetDeletedAt() time.Time {
-	if o == nil || o.DeletedAt == nil {
-		var ret time.Time
-		return ret
-	}
-	return *o.DeletedAt
-}
-
-// GetDeletedAtOk returns a tuple with the DeletedAt field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *Comment) GetDeletedAtOk() (*time.Time, bool) {
-	if o == nil || o.DeletedAt == nil {
-		return nil, false
-	}
-	return o.DeletedAt, true
-}
-
-// HasDeletedAt returns a boolean if a field has been set.
-func (o *Comment) HasDeletedAt() bool {
-	if o != nil && o.DeletedAt != nil {
-		return true
-	}
-
-	return false
-}
-
-// SetDeletedAt gets a reference to the given time.Time and assigns it to the DeletedAt field.
-func (o *Comment) SetDeletedAt(v time.Time) {
-	o.DeletedAt = &v
-}
-
 func (o Comment) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 	if o.Id != nil {
@@ -236,9 +203,6 @@ func (o Comment) MarshalJSON() ([]byte, error) {
 	}
 	if true {
 		toSerialize["username"] = o.Username
-	}
-	if o.DeletedAt != nil {
-		toSerialize["deleted_at"] = o.DeletedAt
 	}
 	return json.Marshal(toSerialize)
 }

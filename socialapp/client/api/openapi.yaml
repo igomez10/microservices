@@ -6,15 +6,12 @@ info:
   title: Socialapp
   version: 1.0.0
 servers:
-- url: https://microservices.onrender.com
-- url: http://localhost:8080
-- url: http://localhost:8085
+  - url: https://microservices.onrender.com
+  - url: http://localhost:8080
+  - url: http://localhost:8085
 security:
-- BasicAuth: []
-- BearerAuth: []
-- oauth2:
-  - write
-  - read
+  - BasicAuth: []
+  - BearerAuth: []
 paths:
   /users:
     get:
@@ -25,25 +22,28 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: "#/components/schemas/User"
                 type: array
-          description: Details about a user by ID
+          description: List of all the users
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
+      security:
+        - OAuth2:
+            - readUsers
       summary: Returns all the users
       tags:
-      - User
+        - User
     post:
       operationId: createUser
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: "#/components/schemas/User"
         description: Create a new user
         required: true
       responses:
@@ -51,164 +51,168 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: User was created successfully
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
+      security:
+        - OAuth2:
+            - writeUsers
       summary: Create a new user
       tags:
-      - User
+        - User
   /users/{username}/feed:
     get:
       operationId: getUserFeed
       parameters:
-      - description: The username of the user
-        explode: false
-        in: path
-        name: username
-        required: true
-        schema:
-          type: string
-        style: simple
+        - description: The username of the user
+          example: johndoe
+          explode: false
+          in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          style: simple
       responses:
         "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Comment'
+                  $ref: "#/components/schemas/Comment"
                 type: array
           description: Get a users feed
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Returns a users feed
       tags:
-      - Comment
+        - Comment
   /users/{username}/comments:
     get:
       operationId: getUserComments
       parameters:
-      - description: username of the user
-        example: johndoe
-        explode: false
-        in: path
-        name: username
-        required: true
-        schema:
-          type: string
-        style: simple
+        - description: username of the user
+          example: johndoe
+          explode: false
+          in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          style: simple
       responses:
         "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Comment'
+                  $ref: "#/components/schemas/Comment"
                 type: array
           description: User comments
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Gets all comments for a user
       tags:
-      - User
-      - Comment
+        - User
+        - Comment
   /users/{username}/followers:
     get:
       operationId: getUserFollowers
       parameters:
-      - description: username of the user
-        example: johndoe
-        explode: false
-        in: path
-        name: username
-        required: true
-        schema:
-          type: string
-        style: simple
+        - description: username of the user
+          example: johndoe
+          explode: false
+          in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          style: simple
       responses:
         "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: "#/components/schemas/User"
                 type: array
           description: User followers
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Get all followers for a user
       tags:
-      - User
-      - Following
+        - User
+        - Following
   /users/{username}/following:
     get:
       operationId: getFollowingUsers
       parameters:
-      - description: username of the user
-        example: johndoe
-        explode: false
-        in: path
-        name: username
-        required: true
-        schema:
-          type: string
-        style: simple
+        - description: username of the user
+          example: johndoe
+          explode: false
+          in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          style: simple
       responses:
         "200":
           content:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: "#/components/schemas/User"
                 type: array
           description: Followed users
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Get all followed users for a user
       tags:
-      - User
+        - User
   /users/{followedUsername}/followers/{followerUsername}:
     delete:
       operationId: unfollowUser
       parameters:
-      - description: username of the user
-        example: johndoe
-        explode: false
-        in: path
-        name: followedUsername
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: username of the follower
-        example: jackdoe
-        explode: false
-        in: path
-        name: followerUsername
-        required: true
-        schema:
-          type: string
-        style: simple
+        - description: username of the user
+          example: johndoe
+          explode: false
+          in: path
+          name: followedUsername
+          required: true
+          schema:
+            type: string
+          style: simple
+        - description: username of the follower
+          example: jackdoe
+          explode: false
+          in: path
+          name: followerUsername
+          required: true
+          schema:
+            type: string
+          style: simple
       responses:
         "200":
           description: User was unfollowed successfully
@@ -216,32 +220,32 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Remove a user as a follower
       tags:
-      - User
+        - User
     post:
       operationId: followUser
       parameters:
-      - description: username of the user
-        example: johndoe
-        explode: false
-        in: path
-        name: followedUsername
-        required: true
-        schema:
-          type: string
-        style: simple
-      - description: username of the follower
-        example: jackdoe
-        explode: false
-        in: path
-        name: followerUsername
-        required: true
-        schema:
-          type: string
-        style: simple
+        - description: username of the user
+          example: johndoe
+          explode: false
+          in: path
+          name: followedUsername
+          required: true
+          schema:
+            type: string
+          style: simple
+        - description: username of the follower
+          example: jackdoe
+          explode: false
+          in: path
+          name: followerUsername
+          required: true
+          schema:
+            type: string
+          style: simple
       responses:
         "200":
           description: User was followed successfully
@@ -249,58 +253,64 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Add a user as a follower
       tags:
-      - User
+        - User
   /users/{username}:
     delete:
       operationId: deleteUser
       parameters:
-      - description: username of the user
-        example: johndoe
-        explode: false
-        in: path
-        name: username
-        required: true
-        schema:
-          type: string
-        style: simple
+        - description: username of the user
+          example: johndoe
+          explode: false
+          in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          style: simple
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: User was deleted succesfully
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Username not found
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Deletes a particular user
       tags:
-      - User
+        - User
     get:
       operationId: getUserByUsername
       parameters:
-      - description: username of the user
-        example: johndoe
-        explode: false
-        in: path
-        name: username
-        required: true
-        schema:
-          type: string
-        style: simple
+        - description: username of the user
+          example: johndoe
+          explode: false
+          in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          style: simple
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: Details about a user by ID
           headers:
             x-next:
@@ -313,65 +323,65 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Get a particular user by username
       tags:
-      - User
+        - User
     put:
       operationId: updateUser
       parameters:
-      - description: username of the user
-        example: johndoe
-        explode: false
-        in: path
-        name: username
-        required: true
-        schema:
-          type: string
-        style: simple
+        - description: username of the user
+          example: johndoe
+          explode: false
+          in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          style: simple
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: "#/components/schemas/User"
         description: Update a user
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: User was updated successfully
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Update a user
       tags:
-      - User
+        - User
   /comments/{id}:
     get:
       operationId: getComment
       parameters:
-      - description: ID of the comment
-        example: 123
-        explode: false
-        in: path
-        name: id
-        required: true
-        schema:
-          format: int32
-          type: integer
-        style: simple
+        - description: ID of the comment
+          example: 123
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            format: int32
+            type: integer
+          style: simple
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Comment'
+                $ref: "#/components/schemas/Comment"
           description: Details about a comment by ID
           headers:
             x-next:
@@ -384,11 +394,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Returns details about a particular comment
       tags:
-      - Comment
+        - Comment
   /comments:
     post:
       operationId: createComment
@@ -396,7 +406,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Comment'
+              $ref: "#/components/schemas/Comment"
         description: Create a new comment
         required: true
       responses:
@@ -404,17 +414,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Comment'
+                $ref: "#/components/schemas/Comment"
           description: New comment was created
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Create a new comment
       tags:
-      - Comment
+        - Comment
   /oauth/token:
     post:
       operationId: getAccessToken
@@ -423,30 +433,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccessToken'
+                $ref: "#/components/schemas/AccessToken"
           description: Access token
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
-      - basicAuth: []
+        - basicAuth: []
       summary: Get an access token
       tags:
-      - Authentication
+        - Authentication
 components:
   schemas:
     User:
       example:
-        last_name: last_name
-        created_at: 2000-01-23T04:56:07.000+00:00
-        id: 0
-        first_name: first_name
-        deleted_at: 2000-01-23T04:56:07.000+00:00
-        email: email
-        username: username
+        username: johndoe
+        first_name: John
+        last_name: Doe
+        email: johndoe@mail.com
       properties:
         id:
           format: int64
@@ -462,23 +469,16 @@ components:
         created_at:
           format: date-time
           type: string
-        deleted_at:
-          format: date-time
-          type: string
       required:
-      - email
-      - first_name
-      - last_name
-      - username
+        - email
+        - first_name
+        - last_name
+        - username
       type: object
     Comment:
       example:
-        like_count: 6
-        created_at: 2000-01-23T04:56:07.000+00:00
-        id: 0
-        deleted_at: 2000-01-23T04:56:07.000+00:00
-        content: content
-        username: username
+        content: This is a comment
+        username: johndoe
       properties:
         id:
           format: int64
@@ -493,20 +493,15 @@ components:
           type: string
         username:
           type: string
-        deleted_at:
-          format: date-time
-          type: string
       required:
-      - content
-      - username
+        - content
+        - username
       type: object
     AccessToken:
       example:
-        access_token: access_token
-        expires_at: 2000-01-23T04:56:07.000+00:00
-        scopes:
-        - scopes
-        - scopes
+        - access_token: 123token123
+        - token_type: Bearer
+        - expires_in: 3600
       properties:
         access_token:
           type: string
@@ -518,11 +513,14 @@ components:
           format: date-time
           type: string
       required:
-      - access_token
-      - expires_in
-      - token_type
+        - access_token
+        - expires_in
+        - token_type
       type: object
     Error:
+      example:
+        code: 404
+        message: Not found
       properties:
         code:
           format: int32
@@ -530,8 +528,8 @@ components:
         message:
           type: string
       required:
-      - code
-      - message
+        - code
+        - message
       type: object
   securitySchemes:
     BasicAuth:

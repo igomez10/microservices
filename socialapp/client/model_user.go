@@ -23,7 +23,6 @@ type User struct {
 	LastName  string     `json:"last_name"`
 	Email     string     `json:"email"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
-	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
 
 // NewUser instantiates a new User object
@@ -207,38 +206,6 @@ func (o *User) SetCreatedAt(v time.Time) {
 	o.CreatedAt = &v
 }
 
-// GetDeletedAt returns the DeletedAt field value if set, zero value otherwise.
-func (o *User) GetDeletedAt() time.Time {
-	if o == nil || o.DeletedAt == nil {
-		var ret time.Time
-		return ret
-	}
-	return *o.DeletedAt
-}
-
-// GetDeletedAtOk returns a tuple with the DeletedAt field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *User) GetDeletedAtOk() (*time.Time, bool) {
-	if o == nil || o.DeletedAt == nil {
-		return nil, false
-	}
-	return o.DeletedAt, true
-}
-
-// HasDeletedAt returns a boolean if a field has been set.
-func (o *User) HasDeletedAt() bool {
-	if o != nil && o.DeletedAt != nil {
-		return true
-	}
-
-	return false
-}
-
-// SetDeletedAt gets a reference to the given time.Time and assigns it to the DeletedAt field.
-func (o *User) SetDeletedAt(v time.Time) {
-	o.DeletedAt = &v
-}
-
 func (o User) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 	if o.Id != nil {
@@ -258,9 +225,6 @@ func (o User) MarshalJSON() ([]byte, error) {
 	}
 	if o.CreatedAt != nil {
 		toSerialize["created_at"] = o.CreatedAt
-	}
-	if o.DeletedAt != nil {
-		toSerialize["deleted_at"] = o.DeletedAt
 	}
 	return json.Marshal(toSerialize)
 }

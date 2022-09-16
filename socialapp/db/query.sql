@@ -18,9 +18,9 @@ ORDER BY first_name;
 
 -- name: CreateUser :execresult
 INSERT INTO users (
-  username, first_name, last_name, email
+    username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email
 ) VALUES (
-  ?, ?, ?, ?
+	?, ?, ?, ?, ?, ?, ?
 );
 
 -- name: UpdateUser :execresult
@@ -120,3 +120,19 @@ WHERE
 	AND u.deleted_at IS NULL
 ORDER BY
 	u.first_name;
+
+-- name: GetToken :one
+SELECT * FROM tokens
+WHERE token = ? AND deleted_at IS NULL LIMIT 1;
+
+-- name: CreateToken :execresult
+INSERT INTO tokens (
+  credential_id, token
+) VALUES (
+  ?, ?
+);
+
+-- name: DeleteToken :exec
+UPDATE tokens
+SET deleted_at = NOW()
+WHERE token = ? AND deleted_at IS NULL;
