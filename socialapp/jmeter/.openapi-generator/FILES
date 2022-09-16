@@ -1,0 +1,9 @@
+.openapi-generator-ignore
+AuthenticationApi.csv
+AuthenticationApi.jmx
+CommentApi.csv
+CommentApi.jmx
+FollowingApi.csv
+FollowingApi.jmx
+UserApi.csv
+UserApi.jmx

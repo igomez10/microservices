@@ -79,4 +79,7 @@ test:
 	go test ./...
 
 start-cady:
-	 caddy reverse-proxy --from localhost:4545  --to localhost:8080
+	caddy reverse-proxy --from localhost:4545  --to localhost:8080
+
+start-jmeter:
+	jmeter -H localhost -P 9091 -t jmeter/UserApi.jmx & tail -f jmeter.log
