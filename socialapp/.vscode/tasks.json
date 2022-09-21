@@ -52,6 +52,12 @@
             "type": "shell",
             "command": "go mod tidy",
             "problemMatcher": []
+        },
+        {
+            "label": "start jmeter",
+            "type": "shell",
+            "command": "make start-jmeter",
+            "problemMatcher": []
         }
     ]
 }
