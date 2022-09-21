@@ -154,7 +154,13 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">${__javaScript(&quot;${user}&quot;.replace(/&apos;/g\, &apos;&quot;&apos;).replace(/randomUsername/g\, &quot;${random}&quot;).replace(/randomEmail/g\, &quot;${random}@${random}.com&quot;),)}</stringProp>
+                <stringProp name="Argument.value">{&#xd;
+	&quot;username&quot;: &quot;${__RandomString(30,abcdefghijklmnopqrstuvwxyz,)}&quot;,&#xd;
+	&quot;email&quot;: &quot;${__RandomString(30,abcdefghijklmnopqrstuvwxyz,)}&quot;,&#xd;
+	&quot;first_name&quot;: &quot;${__RandomString(10,abcdefghijklmnopqrstuvwxyz,)}&quot;,&#xd;
+	&quot;last_name&quot;: &quot;${__RandomString(10,abcdefghijklmnopqrstuvwxyz,)}&quot;&#xd;
+}&#xd;
+</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
