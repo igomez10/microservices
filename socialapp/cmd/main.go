@@ -72,9 +72,9 @@ func main() {
 
 	authMiddleware := authMiddleware.Middleware{DB: queries, DBConn: dbConn}
 	middlewares := []Middleware{
+		middleware.Heartbeat("/health"),
 		authMiddleware.Authenticate,
 		cors.AllowAll().Handler,
-		middleware.Heartbeat("/health"),
 		middleware.RequestID,
 		middleware.RealIP,
 		middleware.Logger,
@@ -89,7 +89,7 @@ func main() {
 
 	// Expose the api spec via HTTP.
 	router.HandleFunc("/apispec", func(w http.ResponseWriter, r *http.Request) {
-		log.Info().Msg("H . ealth check")
+		log.Info().Msg("Health check")
 		// send open api file
 		// open api file
 		file := "./openapi.yaml"
