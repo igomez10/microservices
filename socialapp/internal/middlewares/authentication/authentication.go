@@ -7,6 +7,7 @@ import (
 	"socialapp/pkg/controller/user"
 	"socialapp/pkg/db"
 	"strings"
+	"time"
 
 	"github.com/rs/zerolog/log"
 )
@@ -17,10 +18,12 @@ type Middleware struct {
 }
 
 func (m *Middleware) Authenticate(next http.Handler) http.Handler {
-
 	allowlistedPaths := map[string]map[string]bool{
 		"/users": {
 			"POST": true,
+		},
+		"/metrics": {
+			"GET": true,
 		},
 	}
 
@@ -40,6 +43,11 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			token, err := m.DB.GetToken(r.Context(), m.DBConn, givenToken)
 			if err != nil {
 				log.Error().Err(err).Msg("Failed to get token")
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			if time.Now().After(token.ValidUntil) {
+				log.Error().Err(err).Msg("Token expired")
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
