@@ -132,18 +132,22 @@ INSERT INTO credentials (
 DELETE FROM credentials
 WHERE id = ?;
 
+-- name: GetCredential :one
+SELECT * FROM credentials
+WHERE public_key = ? AND deleted_at IS NULL LIMIT 1;
+
 -- name: GetToken :one
 SELECT * FROM tokens
-WHERE token = ? AND deleted_at IS NULL LIMIT 1;
+WHERE token = ? LIMIT 1;
 
 -- name: CreateToken :execresult
 INSERT INTO tokens (
-  credential_id, token
+	token, user_id, valid_until
 ) VALUES (
-  ?, ?
+  ?, ?, ?
 );
 
 -- name: DeleteToken :exec
 UPDATE tokens
-SET deleted_at = NOW()
-WHERE token = ? AND deleted_at IS NULL;
+SET valid_until = NOW()
+WHERE token = ? AND valid_until IS NULL;

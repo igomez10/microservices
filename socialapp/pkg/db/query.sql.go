@@ -71,19 +71,20 @@ func (q *Queries) CreateCredential(ctx context.Context, db DBTX, arg CreateCrede
 
 const CreateToken = `-- name: CreateToken :execresult
 INSERT INTO tokens (
-  credential_id, token
+	token, user_id, valid_until
 ) VALUES (
-  ?, ?
+  ?, ?, ?
 )
 `
 
 type CreateTokenParams struct {
-	CredentialID int64  `json:"credential_id"`
-	Token        string `json:"token"`
+	Token      string    `json:"token"`
+	UserID     int64     `json:"user_id"`
+	ValidUntil time.Time `json:"valid_until"`
 }
 
 func (q *Queries) CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (sql.Result, error) {
-	return db.ExecContext(ctx, CreateToken, arg.CredentialID, arg.Token)
+	return db.ExecContext(ctx, CreateToken, arg.Token, arg.UserID, arg.ValidUntil)
 }
 
 const CreateUser = `-- name: CreateUser :execresult
@@ -141,8 +142,8 @@ func (q *Queries) DeleteCredential(ctx context.Context, db DBTX, id int64) error
 
 const DeleteToken = `-- name: DeleteToken :exec
 UPDATE tokens
-SET deleted_at = NOW()
-WHERE token = ? AND deleted_at IS NULL
+SET valid_until = NOW()
+WHERE token = ? AND valid_until IS NULL
 `
 
 func (q *Queries) DeleteToken(ctx context.Context, db DBTX, token string) error {
@@ -205,6 +206,26 @@ func (q *Queries) GetComment(ctx context.Context, db DBTX, id int64) (Comment, e
 		&i.UserID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const GetCredential = `-- name: GetCredential :one
+SELECT id, user_id, public_key, description, name, created_at, deleted_at FROM credentials
+WHERE public_key = ? AND deleted_at IS NULL LIMIT 1
+`
+
+func (q *Queries) GetCredential(ctx context.Context, db DBTX, publicKey string) (Credential, error) {
+	row := db.QueryRowContext(ctx, GetCredential, publicKey)
+	var i Credential
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.PublicKey,
+		&i.Description,
+		&i.Name,
+		&i.CreatedAt,
 		&i.DeletedAt,
 	)
 	return i, err
@@ -313,8 +334,8 @@ func (q *Queries) GetFollowers(ctx context.Context, db DBTX, followedID int64) (
 }
 
 const GetToken = `-- name: GetToken :one
-SELECT id, credential_id, token, valid_from, valid_until FROM tokens
-WHERE token = ? AND deleted_at IS NULL LIMIT 1
+SELECT id, user_id, token, valid_from, valid_until FROM tokens
+WHERE token = ? LIMIT 1
 `
 
 func (q *Queries) GetToken(ctx context.Context, db DBTX, token string) (Token, error) {
@@ -322,7 +343,7 @@ func (q *Queries) GetToken(ctx context.Context, db DBTX, token string) (Token, e
 	var i Token
 	err := row.Scan(
 		&i.ID,
-		&i.CredentialID,
+		&i.UserID,
 		&i.Token,
 		&i.ValidFrom,
 		&i.ValidUntil,

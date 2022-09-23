@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS credentials ( -- long term api keys
 
 CREATE TABLE IF NOT EXISTS tokens ( -- short term tokens
 	id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-	credential_id BIGINT NOT NULL REFERENCES credentials (id),
+	user_id BIGINT NOT NULL REFERENCES users(id),
 	token VARCHAR(512) NOT NULL UNIQUE,
 	valid_from TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	valid_until TIMESTAMP NOT NULL DEFAULT '2030-01-01 00:00:00'
@@ -53,8 +53,9 @@ CREATE TABLE IF NOT EXISTS tokens ( -- short term tokens
 --  SEEDING DATA
 INSERT INTO users (
     id , username , hashed_password , hashed_password_expires_at , salt , first_name , last_name , email , created_at , updated_at , deleted_at ) 
-VALUES (1, 'admin', '3c4a79782143337be4492be072abcfe979dd703c00541a8c39a0f3df4bab2029c050cf46fddc47090b5b04ac537b3e78189e3de16e601e859f95c51ac9f6dafb', '2030-01-01 00:00:00', 'salt', 'first_name', 'last_name', 'email@email.com', '2020-01-01 00:00:00', '2020-01-01 00:00:00', NULL);
+VALUES (1, 'admin', 'LPWJbW+u2por79jDW+uClI+VvxrX7HpT5eX53kdNd4U=', '2030-01-01 00:00:00', 'MTUyNzJkYjgtZjVjNi00YjIxLTk3ZDktZDJkMTEzODM5NjQ1', 'first_name', 'last_name', 'email@email.com', '2020-01-01 00:00:00', '2020-01-01 00:00:00', NULL);
 
+2	igomez	QhaJne80tgtw3PBNDnHYAaEPwyo3U3wNwrRSqyZ00jk=	2000-01-01 00:00:00	MGE4NmZhMGYtYWZiOS00MDhlLTg0MzgtM2Q1NzY1OTVjNWEx	first	last	Mara_Rippin81@yahoo.com	YjE5ZjA2MWItNjk4Yy00MDFkLTgwODgtNGVjODJiZmNmZGMy	2022-09-23 22:04:56	2022-09-23 22:04:56	2022-09-23 22:04:56	NULL
 INSERT INTO comments (id, content, like_count, created_at, user_id, deleted_at) VALUES
 (1, 'something', 0, '2022-08-20 11:53:21.218349', 1, NULL),
 (1, 'something', 0, '2022-08-20 11:53:21.218349', 1, NULL),
@@ -67,9 +68,3 @@ INSERT INTO comments (id, content, like_count, created_at, user_id, deleted_at) 
 
 INSERT INTO followers (follower_id, followed_id) VALUES
 (1, 2);
-
-INSERT INTO credentials (id, user_id, public_key, description, name, created_at, deleted_at) VALUES
-(1, 1, 'public_key', 'key description', 'mykey', '2022-08-20 11:50:28.522646', NULL);
-
-INSERT INTO tokens (id, credential_id, token, valid_from, valid_until) VALUES
-(1, 1, 'token', '2022-08-20 11:50:28.522646', '2030-08-20 11:50:28.522646');

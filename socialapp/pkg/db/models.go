@@ -36,11 +36,11 @@ type Follower struct {
 }
 
 type Token struct {
-	ID           int64     `json:"id"`
-	CredentialID int64     `json:"credential_id"`
-	Token        string    `json:"token"`
-	ValidFrom    time.Time `json:"valid_from"`
-	ValidUntil   time.Time `json:"valid_until"`
+	ID         int64     `json:"id"`
+	UserID     int64     `json:"user_id"`
+	Token      string    `json:"token"`
+	ValidFrom  time.Time `json:"valid_from"`
+	ValidUntil time.Time `json:"valid_until"`
 }
 
 type User struct {

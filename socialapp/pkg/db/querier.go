@@ -22,6 +22,7 @@ type Querier interface {
 	DeleteUserByUsername(ctx context.Context, db DBTX, username string) error
 	FollowUser(ctx context.Context, db DBTX, arg FollowUserParams) error
 	GetComment(ctx context.Context, db DBTX, id int64) (Comment, error)
+	GetCredential(ctx context.Context, db DBTX, publicKey string) (Credential, error)
 	GetFollowedUsers(ctx context.Context, db DBTX, followerID int64) ([]User, error)
 	GetFollowers(ctx context.Context, db DBTX, followedID int64) ([]User, error)
 	GetToken(ctx context.Context, db DBTX, token string) (Token, error)

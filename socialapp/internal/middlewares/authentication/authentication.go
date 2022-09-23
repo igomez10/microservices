@@ -35,10 +35,25 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 
 		authHeader := r.Header.Get("Authorization")
 		if strings.HasPrefix(authHeader, "Bearer ") {
-			// check token in DB
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(`{"message": "Unauthorized, only basic auth for now"}`))
+			// check givenToken in DB
+			givenToken := strings.TrimPrefix(authHeader, "Bearer ")
+			token, err := m.DB.GetToken(r.Context(), m.DBConn, givenToken)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to get token")
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
 
+			usr, err := m.DB.GetUserByID(r.Context(), m.DBConn, token.UserID)
+			if err != nil {
+				log.Error().Err(err).Msg("Failed to get user")
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+
+			r = r.WithContext(context.WithValue(r.Context(), "username", usr.Username))
+			next.ServeHTTP(w, r)
+			return
 		} else if strings.HasPrefix(authHeader, "Basic ") && r.URL.Path == "/oauth/token" {
 			username, password, ok := r.BasicAuth()
 			if !ok {
@@ -63,15 +78,11 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			// passed authentication
 			r = r.WithContext(context.WithValue(r.Context(), "username", username))
 			next.ServeHTTP(w, r)
-		} else {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Unauthorized"))
 			return
 		}
 
-		// validate token
-		// if valid, continue
-		next.ServeHTTP(w, r)
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("Unauthorized"))
 	})
 }
 

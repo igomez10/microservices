@@ -19,7 +19,7 @@ var (
 	LOCALHOST_SERVER_URL       = 1
 	LOCALHOST_DEBUG_SERVER_URL = 2
 
-	CONTEXT_SERVER = LOCALHOST_DEBUG_SERVER_URL
+	CONTEXT_SERVER = LOCALHOST_SERVER_URL
 )
 
 func TestListUsers(t *testing.T) {
@@ -377,7 +377,7 @@ func TestRegisterUserFlow(t *testing.T) {
 		Timeout:   time.Second * 10,
 		Transport: transport,
 	}
-	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
+	urlContext := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
 	apiClient = client.NewAPIClient(configuration)
 
 	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
@@ -387,7 +387,7 @@ func TestRegisterUserFlow(t *testing.T) {
 	// create a user, no auth needed
 	// POST /user
 	// {user}
-	_, res, err := apiClient.UserApi.CreateUser(ctx).CreateUserRequest(*createUsrReq).Execute()
+	_, res, err := apiClient.UserApi.CreateUser(urlContext).CreateUserRequest(*createUsrReq).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
 	}
@@ -403,11 +403,11 @@ func TestRegisterUserFlow(t *testing.T) {
 	// use basic auth to get a beaer token
 	// GET /auth/token (basic auth)
 	// {token: "token"}
-	ctx = context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
+	basicAuthContext := context.WithValue(urlContext, client.ContextBasicAuth, client.BasicAuth{
 		UserName: username1,
 		Password: password,
 	})
-	token, res, err := apiClient.AuthenticationApi.GetAccessToken(ctx).Execute()
+	token, res, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthContext).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
 	}
@@ -415,9 +415,31 @@ func TestRegisterUserFlow(t *testing.T) {
 		t.Errorf("Expected status code 200, got %d", res.StatusCode)
 	}
 
-	fmt.Printf("%+v", res.Body)
-	fmt.Println("token: ", token)
+	fmt.Println("token: ", token.AccessToken)
 	// use bearertoken to list users
 	// GET /users
 	// [{user0,...,useri}]
+	bearerTokenContext := context.WithValue(urlContext, client.ContextAccessToken, token.AccessToken)
+	user, res, err := apiClient.UserApi.GetUserByUsername(bearerTokenContext, username1).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `UserApi.GetUsers`: %v", err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code 200, got %d", res.StatusCode)
+	}
+	fmt.Println("user: ", user)
+
+	// validate 401
+	func() {
+		user, res, err := apiClient.UserApi.GetUserByUsername(urlContext, username1).Execute()
+		if err == nil {
+			t.Errorf("Error when calling `UserApi.GetUsers`: %v", err)
+		}
+		if res.StatusCode != http.StatusUnauthorized {
+			t.Errorf("Expected status code 401, got %d", res.StatusCode)
+		}
+		if user != nil {
+			t.Errorf("Expected nil user, got %v", user)
+		}
+	}()
 }
