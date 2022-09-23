@@ -4,6 +4,7 @@ All URIs are relative to *https://microservices.onrender.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
+| [**changePassword**](UserApi.md#changePassword) | **POST** /password | Change password |
 | [**createUser**](UserApi.md#createUser) | **POST** /users | Create a new user |
 | [**deleteUser**](UserApi.md#deleteUser) | **DELETE** /users/{username} | Deletes a particular user |
 | [**followUser**](UserApi.md#followUser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower |
@@ -12,13 +13,39 @@ All URIs are relative to *https://microservices.onrender.com*
 | [**getUserComments**](UserApi.md#getUserComments) | **GET** /users/{username}/comments | Gets all comments for a user |
 | [**getUserFollowers**](UserApi.md#getUserFollowers) | **GET** /users/{username}/followers | Get all followers for a user |
 | [**listUsers**](UserApi.md#listUsers) | **GET** /users | Returns all the users |
+| [**resetPassword**](UserApi.md#resetPassword) | **PUT** /password | Reset password |
 | [**unfollowUser**](UserApi.md#unfollowUser) | **DELETE** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower |
 | [**updateUser**](UserApi.md#updateUser) | **PUT** /users/{username} | Update a user |
 
 
+<a name="changePassword"></a>
+# **changePassword**
+> User changePassword(ChangePasswordRequest)
+
+Change password
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **ChangePasswordRequest** | [**ChangePasswordRequest**](../Models/ChangePasswordRequest.md)| Change password | |
+
+### Return type
+
+[**User**](../Models/User.md)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
 <a name="createUser"></a>
 # **createUser**
-> User createUser(User)
+> User createUser(CreateUserRequest)
 
 Create a new user
 
@@ -26,7 +53,7 @@ Create a new user
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **User** | [**User**](../Models/User.md)| Create a new user | |
+| **CreateUserRequest** | [**CreateUserRequest**](../Models/CreateUserRequest.md)| Create a new user | |
 
 ### Return type
 
@@ -212,6 +239,31 @@ This endpoint does not need any parameter.
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="resetPassword"></a>
+# **resetPassword**
+> User resetPassword(ResetPasswordRequest)
+
+Reset password
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **ResetPasswordRequest** | [**ResetPasswordRequest**](../Models/ResetPasswordRequest.md)| Reset password | |
+
+### Return type
+
+[**User**](../Models/User.md)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 <a name="unfollowUser"></a>

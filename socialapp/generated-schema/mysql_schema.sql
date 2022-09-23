@@ -16,6 +16,15 @@ CREATE TABLE IF NOT EXISTS `AccessToken` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- Table structure for table `ChangePasswordRequest` generated from model 'ChangePasswordRequest'
+--
+
+CREATE TABLE IF NOT EXISTS `ChangePasswordRequest` (
+  `old_password` TEXT NOT NULL,
+  `new_password` TEXT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
 -- Table structure for table `Comment` generated from model 'Comment'
 --
 
@@ -28,12 +37,34 @@ CREATE TABLE IF NOT EXISTS `Comment` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- Table structure for table `CreateUserRequest` generated from model 'CreateUserRequest'
+--
+
+CREATE TABLE IF NOT EXISTS `CreateUserRequest` (
+  `id` BIGINT DEFAULT NULL,
+  `username` TEXT NOT NULL,
+  `password` TEXT NOT NULL,
+  `first_name` TEXT NOT NULL,
+  `last_name` TEXT NOT NULL,
+  `email` TEXT NOT NULL,
+  `created_at` DATETIME DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
 -- Table structure for table `Error` generated from model 'Error'
 --
 
 CREATE TABLE IF NOT EXISTS `Error` (
   `code` INT NOT NULL,
   `message` TEXT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Table structure for table `ResetPasswordRequest` generated from model 'ResetPasswordRequest'
+--
+
+CREATE TABLE IF NOT EXISTS `ResetPasswordRequest` (
+  `email` TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

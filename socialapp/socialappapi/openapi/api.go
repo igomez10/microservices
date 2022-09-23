@@ -42,6 +42,7 @@ type FollowingApiRouter interface {
 // The UserApiRouter implementation should parse necessary information from the http request,
 // pass the data to a UserApiServicer to perform the required actions, then write the service results to the http response.
 type UserApiRouter interface {
+	ChangePassword(http.ResponseWriter, *http.Request)
 	CreateUser(http.ResponseWriter, *http.Request)
 	DeleteUser(http.ResponseWriter, *http.Request)
 	FollowUser(http.ResponseWriter, *http.Request)
@@ -50,6 +51,7 @@ type UserApiRouter interface {
 	GetUserComments(http.ResponseWriter, *http.Request)
 	GetUserFollowers(http.ResponseWriter, *http.Request)
 	ListUsers(http.ResponseWriter, *http.Request)
+	ResetPassword(http.ResponseWriter, *http.Request)
 	UnfollowUser(http.ResponseWriter, *http.Request)
 	UpdateUser(http.ResponseWriter, *http.Request)
 }
@@ -86,7 +88,8 @@ type FollowingApiServicer interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type UserApiServicer interface {
-	CreateUser(context.Context, User) (ImplResponse, error)
+	ChangePassword(context.Context, ChangePasswordRequest) (ImplResponse, error)
+	CreateUser(context.Context, CreateUserRequest) (ImplResponse, error)
 	DeleteUser(context.Context, string) (ImplResponse, error)
 	FollowUser(context.Context, string, string) (ImplResponse, error)
 	GetFollowingUsers(context.Context, string) (ImplResponse, error)
@@ -94,6 +97,7 @@ type UserApiServicer interface {
 	GetUserComments(context.Context, string) (ImplResponse, error)
 	GetUserFollowers(context.Context, string) (ImplResponse, error)
 	ListUsers(context.Context) (ImplResponse, error)
+	ResetPassword(context.Context, ResetPasswordRequest) (ImplResponse, error)
 	UnfollowUser(context.Context, string, string) (ImplResponse, error)
 	UpdateUser(context.Context, string, User) (ImplResponse, error)
 }

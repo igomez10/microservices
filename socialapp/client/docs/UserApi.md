@@ -4,6 +4,7 @@ All URIs are relative to *https://microservices.onrender.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
+[**ChangePassword**](UserApi.md#ChangePassword) | **Post** /password | Change password
 [**CreateUser**](UserApi.md#CreateUser) | **Post** /users | Create a new user
 [**DeleteUser**](UserApi.md#DeleteUser) | **Delete** /users/{username} | Deletes a particular user
 [**FollowUser**](UserApi.md#FollowUser) | **Post** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
@@ -12,14 +13,79 @@ Method | HTTP request | Description
 [**GetUserComments**](UserApi.md#GetUserComments) | **Get** /users/{username}/comments | Gets all comments for a user
 [**GetUserFollowers**](UserApi.md#GetUserFollowers) | **Get** /users/{username}/followers | Get all followers for a user
 [**ListUsers**](UserApi.md#ListUsers) | **Get** /users | Returns all the users
+[**ResetPassword**](UserApi.md#ResetPassword) | **Put** /password | Reset password
 [**UnfollowUser**](UserApi.md#UnfollowUser) | **Delete** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
 [**UpdateUser**](UserApi.md#UpdateUser) | **Put** /users/{username} | Update a user
 
 
 
+## ChangePassword
+
+> User ChangePassword(ctx).ChangePasswordRequest(changePasswordRequest).Execute()
+
+Change password
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "./openapi"
+)
+
+func main() {
+    changePasswordRequest := *openapiclient.NewChangePasswordRequest("OldPassword_example", "NewPassword_example") // ChangePasswordRequest | Change password
+
+    configuration := openapiclient.NewConfiguration()
+    apiClient := openapiclient.NewAPIClient(configuration)
+    resp, r, err := apiClient.UserApi.ChangePassword(context.Background()).ChangePasswordRequest(changePasswordRequest).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.ChangePassword``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+    // response from `ChangePassword`: User
+    fmt.Fprintf(os.Stdout, "Response from `UserApi.ChangePassword`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiChangePasswordRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **changePasswordRequest** | [**ChangePasswordRequest**](ChangePasswordRequest.md) | Change password | 
+
+### Return type
+
+[**User**](User.md)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
 ## CreateUser
 
-> User CreateUser(ctx).User(user).Execute()
+> User CreateUser(ctx).CreateUserRequest(createUserRequest).Execute()
 
 Create a new user
 
@@ -36,11 +102,11 @@ import (
 )
 
 func main() {
-    user := *openapiclient.NewUser("Username_example", "FirstName_example", "LastName_example", "Email_example") // User | Create a new user
+    createUserRequest := *openapiclient.NewCreateUserRequest("Username_example", "Password_example", "FirstName_example", "LastName_example", "Email_example") // CreateUserRequest | Create a new user
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.CreateUser(context.Background()).User(user).Execute()
+    resp, r, err := apiClient.UserApi.CreateUser(context.Background()).CreateUserRequest(createUserRequest).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `UserApi.CreateUser``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -61,7 +127,7 @@ Other parameters are passed through a pointer to a apiCreateUserRequest struct v
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **user** | [**User**](User.md) | Create a new user | 
+ **createUserRequest** | [**CreateUserRequest**](CreateUserRequest.md) | Create a new user | 
 
 ### Return type
 
@@ -542,6 +608,70 @@ Other parameters are passed through a pointer to a apiListUsersRequest struct vi
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## ResetPassword
+
+> User ResetPassword(ctx).ResetPasswordRequest(resetPasswordRequest).Execute()
+
+Reset password
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "./openapi"
+)
+
+func main() {
+    resetPasswordRequest := *openapiclient.NewResetPasswordRequest("Email_example") // ResetPasswordRequest | Reset password
+
+    configuration := openapiclient.NewConfiguration()
+    apiClient := openapiclient.NewAPIClient(configuration)
+    resp, r, err := apiClient.UserApi.ResetPassword(context.Background()).ResetPasswordRequest(resetPasswordRequest).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.ResetPassword``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+    // response from `ResetPassword`: User
+    fmt.Fprintf(os.Stdout, "Response from `UserApi.ResetPassword`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiResetPasswordRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **resetPasswordRequest** | [**ResetPasswordRequest**](ResetPasswordRequest.md) | Reset password | 
+
+### Return type
+
+[**User**](User.md)
+
+### Authorization
+
+[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)

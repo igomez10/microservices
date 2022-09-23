@@ -51,6 +51,12 @@ func NewUserApiController(s UserApiServicer, opts ...UserApiOption) Router {
 func (c *UserApiController) Routes() Routes {
 	return Routes{
 		{
+			"ChangePassword",
+			strings.ToUpper("Post"),
+			"/password",
+			c.ChangePassword,
+		},
+		{
 			"CreateUser",
 			strings.ToUpper("Post"),
 			"/users",
@@ -99,6 +105,12 @@ func (c *UserApiController) Routes() Routes {
 			c.ListUsers,
 		},
 		{
+			"ResetPassword",
+			strings.ToUpper("Put"),
+			"/password",
+			c.ResetPassword,
+		},
+		{
 			"UnfollowUser",
 			strings.ToUpper("Delete"),
 			"/users/{followedUsername}/followers/{followerUsername}",
@@ -113,20 +125,44 @@ func (c *UserApiController) Routes() Routes {
 	}
 }
 
-// CreateUser - Create a new user
-func (c *UserApiController) CreateUser(w http.ResponseWriter, r *http.Request) {
-	userParam := User{}
+// ChangePassword - Change password
+func (c *UserApiController) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	changePasswordRequestParam := ChangePasswordRequest{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&userParam); err != nil {
+	if err := d.Decode(&changePasswordRequestParam); err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertUserRequired(userParam); err != nil {
+	if err := AssertChangePasswordRequestRequired(changePasswordRequestParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.CreateUser(r.Context(), userParam)
+	result, err := c.service.ChangePassword(r.Context(), changePasswordRequestParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+
+}
+
+// CreateUser - Create a new user
+func (c *UserApiController) CreateUser(w http.ResponseWriter, r *http.Request) {
+	createUserRequestParam := CreateUserRequest{}
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&createUserRequestParam); err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertCreateUserRequestRequired(createUserRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.CreateUser(r.Context(), createUserRequestParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -232,6 +268,30 @@ func (c *UserApiController) GetUserFollowers(w http.ResponseWriter, r *http.Requ
 // ListUsers - Returns all the users
 func (c *UserApiController) ListUsers(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.ListUsers(r.Context())
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+
+}
+
+// ResetPassword - Reset password
+func (c *UserApiController) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	resetPasswordRequestParam := ResetPasswordRequest{}
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&resetPasswordRequestParam); err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertResetPasswordRequestRequired(resetPasswordRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.ResetPassword(r.Context(), resetPasswordRequestParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

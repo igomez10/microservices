@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	authMiddleware "socialapp/internal/middlewares/authentication"
 	"socialapp/pkg/controller/authentication"
 	"socialapp/pkg/controller/comment"
 	"socialapp/pkg/controller/user"
@@ -30,6 +31,8 @@ import (
 var (
 	appPort *int = flag.Int("port", 8080, "main port for application")
 )
+
+type Middleware func(http.Handler) http.Handler
 
 func main() {
 	flag.Parse()
@@ -61,7 +64,25 @@ func main() {
 	AuthApiService := &authentication.AuthenticationService{DB: queries, DBConn: dbConn}
 	AuthApiController := openapi.NewAuthenticationApiController(AuthApiService)
 
-	router := NewRouter(CommentApiController, UserApiController, AuthApiController)
+	routers := []openapi.Router{
+		CommentApiController,
+		UserApiController,
+		AuthApiController,
+	}
+
+	authMiddleware := authMiddleware.Middleware{DB: queries, DBConn: dbConn}
+	middlewares := []Middleware{
+		authMiddleware.Authenticate,
+		cors.AllowAll().Handler,
+		middleware.Heartbeat("/health"),
+		middleware.RequestID,
+		middleware.RealIP,
+		middleware.Logger,
+		middleware.Recoverer,
+		middleware.Timeout(60 * time.Second),
+	}
+
+	router := NewRouter(middlewares, routers)
 
 	// Expose the registered metrics via HTTP.
 	router.Handle("/metrics", promhttp.Handler())
@@ -88,14 +109,8 @@ func main() {
 
 }
 
-func NewRouter(routers ...openapi.Router) chi.Router {
+func NewRouter(middlewares []Middleware, routers []openapi.Router) chi.Router {
 	router := chi.NewRouter()
-
-	// cors middleware
-	router.Use(cors.AllowAll().Handler)
-
-	// health check
-	router.Use(middleware.Heartbeat("/health"))
 
 	// Custom misc middleware
 	router.Use(func(next http.Handler) http.Handler {
@@ -127,22 +142,13 @@ func NewRouter(routers ...openapi.Router) chi.Router {
 		})
 	})
 
-	// auth middleware
-	router.Use(middleware.BasicAuth("realm", map[string]string{"admin": "admin"}))
-	// request id middleware
-	router.Use(middleware.RequestID)
-	// realip middleware
-	router.Use(middleware.RealIP)
-	// usual logger middleware
-	router.Use(middleware.Logger)
-	// recover middleware for recovering from panics
-	router.Use(middleware.Recoverer)
-	// timeout middleware
-	router.Use(middleware.Timeout(60 * time.Second))
-
 	mdlw := metricsMiddleware.New(metricsMiddleware.Config{
 		Recorder: prometheus.NewRecorder(prometheus.Config{}),
 	})
+
+	for i := range middlewares {
+		router.Use(middlewares[i])
+	}
 
 	for _, api := range routers {
 		for _, route := range api.Routes() {

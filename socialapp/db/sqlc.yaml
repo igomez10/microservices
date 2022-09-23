@@ -1,6 +1,6 @@
 version: 2
 sql:
-  - schema: "setup/init.sql"
+  - schema: "setup/schema.sql"
     queries: "query.sql"
     engine: "mysql"
     gen:

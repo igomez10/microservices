@@ -100,7 +100,8 @@ operation_parameters_minimum_occurrences["getComment:::id"]=1
 operation_parameters_minimum_occurrences["getUserComments:::username"]=1
 operation_parameters_minimum_occurrences["getUserFeed:::username"]=1
 operation_parameters_minimum_occurrences["getUserFollowers:::username"]=1
-operation_parameters_minimum_occurrences["createUser:::User"]=1
+operation_parameters_minimum_occurrences["changePassword:::ChangePasswordRequest"]=1
+operation_parameters_minimum_occurrences["createUser:::CreateUserRequest"]=1
 operation_parameters_minimum_occurrences["deleteUser:::username"]=1
 operation_parameters_minimum_occurrences["followUser:::followedUsername"]=1
 operation_parameters_minimum_occurrences["followUser:::followerUsername"]=1
@@ -108,6 +109,7 @@ operation_parameters_minimum_occurrences["getFollowingUsers:::username"]=1
 operation_parameters_minimum_occurrences["getUserByUsername:::username"]=1
 operation_parameters_minimum_occurrences["getUserComments:::username"]=1
 operation_parameters_minimum_occurrences["getUserFollowers:::username"]=1
+operation_parameters_minimum_occurrences["resetPassword:::ResetPasswordRequest"]=1
 operation_parameters_minimum_occurrences["unfollowUser:::followedUsername"]=1
 operation_parameters_minimum_occurrences["unfollowUser:::followerUsername"]=1
 operation_parameters_minimum_occurrences["updateUser:::username"]=1
@@ -125,7 +127,8 @@ operation_parameters_maximum_occurrences["getComment:::id"]=0
 operation_parameters_maximum_occurrences["getUserComments:::username"]=0
 operation_parameters_maximum_occurrences["getUserFeed:::username"]=0
 operation_parameters_maximum_occurrences["getUserFollowers:::username"]=0
-operation_parameters_maximum_occurrences["createUser:::User"]=0
+operation_parameters_maximum_occurrences["changePassword:::ChangePasswordRequest"]=0
+operation_parameters_maximum_occurrences["createUser:::CreateUserRequest"]=0
 operation_parameters_maximum_occurrences["deleteUser:::username"]=0
 operation_parameters_maximum_occurrences["followUser:::followedUsername"]=0
 operation_parameters_maximum_occurrences["followUser:::followerUsername"]=0
@@ -133,6 +136,7 @@ operation_parameters_maximum_occurrences["getFollowingUsers:::username"]=0
 operation_parameters_maximum_occurrences["getUserByUsername:::username"]=0
 operation_parameters_maximum_occurrences["getUserComments:::username"]=0
 operation_parameters_maximum_occurrences["getUserFollowers:::username"]=0
+operation_parameters_maximum_occurrences["resetPassword:::ResetPasswordRequest"]=0
 operation_parameters_maximum_occurrences["unfollowUser:::followedUsername"]=0
 operation_parameters_maximum_occurrences["unfollowUser:::followerUsername"]=0
 operation_parameters_maximum_occurrences["updateUser:::username"]=0
@@ -147,7 +151,8 @@ operation_parameters_collection_type["getComment:::id"]=""
 operation_parameters_collection_type["getUserComments:::username"]=""
 operation_parameters_collection_type["getUserFeed:::username"]=""
 operation_parameters_collection_type["getUserFollowers:::username"]=""
-operation_parameters_collection_type["createUser:::User"]=""
+operation_parameters_collection_type["changePassword:::ChangePasswordRequest"]=""
+operation_parameters_collection_type["createUser:::CreateUserRequest"]=""
 operation_parameters_collection_type["deleteUser:::username"]=""
 operation_parameters_collection_type["followUser:::followedUsername"]=""
 operation_parameters_collection_type["followUser:::followerUsername"]=""
@@ -155,6 +160,7 @@ operation_parameters_collection_type["getFollowingUsers:::username"]=""
 operation_parameters_collection_type["getUserByUsername:::username"]=""
 operation_parameters_collection_type["getUserComments:::username"]=""
 operation_parameters_collection_type["getUserFollowers:::username"]=""
+operation_parameters_collection_type["resetPassword:::ResetPasswordRequest"]=""
 operation_parameters_collection_type["unfollowUser:::followedUsername"]=""
 operation_parameters_collection_type["unfollowUser:::followerUsername"]=""
 operation_parameters_collection_type["updateUser:::username"]=""
@@ -577,6 +583,7 @@ echo "  $ops" | column -t -s ';'
     echo ""
     echo -e "${BOLD}${WHITE}[user]${OFF}"
 read -r -d '' ops <<EOF
+  ${CYAN}changePassword${OFF};Change password (AUTH) (AUTH)
   ${CYAN}createUser${OFF};Create a new user (AUTH) (AUTH)
   ${CYAN}deleteUser${OFF};Deletes a particular user (AUTH) (AUTH)
   ${CYAN}followUser${OFF};Add a user as a follower (AUTH) (AUTH)
@@ -585,6 +592,7 @@ read -r -d '' ops <<EOF
   ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH) (AUTH)
   ${CYAN}getUserFollowers${OFF};Get all followers for a user (AUTH) (AUTH)
   ${CYAN}listUsers${OFF};Returns all the users (AUTH) (AUTH)
+  ${CYAN}resetPassword${OFF};Reset password (AUTH) (AUTH)
   ${CYAN}unfollowUser${OFF};Remove a user as a follower (AUTH) (AUTH)
   ${CYAN}updateUser${OFF};Update a user (AUTH) (AUTH)
 EOF
@@ -751,6 +759,25 @@ print_getUserFollowers_help() {
 }
 ##############################################################################
 #
+# Print help for changePassword operation
+#
+##############################################################################
+print_changePassword_help() {
+    echo ""
+    echo -e "${BOLD}${WHITE}changePassword - Change password${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "${BOLD}${WHITE}Parameters${OFF}"
+    echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Change password" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo ""
+    echo -e "${BOLD}${WHITE}Responses${OFF}"
+    code=200
+    echo -e "${result_color_table[${code:0:1}]}  200;Password was changed successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=0
+    echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+}
+##############################################################################
+#
 # Print help for createUser operation
 #
 ##############################################################################
@@ -894,6 +921,25 @@ print_listUsers_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;List of all the users${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=0
+    echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+}
+##############################################################################
+#
+# Print help for resetPassword operation
+#
+##############################################################################
+print_resetPassword_help() {
+    echo ""
+    echo -e "${BOLD}${WHITE}resetPassword - Reset password${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "${BOLD}${WHITE}Parameters${OFF}"
+    echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Reset password" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo ""
+    echo -e "${BOLD}${WHITE}Responses${OFF}"
+    code=200
+    echo -e "${result_color_table[${code:0:1}]}  200;Password was reset successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -1193,6 +1239,84 @@ call_getUserFollowers() {
         echo "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
     else
         eval "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    fi
+}
+
+##############################################################################
+#
+# Call changePassword operation
+#
+##############################################################################
+call_changePassword() {
+    # ignore error about 'path_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local path_parameter_names=()
+    # ignore error about 'query_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local query_parameter_names=(    )
+    local path
+
+    if ! path=$(build_request_path "/password" path_parameter_names query_parameter_names); then
+        ERROR_MSG=$path
+        exit 1
+    fi
+    local method="POST"
+    local headers_curl
+    headers_curl=$(header_arguments_to_curl)
+    if [[ -n $header_accept ]]; then
+        headers_curl="${headers_curl} -H 'Accept: ${header_accept}'"
+    fi
+
+    local basic_auth_option=""
+    if [[ -n $basic_auth_credential ]]; then
+        basic_auth_option="-u ${basic_auth_credential}"
+    fi
+    local body_json_curl=""
+
+    #
+    # Check if the user provided 'Content-type' headers in the
+    # command line. If not try to set them based on the OpenAPI specification
+    # if values produces and consumes are defined unambiguously
+    #
+    if [[ -z $header_content_type ]]; then
+        header_content_type="application/json"
+    fi
+
+
+    if [[ -z $header_content_type && "$force" = false ]]; then
+        :
+        echo "ERROR: Request's content-type not specified!!!"
+        echo "This operation expects content-type in one of the following formats:"
+        echo -e "\\t- application/json"
+        echo ""
+        echo "Use '--content-type' to set proper content type"
+        exit 1
+    else
+        headers_curl="${headers_curl} -H 'Content-type: ${header_content_type}'"
+    fi
+
+
+    #
+    # If we have received some body content over pipe, pass it from the
+    # temporary file to cURL
+    #
+    if [[ -n $body_content_temp_file ]]; then
+        if [[ "$print_curl" = true ]]; then
+            echo "cat ${body_content_temp_file} | curl ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\" -d @-"
+        else
+            eval "cat ${body_content_temp_file} | curl ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\" -d @-"
+        fi
+        rm "${body_content_temp_file}"
+    #
+    # If not, try to build the content body from arguments KEY==VALUE and KEY:=VALUE
+    #
+    else
+        body_json_curl=$(body_parameters_to_json)
+        if [[ "$print_curl" = true ]]; then
+            echo "curl ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} ${body_json_curl} \"${host}${path}\""
+        else
+            eval "curl ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} ${body_json_curl} \"${host}${path}\""
+        fi
     fi
 }
 
@@ -1528,6 +1652,84 @@ call_listUsers() {
 
 ##############################################################################
 #
+# Call resetPassword operation
+#
+##############################################################################
+call_resetPassword() {
+    # ignore error about 'path_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local path_parameter_names=()
+    # ignore error about 'query_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local query_parameter_names=(    )
+    local path
+
+    if ! path=$(build_request_path "/password" path_parameter_names query_parameter_names); then
+        ERROR_MSG=$path
+        exit 1
+    fi
+    local method="PUT"
+    local headers_curl
+    headers_curl=$(header_arguments_to_curl)
+    if [[ -n $header_accept ]]; then
+        headers_curl="${headers_curl} -H 'Accept: ${header_accept}'"
+    fi
+
+    local basic_auth_option=""
+    if [[ -n $basic_auth_credential ]]; then
+        basic_auth_option="-u ${basic_auth_credential}"
+    fi
+    local body_json_curl=""
+
+    #
+    # Check if the user provided 'Content-type' headers in the
+    # command line. If not try to set them based on the OpenAPI specification
+    # if values produces and consumes are defined unambiguously
+    #
+    if [[ -z $header_content_type ]]; then
+        header_content_type="application/json"
+    fi
+
+
+    if [[ -z $header_content_type && "$force" = false ]]; then
+        :
+        echo "ERROR: Request's content-type not specified!!!"
+        echo "This operation expects content-type in one of the following formats:"
+        echo -e "\\t- application/json"
+        echo ""
+        echo "Use '--content-type' to set proper content type"
+        exit 1
+    else
+        headers_curl="${headers_curl} -H 'Content-type: ${header_content_type}'"
+    fi
+
+
+    #
+    # If we have received some body content over pipe, pass it from the
+    # temporary file to cURL
+    #
+    if [[ -n $body_content_temp_file ]]; then
+        if [[ "$print_curl" = true ]]; then
+            echo "cat ${body_content_temp_file} | curl ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\" -d @-"
+        else
+            eval "cat ${body_content_temp_file} | curl ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\" -d @-"
+        fi
+        rm "${body_content_temp_file}"
+    #
+    # If not, try to build the content body from arguments KEY==VALUE and KEY:=VALUE
+    #
+    else
+        body_json_curl=$(body_parameters_to_json)
+        if [[ "$print_curl" = true ]]; then
+            echo "curl ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} ${body_json_curl} \"${host}${path}\""
+        else
+            eval "curl ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} ${body_json_curl} \"${host}${path}\""
+        fi
+    fi
+}
+
+##############################################################################
+#
 # Call unfollowUser operation
 #
 ##############################################################################
@@ -1755,6 +1957,9 @@ case $key in
     getUserFollowers)
     operation="getUserFollowers"
     ;;
+    changePassword)
+    operation="changePassword"
+    ;;
     createUser)
     operation="createUser"
     ;;
@@ -1778,6 +1983,9 @@ case $key in
     ;;
     listUsers)
     operation="listUsers"
+    ;;
+    resetPassword)
+    operation="resetPassword"
     ;;
     unfollowUser)
     operation="unfollowUser"
@@ -1880,6 +2088,9 @@ case $operation in
     getUserFollowers)
     call_getUserFollowers
     ;;
+    changePassword)
+    call_changePassword
+    ;;
     createUser)
     call_createUser
     ;;
@@ -1903,6 +2114,9 @@ case $operation in
     ;;
     listUsers)
     call_listUsers
+    ;;
+    resetPassword)
+    call_resetPassword
     ;;
     unfollowUser)
     call_unfollowUser

@@ -52,6 +52,8 @@ type User struct {
 	FirstName               string       `json:"first_name"`
 	LastName                string       `json:"last_name"`
 	Email                   string       `json:"email"`
+	EmailToken              string       `json:"email_token"`
+	EmailVerifiedAt         sql.NullTime `json:"email_verified_at"`
 	CreatedAt               time.Time    `json:"created_at"`
 	UpdatedAt               time.Time    `json:"updated_at"`
 	DeletedAt               sql.NullTime `json:"deleted_at"`

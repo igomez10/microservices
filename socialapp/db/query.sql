@@ -18,19 +18,19 @@ ORDER BY first_name;
 
 -- name: CreateUser :execresult
 INSERT INTO users (
-    username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email
+    username, hashed_password, salt, first_name, last_name, email, email_token, email_verified_at
 ) VALUES (
-	?, ?, ?, ?, ?, ?, ?
+	?, ?, ?, ?, ?, ?, ?, ?
 );
 
 -- name: UpdateUser :execresult
 UPDATE users 
-SET username = ?, first_name = ?, last_name=?, email=?
+SET username=?, hashed_password=?, hashed_password_expires_at=?, salt=?, first_name=?, last_name=?, email=?, email_token=?, email_verified_at=?
 WHERE id = ? AND deleted_at IS NULL;
 
 -- name: UpdateUserByUsername :execresult
 UPDATE users 
-SET username = sqlc.arg(new_username), first_name=?, last_name=?, email=?
+SET username = sqlc.arg(new_username), hashed_password=?, hashed_password_expires_at=?, salt=?, first_name=?, last_name=?, email=?, email_token=?, email_verified_at=?
 WHERE username = sqlc.arg(old_username) AND deleted_at IS NULL;
 
 -- name: DeleteUser :exec
@@ -120,6 +120,17 @@ WHERE
 	AND u.deleted_at IS NULL
 ORDER BY
 	u.first_name;
+
+-- name: CreateCredential :execresult
+INSERT INTO credentials (
+  user_id, public_key, description, name
+) VALUES (
+  ?, ?, ?, ?
+);
+
+-- name: DeleteCredential :exec
+DELETE FROM credentials
+WHERE id = ?;
 
 -- name: GetToken :one
 SELECT * FROM tokens

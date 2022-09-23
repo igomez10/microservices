@@ -55,12 +55,6 @@ generate-openapi:
 	openapi-generator generate --input-spec openapi.yaml \
 		--generator-name jmeter \
 		--output jmeter
-	
-	## generate k6
-	rm -rf k6
-	openapi-generator generate --input-spec openapi.yaml \
-		--generator-name k6 \
-		--output k6
 
 
 sqlc-generate:

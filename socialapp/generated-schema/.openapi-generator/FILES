@@ -1,6 +1,9 @@
 Model/AccessToken.sql
+Model/ChangePasswordRequest.sql
 Model/Comment.sql
+Model/CreateUserRequest.sql
 Model/Error.sql
+Model/ResetPasswordRequest.sql
 Model/User.sql
 README.md
 mysql_schema.sql

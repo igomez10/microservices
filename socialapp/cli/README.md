@@ -109,6 +109,7 @@ Class | Method | HTTP request | Description
 *CommentApi* | [**getUserComments**](docs/CommentApi.md#getusercomments) | **GET** /users/{username}/comments | Gets all comments for a user
 *CommentApi* | [**getUserFeed**](docs/CommentApi.md#getuserfeed) | **GET** /users/{username}/feed | Returns a users feed
 *FollowingApi* | [**getUserFollowers**](docs/FollowingApi.md#getuserfollowers) | **GET** /users/{username}/followers | Get all followers for a user
+*UserApi* | [**changePassword**](docs/UserApi.md#changepassword) | **POST** /password | Change password
 *UserApi* | [**createUser**](docs/UserApi.md#createuser) | **POST** /users | Create a new user
 *UserApi* | [**deleteUser**](docs/UserApi.md#deleteuser) | **DELETE** /users/{username} | Deletes a particular user
 *UserApi* | [**followUser**](docs/UserApi.md#followuser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
@@ -117,6 +118,7 @@ Class | Method | HTTP request | Description
 *UserApi* | [**getUserComments**](docs/UserApi.md#getusercomments) | **GET** /users/{username}/comments | Gets all comments for a user
 *UserApi* | [**getUserFollowers**](docs/UserApi.md#getuserfollowers) | **GET** /users/{username}/followers | Get all followers for a user
 *UserApi* | [**listUsers**](docs/UserApi.md#listusers) | **GET** /users | Returns all the users
+*UserApi* | [**resetPassword**](docs/UserApi.md#resetpassword) | **PUT** /password | Reset password
 *UserApi* | [**unfollowUser**](docs/UserApi.md#unfollowuser) | **DELETE** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
 *UserApi* | [**updateUser**](docs/UserApi.md#updateuser) | **PUT** /users/{username} | Update a user
 
@@ -124,8 +126,11 @@ Class | Method | HTTP request | Description
 ## Documentation For Models
 
  - [AccessToken](docs/AccessToken.md)
+ - [ChangePasswordRequest](docs/ChangePasswordRequest.md)
  - [Comment](docs/Comment.md)
+ - [CreateUserRequest](docs/CreateUserRequest.md)
  - [Error](docs/Error.md)
+ - [ResetPasswordRequest](docs/ResetPasswordRequest.md)
  - [User](docs/User.md)
 
 

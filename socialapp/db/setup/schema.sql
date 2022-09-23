@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS users (
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL,
+    email_token VARCHAR(100) NOT NULL DEFAULT '',
+    email_verified_at TIMESTAMP NULL DEFAULT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL 
@@ -29,7 +31,7 @@ CREATE TABLE IF NOT EXISTS followers (
     UNIQUE (follower_id, followed_id)
 );
 
-CREATE TABLE IF NOT EXISTS credentials (
+CREATE TABLE IF NOT EXISTS credentials ( -- long term api keys
     id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     user_id BIGINT NOT NULL REFERENCES users(id),
     public_key VARCHAR(512) NOT NULL,
@@ -40,7 +42,7 @@ CREATE TABLE IF NOT EXISTS credentials (
     UNIQUE (user_id, public_key)
 );
 
-CREATE TABLE IF NOT EXISTS tokens (
+CREATE TABLE IF NOT EXISTS tokens ( -- short term tokens
 	id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 	credential_id BIGINT NOT NULL REFERENCES credentials (id),
 	token VARCHAR(512) NOT NULL UNIQUE,

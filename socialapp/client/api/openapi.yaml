@@ -46,7 +46,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/CreateUserRequest'
         description: Create a new user
         required: true
       responses:
@@ -66,6 +66,63 @@ paths:
       - OAuth2:
         - writeUsers
       summary: Create a new user
+      tags:
+      - User
+  /password:
+    post:
+      operationId: changePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+        description: Change password
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Password was changed successfully
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - writeUsers
+      summary: Change password
+      tags:
+      - User
+    put:
+      operationId: resetPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+        description: Reset password
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: Password was reset successfully
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - writeUsers
+      summary: Reset password
       tags:
       - User
   /users/{username}/feed:
@@ -451,6 +508,37 @@ paths:
       - Authentication
 components:
   schemas:
+    CreateUserRequest:
+      example:
+        username: johndoe
+        first_name: John
+        last_name: Doe
+        password: Secure123!
+        email: johndoe@mail.com
+      properties:
+        id:
+          format: int64
+          type: integer
+        username:
+          type: string
+        password:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+      required:
+      - email
+      - first_name
+      - last_name
+      - password
+      - username
+      type: object
     User:
       example:
         username: johndoe
@@ -533,6 +621,28 @@ components:
       required:
       - code
       - message
+      type: object
+    ChangePasswordRequest:
+      example:
+        old_password: Secure123!
+        new_password: Secure1234!
+      properties:
+        old_password:
+          type: string
+        new_password:
+          type: string
+      required:
+      - new_password
+      - old_password
+      type: object
+    ResetPasswordRequest:
+      example:
+        email: jhon@doe.com
+      properties:
+        email:
+          type: string
+      required:
+      - email
       type: object
   securitySchemes:
     BasicAuth:

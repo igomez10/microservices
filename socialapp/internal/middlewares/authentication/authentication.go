@@ -1,0 +1,85 @@
+package authentication
+
+import (
+	"context"
+	"database/sql"
+	"net/http"
+	"socialapp/pkg/controller/user"
+	"socialapp/pkg/db"
+	"strings"
+
+	"github.com/rs/zerolog/log"
+)
+
+type Middleware struct {
+	DB     db.Querier
+	DBConn *sql.DB
+}
+
+func (m *Middleware) Authenticate(next http.Handler) http.Handler {
+
+	allowlistedPaths := map[string]map[string]bool{
+		"/users": {
+			"POST": true,
+		},
+	}
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// get token from header
+
+		if allowlistedPaths[r.URL.Path] != nil && allowlistedPaths[r.URL.Path][r.Method] {
+			log.Info().Msg("Allowlisted path")
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		authHeader := r.Header.Get("Authorization")
+		if strings.HasPrefix(authHeader, "Bearer ") {
+			// check token in DB
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(`{"message": "Unauthorized, only basic auth for now"}`))
+
+		} else if strings.HasPrefix(authHeader, "Basic ") && r.URL.Path == "/oauth/token" {
+			username, password, ok := r.BasicAuth()
+			if !ok {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte(`{"message": "invalid basic auth format"}`))
+				return
+			}
+
+			usr, err := m.DB.GetUserByUsername(r.Context(), m.DBConn, username)
+			if err != nil {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte(`{"message": "invalid username or password"}`))
+				return
+			}
+
+			encryptedPassword := user.EncryptPassword(password, usr.Salt)
+			if encryptedPassword != usr.HashedPassword {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte(`{"message": "invalid username or password"}`))
+				return
+			}
+			// passed authentication
+			r = r.WithContext(context.WithValue(r.Context(), "username", username))
+			next.ServeHTTP(w, r)
+		} else {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Unauthorized"))
+			return
+		}
+
+		// validate token
+		// if valid, continue
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (m *Middleware) GetTokenFromDB(ctx context.Context, token string) (db.Token, error) {
+	dbToken, err := m.DB.GetToken(ctx, m.DBConn, token)
+	if err != nil {
+		return db.Token{}, err
+	}
+
+	return dbToken, nil
+}

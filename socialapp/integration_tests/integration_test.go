@@ -19,7 +19,7 @@ var (
 	LOCALHOST_SERVER_URL       = 1
 	LOCALHOST_DEBUG_SERVER_URL = 2
 
-	CONTEXT_SERVER = LOCALHOST_SERVER_URL
+	CONTEXT_SERVER = LOCALHOST_DEBUG_SERVER_URL
 )
 
 func TestListUsers(t *testing.T) {
@@ -83,7 +83,7 @@ func TestCreateUser(t *testing.T) {
 
 	username := fmt.Sprintf("Test-%d", time.Now().UnixNano())
 	email := fmt.Sprintf("Test-%d-@social.com", time.Now().UnixNano())
-	user := *client.NewUser(username, "FirstName_example", "LastName_example", email) // User | Create a new user
+	user := *client.NewCreateUserRequest(username, "password", "FirstName_example", "LastName_example", email) // User | Create a new user
 	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
 	ctx = context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
 		UserName: "admin",
@@ -102,7 +102,9 @@ func TestCreateUser(t *testing.T) {
 	}()
 
 	func() {
-		_, r, err := apiClient.UserApi.CreateUser(ctx).User(user).Execute()
+		_, r, err := apiClient.UserApi.CreateUser(ctx).
+			CreateUserRequest(user).
+			Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err, r)
 		}
@@ -164,20 +166,24 @@ func TestFollowCycle(t *testing.T) {
 
 	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
 	email1 := fmt.Sprintf("Test-%d-1@social.com", time.Now().UnixNano())
-	user1 := *client.NewUser(username1, "FirstName_example", "LastName_example", email1) // User | Create a new user
+	user1 := *client.NewCreateUserRequest(username1, "password", "FirstName_example", "LastName_example", email1) // User | Create a new user
 
 	username2 := fmt.Sprintf("Test-%d2", time.Now().UnixNano())
 	email2 := fmt.Sprintf("Test-%d-2@social.com", time.Now().UnixNano())
-	user2 := *client.NewUser(username2, "FirstName_example", "LastName_example", email2) // User | Create a new user
+	user2 := *client.NewCreateUserRequest(username2, "secretPassword", "FirstName_example", "LastName_example", email2) // User | Create a new user
 
 	// create users
 	func() {
-		_, r1, err1 := apiClient.UserApi.CreateUser(ctx).User(user1).Execute()
+		_, r1, err1 := apiClient.UserApi.CreateUser(ctx).
+			CreateUserRequest(user1).
+			Execute()
 		if err1 != nil {
 			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err1, r1)
 		}
 
-		_, r2, err2 := apiClient.UserApi.CreateUser(ctx).User(user2).Execute()
+		_, r2, err2 := apiClient.UserApi.CreateUser(ctx).
+			CreateUserRequest(user2).
+			Execute()
 		if err2 != nil {
 			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err2, r2)
 		}
@@ -251,11 +257,11 @@ func TestGetExpectedFeed(t *testing.T) {
 
 	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
 	email1 := fmt.Sprintf("Test-%d-1@social.com", time.Now().UnixNano())
-	user1 := *client.NewUser(username1, "FirstName_example", "LastName_example", email1) // User | Create a new user
+	user1 := *client.NewCreateUserRequest(username1, "password", "FirstName_example", "LastName_example", email1) // User | Create a new user
 
 	username2 := fmt.Sprintf("Test-%d2", time.Now().UnixNano())
 	email2 := fmt.Sprintf("Test-%d-2@social.com", time.Now().UnixNano())
-	user2 := *client.NewUser(username2, "FirstName_example", "LastName_example", email2) // User | Create a new user
+	user2 := *client.NewCreateUserRequest(username2, "secretPassword", "FirstName_example", "LastName_example", email2) // User | Create a new user
 
 	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
 	ctx = context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
@@ -267,7 +273,7 @@ func TestGetExpectedFeed(t *testing.T) {
 	func() {
 		_, r1, err1 := apiClient.UserApi.
 			CreateUser(ctx).
-			User(user1).
+			CreateUserRequest(user1).
 			Execute()
 		if err1 != nil {
 			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err1, r1)
@@ -275,7 +281,7 @@ func TestGetExpectedFeed(t *testing.T) {
 
 		_, r2, err2 := apiClient.UserApi.
 			CreateUser(ctx).
-			User(user2).
+			CreateUserRequest(user2).
 			Execute()
 		if err2 != nil {
 			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err2, r2)
@@ -324,7 +330,7 @@ func TestGetExpectedFeed(t *testing.T) {
 
 }
 
-func TestGetAccessTo(t *testing.T) {
+func TestGetAccessToken(t *testing.T) {
 	// create two users
 	os.Setenv("HTTP_PROXY", "http://localhost:9091")
 	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
@@ -349,4 +355,69 @@ func TestGetAccessTo(t *testing.T) {
 	apiClient = client.NewAPIClient(configuration)
 	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
 	apiClient.AuthenticationApi.GetAccessToken(ctx)
+}
+
+func TestRegisterUserFlow(t *testing.T) {
+	// create two users
+	os.Setenv("HTTP_PROXY", "http://localhost:9091")
+	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
+
+	configuration := client.NewConfiguration()
+	proxyStr := "http://localhost:9091"
+	proxyURL, err := url.Parse(proxyStr)
+	if err != nil {
+		log.Println(err)
+	}
+
+	// adding the proxy settings to the Transport object
+	transport := &http.Transport{
+		Proxy: http.ProxyURL(proxyURL),
+	}
+	configuration.HTTPClient = &http.Client{
+		Timeout:   time.Second * 10,
+		Transport: transport,
+	}
+	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
+	apiClient = client.NewAPIClient(configuration)
+
+	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
+	password := fmt.Sprintf("Password-%d1", time.Now().UnixNano())
+	createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
+
+	// create a user, no auth needed
+	// POST /user
+	// {user}
+	_, res, err := apiClient.UserApi.CreateUser(ctx).CreateUserRequest(*createUsrReq).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code 201, got %d", res.StatusCode)
+	}
+
+	// confirm email -SKIPPED
+	// POST /user/confirmation?token=token
+	// 200 OK
+
+	// use basic auth to get a beaer token
+	// GET /auth/token (basic auth)
+	// {token: "token"}
+	ctx = context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
+		UserName: username1,
+		Password: password,
+	})
+	token, res, err := apiClient.AuthenticationApi.GetAccessToken(ctx).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code 200, got %d", res.StatusCode)
+	}
+
+	fmt.Printf("%+v", res.Body)
+	fmt.Println("token: ", token)
+	// use bearertoken to list users
+	// GET /users
+	// [{user0,...,useri}]
 }

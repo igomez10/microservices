@@ -45,6 +45,30 @@ func (q *Queries) CreateCommentForUser(ctx context.Context, db DBTX, arg CreateC
 	return db.ExecContext(ctx, CreateCommentForUser, arg.Username, arg.Content)
 }
 
+const CreateCredential = `-- name: CreateCredential :execresult
+INSERT INTO credentials (
+  user_id, public_key, description, name
+) VALUES (
+  ?, ?, ?, ?
+)
+`
+
+type CreateCredentialParams struct {
+	UserID      int64  `json:"user_id"`
+	PublicKey   string `json:"public_key"`
+	Description string `json:"description"`
+	Name        string `json:"name"`
+}
+
+func (q *Queries) CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (sql.Result, error) {
+	return db.ExecContext(ctx, CreateCredential,
+		arg.UserID,
+		arg.PublicKey,
+		arg.Description,
+		arg.Name,
+	)
+}
+
 const CreateToken = `-- name: CreateToken :execresult
 INSERT INTO tokens (
   credential_id, token
@@ -64,31 +88,33 @@ func (q *Queries) CreateToken(ctx context.Context, db DBTX, arg CreateTokenParam
 
 const CreateUser = `-- name: CreateUser :execresult
 INSERT INTO users (
-    username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email
+    username, hashed_password, salt, first_name, last_name, email, email_token, email_verified_at
 ) VALUES (
-	?, ?, ?, ?, ?, ?, ?
+	?, ?, ?, ?, ?, ?, ?, ?
 )
 `
 
 type CreateUserParams struct {
-	Username                string    `json:"username"`
-	HashedPassword          string    `json:"hashed_password"`
-	HashedPasswordExpiresAt time.Time `json:"hashed_password_expires_at"`
-	Salt                    string    `json:"salt"`
-	FirstName               string    `json:"first_name"`
-	LastName                string    `json:"last_name"`
-	Email                   string    `json:"email"`
+	Username        string       `json:"username"`
+	HashedPassword  string       `json:"hashed_password"`
+	Salt            string       `json:"salt"`
+	FirstName       string       `json:"first_name"`
+	LastName        string       `json:"last_name"`
+	Email           string       `json:"email"`
+	EmailToken      string       `json:"email_token"`
+	EmailVerifiedAt sql.NullTime `json:"email_verified_at"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (sql.Result, error) {
 	return db.ExecContext(ctx, CreateUser,
 		arg.Username,
 		arg.HashedPassword,
-		arg.HashedPasswordExpiresAt,
 		arg.Salt,
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,
+		arg.EmailToken,
+		arg.EmailVerifiedAt,
 	)
 }
 
@@ -100,6 +126,16 @@ WHERE id = ? AND deleted_at IS NULL
 
 func (q *Queries) DeleteComment(ctx context.Context, db DBTX, id int64) error {
 	_, err := db.ExecContext(ctx, DeleteComment, id)
+	return err
+}
+
+const DeleteCredential = `-- name: DeleteCredential :exec
+DELETE FROM credentials
+WHERE id = ?
+`
+
+func (q *Queries) DeleteCredential(ctx context.Context, db DBTX, id int64) error {
+	_, err := db.ExecContext(ctx, DeleteCredential, id)
 	return err
 }
 
@@ -176,7 +212,7 @@ func (q *Queries) GetComment(ctx context.Context, db DBTX, id int64) (Comment, e
 
 const GetFollowedUsers = `-- name: GetFollowedUsers :many
 SELECT
-	u.id, u.username, u.hashed_password, u.hashed_password_expires_at, u.salt, u.first_name, u.last_name, u.email, u.created_at, u.updated_at, u.deleted_at
+	u.id, u.username, u.hashed_password, u.hashed_password_expires_at, u.salt, u.first_name, u.last_name, u.email, u.email_token, u.email_verified_at, u.created_at, u.updated_at, u.deleted_at
 FROM
 	users u,
 	followers f
@@ -206,6 +242,8 @@ func (q *Queries) GetFollowedUsers(ctx context.Context, db DBTX, followerID int6
 			&i.FirstName,
 			&i.LastName,
 			&i.Email,
+			&i.EmailToken,
+			&i.EmailVerifiedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -225,7 +263,7 @@ func (q *Queries) GetFollowedUsers(ctx context.Context, db DBTX, followerID int6
 
 const GetFollowers = `-- name: GetFollowers :many
 SELECT
-	u.id, u.username, u.hashed_password, u.hashed_password_expires_at, u.salt, u.first_name, u.last_name, u.email, u.created_at, u.updated_at, u.deleted_at
+	u.id, u.username, u.hashed_password, u.hashed_password_expires_at, u.salt, u.first_name, u.last_name, u.email, u.email_token, u.email_verified_at, u.created_at, u.updated_at, u.deleted_at
 FROM
 	users u,
 	followers f
@@ -255,6 +293,8 @@ func (q *Queries) GetFollowers(ctx context.Context, db DBTX, followedID int64) (
 			&i.FirstName,
 			&i.LastName,
 			&i.Email,
+			&i.EmailToken,
+			&i.EmailVerifiedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -291,7 +331,7 @@ func (q *Queries) GetToken(ctx context.Context, db DBTX, token string) (Token, e
 }
 
 const GetUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, created_at, updated_at, deleted_at FROM users
+SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, email_token, email_verified_at, created_at, updated_at, deleted_at FROM users
 WHERE email = ? AND deleted_at IS NULL LIMIT 1
 `
 
@@ -307,6 +347,8 @@ func (q *Queries) GetUserByEmail(ctx context.Context, db DBTX, email string) (Us
 		&i.FirstName,
 		&i.LastName,
 		&i.Email,
+		&i.EmailToken,
+		&i.EmailVerifiedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -315,7 +357,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, db DBTX, email string) (Us
 }
 
 const GetUserByID = `-- name: GetUserByID :one
-SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, created_at, updated_at, deleted_at FROM users
+SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, email_token, email_verified_at, created_at, updated_at, deleted_at FROM users
 WHERE id = ? AND deleted_at IS NULL LIMIT 1
 `
 
@@ -331,6 +373,8 @@ func (q *Queries) GetUserByID(ctx context.Context, db DBTX, id int64) (User, err
 		&i.FirstName,
 		&i.LastName,
 		&i.Email,
+		&i.EmailToken,
+		&i.EmailVerifiedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -339,7 +383,7 @@ func (q *Queries) GetUserByID(ctx context.Context, db DBTX, id int64) (User, err
 }
 
 const GetUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, created_at, updated_at, deleted_at FROM users
+SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, email_token, email_verified_at, created_at, updated_at, deleted_at FROM users
 WHERE username = ? AND deleted_at IS NULL LIMIT 1
 `
 
@@ -355,6 +399,8 @@ func (q *Queries) GetUserByUsername(ctx context.Context, db DBTX, username strin
 		&i.FirstName,
 		&i.LastName,
 		&i.Email,
+		&i.EmailToken,
+		&i.EmailVerifiedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.DeletedAt,
@@ -445,7 +491,7 @@ func (q *Queries) ListComment(ctx context.Context, db DBTX) ([]Comment, error) {
 }
 
 const ListUsers = `-- name: ListUsers :many
-SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, created_at, updated_at, deleted_at FROM users
+SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, email_token, email_verified_at, created_at, updated_at, deleted_at FROM users
 WHERE deleted_at IS NULL
 ORDER BY first_name
 `
@@ -468,6 +514,8 @@ func (q *Queries) ListUsers(ctx context.Context, db DBTX) ([]User, error) {
 			&i.FirstName,
 			&i.LastName,
 			&i.Email,
+			&i.EmailToken,
+			&i.EmailVerifiedAt,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.DeletedAt,
@@ -502,48 +550,68 @@ func (q *Queries) UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserPar
 
 const UpdateUser = `-- name: UpdateUser :execresult
 UPDATE users 
-SET username = ?, first_name = ?, last_name=?, email=?
+SET username=?, hashed_password=?, hashed_password_expires_at=?, salt=?, first_name=?, last_name=?, email=?, email_token=?, email_verified_at=?
 WHERE id = ? AND deleted_at IS NULL
 `
 
 type UpdateUserParams struct {
-	Username  string `json:"username"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email     string `json:"email"`
-	ID        int64  `json:"id"`
+	Username                string       `json:"username"`
+	HashedPassword          string       `json:"hashed_password"`
+	HashedPasswordExpiresAt time.Time    `json:"hashed_password_expires_at"`
+	Salt                    string       `json:"salt"`
+	FirstName               string       `json:"first_name"`
+	LastName                string       `json:"last_name"`
+	Email                   string       `json:"email"`
+	EmailToken              string       `json:"email_token"`
+	EmailVerifiedAt         sql.NullTime `json:"email_verified_at"`
+	ID                      int64        `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (sql.Result, error) {
 	return db.ExecContext(ctx, UpdateUser,
 		arg.Username,
+		arg.HashedPassword,
+		arg.HashedPasswordExpiresAt,
+		arg.Salt,
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,
+		arg.EmailToken,
+		arg.EmailVerifiedAt,
 		arg.ID,
 	)
 }
 
 const UpdateUserByUsername = `-- name: UpdateUserByUsername :execresult
 UPDATE users 
-SET username = ?, first_name=?, last_name=?, email=?
+SET username = ?, hashed_password=?, hashed_password_expires_at=?, salt=?, first_name=?, last_name=?, email=?, email_token=?, email_verified_at=?
 WHERE username = ? AND deleted_at IS NULL
 `
 
 type UpdateUserByUsernameParams struct {
-	NewUsername string `json:"new_username"`
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	Email       string `json:"email"`
-	OldUsername string `json:"old_username"`
+	NewUsername             string       `json:"new_username"`
+	HashedPassword          string       `json:"hashed_password"`
+	HashedPasswordExpiresAt time.Time    `json:"hashed_password_expires_at"`
+	Salt                    string       `json:"salt"`
+	FirstName               string       `json:"first_name"`
+	LastName                string       `json:"last_name"`
+	Email                   string       `json:"email"`
+	EmailToken              string       `json:"email_token"`
+	EmailVerifiedAt         sql.NullTime `json:"email_verified_at"`
+	OldUsername             string       `json:"old_username"`
 }
 
 func (q *Queries) UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (sql.Result, error) {
 	return db.ExecContext(ctx, UpdateUserByUsername,
 		arg.NewUsername,
+		arg.HashedPassword,
+		arg.HashedPasswordExpiresAt,
+		arg.Salt,
 		arg.FirstName,
 		arg.LastName,
 		arg.Email,
+		arg.EmailToken,
+		arg.EmailVerifiedAt,
 		arg.OldUsername,
 	)
 }

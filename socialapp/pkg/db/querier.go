@@ -12,9 +12,11 @@ import (
 type Querier interface {
 	CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (sql.Result, error)
 	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (sql.Result, error)
+	CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (sql.Result, error)
 	CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (sql.Result, error)
 	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (sql.Result, error)
 	DeleteComment(ctx context.Context, db DBTX, id int64) error
+	DeleteCredential(ctx context.Context, db DBTX, id int64) error
 	DeleteToken(ctx context.Context, db DBTX, token string) error
 	DeleteUser(ctx context.Context, db DBTX, id int64) error
 	DeleteUserByUsername(ctx context.Context, db DBTX, username string) error
