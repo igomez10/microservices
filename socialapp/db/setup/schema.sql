@@ -55,7 +55,6 @@ INSERT INTO users (
     id , username , hashed_password , hashed_password_expires_at , salt , first_name , last_name , email , created_at , updated_at , deleted_at ) 
 VALUES (1, 'admin', 'LPWJbW+u2por79jDW+uClI+VvxrX7HpT5eX53kdNd4U=', '2030-01-01 00:00:00', 'MTUyNzJkYjgtZjVjNi00YjIxLTk3ZDktZDJkMTEzODM5NjQ1', 'first_name', 'last_name', 'email@email.com', '2020-01-01 00:00:00', '2020-01-01 00:00:00', NULL);
 
-2	igomez	QhaJne80tgtw3PBNDnHYAaEPwyo3U3wNwrRSqyZ00jk=	2000-01-01 00:00:00	MGE4NmZhMGYtYWZiOS00MDhlLTg0MzgtM2Q1NzY1OTVjNWEx	first	last	Mara_Rippin81@yahoo.com	YjE5ZjA2MWItNjk4Yy00MDFkLTgwODgtNGVjODJiZmNmZGMy	2022-09-23 22:04:56	2022-09-23 22:04:56	2022-09-23 22:04:56	NULL
 INSERT INTO comments (id, content, like_count, created_at, user_id, deleted_at) VALUES
 (1, 'something', 0, '2022-08-20 11:53:21.218349', 1, NULL),
 (1, 'something', 0, '2022-08-20 11:53:21.218349', 1, NULL),
