@@ -25,11 +25,13 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		"/metrics": {
 			"GET": true,
 		},
+		"/apispec": {
+			"GET": true,
+		},
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// get token from header
-
 		if allowlistedPaths[r.URL.Path] != nil && allowlistedPaths[r.URL.Path][r.Method] {
 			log.Info().Msg("Allowlisted path")
 			next.ServeHTTP(w, r)

@@ -71,7 +71,8 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 		Body: openapi.AccessToken{
 			AccessToken: tokenString,
 			Scopes:      []string{"read", "write"},
-			ExpiresAt:   validUntil,
+			ExpiresIn:   validUntil,
+			TokenType:   "Bearer",
 		},
 	}, nil
 }

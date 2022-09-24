@@ -577,11 +577,13 @@ components:
       properties:
         access_token:
           type: string
+        token_type:
+          type: string
         scopes:
           type: array
           items:
             type: string
-        expires_at:
+        expires_in:
           type: string
           format: date-time
 

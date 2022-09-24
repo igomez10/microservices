@@ -16,15 +16,19 @@ import (
 type AccessToken struct {
 	AccessToken string `json:"access_token"`
 
+	TokenType string `json:"token_type"`
+
 	Scopes []string `json:"scopes,omitempty"`
 
-	ExpiresAt time.Time `json:"expires_at,omitempty"`
+	ExpiresIn time.Time `json:"expires_in"`
 }
 
 // AssertAccessTokenRequired checks if the required fields are not zero-ed
 func AssertAccessTokenRequired(obj AccessToken) error {
 	elements := map[string]interface{}{
 		"access_token": obj.AccessToken,
+		"token_type":   obj.TokenType,
+		"expires_in":   obj.ExpiresIn,
 	}
 	for name, el := range elements {
 		if isZero := IsZeroValue(el); isZero {

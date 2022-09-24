@@ -17,18 +17,21 @@ import (
 
 // AccessToken struct for AccessToken
 type AccessToken struct {
-	AccessToken string     `json:"access_token"`
-	Scopes      []string   `json:"scopes,omitempty"`
-	ExpiresAt   *time.Time `json:"expires_at,omitempty"`
+	AccessToken string    `json:"access_token"`
+	TokenType   string    `json:"token_type"`
+	Scopes      []string  `json:"scopes,omitempty"`
+	ExpiresIn   time.Time `json:"expires_in"`
 }
 
 // NewAccessToken instantiates a new AccessToken object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAccessToken(accessToken string) *AccessToken {
+func NewAccessToken(accessToken string, tokenType string, expiresIn time.Time) *AccessToken {
 	this := AccessToken{}
 	this.AccessToken = accessToken
+	this.TokenType = tokenType
+	this.ExpiresIn = expiresIn
 	return &this
 }
 
@@ -64,6 +67,30 @@ func (o *AccessToken) SetAccessToken(v string) {
 	o.AccessToken = v
 }
 
+// GetTokenType returns the TokenType field value
+func (o *AccessToken) GetTokenType() string {
+	if o == nil {
+		var ret string
+		return ret
+	}
+
+	return o.TokenType
+}
+
+// GetTokenTypeOk returns a tuple with the TokenType field value
+// and a boolean to check if the value has been set.
+func (o *AccessToken) GetTokenTypeOk() (*string, bool) {
+	if o == nil {
+		return nil, false
+	}
+	return &o.TokenType, true
+}
+
+// SetTokenType sets field value
+func (o *AccessToken) SetTokenType(v string) {
+	o.TokenType = v
+}
+
 // GetScopes returns the Scopes field value if set, zero value otherwise.
 func (o *AccessToken) GetScopes() []string {
 	if o == nil || o.Scopes == nil {
@@ -96,36 +123,28 @@ func (o *AccessToken) SetScopes(v []string) {
 	o.Scopes = v
 }
 
-// GetExpiresAt returns the ExpiresAt field value if set, zero value otherwise.
-func (o *AccessToken) GetExpiresAt() time.Time {
-	if o == nil || o.ExpiresAt == nil {
+// GetExpiresIn returns the ExpiresIn field value
+func (o *AccessToken) GetExpiresIn() time.Time {
+	if o == nil {
 		var ret time.Time
 		return ret
 	}
-	return *o.ExpiresAt
+
+	return o.ExpiresIn
 }
 
-// GetExpiresAtOk returns a tuple with the ExpiresAt field value if set, nil otherwise
+// GetExpiresInOk returns a tuple with the ExpiresIn field value
 // and a boolean to check if the value has been set.
-func (o *AccessToken) GetExpiresAtOk() (*time.Time, bool) {
-	if o == nil || o.ExpiresAt == nil {
+func (o *AccessToken) GetExpiresInOk() (*time.Time, bool) {
+	if o == nil {
 		return nil, false
 	}
-	return o.ExpiresAt, true
+	return &o.ExpiresIn, true
 }
 
-// HasExpiresAt returns a boolean if a field has been set.
-func (o *AccessToken) HasExpiresAt() bool {
-	if o != nil && o.ExpiresAt != nil {
-		return true
-	}
-
-	return false
-}
-
-// SetExpiresAt gets a reference to the given time.Time and assigns it to the ExpiresAt field.
-func (o *AccessToken) SetExpiresAt(v time.Time) {
-	o.ExpiresAt = &v
+// SetExpiresIn sets field value
+func (o *AccessToken) SetExpiresIn(v time.Time) {
+	o.ExpiresIn = v
 }
 
 func (o AccessToken) MarshalJSON() ([]byte, error) {
@@ -133,11 +152,14 @@ func (o AccessToken) MarshalJSON() ([]byte, error) {
 	if true {
 		toSerialize["access_token"] = o.AccessToken
 	}
+	if true {
+		toSerialize["token_type"] = o.TokenType
+	}
 	if o.Scopes != nil {
 		toSerialize["scopes"] = o.Scopes
 	}
-	if o.ExpiresAt != nil {
-		toSerialize["expires_at"] = o.ExpiresAt
+	if true {
+		toSerialize["expires_in"] = o.ExpiresIn
 	}
 	return json.Marshal(toSerialize)
 }

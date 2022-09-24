@@ -5,14 +5,15 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **AccessToken** | **string** |  | 
+**TokenType** | **string** |  | 
 **Scopes** | Pointer to **[]string** |  | [optional] 
-**ExpiresAt** | Pointer to **time.Time** |  | [optional] 
+**ExpiresIn** | **time.Time** |  | 
 
 ## Methods
 
 ### NewAccessToken
 
-`func NewAccessToken(accessToken string, ) *AccessToken`
+`func NewAccessToken(accessToken string, tokenType string, expiresIn time.Time, ) *AccessToken`
 
 NewAccessToken instantiates a new AccessToken object
 This constructor will assign default values to properties that have it defined,
@@ -47,6 +48,26 @@ and a boolean to check if the value has been set.
 SetAccessToken sets AccessToken field to given value.
 
 
+### GetTokenType
+
+`func (o *AccessToken) GetTokenType() string`
+
+GetTokenType returns the TokenType field if non-nil, zero value otherwise.
+
+### GetTokenTypeOk
+
+`func (o *AccessToken) GetTokenTypeOk() (*string, bool)`
+
+GetTokenTypeOk returns a tuple with the TokenType field if it's non-nil, zero value otherwise
+and a boolean to check if the value has been set.
+
+### SetTokenType
+
+`func (o *AccessToken) SetTokenType(v string)`
+
+SetTokenType sets TokenType field to given value.
+
+
 ### GetScopes
 
 `func (o *AccessToken) GetScopes() []string`
@@ -72,30 +93,25 @@ SetScopes sets Scopes field to given value.
 
 HasScopes returns a boolean if a field has been set.
 
-### GetExpiresAt
+### GetExpiresIn
 
-`func (o *AccessToken) GetExpiresAt() time.Time`
+`func (o *AccessToken) GetExpiresIn() time.Time`
 
-GetExpiresAt returns the ExpiresAt field if non-nil, zero value otherwise.
+GetExpiresIn returns the ExpiresIn field if non-nil, zero value otherwise.
 
-### GetExpiresAtOk
+### GetExpiresInOk
 
-`func (o *AccessToken) GetExpiresAtOk() (*time.Time, bool)`
+`func (o *AccessToken) GetExpiresInOk() (*time.Time, bool)`
 
-GetExpiresAtOk returns a tuple with the ExpiresAt field if it's non-nil, zero value otherwise
+GetExpiresInOk returns a tuple with the ExpiresIn field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
-### SetExpiresAt
+### SetExpiresIn
 
-`func (o *AccessToken) SetExpiresAt(v time.Time)`
+`func (o *AccessToken) SetExpiresIn(v time.Time)`
 
-SetExpiresAt sets ExpiresAt field to given value.
+SetExpiresIn sets ExpiresIn field to given value.
 
-### HasExpiresAt
-
-`func (o *AccessToken) HasExpiresAt() bool`
-
-HasExpiresAt returns a boolean if a field has been set.
 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
