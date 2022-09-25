@@ -28,7 +28,7 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+[BasicAuth](../README.md#BasicAuth)
 
 ### HTTP request headers
 

@@ -542,7 +542,7 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
       security:
-      - basicAuth: []
+      - BasicAuth: []
       summary: Get an access token
       tags:
       - Authentication
@@ -693,7 +693,7 @@ components:
     BearerAuth:
       scheme: bearer
       type: http
-    oauth2:
+    OAuth2:
       flows:
         clientCredentials:
           scopes:

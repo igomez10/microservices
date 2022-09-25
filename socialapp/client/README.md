@@ -140,7 +140,7 @@ r, err := client.Service.Operation(auth, args)
 ```
 
 
-### oauth2
+### OAuth2
 
 
 - **Type**: OAuth

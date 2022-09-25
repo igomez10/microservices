@@ -94,6 +94,10 @@
               <stringProp name="Header.name">Authorization</stringProp>
               <stringProp name="Header.value">Bearer ${__P(basicBearerToken,token)}</stringProp>
             </elementProp>
+            <elementProp name="" elementType="Header">
+              <stringProp name="Header.name"></stringProp>
+              <stringProp name="Header.value">Bearer ${__P(oathToken,token)}</stringProp>
+            </elementProp>
           </collectionProp>
         </HeaderManager>
         <hashTree/>

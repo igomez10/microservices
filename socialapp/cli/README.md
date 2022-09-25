@@ -145,7 +145,7 @@ Class | Method | HTTP request | Description
 
 - **Type**: HTTP basic authentication
 
-## oauth2
+## OAuth2
 
 
 - **Type**: OAuth

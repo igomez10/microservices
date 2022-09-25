@@ -496,7 +496,7 @@ paths:
       tags:
         - Authentication
       security:
-        - basicAuth: []
+        - BasicAuth: []
       responses:
         "200":
           description: Access token
@@ -661,7 +661,7 @@ components:
     BearerAuth:
       type: http
       scheme: bearer
-    oauth2:
+    OAuth2:
       type: oauth2
       flows:
         clientCredentials:
@@ -669,6 +669,7 @@ components:
           scopes:
             write: modify your data in your account
             read: read your data
+
 security:
   - BasicAuth: []
   - BearerAuth: []

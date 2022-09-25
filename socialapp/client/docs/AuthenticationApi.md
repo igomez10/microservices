@@ -55,7 +55,7 @@ Other parameters are passed through a pointer to a apiGetAccessTokenRequest stru
 
 ### Authorization
 
-[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth)
+[BasicAuth](../README.md#BasicAuth)
 
 ### HTTP request headers
 

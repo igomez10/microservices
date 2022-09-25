@@ -52,8 +52,8 @@ All URIs are relative to *https://microservices.onrender.com*
 
 - **Type**: HTTP basic authentication
 
-<a name="oauth2"></a>
-### oauth2
+<a name="OAuth2"></a>
+### OAuth2
 
 - **Type**: OAuth
 - **Flow**: application

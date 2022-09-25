@@ -1,2 +1,2 @@
-testCase,httpStatusCode,user,username,followedUsername,followerUsername,username,username,username,username,followedUsername,followerUsername,username,user
-Success,200,first,0,0,0,0,0,0,0,0,0,0,"{'username': 'randomUsername', 'first_name':'first', 'last_name':'last', 'email': 'randomEmail'}"
+testCase,httpStatusCode,changePasswordRequest,createUserRequest,username,followedUsername,followerUsername,username,username,username,limit,offset,username,limit,offset,resetPasswordRequest,followedUsername,followerUsername,username,user
+Success,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
