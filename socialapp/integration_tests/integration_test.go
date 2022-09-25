@@ -507,3 +507,111 @@ func TestRegisterUserFlow(t *testing.T) {
 		}
 	}()
 }
+
+func TestChangePassword(t *testing.T) {
+	os.Setenv("HTTP_PROXY", "http://localhost:9091")
+	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
+	configuration := client.NewConfiguration()
+
+	proxyStr := "http://localhost:9091"
+	proxyURL, err := url.Parse(proxyStr)
+	if err != nil {
+		log.Println(err)
+	}
+
+	// adding the proxy settings to the Transport object
+	transport := &http.Transport{
+		Proxy: http.ProxyURL(proxyURL),
+	}
+	configuration.HTTPClient = &http.Client{
+		Timeout:   time.Second * 10,
+		Transport: transport,
+	}
+	urlContext := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
+	apiClient = client.NewAPIClient(configuration)
+
+	username := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
+	password := fmt.Sprintf("Password-%d1", time.Now().UnixNano())
+	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
+
+	// create a user, no auth needed
+	// POST /user
+	// {user}
+	_, res, err := apiClient.UserApi.CreateUser(urlContext).CreateUserRequest(*createUsrReq).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code 201, got %d", res.StatusCode)
+	}
+
+	// confirm email -SKIPPED
+	// POST /user/confirmation?token=token
+	// 200 OK
+
+	// use basic auth to get a beaer token
+	// GET /auth/token (basic auth)
+	// {token: "token"}
+	basicAuthContext := context.WithValue(urlContext, client.ContextBasicAuth, client.BasicAuth{
+		UserName: username,
+		Password: password,
+	})
+	token, res, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthContext).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code 200, got %d", res.StatusCode)
+	}
+
+	bearerTokenContext := context.WithValue(urlContext, client.ContextAccessToken, token.AccessToken)
+
+	newPassword := password + "new"
+	func() {
+		changePwdReq := client.NewChangePasswordRequest(password, newPassword)
+		_, res, err := apiClient.UserApi.ChangePassword(bearerTokenContext).ChangePasswordRequest(*changePwdReq).Execute()
+		if err != nil {
+			t.Errorf("Error when calling `UserApi.ChangePassword`: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("Expected status code 200, got %d", res.StatusCode)
+		}
+	}()
+
+	// attempt to get token with old password, expect 401
+	func() {
+		basicAuthContext := context.WithValue(urlContext, client.ContextBasicAuth, client.BasicAuth{
+			UserName: username,
+			Password: password,
+		})
+		token, res, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthContext).Execute()
+		if err == nil {
+			t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
+		}
+		if res.StatusCode != http.StatusUnauthorized {
+			t.Errorf("Expected status code 401, got %d", res.StatusCode)
+		}
+		if token != nil {
+			t.Errorf("Expected nil user, got %v", token)
+		}
+	}()
+
+	// attempt to get token with new password, expect 200
+	func() {
+		basicAuthContext := context.WithValue(urlContext, client.ContextBasicAuth, client.BasicAuth{
+			UserName: username,
+			Password: newPassword,
+		})
+		token, res, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthContext).Execute()
+		if err != nil {
+			t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("Expected status code 200, got %d", res.StatusCode)
+		}
+		if token == nil {
+			t.Errorf("Expected token, got nil")
+		}
+	}()
+}
