@@ -422,7 +422,6 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 	}
 
 	// validate the old password is correct
-	//
 	encryptedHashedOldPassword := EncryptPassword(req.OldPassword, user.Salt)
 	if encryptedHashedOldPassword != user.HashedPassword {
 		log.Error().
@@ -431,7 +430,7 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 		return openapi.Response(http.StatusUnauthorized, nil), nil
 	}
 
-	// hash the new password
+	// hash the new password but keep the same salt
 	encryptedHashedNewPassword := EncryptPassword(req.NewPassword, user.Salt)
 
 	// update the password
@@ -455,6 +454,14 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
+	// invalidate existing tokens
+	if err = s.DB.DeleteAllTokensForUser(ctx, s.DBConn, user.ID); err != nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("Error deleting existing tokens")
+		return openapi.Response(http.StatusInternalServerError, nil), nil
+	}
 	return openapi.Response(http.StatusOK, nil), nil
 }
 

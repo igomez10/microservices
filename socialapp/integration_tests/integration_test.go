@@ -60,13 +60,16 @@ func TestListUsers(t *testing.T) {
 
 	beaererCtx := context.WithValue(ctx, client.ContextAccessToken, token.AccessToken)
 	// List users
-	resp, r, err := apiClient.UserApi.ListUsers(beaererCtx).Execute()
-	if err != nil {
-		t.Errorf("Error when calling `UserApi.ListUsers``: %v\n", err)
-		t.Errorf("Full HTTP response: %v\n", r)
-	}
-	// response from `ListUsers`: []User
-	t.Logf("Response from `UserApi.ListUsers`: %v\n", resp)
+	func() {
+		_, r, err := apiClient.UserApi.ListUsers(beaererCtx).Execute()
+		if err != nil {
+			t.Errorf("Error when calling `UserApi.ListUsers``: %v\n", err)
+			t.Errorf("Full HTTP response: %v\n", r)
+		}
+		if r.StatusCode != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+		}
+	}()
 }
 
 func TestCreateUser(t *testing.T) {
@@ -460,13 +463,7 @@ func TestRegisterUserFlow(t *testing.T) {
 		t.Errorf("Expected status code 201, got %d", res.StatusCode)
 	}
 
-	// confirm email -SKIPPED
-	// POST /user/confirmation?token=token
-	// 200 OK
-
 	// use basic auth to get a beaer token
-	// GET /auth/token (basic auth)
-	// {token: "token"}
 	basicAuthContext := context.WithValue(urlContext, client.ContextBasicAuth, client.BasicAuth{
 		UserName: username1,
 		Password: password,
@@ -479,19 +476,17 @@ func TestRegisterUserFlow(t *testing.T) {
 		t.Errorf("Expected status code 200, got %d", res.StatusCode)
 	}
 
-	fmt.Println("token: ", token.AccessToken)
-	// use bearertoken to list users
-	// GET /users
-	// [{user0,...,useri}]
-	bearerTokenContext := context.WithValue(urlContext, client.ContextAccessToken, token.AccessToken)
-	user, res, err := apiClient.UserApi.GetUserByUsername(bearerTokenContext, username1).Execute()
-	if err != nil {
-		t.Errorf("Error when calling `UserApi.GetUsers`: %v", err)
-	}
-	if res.StatusCode != http.StatusOK {
-		t.Errorf("Expected status code 200, got %d", res.StatusCode)
-	}
-	fmt.Println("user: ", user)
+	// use bearertoken to get user info
+	func() {
+		bearerTokenContext := context.WithValue(urlContext, client.ContextAccessToken, token.AccessToken)
+		_, res, err := apiClient.UserApi.GetUserByUsername(bearerTokenContext, username1).Execute()
+		if err != nil {
+			t.Errorf("Error when calling `UserApi.GetUsers`: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("Expected status code 200, got %d", res.StatusCode)
+		}
+	}()
 
 	// validate 401
 	func() {
@@ -535,8 +530,6 @@ func TestChangePassword(t *testing.T) {
 	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
 
 	// create a user, no auth needed
-	// POST /user
-	// {user}
 	_, res, err := apiClient.UserApi.CreateUser(urlContext).CreateUserRequest(*createUsrReq).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
@@ -546,13 +539,7 @@ func TestChangePassword(t *testing.T) {
 		t.Errorf("Expected status code 201, got %d", res.StatusCode)
 	}
 
-	// confirm email -SKIPPED
-	// POST /user/confirmation?token=token
-	// 200 OK
-
 	// use basic auth to get a beaer token
-	// GET /auth/token (basic auth)
-	// {token: "token"}
 	basicAuthContext := context.WithValue(urlContext, client.ContextBasicAuth, client.BasicAuth{
 		UserName: username,
 		Password: password,

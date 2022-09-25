@@ -11,7 +11,6 @@ require (
 	github.com/prometheus/client_golang v1.13.0
 	github.com/rs/zerolog v1.27.0
 	github.com/slok/go-http-metrics v0.10.0
-	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
 )
 

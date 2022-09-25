@@ -154,4 +154,11 @@ INSERT INTO tokens (
 -- name: DeleteToken :exec
 UPDATE tokens
 SET valid_until = NOW()
-WHERE token = ? AND valid_until IS NULL;
+WHERE token = ? AND NOW() < valid_until;
+
+-- name: DeleteAllTokensForUser :exec
+UPDATE tokens
+SET valid_until = NOW()
+WHERE user_id = ? AND NOW() < valid_until;
+
+

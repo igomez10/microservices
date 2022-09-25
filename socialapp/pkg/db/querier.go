@@ -15,6 +15,7 @@ type Querier interface {
 	CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (sql.Result, error)
 	CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (sql.Result, error)
 	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (sql.Result, error)
+	DeleteAllTokensForUser(ctx context.Context, db DBTX, userID int64) error
 	DeleteComment(ctx context.Context, db DBTX, id int64) error
 	DeleteCredential(ctx context.Context, db DBTX, id int64) error
 	DeleteToken(ctx context.Context, db DBTX, token string) error

@@ -119,6 +119,17 @@ func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams)
 	)
 }
 
+const DeleteAllTokensForUser = `-- name: DeleteAllTokensForUser :exec
+UPDATE tokens
+SET valid_until = NOW()
+WHERE user_id = ? AND NOW() < valid_until
+`
+
+func (q *Queries) DeleteAllTokensForUser(ctx context.Context, db DBTX, userID int64) error {
+	_, err := db.ExecContext(ctx, DeleteAllTokensForUser, userID)
+	return err
+}
+
 const DeleteComment = `-- name: DeleteComment :exec
 UPDATE comments
 SET deleted_at = NOW()
@@ -143,7 +154,7 @@ func (q *Queries) DeleteCredential(ctx context.Context, db DBTX, id int64) error
 const DeleteToken = `-- name: DeleteToken :exec
 UPDATE tokens
 SET valid_until = NOW()
-WHERE token = ? AND valid_until IS NULL
+WHERE token = ? AND NOW() < valid_until
 `
 
 func (q *Queries) DeleteToken(ctx context.Context, db DBTX, token string) error {
