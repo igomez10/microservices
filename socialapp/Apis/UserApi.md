@@ -5,14 +5,14 @@ All URIs are relative to *https://microservices.onrender.com*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**changePassword**](UserApi.md#changePassword) | **POST** /password | Change password |
-| [**createUser**](UserApi.md#createUser) | **POST** /users | Create a new user |
+| [**createUser**](UserApi.md#createUser) | **POST** /users | Create user |
 | [**deleteUser**](UserApi.md#deleteUser) | **DELETE** /users/{username} | Deletes a particular user |
 | [**followUser**](UserApi.md#followUser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower |
 | [**getFollowingUsers**](UserApi.md#getFollowingUsers) | **GET** /users/{username}/following | Get all followed users for a user |
 | [**getUserByUsername**](UserApi.md#getUserByUsername) | **GET** /users/{username} | Get a particular user by username |
 | [**getUserComments**](UserApi.md#getUserComments) | **GET** /users/{username}/comments | Gets all comments for a user |
 | [**getUserFollowers**](UserApi.md#getUserFollowers) | **GET** /users/{username}/followers | Get all followers for a user |
-| [**listUsers**](UserApi.md#listUsers) | **GET** /users | Returns all the users |
+| [**listUsers**](UserApi.md#listUsers) | **GET** /users | List users |
 | [**resetPassword**](UserApi.md#resetPassword) | **PUT** /password | Reset password |
 | [**unfollowUser**](UserApi.md#unfollowUser) | **DELETE** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower |
 | [**updateUser**](UserApi.md#updateUser) | **PUT** /users/{username} | Update a user |
@@ -47,7 +47,9 @@ Change password
 # **createUser**
 > User createUser(CreateUserRequest)
 
-Create a new user
+Create user
+
+    Create a new user in the system
 
 ### Parameters
 
@@ -225,14 +227,16 @@ Get all followers for a user
 # **listUsers**
 > List listUsers(limit, offset)
 
-Returns all the users
+List users
+
+    List all users in the system (paginated)
 
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **limit** | **Integer**| Maximum number of users to return | [optional] [default to null] |
-| **offset** | **Integer**| Pagination offset | [optional] [default to null] |
+| **limit** | **Integer**| Maximum number of users to return | [optional] [default to 20] |
+| **offset** | **Integer**| Pagination offset | [optional] [default to 0] |
 
 ### Return type
 

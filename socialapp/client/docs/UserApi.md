@@ -5,14 +5,14 @@ All URIs are relative to *https://microservices.onrender.com*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**ChangePassword**](UserApi.md#ChangePassword) | **Post** /password | Change password
-[**CreateUser**](UserApi.md#CreateUser) | **Post** /users | Create a new user
+[**CreateUser**](UserApi.md#CreateUser) | **Post** /users | Create user
 [**DeleteUser**](UserApi.md#DeleteUser) | **Delete** /users/{username} | Deletes a particular user
 [**FollowUser**](UserApi.md#FollowUser) | **Post** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
 [**GetFollowingUsers**](UserApi.md#GetFollowingUsers) | **Get** /users/{username}/following | Get all followed users for a user
 [**GetUserByUsername**](UserApi.md#GetUserByUsername) | **Get** /users/{username} | Get a particular user by username
 [**GetUserComments**](UserApi.md#GetUserComments) | **Get** /users/{username}/comments | Gets all comments for a user
 [**GetUserFollowers**](UserApi.md#GetUserFollowers) | **Get** /users/{username}/followers | Get all followers for a user
-[**ListUsers**](UserApi.md#ListUsers) | **Get** /users | Returns all the users
+[**ListUsers**](UserApi.md#ListUsers) | **Get** /users | List users
 [**ResetPassword**](UserApi.md#ResetPassword) | **Put** /password | Reset password
 [**UnfollowUser**](UserApi.md#UnfollowUser) | **Delete** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
 [**UpdateUser**](UserApi.md#UpdateUser) | **Put** /users/{username} | Update a user
@@ -87,7 +87,9 @@ Name | Type | Description  | Notes
 
 > User CreateUser(ctx).CreateUserRequest(createUserRequest).Execute()
 
-Create a new user
+Create user
+
+
 
 ### Example
 
@@ -564,7 +566,9 @@ Name | Type | Description  | Notes
 
 > []User ListUsers(ctx).Limit(limit).Offset(offset).Execute()
 
-Returns all the users
+List users
+
+
 
 ### Example
 
@@ -579,8 +583,8 @@ import (
 )
 
 func main() {
-    limit := int32(56) // int32 | Maximum number of users to return (optional)
-    offset := int32(56) // int32 | Pagination offset (optional)
+    limit := int32(56) // int32 | Maximum number of users to return (optional) (default to 20)
+    offset := int32(56) // int32 | Pagination offset (optional) (default to 0)
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
@@ -605,8 +609,8 @@ Other parameters are passed through a pointer to a apiListUsersRequest struct vi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **limit** | **int32** | Maximum number of users to return | 
- **offset** | **int32** | Pagination offset | 
+ **limit** | **int32** | Maximum number of users to return | [default to 20]
+ **offset** | **int32** | Pagination offset | [default to 0]
 
 ### Return type
 

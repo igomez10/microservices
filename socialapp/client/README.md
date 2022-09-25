@@ -85,14 +85,14 @@ Class | Method | HTTP request | Description
 *CommentApi* | [**GetUserFeed**](docs/CommentApi.md#getuserfeed) | **Get** /users/{username}/feed | Returns a users feed
 *FollowingApi* | [**GetUserFollowers**](docs/FollowingApi.md#getuserfollowers) | **Get** /users/{username}/followers | Get all followers for a user
 *UserApi* | [**ChangePassword**](docs/UserApi.md#changepassword) | **Post** /password | Change password
-*UserApi* | [**CreateUser**](docs/UserApi.md#createuser) | **Post** /users | Create a new user
+*UserApi* | [**CreateUser**](docs/UserApi.md#createuser) | **Post** /users | Create user
 *UserApi* | [**DeleteUser**](docs/UserApi.md#deleteuser) | **Delete** /users/{username} | Deletes a particular user
 *UserApi* | [**FollowUser**](docs/UserApi.md#followuser) | **Post** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
 *UserApi* | [**GetFollowingUsers**](docs/UserApi.md#getfollowingusers) | **Get** /users/{username}/following | Get all followed users for a user
 *UserApi* | [**GetUserByUsername**](docs/UserApi.md#getuserbyusername) | **Get** /users/{username} | Get a particular user by username
 *UserApi* | [**GetUserComments**](docs/UserApi.md#getusercomments) | **Get** /users/{username}/comments | Gets all comments for a user
 *UserApi* | [**GetUserFollowers**](docs/UserApi.md#getuserfollowers) | **Get** /users/{username}/followers | Get all followers for a user
-*UserApi* | [**ListUsers**](docs/UserApi.md#listusers) | **Get** /users | Returns all the users
+*UserApi* | [**ListUsers**](docs/UserApi.md#listusers) | **Get** /users | List users
 *UserApi* | [**ResetPassword**](docs/UserApi.md#resetpassword) | **Put** /password | Reset password
 *UserApi* | [**UnfollowUser**](docs/UserApi.md#unfollowuser) | **Delete** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
 *UserApi* | [**UpdateUser**](docs/UserApi.md#updateuser) | **Put** /users/{username} | Update a user

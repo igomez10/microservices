@@ -149,7 +149,7 @@ func (c *UserApiController) ChangePassword(w http.ResponseWriter, r *http.Reques
 
 }
 
-// CreateUser - Create a new user
+// CreateUser - Create user
 func (c *UserApiController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	createUserRequestParam := CreateUserRequest{}
 	d := json.NewDecoder(r.Body)
@@ -276,7 +276,7 @@ func (c *UserApiController) GetUserFollowers(w http.ResponseWriter, r *http.Requ
 
 }
 
-// ListUsers - Returns all the users
+// ListUsers - List users
 func (c *UserApiController) ListUsers(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	limitParam, err := parseInt32Parameter(query.Get("limit"), false)

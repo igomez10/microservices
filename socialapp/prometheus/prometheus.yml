@@ -31,10 +31,19 @@ scrape_configs:
   - job_name: "socialapp"
 
     # Override the global default and scrape targets from this job every 5 seconds.
-    scrape_interval: 2s
+    scrape_interval: 15s
 
     static_configs:
-      - targets: ["host.docker.internal:9095"]
+      - targets:
+          - host.docker.internal:9095
+
+  - job_name: "socialapprender"
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 15s
+
+    static_configs:
+      - targets:
+          - microservices.onrender.com
 
   - job_name: "cadvisor"
 

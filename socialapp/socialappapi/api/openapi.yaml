@@ -3,6 +3,7 @@ info:
   description: Socialapp is a generic social network.
   license:
     name: MIT
+    url: https://opensource.org/licenses/MIT
   title: Socialapp
   version: 1.0.0
 servers:
@@ -18,6 +19,7 @@ security:
 paths:
   /users:
     get:
+      description: List all users in the system (paginated)
       operationId: listUsers
       parameters:
       - description: Maximum number of users to return
@@ -26,6 +28,7 @@ paths:
         name: limit
         required: false
         schema:
+          default: 20
           format: int32
           type: integer
         style: form
@@ -35,6 +38,7 @@ paths:
         name: offset
         required: false
         schema:
+          default: 0
           format: int32
           type: integer
         style: form
@@ -47,6 +51,12 @@ paths:
                   $ref: '#/components/schemas/User'
                 type: array
           description: List of all the users
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:
@@ -56,10 +66,11 @@ paths:
       security:
       - OAuth2:
         - readUsers
-      summary: Returns all the users
+      summary: List users
       tags:
       - User
     post:
+      description: Create a new user in the system
       operationId: createUser
       requestBody:
         content:
@@ -75,6 +86,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: User was created successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:
@@ -84,7 +101,7 @@ paths:
       security:
       - OAuth2:
         - writeUsers
-      summary: Create a new user
+      summary: Create user
       tags:
       - User
   /password:
@@ -104,6 +121,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: Password was changed successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:
@@ -132,6 +155,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: Password was reset successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:
@@ -166,6 +195,12 @@ paths:
                   $ref: '#/components/schemas/Comment'
                 type: array
           description: Get a users feed
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:
@@ -218,6 +253,12 @@ paths:
                   $ref: '#/components/schemas/Comment'
                 type: array
           description: User comments
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:
@@ -250,6 +291,12 @@ paths:
                   $ref: '#/components/schemas/User'
                 type: array
           description: User followers
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:
@@ -282,6 +329,12 @@ paths:
                   $ref: '#/components/schemas/User'
                 type: array
           description: Followed users
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:
@@ -322,6 +375,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
       summary: Remove a user as a follower
       tags:
       - User
@@ -355,6 +414,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
       summary: Add a user as a follower
       tags:
       - User
@@ -419,6 +484,12 @@ paths:
               schema:
                 type: string
               style: simple
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:
@@ -453,6 +524,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: User was updated successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:
@@ -490,6 +567,12 @@ paths:
               schema:
                 type: string
               style: simple
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:
@@ -516,6 +599,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Comment'
           description: New comment was created
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:
@@ -535,6 +624,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/AccessToken'
           description: Access token
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
         default:
           content:
             application/json:

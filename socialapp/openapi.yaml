@@ -4,6 +4,7 @@ info:
   title: "Socialapp"
   license:
     name: MIT
+    url: https://opensource.org/licenses/MIT
   description: Socialapp is a generic social network.
 servers:
   - url: https://microservices.onrender.com
@@ -13,7 +14,8 @@ servers:
 paths:
   /users:
     get:
-      summary: "Returns all the users"
+      summary: "List users"
+      description: "List all users in the system (paginated)"
       operationId: listUsers
       security:
         - OAuth2: [readUsers]
@@ -27,6 +29,7 @@ paths:
           schema:
             type: integer
             format: int32
+            default: 20
         - name: offset
           in: query
           description: "Pagination offset"
@@ -34,6 +37,7 @@ paths:
           schema:
             type: integer
             format: int32
+            default: 0
       responses:
         "200":
           description: List of all the users
@@ -43,6 +47,12 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         default:
           description: Unexpected error
           content:
@@ -50,7 +60,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      summary: Create a new user
+      summary: Create user
+      description: Create a new user in the system
       operationId: createUser
       tags:
         - User
@@ -70,6 +81,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         default:
           description: Unexpected error
           content:
@@ -99,6 +116,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         default:
           description: Unexpected error
           content:
@@ -126,6 +149,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
         default:
           description: Unexpected error
           content:
@@ -155,6 +185,13 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Comment"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
         default:
           description: Unexpected error
           content:
@@ -202,6 +239,13 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Comment"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
         default:
           description: Unexpected error
           content:
@@ -233,6 +277,13 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
         default:
           description: Unexpected error
           content:
@@ -263,6 +314,13 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
         default:
           description: Unexpected error
           content:
@@ -300,6 +358,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
     delete:
       summary: "Remove a user as a follower"
@@ -326,6 +390,12 @@ paths:
           description: User was unfollowed successfully
         default:
           description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -389,6 +459,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         default:
           description: Unexpected error
           content:
@@ -421,6 +497,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         default:
           description: Unexpected error
           content:
@@ -455,6 +537,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Comment"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         default:
           description: Unexpected error
           content:
@@ -482,6 +570,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Comment"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         default:
           description: Unexpected error
           content:
@@ -504,6 +598,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AccessToken"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
         default:
           description: Unexpected error
           content:

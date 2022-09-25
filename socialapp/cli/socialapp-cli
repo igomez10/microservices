@@ -15,7 +15,7 @@
 # This is a Bash client for Socialapp.
 #
 # LICENSE:
-# 
+# https://opensource.org/licenses/MIT
 #
 # CONTACT:
 # 
@@ -602,14 +602,14 @@ echo "  $ops" | column -t -s ';'
     echo -e "${BOLD}${WHITE}[user]${OFF}"
 read -r -d '' ops <<EOF
   ${CYAN}changePassword${OFF};Change password (AUTH)
-  ${CYAN}createUser${OFF};Create a new user (AUTH)
+  ${CYAN}createUser${OFF};Create user (AUTH)
   ${CYAN}deleteUser${OFF};Deletes a particular user (AUTH) (AUTH) (AUTH)
   ${CYAN}followUser${OFF};Add a user as a follower (AUTH) (AUTH) (AUTH)
   ${CYAN}getFollowingUsers${OFF};Get all followed users for a user (AUTH) (AUTH) (AUTH)
   ${CYAN}getUserByUsername${OFF};Get a particular user by username (AUTH) (AUTH) (AUTH)
   ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH) (AUTH) (AUTH)
   ${CYAN}getUserFollowers${OFF};Get all followers for a user (AUTH) (AUTH) (AUTH)
-  ${CYAN}listUsers${OFF};Returns all the users (AUTH)
+  ${CYAN}listUsers${OFF};List users (AUTH)
   ${CYAN}resetPassword${OFF};Reset password (AUTH)
   ${CYAN}unfollowUser${OFF};Remove a user as a follower (AUTH) (AUTH) (AUTH)
   ${CYAN}updateUser${OFF};Update a user (AUTH) (AUTH) (AUTH)
@@ -679,6 +679,8 @@ print_getAccessToken_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;Access token${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -698,6 +700,8 @@ print_createComment_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;New comment was created${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -718,6 +722,8 @@ print_getComment_help() {
     echo -e "${result_color_table[${code:0:1}]}  200;Details about a comment by ID${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
         echo -e "       ${BOLD}${WHITE}Response headers${OFF}"
         echo -e "       ${BLUE}x-next${OFF} - A link to the next page of responses" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/        /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -740,6 +746,8 @@ print_getUserComments_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;User comments${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -758,6 +766,8 @@ print_getUserFeed_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;Get a users feed${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -776,6 +786,8 @@ print_getUserFollowers_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;User followers${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -795,6 +807,8 @@ print_changePassword_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;Password was changed successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -805,7 +819,9 @@ print_changePassword_help() {
 ##############################################################################
 print_createUser_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}createUser - Create a new user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}createUser - Create user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Create a new user in the system" | paste -sd' ' | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Create a new user" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -814,6 +830,8 @@ print_createUser_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;User was created successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -853,6 +871,8 @@ print_followUser_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;User was followed successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -871,6 +891,8 @@ print_getFollowingUsers_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;Followed users${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -891,6 +913,8 @@ print_getUserByUsername_help() {
     echo -e "${result_color_table[${code:0:1}]}  200;Details about a user by ID${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
         echo -e "       ${BOLD}${WHITE}Response headers${OFF}"
         echo -e "       ${BLUE}x-next${OFF} - A link to the next page of responses" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/        /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -913,6 +937,8 @@ print_getUserComments_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;User comments${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -931,6 +957,8 @@ print_getUserFollowers_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;User followers${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -941,17 +969,21 @@ print_getUserFollowers_help() {
 ##############################################################################
 print_listUsers_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}listUsers - Returns all the users${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}listUsers - List users${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "List all users in the system (paginated)" | paste -sd' ' | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - Maximum number of users to return${YELLOW} Specify as: limit=value${OFF}" \
+    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 20)${OFF} - Maximum number of users to return${YELLOW} Specify as: limit=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
-    echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - Pagination offset${YELLOW} Specify as: offset=value${OFF}" \
+    echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 0)${OFF} - Pagination offset${YELLOW} Specify as: offset=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;List of all the users${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -971,6 +1003,8 @@ print_resetPassword_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;Password was reset successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -990,6 +1024,8 @@ print_unfollowUser_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;User was unfollowed successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
@@ -1010,6 +1046,8 @@ print_updateUser_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;User was updated successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
     echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }

@@ -300,14 +300,14 @@ case $state in
             "getComment[Returns details about a particular comment]" \
             "getUserComments[Gets all comments for a user]" \
             "getUserFeed[Returns a users feed]"             "getUserFollowers[Get all followers for a user]"             "changePassword[Change password]" \
-            "createUser[Create a new user]" \
+            "createUser[Create user]" \
             "deleteUser[Deletes a particular user]" \
             "followUser[Add a user as a follower]" \
             "getFollowingUsers[Get all followed users for a user]" \
             "getUserByUsername[Get a particular user by username]" \
             "getUserComments[Gets all comments for a user]" \
             "getUserFollowers[Get all followers for a user]" \
-            "listUsers[Returns all the users]" \
+            "listUsers[List users]" \
             "resetPassword[Reset password]" \
             "unfollowUser[Remove a user as a follower]" \
             "updateUser[Update a user]" \

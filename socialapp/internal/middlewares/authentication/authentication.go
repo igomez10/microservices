@@ -65,6 +65,15 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		} else if strings.HasPrefix(authHeader, "Basic ") && r.URL.Path == "/oauth/token" {
+
+			// check grant type is client_credentials
+			if r.FormValue("grant_type") != "client_credentials" {
+				log.Error().Msg("Grant type is not client_credentials")
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Grant type is not client_credentials"))
+				return
+			}
+
 			username, password, ok := r.BasicAuth()
 			if !ok {
 				w.WriteHeader(http.StatusUnauthorized)
