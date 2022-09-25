@@ -44,13 +44,23 @@ func TestListUsers(t *testing.T) {
 
 	apiClient = client.NewAPIClient(configuration)
 	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
-	ctx = context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
+	basicAuthCtx := context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
 		UserName: "admin",
 		Password: "admin",
 	})
 
+	// get access token
+	token, r, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthCtx).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v\n %+v\n", err, r)
+	}
+	if r.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+	}
+
+	beaererCtx := context.WithValue(ctx, client.ContextAccessToken, token.AccessToken)
 	// List users
-	resp, r, err := apiClient.UserApi.ListUsers(ctx).Execute()
+	resp, r, err := apiClient.UserApi.ListUsers(beaererCtx).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `UserApi.ListUsers``: %v\n", err)
 		t.Errorf("Full HTTP response: %v\n", r)
@@ -85,14 +95,25 @@ func TestCreateUser(t *testing.T) {
 	email := fmt.Sprintf("Test-%d-@social.com", time.Now().UnixNano())
 	user := *client.NewCreateUserRequest(username, "password", "FirstName_example", "LastName_example", email) // User | Create a new user
 	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
-	ctx = context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
+	basicAuthCtx := context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
 		UserName: "admin",
 		Password: "admin",
 	})
 
+	// get access token
+	token, r, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthCtx).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v\n %+v\n", err, r)
+	}
+	if r.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+	}
+
+	beaererCtx := context.WithValue(ctx, client.ContextAccessToken, token.AccessToken)
+
 	// verify a user doesnt exist yet
 	func() {
-		_, r, err := apiClient.UserApi.GetUserByUsername(ctx, username).Execute()
+		_, r, err := apiClient.UserApi.GetUserByUsername(beaererCtx, username).Execute()
 		if err == nil {
 			t.Errorf("User %s already exists: %+v", username, r)
 		}
@@ -114,7 +135,23 @@ func TestCreateUser(t *testing.T) {
 	}()
 
 	func() {
-		resp, r, err := apiClient.UserApi.GetUserByUsername(ctx, username).Execute()
+		basicAuthCtx := context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
+			UserName: user.Username,
+			Password: user.Password,
+		})
+
+		// get access token
+		token, r, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthCtx).Execute()
+		if err != nil {
+			t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v\n %+v\n", err, r)
+		}
+		if r.StatusCode != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+		}
+
+		beaererCtx := context.WithValue(ctx, client.ContextAccessToken, token.AccessToken)
+
+		resp, r, err := apiClient.UserApi.GetUserByUsername(beaererCtx, username).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.GetUserByUsername`: %v\n %+v\n", err, r)
 		}
@@ -159,10 +196,6 @@ func TestFollowCycle(t *testing.T) {
 
 	apiClient = client.NewAPIClient(configuration)
 	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
-	ctx = context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
-		UserName: "admin",
-		Password: "admin",
-	})
 
 	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
 	email1 := fmt.Sprintf("Test-%d-1@social.com", time.Now().UnixNano())
@@ -189,9 +222,26 @@ func TestFollowCycle(t *testing.T) {
 		}
 	}()
 
+	// get access token for user1
+	basicAuthCtx := context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
+		UserName: user1.Username,
+		Password: user1.Password,
+	})
+
+	// get access token
+	token, r, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthCtx).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v\n %+v\n", err, r)
+	}
+	if r.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+	}
+
+	beaererCtx := context.WithValue(ctx, client.ContextAccessToken, token.AccessToken)
+
 	// user 1 follows user 2
 	func() {
-		r, err := apiClient.UserApi.FollowUser(ctx, username2, username1).Execute()
+		r, err := apiClient.UserApi.FollowUser(beaererCtx, username2, username1).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
 		}
@@ -199,7 +249,7 @@ func TestFollowCycle(t *testing.T) {
 
 	// validate user 1 follows user 2
 	func() {
-		followers, r, err := apiClient.UserApi.GetUserFollowers(ctx, username2).Execute()
+		followers, r, err := apiClient.UserApi.GetUserFollowers(beaererCtx, username2).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
 		}
@@ -213,7 +263,7 @@ func TestFollowCycle(t *testing.T) {
 
 	// user 1 unfollows user 2
 	func() {
-		r, err := apiClient.UserApi.UnfollowUser(ctx, username2, username1).Execute()
+		r, err := apiClient.UserApi.UnfollowUser(beaererCtx, username2, username1).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
 		}
@@ -221,7 +271,7 @@ func TestFollowCycle(t *testing.T) {
 
 	// validate user 1 unfollows user 2
 	func() {
-		followers, r, err := apiClient.UserApi.GetUserFollowers(ctx, username2).Execute()
+		followers, r, err := apiClient.UserApi.GetUserFollowers(beaererCtx, username2).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
 		}
@@ -264,10 +314,6 @@ func TestGetExpectedFeed(t *testing.T) {
 	user2 := *client.NewCreateUserRequest(username2, "secretPassword", "FirstName_example", "LastName_example", email2) // User | Create a new user
 
 	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
-	ctx = context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
-		UserName: "admin",
-		Password: "admin",
-	})
 
 	// create users
 	func() {
@@ -288,10 +334,28 @@ func TestGetExpectedFeed(t *testing.T) {
 		}
 	}()
 
+	// get access token for user1
+	// get access token for user1
+	basicAuthCtx := context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
+		UserName: user1.Username,
+		Password: user1.Password,
+	})
+
+	// get access token
+	token, r, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthCtx).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v\n %+v\n", err, r)
+	}
+	if r.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+	}
+
+	beaererCtx := context.WithValue(ctx, client.ContextAccessToken, token.AccessToken)
+
 	// user 1 follows user 2
 	func() {
 		r, err := apiClient.UserApi.FollowUser(
-			ctx,
+			beaererCtx,
 			username2,
 			username1).
 			Execute()
@@ -304,7 +368,7 @@ func TestGetExpectedFeed(t *testing.T) {
 	func() {
 		comment := *client.NewComment("Test comment", username2)
 		_, r, err := apiClient.CommentApi.
-			CreateComment(ctx).
+			CreateComment(beaererCtx).
 			Comment(comment).
 			Execute()
 		if err != nil {
@@ -315,7 +379,7 @@ func TestGetExpectedFeed(t *testing.T) {
 	// validate feed in user 1's feed
 	func() {
 		feed, r, err := apiClient.CommentApi.
-			GetUserFeed(ctx, username1).
+			GetUserFeed(beaererCtx, username1).
 			Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.GetUserFeed`: %v\n %+v\n", err, r)

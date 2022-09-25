@@ -98,6 +98,8 @@ declare -A operation_parameters_minimum_occurrences
 operation_parameters_minimum_occurrences["createComment:::Comment"]=1
 operation_parameters_minimum_occurrences["getComment:::id"]=1
 operation_parameters_minimum_occurrences["getUserComments:::username"]=1
+operation_parameters_minimum_occurrences["getUserComments:::limit"]=0
+operation_parameters_minimum_occurrences["getUserComments:::offset"]=0
 operation_parameters_minimum_occurrences["getUserFeed:::username"]=1
 operation_parameters_minimum_occurrences["getUserFollowers:::username"]=1
 operation_parameters_minimum_occurrences["changePassword:::ChangePasswordRequest"]=1
@@ -108,7 +110,11 @@ operation_parameters_minimum_occurrences["followUser:::followerUsername"]=1
 operation_parameters_minimum_occurrences["getFollowingUsers:::username"]=1
 operation_parameters_minimum_occurrences["getUserByUsername:::username"]=1
 operation_parameters_minimum_occurrences["getUserComments:::username"]=1
+operation_parameters_minimum_occurrences["getUserComments:::limit"]=0
+operation_parameters_minimum_occurrences["getUserComments:::offset"]=0
 operation_parameters_minimum_occurrences["getUserFollowers:::username"]=1
+operation_parameters_minimum_occurrences["listUsers:::limit"]=0
+operation_parameters_minimum_occurrences["listUsers:::offset"]=0
 operation_parameters_minimum_occurrences["resetPassword:::ResetPasswordRequest"]=1
 operation_parameters_minimum_occurrences["unfollowUser:::followedUsername"]=1
 operation_parameters_minimum_occurrences["unfollowUser:::followerUsername"]=1
@@ -125,6 +131,8 @@ declare -A operation_parameters_maximum_occurrences
 operation_parameters_maximum_occurrences["createComment:::Comment"]=0
 operation_parameters_maximum_occurrences["getComment:::id"]=0
 operation_parameters_maximum_occurrences["getUserComments:::username"]=0
+operation_parameters_maximum_occurrences["getUserComments:::limit"]=0
+operation_parameters_maximum_occurrences["getUserComments:::offset"]=0
 operation_parameters_maximum_occurrences["getUserFeed:::username"]=0
 operation_parameters_maximum_occurrences["getUserFollowers:::username"]=0
 operation_parameters_maximum_occurrences["changePassword:::ChangePasswordRequest"]=0
@@ -135,7 +143,11 @@ operation_parameters_maximum_occurrences["followUser:::followerUsername"]=0
 operation_parameters_maximum_occurrences["getFollowingUsers:::username"]=0
 operation_parameters_maximum_occurrences["getUserByUsername:::username"]=0
 operation_parameters_maximum_occurrences["getUserComments:::username"]=0
+operation_parameters_maximum_occurrences["getUserComments:::limit"]=0
+operation_parameters_maximum_occurrences["getUserComments:::offset"]=0
 operation_parameters_maximum_occurrences["getUserFollowers:::username"]=0
+operation_parameters_maximum_occurrences["listUsers:::limit"]=0
+operation_parameters_maximum_occurrences["listUsers:::offset"]=0
 operation_parameters_maximum_occurrences["resetPassword:::ResetPasswordRequest"]=0
 operation_parameters_maximum_occurrences["unfollowUser:::followedUsername"]=0
 operation_parameters_maximum_occurrences["unfollowUser:::followerUsername"]=0
@@ -149,6 +161,8 @@ declare -A operation_parameters_collection_type
 operation_parameters_collection_type["createComment:::Comment"]=""
 operation_parameters_collection_type["getComment:::id"]=""
 operation_parameters_collection_type["getUserComments:::username"]=""
+operation_parameters_collection_type["getUserComments:::limit"]=""
+operation_parameters_collection_type["getUserComments:::offset"]=""
 operation_parameters_collection_type["getUserFeed:::username"]=""
 operation_parameters_collection_type["getUserFollowers:::username"]=""
 operation_parameters_collection_type["changePassword:::ChangePasswordRequest"]=""
@@ -159,7 +173,11 @@ operation_parameters_collection_type["followUser:::followerUsername"]=""
 operation_parameters_collection_type["getFollowingUsers:::username"]=""
 operation_parameters_collection_type["getUserByUsername:::username"]=""
 operation_parameters_collection_type["getUserComments:::username"]=""
+operation_parameters_collection_type["getUserComments:::limit"]=""
+operation_parameters_collection_type["getUserComments:::offset"]=""
 operation_parameters_collection_type["getUserFollowers:::username"]=""
+operation_parameters_collection_type["listUsers:::limit"]=""
+operation_parameters_collection_type["listUsers:::offset"]=""
 operation_parameters_collection_type["resetPassword:::ResetPasswordRequest"]=""
 operation_parameters_collection_type["unfollowUser:::followedUsername"]=""
 operation_parameters_collection_type["unfollowUser:::followerUsername"]=""
@@ -714,6 +732,10 @@ print_getUserComments_help() {
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - How many items to return at one time (max 100)${YELLOW} Specify as: limit=value${OFF}" \
+        | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The number of items to skip before starting to collect the result set${YELLOW} Specify as: offset=value${OFF}" \
+        | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
@@ -883,6 +905,10 @@ print_getUserComments_help() {
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - How many items to return at one time (max 100)${YELLOW} Specify as: limit=value${OFF}" \
+        | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The number of items to skip before starting to collect the result set${YELLOW} Specify as: offset=value${OFF}" \
+        | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
@@ -917,6 +943,11 @@ print_listUsers_help() {
     echo ""
     echo -e "${BOLD}${WHITE}listUsers - Returns all the users${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
+    echo -e "${BOLD}${WHITE}Parameters${OFF}"
+    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - Maximum number of users to return${YELLOW} Specify as: limit=value${OFF}" \
+        | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - Pagination offset${YELLOW} Specify as: offset=value${OFF}" \
+        | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
@@ -1145,7 +1176,7 @@ call_getUserComments() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(    )
+    local query_parameter_names=(limit offset    )
     local path
 
     if ! path=$(build_request_path "/users/{username}/comments" path_parameter_names query_parameter_names); then
@@ -1553,7 +1584,7 @@ call_getUserComments() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(    )
+    local query_parameter_names=(limit offset    )
     local path
 
     if ! path=$(build_request_path "/users/{username}/comments" path_parameter_names query_parameter_names); then
@@ -1625,7 +1656,7 @@ call_listUsers() {
     local path_parameter_names=()
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(    )
+    local query_parameter_names=(limit offset    )
     local path
 
     if ! path=$(build_request_path "/users" path_parameter_names query_parameter_names); then

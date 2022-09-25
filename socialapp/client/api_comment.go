@@ -252,6 +252,20 @@ type CommentApiGetUserCommentsRequest struct {
 	ctx        context.Context
 	ApiService *CommentApiService
 	username   string
+	limit      *int32
+	offset     *int32
+}
+
+// How many items to return at one time (max 100)
+func (r CommentApiGetUserCommentsRequest) Limit(limit int32) CommentApiGetUserCommentsRequest {
+	r.limit = &limit
+	return r
+}
+
+// The number of items to skip before starting to collect the result set
+func (r CommentApiGetUserCommentsRequest) Offset(offset int32) CommentApiGetUserCommentsRequest {
+	r.offset = &offset
+	return r
 }
 
 func (r CommentApiGetUserCommentsRequest) Execute() ([]Comment, *http.Response, error) {
@@ -296,6 +310,12 @@ func (a *CommentApiService) GetUserCommentsExecute(r CommentApiGetUserCommentsRe
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if r.limit != nil {
+		localVarQueryParams.Add("limit", parameterToString(*r.limit, ""))
+	}
+	if r.offset != nil {
+		localVarQueryParams.Add("offset", parameterToString(*r.offset, ""))
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 

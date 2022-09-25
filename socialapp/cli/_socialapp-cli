@@ -341,7 +341,9 @@ case $state in
         local -a _op_arguments
         _op_arguments=(
           "username=:[PATH] username of the user"
-                    )
+          "limit=:[QUERY] How many items to return at one time (max 100)"
+"offset=:[QUERY] The number of items to skip before starting to collect the result set"
+          )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       getUserFeed)
@@ -403,7 +405,9 @@ case $state in
         local -a _op_arguments
         _op_arguments=(
           "username=:[PATH] username of the user"
-                    )
+          "limit=:[QUERY] How many items to return at one time (max 100)"
+"offset=:[QUERY] The number of items to skip before starting to collect the result set"
+          )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       getUserFollowers)
@@ -416,7 +420,9 @@ case $state in
       listUsers)
         local -a _op_arguments
         _op_arguments=(
-                              )
+                    "limit=:[QUERY] Maximum number of users to return"
+"offset=:[QUERY] Pagination offset"
+          )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       resetPassword)

@@ -29,9 +29,9 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error)
 	GetUserByID(ctx context.Context, db DBTX, id int64) (User, error)
 	GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error)
-	GetUserComments(ctx context.Context, db DBTX, username string) ([]Comment, error)
-	ListComment(ctx context.Context, db DBTX) ([]Comment, error)
-	ListUsers(ctx context.Context, db DBTX) ([]User, error)
+	GetUserComments(ctx context.Context, db DBTX, arg GetUserCommentsParams) ([]Comment, error)
+	ListComment(ctx context.Context, db DBTX, arg ListCommentParams) ([]Comment, error)
+	ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) ([]User, error)
 	UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error
 	UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (sql.Result, error)
 	UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (sql.Result, error)

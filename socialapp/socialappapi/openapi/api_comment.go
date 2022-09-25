@@ -122,9 +122,20 @@ func (c *CommentApiController) GetComment(w http.ResponseWriter, r *http.Request
 
 // GetUserComments - Gets all comments for a user
 func (c *CommentApiController) GetUserComments(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
 	usernameParam := chi.URLParam(r, "username")
 
-	result, err := c.service.GetUserComments(r.Context(), usernameParam)
+	limitParam, err := parseInt32Parameter(query.Get("limit"), false)
+	if err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	offsetParam, err := parseInt32Parameter(query.Get("offset"), false)
+	if err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	result, err := c.service.GetUserComments(r.Context(), usernameParam, limitParam, offsetParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

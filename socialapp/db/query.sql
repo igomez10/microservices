@@ -14,7 +14,8 @@ WHERE username = ? AND deleted_at IS NULL LIMIT 1;
 -- name: ListUsers :many
 SELECT * FROM users
 WHERE deleted_at IS NULL
-ORDER BY first_name;
+ORDER BY created_at ASC
+LIMIT ? OFFSET ?;
 
 -- name: CreateUser :execresult
 INSERT INTO users (
@@ -58,12 +59,15 @@ WHERE
 	AND c.deleted_at IS NULL
 	AND u.deleted_at IS NULL
 ORDER BY
-	c.created_at DESC;
+	c.created_at DESC
+LIMIT ? OFFSET ?;
+	
 
 -- name: ListComment :many
 SELECT * FROM comments
 WHERE deleted_at IS NULL
-ORDER BY created_at DESC;
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?;
 
 -- name: CreateComment :execresult
 INSERT INTO comments (

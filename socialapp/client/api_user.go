@@ -698,6 +698,20 @@ type UserApiGetUserCommentsRequest struct {
 	ctx        context.Context
 	ApiService *UserApiService
 	username   string
+	limit      *int32
+	offset     *int32
+}
+
+// How many items to return at one time (max 100)
+func (r UserApiGetUserCommentsRequest) Limit(limit int32) UserApiGetUserCommentsRequest {
+	r.limit = &limit
+	return r
+}
+
+// The number of items to skip before starting to collect the result set
+func (r UserApiGetUserCommentsRequest) Offset(offset int32) UserApiGetUserCommentsRequest {
+	r.offset = &offset
+	return r
 }
 
 func (r UserApiGetUserCommentsRequest) Execute() ([]Comment, *http.Response, error) {
@@ -742,6 +756,12 @@ func (a *UserApiService) GetUserCommentsExecute(r UserApiGetUserCommentsRequest)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if r.limit != nil {
+		localVarQueryParams.Add("limit", parameterToString(*r.limit, ""))
+	}
+	if r.offset != nil {
+		localVarQueryParams.Add("offset", parameterToString(*r.offset, ""))
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 
@@ -915,6 +935,20 @@ func (a *UserApiService) GetUserFollowersExecute(r UserApiGetUserFollowersReques
 type UserApiListUsersRequest struct {
 	ctx        context.Context
 	ApiService *UserApiService
+	limit      *int32
+	offset     *int32
+}
+
+// Maximum number of users to return
+func (r UserApiListUsersRequest) Limit(limit int32) UserApiListUsersRequest {
+	r.limit = &limit
+	return r
+}
+
+// Pagination offset
+func (r UserApiListUsersRequest) Offset(offset int32) UserApiListUsersRequest {
+	r.offset = &offset
+	return r
 }
 
 func (r UserApiListUsersRequest) Execute() ([]User, *http.Response, error) {
@@ -956,6 +990,12 @@ func (a *UserApiService) ListUsersExecute(r UserApiListUsersRequest) ([]User, *h
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
+	if r.limit != nil {
+		localVarQueryParams.Add("limit", parameterToString(*r.limit, ""))
+	}
+	if r.offset != nil {
+		localVarQueryParams.Add("offset", parameterToString(*r.offset, ""))
+	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
 

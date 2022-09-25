@@ -146,8 +146,16 @@ func (s *UserApiService) GetUserByUsername(ctx context.Context, username string)
 }
 
 // GetUserComments - Gets all comments for a user
-func (s *UserApiService) GetUserComments(ctx context.Context, username string) (openapi.ImplResponse, error) {
-	commnet, err := s.DB.GetUserComments(ctx, s.DBConn, username)
+func (s *UserApiService) GetUserComments(ctx context.Context, username string, limit int32, offset int32) (openapi.ImplResponse, error) {
+	limit = limit % 100
+	if limit == 0 {
+		limit = 100
+	}
+	commnet, err := s.DB.GetUserComments(ctx, s.DBConn, db.GetUserCommentsParams{
+		Username: username,
+		Limit:    limit,
+		Offset:   offset,
+	})
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -160,8 +168,15 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string) (
 }
 
 // ListUsers - Returns all the users
-func (s *UserApiService) ListUsers(ctx context.Context) (openapi.ImplResponse, error) {
-	dbUsers, err := s.DB.ListUsers(ctx, s.DBConn)
+func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32) (openapi.ImplResponse, error) {
+	limit = limit % 20
+	if limit == 0 {
+		limit = 20
+	}
+	dbUsers, err := s.DB.ListUsers(ctx, s.DBConn, db.ListUsersParams{
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		log.Error().
 			Stack().

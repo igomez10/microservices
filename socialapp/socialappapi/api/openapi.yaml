@@ -19,6 +19,25 @@ paths:
   /users:
     get:
       operationId: listUsers
+      parameters:
+      - description: Maximum number of users to return
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: Pagination offset
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
       responses:
         "200":
           content:
@@ -169,6 +188,27 @@ paths:
         schema:
           type: string
         style: simple
+      - description: How many items to return at one time (max 100)
+        example: 20
+        explode: true
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: The number of items to skip before starting to collect the result
+          set
+        example: 0
+        explode: true
+        in: query
+        name: offset
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
       responses:
         "200":
           content:

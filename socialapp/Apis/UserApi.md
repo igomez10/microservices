@@ -171,7 +171,7 @@ Get a particular user by username
 
 <a name="getUserComments"></a>
 # **getUserComments**
-> List getUserComments(username)
+> List getUserComments(username, limit, offset)
 
 Gets all comments for a user
 
@@ -180,6 +180,8 @@ Gets all comments for a user
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **username** | **String**| username of the user | [default to null] |
+| **limit** | **Integer**| How many items to return at one time (max 100) | [optional] [default to null] |
+| **offset** | **Integer**| The number of items to skip before starting to collect the result set | [optional] [default to null] |
 
 ### Return type
 
@@ -221,12 +223,16 @@ Get all followers for a user
 
 <a name="listUsers"></a>
 # **listUsers**
-> List listUsers()
+> List listUsers(limit, offset)
 
 Returns all the users
 
 ### Parameters
-This endpoint does not need any parameter.
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **limit** | **Integer**| Maximum number of users to return | [optional] [default to null] |
+| **offset** | **Integer**| Pagination offset | [optional] [default to null] |
 
 ### Return type
 

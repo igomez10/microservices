@@ -71,7 +71,7 @@ type AuthenticationApiServicer interface {
 type CommentApiServicer interface {
 	CreateComment(context.Context, Comment) (ImplResponse, error)
 	GetComment(context.Context, int32) (ImplResponse, error)
-	GetUserComments(context.Context, string) (ImplResponse, error)
+	GetUserComments(context.Context, string, int32, int32) (ImplResponse, error)
 	GetUserFeed(context.Context, string) (ImplResponse, error)
 }
 
@@ -94,9 +94,9 @@ type UserApiServicer interface {
 	FollowUser(context.Context, string, string) (ImplResponse, error)
 	GetFollowingUsers(context.Context, string) (ImplResponse, error)
 	GetUserByUsername(context.Context, string) (ImplResponse, error)
-	GetUserComments(context.Context, string) (ImplResponse, error)
+	GetUserComments(context.Context, string, int32, int32) (ImplResponse, error)
 	GetUserFollowers(context.Context, string) (ImplResponse, error)
-	ListUsers(context.Context) (ImplResponse, error)
+	ListUsers(context.Context, int32, int32) (ImplResponse, error)
 	ResetPassword(context.Context, ResetPasswordRequest) (ImplResponse, error)
 	UnfollowUser(context.Context, string, string) (ImplResponse, error)
 	UpdateUser(context.Context, string, User) (ImplResponse, error)

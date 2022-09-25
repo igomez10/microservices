@@ -19,6 +19,21 @@ paths:
         - OAuth2: [readUsers]
       tags:
         - User
+      parameters:
+        - name: limit
+          in: query
+          description: "Maximum number of users to return"
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: offset
+          in: query
+          description: "Pagination offset"
+          required: false
+          schema:
+            type: integer
+            format: int32
       responses:
         "200":
           description: List of all the users
@@ -162,6 +177,22 @@ paths:
           schema:
             type: string
           example: "johndoe"
+        - name: limit
+          in: query
+          description: How many items to return at one time (max 100)
+          required: false
+          schema:
+            type: integer
+            format: int32
+          example: 20
+        - name: offset
+          in: query
+          description: The number of items to skip before starting to collect the result set
+          required: false
+          schema:
+            type: integer
+            format: int32
+          example: 0
       responses:
         "200":
           description: User comments

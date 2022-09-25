@@ -237,9 +237,20 @@ func (c *UserApiController) GetUserByUsername(w http.ResponseWriter, r *http.Req
 
 // GetUserComments - Gets all comments for a user
 func (c *UserApiController) GetUserComments(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
 	usernameParam := chi.URLParam(r, "username")
 
-	result, err := c.service.GetUserComments(r.Context(), usernameParam)
+	limitParam, err := parseInt32Parameter(query.Get("limit"), false)
+	if err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	offsetParam, err := parseInt32Parameter(query.Get("offset"), false)
+	if err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	result, err := c.service.GetUserComments(r.Context(), usernameParam, limitParam, offsetParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
@@ -267,7 +278,18 @@ func (c *UserApiController) GetUserFollowers(w http.ResponseWriter, r *http.Requ
 
 // ListUsers - Returns all the users
 func (c *UserApiController) ListUsers(w http.ResponseWriter, r *http.Request) {
-	result, err := c.service.ListUsers(r.Context())
+	query := r.URL.Query()
+	limitParam, err := parseInt32Parameter(query.Get("limit"), false)
+	if err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	offsetParam, err := parseInt32Parameter(query.Get("offset"), false)
+	if err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	result, err := c.service.ListUsers(r.Context(), limitParam, offsetParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

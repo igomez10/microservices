@@ -441,10 +441,17 @@ WHERE
 	AND u.deleted_at IS NULL
 ORDER BY
 	c.created_at DESC
+LIMIT ? OFFSET ?
 `
 
-func (q *Queries) GetUserComments(ctx context.Context, db DBTX, username string) ([]Comment, error) {
-	rows, err := db.QueryContext(ctx, GetUserComments, username)
+type GetUserCommentsParams struct {
+	Username string `json:"username"`
+	Limit    int32  `json:"limit"`
+	Offset   int32  `json:"offset"`
+}
+
+func (q *Queries) GetUserComments(ctx context.Context, db DBTX, arg GetUserCommentsParams) ([]Comment, error) {
+	rows, err := db.QueryContext(ctx, GetUserComments, arg.Username, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -478,10 +485,16 @@ const ListComment = `-- name: ListComment :many
 SELECT id, content, like_count, user_id, created_at, updated_at, deleted_at FROM comments
 WHERE deleted_at IS NULL
 ORDER BY created_at DESC
+LIMIT ? OFFSET ?
 `
 
-func (q *Queries) ListComment(ctx context.Context, db DBTX) ([]Comment, error) {
-	rows, err := db.QueryContext(ctx, ListComment)
+type ListCommentParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListComment(ctx context.Context, db DBTX, arg ListCommentParams) ([]Comment, error) {
+	rows, err := db.QueryContext(ctx, ListComment, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -514,11 +527,17 @@ func (q *Queries) ListComment(ctx context.Context, db DBTX) ([]Comment, error) {
 const ListUsers = `-- name: ListUsers :many
 SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, email_token, email_verified_at, created_at, updated_at, deleted_at FROM users
 WHERE deleted_at IS NULL
-ORDER BY first_name
+ORDER BY created_at ASC
+LIMIT ? OFFSET ?
 `
 
-func (q *Queries) ListUsers(ctx context.Context, db DBTX) ([]User, error) {
-	rows, err := db.QueryContext(ctx, ListUsers)
+type ListUsersParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) ([]User, error) {
+	rows, err := db.QueryContext(ctx, ListUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

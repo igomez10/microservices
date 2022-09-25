@@ -422,7 +422,7 @@ Name | Type | Description  | Notes
 
 ## GetUserComments
 
-> []Comment GetUserComments(ctx, username).Execute()
+> []Comment GetUserComments(ctx, username).Limit(limit).Offset(offset).Execute()
 
 Gets all comments for a user
 
@@ -440,10 +440,12 @@ import (
 
 func main() {
     username := "johndoe" // string | username of the user
+    limit := int32(20) // int32 | How many items to return at one time (max 100) (optional)
+    offset := int32(0) // int32 | The number of items to skip before starting to collect the result set (optional)
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.GetUserComments(context.Background(), username).Execute()
+    resp, r, err := apiClient.UserApi.GetUserComments(context.Background(), username).Limit(limit).Offset(offset).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `UserApi.GetUserComments``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -469,6 +471,8 @@ Other parameters are passed through a pointer to a apiGetUserCommentsRequest str
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
+ **limit** | **int32** | How many items to return at one time (max 100) | 
+ **offset** | **int32** | The number of items to skip before starting to collect the result set | 
 
 ### Return type
 
@@ -558,7 +562,7 @@ Name | Type | Description  | Notes
 
 ## ListUsers
 
-> []User ListUsers(ctx).Execute()
+> []User ListUsers(ctx).Limit(limit).Offset(offset).Execute()
 
 Returns all the users
 
@@ -575,10 +579,12 @@ import (
 )
 
 func main() {
+    limit := int32(56) // int32 | Maximum number of users to return (optional)
+    offset := int32(56) // int32 | Pagination offset (optional)
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.ListUsers(context.Background()).Execute()
+    resp, r, err := apiClient.UserApi.ListUsers(context.Background()).Limit(limit).Offset(offset).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `UserApi.ListUsers``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -590,12 +596,17 @@ func main() {
 
 ### Path Parameters
 
-This endpoint does not need any parameter.
+
 
 ### Other Parameters
 
 Other parameters are passed through a pointer to a apiListUsersRequest struct via the builder pattern
 
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **limit** | **int32** | Maximum number of users to return | 
+ **offset** | **int32** | Pagination offset | 
 
 ### Return type
 

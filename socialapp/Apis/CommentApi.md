@@ -62,7 +62,7 @@ Returns details about a particular comment
 
 <a name="getUserComments"></a>
 # **getUserComments**
-> List getUserComments(username)
+> List getUserComments(username, limit, offset)
 
 Gets all comments for a user
 
@@ -71,6 +71,8 @@ Gets all comments for a user
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **username** | **String**| username of the user | [default to null] |
+| **limit** | **Integer**| How many items to return at one time (max 100) | [optional] [default to null] |
+| **offset** | **Integer**| The number of items to skip before starting to collect the result set | [optional] [default to null] |
 
 ### Return type
 

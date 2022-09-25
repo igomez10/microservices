@@ -225,7 +225,7 @@ Gets all comments for a user
 ### Example
 
 ```bash
-socialapp-cli getUserComments username=value
+socialapp-cli getUserComments username=value  limit=value  offset=value
 ```
 
 ### Parameters
@@ -234,6 +234,8 @@ socialapp-cli getUserComments username=value
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **username** | **string** | username of the user | [default to null]
+ **limit** | **integer** | How many items to return at one time (max 100) | [optional] [default to null]
+ **offset** | **integer** | The number of items to skip before starting to collect the result set | [optional] [default to null]
 
 ### Return type
 
@@ -291,12 +293,16 @@ Returns all the users
 ### Example
 
 ```bash
-socialapp-cli listUsers
+socialapp-cli listUsers  limit=value  offset=value
 ```
 
 ### Parameters
 
-This endpoint does not need any parameter.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **limit** | **integer** | Maximum number of users to return | [optional] [default to null]
+ **offset** | **integer** | Pagination offset | [optional] [default to null]
 
 ### Return type
 
