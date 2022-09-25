@@ -13,7 +13,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // implements the UserServicer interface
@@ -423,29 +422,22 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 	}
 
 	// validate the old password is correct
-	err := bcrypt.CompareHashAndPassword([]byte(user.HashedPassword), []byte(req.OldPassword))
-	if err != nil {
+	//
+	encryptedHashedOldPassword := EncryptPassword(req.OldPassword, user.Salt)
+	if encryptedHashedOldPassword != user.HashedPassword {
 		log.Error().
-			Err(err).
 			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
-			Msg("Error comparing passwords")
+			Msg("Error validating old password")
 		return openapi.Response(http.StatusUnauthorized, nil), nil
 	}
 
 	// hash the new password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
-			Msg("Error hashing password")
-		return openapi.Response(http.StatusInternalServerError, nil), nil
-	}
+	encryptedHashedNewPassword := EncryptPassword(req.NewPassword, user.Salt)
 
 	// update the password
-	_, err = s.DB.UpdateUser(ctx, s.DBConn, db.UpdateUserParams{
+	_, err := s.DB.UpdateUser(ctx, s.DBConn, db.UpdateUserParams{
 		ID:                      user.ID,
-		HashedPassword:          string(hashedPassword),
+		HashedPassword:          string(encryptedHashedNewPassword),
 		Username:                user.Username,
 		FirstName:               user.FirstName,
 		LastName:                user.LastName,
