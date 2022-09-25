@@ -15,6 +15,8 @@ Method | HTTP request | Description
 
 Create a new comment
 
+Create a new comment
+
 ### Example
 
 ```bash
@@ -45,6 +47,8 @@ Name | Type | Description  | Notes
 
 
 ## getComment
+
+Returns details about a particular comment
 
 Returns details about a particular comment
 
@@ -81,6 +85,8 @@ Name | Type | Description  | Notes
 
 Gets all comments for a user
 
+Gets all comments for a user
+
 ### Example
 
 ```bash
@@ -113,6 +119,8 @@ Name | Type | Description  | Notes
 
 
 ## getUserFeed
+
+Returns a users feed
 
 Returns a users feed
 

@@ -14,6 +14,8 @@ Method | HTTP request | Description
 
 Get an access token
 
+
+
 ### Example
 
 ```go

@@ -17,6 +17,8 @@ Method | HTTP request | Description
 
 Create a new comment
 
+
+
 ### Example
 
 ```go
@@ -80,6 +82,8 @@ Name | Type | Description  | Notes
 > Comment GetComment(ctx, id).Execute()
 
 Returns details about a particular comment
+
+
 
 ### Example
 
@@ -148,6 +152,8 @@ Name | Type | Description  | Notes
 > []Comment GetUserComments(ctx, username).Limit(limit).Offset(offset).Execute()
 
 Gets all comments for a user
+
+
 
 ### Example
 
@@ -220,6 +226,8 @@ Name | Type | Description  | Notes
 > []Comment GetUserFeed(ctx, username).Execute()
 
 Returns a users feed
+
+
 
 ### Example
 

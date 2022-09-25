@@ -18,7 +18,7 @@
 # https://opensource.org/licenses/MIT
 #
 # CONTACT:
-# 
+# ignacio.gomez.arboleda@gmail.com
 #
 # MORE INFORMATION:
 # 
@@ -645,7 +645,7 @@ print_about() {
     echo -e "${BOLD}${WHITE}Socialapp command line client (API version 1.0.0)${OFF}"
     echo ""
     echo -e "License: MIT"
-    echo -e "Contact: "
+    echo -e "Contact: ignacio.gomez.arboleda@gmail.com"
     echo ""
 read -r -d '' appdescription <<EOF
 
@@ -675,6 +675,8 @@ print_getAccessToken_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getAccessToken - Get an access token${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
+    echo -e "Get an access token" | paste -sd' ' | fold -sw 80
+    echo -e ""
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
@@ -692,6 +694,8 @@ print_getAccessToken_help() {
 print_createComment_help() {
     echo ""
     echo -e "${BOLD}${WHITE}createComment - Create a new comment${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Create a new comment" | paste -sd' ' | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Create a new comment" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -714,6 +718,8 @@ print_getComment_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getComment - Returns details about a particular comment${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
+    echo -e "Returns details about a particular comment" | paste -sd' ' | fold -sw 80
+    echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - ID of the comment ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
@@ -735,6 +741,8 @@ print_getComment_help() {
 print_getUserComments_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getUserComments - Gets all comments for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Gets all comments for a user" | paste -sd' ' | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -760,6 +768,8 @@ print_getUserFeed_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getUserFeed - Returns a users feed${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
+    echo -e "Returns a users feed" | paste -sd' ' | fold -sw 80
+    echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
@@ -779,6 +789,8 @@ print_getUserFeed_help() {
 print_getUserFollowers_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getUserFollowers - Get all followers for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Get all followers for a user" | paste -sd' ' | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -800,8 +812,10 @@ print_changePassword_help() {
     echo ""
     echo -e "${BOLD}${WHITE}changePassword - Change password${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
+    echo -e "Change the password of the current user" | paste -sd' ' | fold -sw 80
+    echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Change password" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Change password request" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
@@ -844,6 +858,8 @@ print_deleteUser_help() {
     echo ""
     echo -e "${BOLD}${WHITE}deleteUser - Deletes a particular user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
+    echo -e "Deletes a particular user by username" | paste -sd' ' | fold -sw 80
+    echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
@@ -863,6 +879,8 @@ print_deleteUser_help() {
 print_followUser_help() {
     echo ""
     echo -e "${BOLD}${WHITE}followUser - Add a user as a follower${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Add a user as a follower of another user" | paste -sd' ' | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}followedUsername${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: followedUsername=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -885,6 +903,8 @@ print_getFollowingUsers_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getFollowingUsers - Get all followed users for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
+    echo -e "Get all followed users for a user (users that the user is following)" | paste -sd' ' | fold -sw 80
+    echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
@@ -904,6 +924,8 @@ print_getFollowingUsers_help() {
 print_getUserByUsername_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getUserByUsername - Get a particular user by username${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Get a particular user by username" | paste -sd' ' | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -926,6 +948,8 @@ print_getUserByUsername_help() {
 print_getUserComments_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getUserComments - Gets all comments for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Gets all comments for a user" | paste -sd' ' | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -950,6 +974,8 @@ print_getUserComments_help() {
 print_getUserFollowers_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getUserFollowers - Get all followers for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Get all followers for a user" | paste -sd' ' | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -996,6 +1022,8 @@ print_resetPassword_help() {
     echo ""
     echo -e "${BOLD}${WHITE}resetPassword - Reset password${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
+    echo -e "Reset the password of a user" | paste -sd' ' | fold -sw 80
+    echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Reset password" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
@@ -1017,6 +1045,8 @@ print_unfollowUser_help() {
     echo ""
     echo -e "${BOLD}${WHITE}unfollowUser - Remove a user as a follower${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
+    echo -e "Remove a user as a follower of another user" | paste -sd' ' | fold -sw 80
+    echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}followedUsername${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: followedUsername=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e "  * ${GREEN}followerUsername${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the follower ${YELLOW}Specify as: followerUsername=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -1037,6 +1067,8 @@ print_unfollowUser_help() {
 print_updateUser_help() {
     echo ""
     echo -e "${BOLD}${WHITE}updateUser - Update a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Update a user by username" | paste -sd' ' | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'

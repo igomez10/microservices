@@ -24,11 +24,13 @@ All URIs are relative to *https://microservices.onrender.com*
 
 Change password
 
+    Change the password of the current user
+
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **ChangePasswordRequest** | [**ChangePasswordRequest**](../Models/ChangePasswordRequest.md)| Change password | |
+| **ChangePasswordRequest** | [**ChangePasswordRequest**](../Models/ChangePasswordRequest.md)| Change password request | |
 
 ### Return type
 
@@ -76,6 +78,8 @@ Create user
 
 Deletes a particular user
 
+    Deletes a particular user by username
+
 ### Parameters
 
 |Name | Type | Description  | Notes |
@@ -100,6 +104,8 @@ Deletes a particular user
 > followUser(followedUsername, followerUsername)
 
 Add a user as a follower
+
+    Add a user as a follower of another user
 
 ### Parameters
 
@@ -127,6 +133,8 @@ null (empty response body)
 
 Get all followed users for a user
 
+    Get all followed users for a user (users that the user is following)
+
 ### Parameters
 
 |Name | Type | Description  | Notes |
@@ -152,6 +160,8 @@ Get all followed users for a user
 
 Get a particular user by username
 
+    Get a particular user by username
+
 ### Parameters
 
 |Name | Type | Description  | Notes |
@@ -176,6 +186,8 @@ Get a particular user by username
 > List getUserComments(username, limit, offset)
 
 Gets all comments for a user
+
+    Gets all comments for a user
 
 ### Parameters
 
@@ -203,6 +215,8 @@ Gets all comments for a user
 > List getUserFollowers(username)
 
 Get all followers for a user
+
+    Get all followers for a user
 
 ### Parameters
 
@@ -257,6 +271,8 @@ List users
 
 Reset password
 
+    Reset the password of a user
+
 ### Parameters
 
 |Name | Type | Description  | Notes |
@@ -281,6 +297,8 @@ Reset password
 > unfollowUser(followedUsername, followerUsername)
 
 Remove a user as a follower
+
+    Remove a user as a follower of another user
 
 ### Parameters
 
@@ -307,6 +325,8 @@ null (empty response body)
 > User updateUser(username, User)
 
 Update a user
+
+    Update a user by username
 
 ### Parameters
 

@@ -25,6 +25,8 @@ Method | HTTP request | Description
 
 Change password
 
+
+
 ### Example
 
 ```go
@@ -38,7 +40,7 @@ import (
 )
 
 func main() {
-    changePasswordRequest := *openapiclient.NewChangePasswordRequest("OldPassword_example", "NewPassword_example") // ChangePasswordRequest | Change password
+    changePasswordRequest := *openapiclient.NewChangePasswordRequest("OldPassword_example", "NewPassword_example") // ChangePasswordRequest | Change password request
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
@@ -63,7 +65,7 @@ Other parameters are passed through a pointer to a apiChangePasswordRequest stru
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **changePasswordRequest** | [**ChangePasswordRequest**](ChangePasswordRequest.md) | Change password | 
+ **changePasswordRequest** | [**ChangePasswordRequest**](ChangePasswordRequest.md) | Change password request | 
 
 ### Return type
 
@@ -155,6 +157,8 @@ Name | Type | Description  | Notes
 
 Deletes a particular user
 
+
+
 ### Example
 
 ```go
@@ -222,6 +226,8 @@ Name | Type | Description  | Notes
 > FollowUser(ctx, followedUsername, followerUsername).Execute()
 
 Add a user as a follower
+
+
 
 ### Example
 
@@ -292,6 +298,8 @@ Name | Type | Description  | Notes
 
 Get all followed users for a user
 
+
+
 ### Example
 
 ```go
@@ -360,6 +368,8 @@ Name | Type | Description  | Notes
 
 Get a particular user by username
 
+
+
 ### Example
 
 ```go
@@ -427,6 +437,8 @@ Name | Type | Description  | Notes
 > []Comment GetUserComments(ctx, username).Limit(limit).Offset(offset).Execute()
 
 Gets all comments for a user
+
+
 
 ### Example
 
@@ -499,6 +511,8 @@ Name | Type | Description  | Notes
 > []User GetUserFollowers(ctx, username).Execute()
 
 Get all followers for a user
+
+
 
 ### Example
 
@@ -636,6 +650,8 @@ Name | Type | Description  | Notes
 
 Reset password
 
+
+
 ### Example
 
 ```go
@@ -699,6 +715,8 @@ Name | Type | Description  | Notes
 > UnfollowUser(ctx, followedUsername, followerUsername).Execute()
 
 Remove a user as a follower
+
+
 
 ### Example
 
@@ -768,6 +786,8 @@ Name | Type | Description  | Notes
 > User UpdateUser(ctx, username).User(user).Execute()
 
 Update a user
+
+
 
 ### Example
 

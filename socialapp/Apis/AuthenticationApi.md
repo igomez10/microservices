@@ -13,6 +13,8 @@ All URIs are relative to *https://microservices.onrender.com*
 
 Get an access token
 
+    Get an access token
+
 ### Parameters
 This endpoint does not need any parameter.
 

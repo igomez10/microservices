@@ -1,5 +1,9 @@
 openapi: 3.0.0
 info:
+  contact:
+    email: ignacio.gomez.arboleda@gmail.com
+    name: Socialapp
+    url: https://microservices.onrender.com
   description: Socialapp is a generic social network.
   license:
     name: MIT
@@ -16,6 +20,15 @@ security:
 - OAuth2:
   - readUsers
   - writeUsers
+tags:
+- description: User management
+  name: User
+- description: Comment management
+  name: Comment
+- description: Authentication management
+  name: Authentication
+- description: Following management
+  name: Following
 paths:
   /users:
     get:
@@ -106,13 +119,14 @@ paths:
       - User
   /password:
     post:
+      description: Change the password of the current user
       operationId: changePassword
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/ChangePasswordRequest'
-        description: Change password
+        description: Change password request
         required: true
       responses:
         "200":
@@ -140,6 +154,7 @@ paths:
       tags:
       - User
     put:
+      description: Reset the password of a user
       operationId: resetPassword
       requestBody:
         content:
@@ -175,6 +190,7 @@ paths:
       - User
   /users/{username}/feed:
     get:
+      description: Returns a users feed
       operationId: getUserFeed
       parameters:
       - description: The username of the user
@@ -212,6 +228,7 @@ paths:
       - Comment
   /users/{username}/comments:
     get:
+      description: Gets all comments for a user
       operationId: getUserComments
       parameters:
       - description: username of the user
@@ -271,6 +288,7 @@ paths:
       - Comment
   /users/{username}/followers:
     get:
+      description: Get all followers for a user
       operationId: getUserFollowers
       parameters:
       - description: username of the user
@@ -309,6 +327,7 @@ paths:
       - Following
   /users/{username}/following:
     get:
+      description: Get all followed users for a user (users that the user is following)
       operationId: getFollowingUsers
       parameters:
       - description: username of the user
@@ -346,6 +365,7 @@ paths:
       - User
   /users/{followedUsername}/followers/{followerUsername}:
     delete:
+      description: Remove a user as a follower of another user
       operationId: unfollowUser
       parameters:
       - description: username of the user
@@ -385,6 +405,7 @@ paths:
       tags:
       - User
     post:
+      description: Add a user as a follower of another user
       operationId: followUser
       parameters:
       - description: username of the user
@@ -425,6 +446,7 @@ paths:
       - User
   /users/{username}:
     delete:
+      description: Deletes a particular user by username
       operationId: deleteUser
       parameters:
       - description: username of the user
@@ -459,6 +481,7 @@ paths:
       tags:
       - User
     get:
+      description: Get a particular user by username
       operationId: getUserByUsername
       parameters:
       - description: username of the user
@@ -500,6 +523,7 @@ paths:
       tags:
       - User
     put:
+      description: Update a user by username
       operationId: updateUser
       parameters:
       - description: username of the user
@@ -541,6 +565,7 @@ paths:
       - User
   /comments/{id}:
     get:
+      description: Returns details about a particular comment
       operationId: getComment
       parameters:
       - description: ID of the comment
@@ -584,6 +609,7 @@ paths:
       - Comment
   /comments:
     post:
+      description: Create a new comment
       operationId: createComment
       requestBody:
         content:
@@ -616,6 +642,7 @@ paths:
       - Comment
   /oauth/token:
     post:
+      description: Get an access token
       operationId: getAccessToken
       responses:
         "200":
@@ -725,9 +752,9 @@ components:
       type: object
     AccessToken:
       example:
-      - access_token: 123token123
-      - token_type: Bearer
-      - expires_in: 2022-09-24T21:34:55.498516+02:00
+        access_token: 123token123
+        token_type: Bearer
+        expires_in: 2022-09-24T21:34:55.498516+02:00
       properties:
         access_token:
           type: string

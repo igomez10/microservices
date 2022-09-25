@@ -6,10 +6,24 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
   description: Socialapp is a generic social network.
+  contact:
+    name: "Socialapp"
+    url: "https://microservices.onrender.com"
+    email: "ignacio.gomez.arboleda@gmail.com"
 servers:
   - url: https://microservices.onrender.com
   - url: http://localhost:8080
   - url: http://localhost:8085
+
+tags:
+  - name: User
+    description: User management
+  - name: Comment
+    description: Comment management
+  - name: Authentication
+    description: Authentication management
+  - name: Following
+    description: Following management
 
 paths:
   /users:
@@ -98,12 +112,13 @@ paths:
     post:
       summary: Change password
       operationId: changePassword
+      description: Change the password of the current user
       tags:
         - User
       security:
         - OAuth2: [writeUsers]
       requestBody:
-        description: Change password
+        description: Change password request
         content:
           application/json:
             schema:
@@ -131,6 +146,7 @@ paths:
     put:
       summary: Reset password
       operationId: resetPassword
+      description: Reset the password of a user
       tags:
         - User
       security:
@@ -164,7 +180,8 @@ paths:
                 $ref: "#/components/schemas/Error"
   /users/{username}/feed:
     get:
-      summary: "Returns a users feed"
+      summary: Returns a users feed
+      description: Returns a users feed
       operationId: getUserFeed
       tags:
         - Comment
@@ -201,7 +218,8 @@ paths:
 
   /users/{username}/comments:
     get:
-      summary: "Gets all comments for a user"
+      summary: Gets all comments for a user
+      description: Gets all comments for a user
       operationId: getUserComments
       tags:
         - User
@@ -255,7 +273,8 @@ paths:
 
   /users/{username}/followers:
     get:
-      summary: "Get all followers for a user"
+      summary: Get all followers for a user
+      description: Get all followers for a user
       operationId: getUserFollowers
       tags:
         - User
@@ -293,7 +312,8 @@ paths:
 
   /users/{username}/following:
     get:
-      summary: "Get all followed users for a user"
+      summary: Get all followed users for a user
+      description: Get all followed users for a user (users that the user is following)
       operationId: getFollowingUsers
       tags:
         - User
@@ -330,7 +350,8 @@ paths:
 
   /users/{followedUsername}/followers/{followerUsername}:
     post:
-      summary: "Add a user as a follower"
+      summary: Add a user as a follower
+      description: Add a user as a follower of another user
       operationId: followUser
       tags:
         - User
@@ -366,7 +387,8 @@ paths:
                 $ref: "#/components/schemas/Error"
 
     delete:
-      summary: "Remove a user as a follower"
+      summary: Remove a user as a follower
+      description: Remove a user as a follower of another user
       operationId: unfollowUser
       tags:
         - User
@@ -404,6 +426,7 @@ paths:
   /users/{username}:
     delete:
       summary: Deletes a particular user
+      description: Deletes a particular user by username
       operationId: deleteUser
       tags:
         - User
@@ -436,6 +459,7 @@ paths:
                 $ref: "#/components/schemas/Error"
     get:
       summary: Get a particular user by username
+      description: Get a particular user by username
       operationId: getUserByUsername
       tags:
         - User
@@ -473,6 +497,7 @@ paths:
                 $ref: "#/components/schemas/Error"
     put:
       summary: Update a user
+      description: Update a user by username
       operationId: updateUser
       tags:
         - User
@@ -513,6 +538,7 @@ paths:
   /comments/{id}:
     get:
       summary: Returns details about a particular comment
+      description: Returns details about a particular comment
       operationId: getComment
       tags:
         - Comment
@@ -553,6 +579,7 @@ paths:
   /comments:
     post:
       summary: Create a new comment
+      description: Create a new comment
       operationId: createComment
       tags:
         - Comment
@@ -586,6 +613,7 @@ paths:
   /oauth/token:
     post:
       summary: "Get an access token"
+      description: "Get an access token"
       operationId: getAccessToken
       tags:
         - Authentication
@@ -703,9 +731,9 @@ components:
         - token_type
         - expires_in
       example:
-        - access_token: 123token123
-        - token_type: "Bearer"
-        - expires_in: "2022-09-24T21:34:55.498516+02:00"
+        access_token: 123token123
+        token_type: "Bearer"
+        expires_in: "2022-09-24T21:34:55.498516+02:00"
       properties:
         access_token:
           type: string

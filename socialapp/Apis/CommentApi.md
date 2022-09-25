@@ -16,6 +16,8 @@ All URIs are relative to *https://microservices.onrender.com*
 
 Create a new comment
 
+    Create a new comment
+
 ### Parameters
 
 |Name | Type | Description  | Notes |
@@ -41,6 +43,8 @@ Create a new comment
 
 Returns details about a particular comment
 
+    Returns details about a particular comment
+
 ### Parameters
 
 |Name | Type | Description  | Notes |
@@ -65,6 +69,8 @@ Returns details about a particular comment
 > List getUserComments(username, limit, offset)
 
 Gets all comments for a user
+
+    Gets all comments for a user
 
 ### Parameters
 
@@ -92,6 +98,8 @@ Gets all comments for a user
 > List getUserFeed(username)
 
 Returns a users feed
+
+    Returns a users feed
 
 ### Parameters
 

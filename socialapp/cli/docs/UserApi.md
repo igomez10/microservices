@@ -23,6 +23,8 @@ Method | HTTP request | Description
 
 Change password
 
+Change the password of the current user
+
 ### Example
 
 ```bash
@@ -34,7 +36,7 @@ socialapp-cli changePassword
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **changePasswordRequest** | [**ChangePasswordRequest**](ChangePasswordRequest.md) | Change password |
+ **changePasswordRequest** | [**ChangePasswordRequest**](ChangePasswordRequest.md) | Change password request |
 
 ### Return type
 
@@ -91,6 +93,8 @@ Name | Type | Description  | Notes
 
 Deletes a particular user
 
+Deletes a particular user by username
+
 ### Example
 
 ```bash
@@ -123,6 +127,8 @@ Name | Type | Description  | Notes
 ## followUser
 
 Add a user as a follower
+
+Add a user as a follower of another user
 
 ### Example
 
@@ -158,6 +164,8 @@ Name | Type | Description  | Notes
 
 Get all followed users for a user
 
+Get all followed users for a user (users that the user is following)
+
 ### Example
 
 ```bash
@@ -188,6 +196,8 @@ Name | Type | Description  | Notes
 
 
 ## getUserByUsername
+
+Get a particular user by username
 
 Get a particular user by username
 
@@ -224,6 +234,8 @@ Name | Type | Description  | Notes
 
 Gets all comments for a user
 
+Gets all comments for a user
+
 ### Example
 
 ```bash
@@ -256,6 +268,8 @@ Name | Type | Description  | Notes
 
 
 ## getUserFollowers
+
+Get all followers for a user
 
 Get all followers for a user
 
@@ -328,6 +342,8 @@ Name | Type | Description  | Notes
 
 Reset password
 
+Reset the password of a user
+
 ### Example
 
 ```bash
@@ -360,6 +376,8 @@ Name | Type | Description  | Notes
 ## unfollowUser
 
 Remove a user as a follower
+
+Remove a user as a follower of another user
 
 ### Example
 
@@ -394,6 +412,8 @@ Name | Type | Description  | Notes
 ## updateUser
 
 Update a user
+
+Update a user by username
 
 ### Example
 

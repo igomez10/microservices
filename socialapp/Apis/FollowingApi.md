@@ -13,6 +13,8 @@ All URIs are relative to *https://microservices.onrender.com*
 
 Get all followers for a user
 
+    Get all followers for a user
+
 ### Parameters
 
 |Name | Type | Description  | Notes |

@@ -12,6 +12,8 @@ Method | HTTP request | Description
 
 Get all followers for a user
 
+Get all followers for a user
+
 ### Example
 
 ```bash
