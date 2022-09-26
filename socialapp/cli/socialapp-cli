@@ -571,7 +571,7 @@ EOF
     
     echo -e "  - ${MAGENTA}OAuth2 (flow: application)${OFF}"
     echo -e "      Token URL: "
-    echo -e "        * localhost:8080/oauth/token"
+    echo -e "        * /oauth/token"
     echo -e "      Scopes:"
     echo -e "        * write - modify your data in your account"
     echo -e "        * read - read your data"

@@ -150,7 +150,7 @@ Class | Method | HTTP request | Description
 
 - **Type**: OAuth
 - **Flow**: application
-- **Token URL**: localhost:8080/oauth/token
+- **Token URL**: /oauth/token
 - **Scopes**:
   - **write**: modify your data in your account
   - **read**: read your data

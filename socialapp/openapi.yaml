@@ -794,7 +794,7 @@ components:
       type: oauth2
       flows:
         clientCredentials:
-          tokenUrl: localhost:8080/oauth/token
+          tokenUrl: /oauth/token
           scopes:
             write: modify your data in your account
             read: read your data
@@ -803,5 +803,5 @@ security:
   - BasicAuth: []
   - BearerAuth: []
   - OAuth2:
-      - readUsers
-      - writeUsers
+      - write
+      - read

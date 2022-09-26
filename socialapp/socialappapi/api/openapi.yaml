@@ -18,8 +18,8 @@ security:
 - BasicAuth: []
 - BearerAuth: []
 - OAuth2:
-  - readUsers
-  - writeUsers
+  - write
+  - read
 tags:
 - description: User management
   name: User
@@ -821,5 +821,5 @@ components:
           scopes:
             write: modify your data in your account
             read: read your data
-          tokenUrl: localhost:8080/oauth/token
+          tokenUrl: /oauth/token
       type: oauth2
