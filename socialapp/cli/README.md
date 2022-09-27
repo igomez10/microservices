@@ -152,6 +152,14 @@ Class | Method | HTTP request | Description
 - **Flow**: application
 - **Token URL**: /oauth/token
 - **Scopes**:
-  - **write**: modify your data in your account
-  - **read**: read your data
+  - **socialapp.users.list**: List users
+  - **socialapp.users.create**: Create users
+  - **socialapp.users.update**: Update users
+  - **socialapp.users.delete**: Delete users
+  - **socialapp.comments.list**: List comments
+  - **socialapp.comments.create**: Create comments
+  - **socialapp.comments.update**: Update comments
+  - **socialapp.comments.delete**: Delete comments
+  - **socialapp.followers.list**: List followers
+  - **socialapp.following.list**: List following
 

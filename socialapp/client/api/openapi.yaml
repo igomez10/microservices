@@ -18,8 +18,16 @@ security:
 - BasicAuth: []
 - BearerAuth: []
 - OAuth2:
-  - write
-  - read
+  - socialapp.users.list
+  - socialapp.users.create
+  - socialapp.users.update
+  - socialapp.users.delete
+  - socialapp.comments.list
+  - socialapp.comments.create
+  - socialapp.comments.update
+  - socialapp.comments.delete
+  - socialapp.followers.list
+  - socialapp.following.list
 tags:
 - description: User management
   name: User
@@ -78,7 +86,7 @@ paths:
           description: Unexpected error
       security:
       - OAuth2:
-        - readUsers
+        - socialapp.users.list
       summary: List users
       tags:
       - User
@@ -113,7 +121,7 @@ paths:
           description: Unexpected error
       security:
       - OAuth2:
-        - writeUsers
+        - socialapp.users.create
       summary: Create user
       tags:
       - User
@@ -149,7 +157,7 @@ paths:
           description: Unexpected error
       security:
       - OAuth2:
-        - writeUsers
+        - socialapp.users.update
       summary: Change password
       tags:
       - User
@@ -184,7 +192,7 @@ paths:
           description: Unexpected error
       security:
       - OAuth2:
-        - writeUsers
+        - socialapp.users.update
       summary: Reset password
       tags:
       - User
@@ -223,6 +231,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.feed.read
       summary: Returns a users feed
       tags:
       - Comment
@@ -282,6 +293,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.comments.read
       summary: Gets all comments for a user
       tags:
       - User
@@ -321,6 +335,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.follower.read
       summary: Get all followers for a user
       tags:
       - User
@@ -360,6 +377,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.following.list
       summary: Get all followed users for a user
       tags:
       - User
@@ -401,6 +421,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unauthorized
+      security:
+      - OAuth2:
+        - socialapp.follower.delete
       summary: Remove a user as a follower
       tags:
       - User
@@ -441,6 +464,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unauthorized
+      security:
+      - OAuth2:
+        - socialapp.follower.create
       summary: Add a user as a follower
       tags:
       - User
@@ -477,6 +503,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.users.delete
       summary: Deletes a particular user
       tags:
       - User
@@ -519,6 +548,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.users.read
       summary: Get a particular user by username
       tags:
       - User
@@ -560,6 +592,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.users.update
       summary: Update a user
       tags:
       - User
@@ -604,6 +639,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.comments.read
       summary: Returns details about a particular comment
       tags:
       - Comment
@@ -637,6 +675,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.comments.create
       summary: Create a new comment
       tags:
       - Comment
@@ -819,7 +860,15 @@ components:
       flows:
         clientCredentials:
           scopes:
-            write: modify your data in your account
-            read: read your data
+            socialapp.users.list: List users
+            socialapp.users.create: Create users
+            socialapp.users.update: Update users
+            socialapp.users.delete: Delete users
+            socialapp.comments.list: List comments
+            socialapp.comments.create: Create comments
+            socialapp.comments.update: Update comments
+            socialapp.comments.delete: Delete comments
+            socialapp.followers.list: List followers
+            socialapp.following.list: List following
           tokenUrl: /oauth/token
       type: oauth2

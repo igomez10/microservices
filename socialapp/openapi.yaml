@@ -32,7 +32,7 @@ paths:
       description: "List all users in the system (paginated)"
       operationId: listUsers
       security:
-        - OAuth2: [readUsers]
+        - OAuth2: [socialapp.users.list]
       tags:
         - User
       parameters:
@@ -80,7 +80,7 @@ paths:
       tags:
         - User
       security:
-        - OAuth2: [writeUsers]
+        - OAuth2: [socialapp.users.create]
       requestBody:
         description: Create a new user
         content:
@@ -116,7 +116,7 @@ paths:
       tags:
         - User
       security:
-        - OAuth2: [writeUsers]
+        - OAuth2: [socialapp.users.update]
       requestBody:
         description: Change password request
         content:
@@ -150,7 +150,7 @@ paths:
       tags:
         - User
       security:
-        - OAuth2: [writeUsers]
+        - OAuth2: [socialapp.users.update]
       requestBody:
         description: Reset password
         content:
@@ -185,6 +185,8 @@ paths:
       operationId: getUserFeed
       tags:
         - Comment
+      security:
+        - OAuth2: [socialapp.feed.read]
       parameters:
         - name: username
           in: path
@@ -224,6 +226,8 @@ paths:
       tags:
         - User
         - Comment
+      security:
+        - OAuth2: [socialapp.comments.read]
       parameters:
         - name: username
           in: path
@@ -279,6 +283,8 @@ paths:
       tags:
         - User
         - Following
+      security:
+        - OAuth2: [socialapp.follower.read]
       parameters:
         - name: username
           in: path
@@ -317,6 +323,8 @@ paths:
       operationId: getFollowingUsers
       tags:
         - User
+      security:
+        - OAuth2: [socialapp.following.list]
       parameters:
         - name: username
           in: path
@@ -355,6 +363,8 @@ paths:
       operationId: followUser
       tags:
         - User
+      security:
+        - OAuth2: [socialapp.follower.create]
       parameters:
         - name: followedUsername
           in: path
@@ -392,6 +402,8 @@ paths:
       operationId: unfollowUser
       tags:
         - User
+      security:
+        - OAuth2: [socialapp.follower.delete]
       parameters:
         - name: followedUsername
           in: path
@@ -430,6 +442,8 @@ paths:
       operationId: deleteUser
       tags:
         - User
+      security:
+        - OAuth2: [socialapp.users.delete]
       parameters:
         - name: username
           in: path
@@ -463,6 +477,8 @@ paths:
       operationId: getUserByUsername
       tags:
         - User
+      security:
+        - OAuth2: [socialapp.users.read]
       parameters:
         - name: username
           in: path
@@ -501,6 +517,8 @@ paths:
       operationId: updateUser
       tags:
         - User
+      security:
+        - OAuth2: [socialapp.users.update]
       parameters:
         - name: username
           in: path
@@ -542,6 +560,8 @@ paths:
       operationId: getComment
       tags:
         - Comment
+      security:
+        - OAuth2: [socialapp.comments.read]
       parameters:
         - name: id
           in: path
@@ -583,6 +603,8 @@ paths:
       operationId: createComment
       tags:
         - Comment
+      security:
+        - OAuth2: [socialapp.comments.create]
       requestBody:
         description: Create a new comment
         content:
@@ -796,12 +818,28 @@ components:
         clientCredentials:
           tokenUrl: /oauth/token
           scopes:
-            write: modify your data in your account
-            read: read your data
+            socialapp.users.list: "List users"
+            socialapp.users.create: "Create users"
+            socialapp.users.update: "Update users"
+            socialapp.users.delete: "Delete users"
+            socialapp.comments.list: "List comments"
+            socialapp.comments.create: "Create comments"
+            socialapp.comments.update: "Update comments"
+            socialapp.comments.delete: "Delete comments"
+            socialapp.followers.list: "List followers"
+            socialapp.following.list: "List following"
 
 security:
   - BasicAuth: []
   - BearerAuth: []
   - OAuth2:
-      - write
-      - read
+      - socialapp.users.list
+      - socialapp.users.create
+      - socialapp.users.update
+      - socialapp.users.delete
+      - socialapp.comments.list
+      - socialapp.comments.create
+      - socialapp.comments.update
+      - socialapp.comments.delete
+      - socialapp.followers.list
+      - socialapp.following.list

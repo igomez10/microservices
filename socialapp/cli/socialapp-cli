@@ -573,8 +573,16 @@ EOF
     echo -e "      Token URL: "
     echo -e "        * /oauth/token"
     echo -e "      Scopes:"
-    echo -e "        * write - modify your data in your account"
-    echo -e "        * read - read your data"
+    echo -e "        * socialapp.users.list - List users"
+    echo -e "        * socialapp.users.create - Create users"
+    echo -e "        * socialapp.users.update - Update users"
+    echo -e "        * socialapp.users.delete - Delete users"
+    echo -e "        * socialapp.comments.list - List comments"
+    echo -e "        * socialapp.comments.create - Create comments"
+    echo -e "        * socialapp.comments.update - Update comments"
+    echo -e "        * socialapp.comments.delete - Delete comments"
+    echo -e "        * socialapp.followers.list - List followers"
+    echo -e "        * socialapp.following.list - List following"
     echo ""
     echo -e "${BOLD}${WHITE}Operations (grouped by tags)${OFF}"
     echo ""
@@ -586,16 +594,16 @@ echo "  $ops" | column -t -s ';'
     echo ""
     echo -e "${BOLD}${WHITE}[comment]${OFF}"
 read -r -d '' ops <<EOF
-  ${CYAN}createComment${OFF};Create a new comment (AUTH) (AUTH) (AUTH)
-  ${CYAN}getComment${OFF};Returns details about a particular comment (AUTH) (AUTH) (AUTH)
-  ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH) (AUTH) (AUTH)
-  ${CYAN}getUserFeed${OFF};Returns a users feed (AUTH) (AUTH) (AUTH)
+  ${CYAN}createComment${OFF};Create a new comment (AUTH)
+  ${CYAN}getComment${OFF};Returns details about a particular comment (AUTH)
+  ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH)
+  ${CYAN}getUserFeed${OFF};Returns a users feed (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
     echo -e "${BOLD}${WHITE}[following]${OFF}"
 read -r -d '' ops <<EOF
-  ${CYAN}getUserFollowers${OFF};Get all followers for a user (AUTH) (AUTH) (AUTH)
+  ${CYAN}getUserFollowers${OFF};Get all followers for a user (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
@@ -603,16 +611,16 @@ echo "  $ops" | column -t -s ';'
 read -r -d '' ops <<EOF
   ${CYAN}changePassword${OFF};Change password (AUTH)
   ${CYAN}createUser${OFF};Create user (AUTH)
-  ${CYAN}deleteUser${OFF};Deletes a particular user (AUTH) (AUTH) (AUTH)
-  ${CYAN}followUser${OFF};Add a user as a follower (AUTH) (AUTH) (AUTH)
-  ${CYAN}getFollowingUsers${OFF};Get all followed users for a user (AUTH) (AUTH) (AUTH)
-  ${CYAN}getUserByUsername${OFF};Get a particular user by username (AUTH) (AUTH) (AUTH)
-  ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH) (AUTH) (AUTH)
-  ${CYAN}getUserFollowers${OFF};Get all followers for a user (AUTH) (AUTH) (AUTH)
+  ${CYAN}deleteUser${OFF};Deletes a particular user (AUTH)
+  ${CYAN}followUser${OFF};Add a user as a follower (AUTH)
+  ${CYAN}getFollowingUsers${OFF};Get all followed users for a user (AUTH)
+  ${CYAN}getUserByUsername${OFF};Get a particular user by username (AUTH)
+  ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH)
+  ${CYAN}getUserFollowers${OFF};Get all followers for a user (AUTH)
   ${CYAN}listUsers${OFF};List users (AUTH)
   ${CYAN}resetPassword${OFF};Reset password (AUTH)
-  ${CYAN}unfollowUser${OFF};Remove a user as a follower (AUTH) (AUTH) (AUTH)
-  ${CYAN}updateUser${OFF};Update a user (AUTH) (AUTH) (AUTH)
+  ${CYAN}unfollowUser${OFF};Remove a user as a follower (AUTH)
+  ${CYAN}updateUser${OFF};Update a user (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
@@ -693,7 +701,7 @@ print_getAccessToken_help() {
 ##############################################################################
 print_createComment_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}createComment - Create a new comment${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}createComment - Create a new comment${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Create a new comment" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -716,7 +724,7 @@ print_createComment_help() {
 ##############################################################################
 print_getComment_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getComment - Returns details about a particular comment${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getComment - Returns details about a particular comment${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Returns details about a particular comment" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -740,7 +748,7 @@ print_getComment_help() {
 ##############################################################################
 print_getUserComments_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUserComments - Gets all comments for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUserComments - Gets all comments for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Gets all comments for a user" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -766,7 +774,7 @@ print_getUserComments_help() {
 ##############################################################################
 print_getUserFeed_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUserFeed - Returns a users feed${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUserFeed - Returns a users feed${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Returns a users feed" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -788,7 +796,7 @@ print_getUserFeed_help() {
 ##############################################################################
 print_getUserFollowers_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUserFollowers - Get all followers for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUserFollowers - Get all followers for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Get all followers for a user" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -856,7 +864,7 @@ print_createUser_help() {
 ##############################################################################
 print_deleteUser_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}deleteUser - Deletes a particular user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}deleteUser - Deletes a particular user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Deletes a particular user by username" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -878,7 +886,7 @@ print_deleteUser_help() {
 ##############################################################################
 print_followUser_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}followUser - Add a user as a follower${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}followUser - Add a user as a follower${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Add a user as a follower of another user" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -901,7 +909,7 @@ print_followUser_help() {
 ##############################################################################
 print_getFollowingUsers_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getFollowingUsers - Get all followed users for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getFollowingUsers - Get all followed users for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Get all followed users for a user (users that the user is following)" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -923,7 +931,7 @@ print_getFollowingUsers_help() {
 ##############################################################################
 print_getUserByUsername_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUserByUsername - Get a particular user by username${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUserByUsername - Get a particular user by username${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Get a particular user by username" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -947,7 +955,7 @@ print_getUserByUsername_help() {
 ##############################################################################
 print_getUserComments_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUserComments - Gets all comments for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUserComments - Gets all comments for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Gets all comments for a user" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -973,7 +981,7 @@ print_getUserComments_help() {
 ##############################################################################
 print_getUserFollowers_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUserFollowers - Get all followers for a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUserFollowers - Get all followers for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Get all followers for a user" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -1043,7 +1051,7 @@ print_resetPassword_help() {
 ##############################################################################
 print_unfollowUser_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}unfollowUser - Remove a user as a follower${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}unfollowUser - Remove a user as a follower${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Remove a user as a follower of another user" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -1066,7 +1074,7 @@ print_unfollowUser_help() {
 ##############################################################################
 print_updateUser_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}updateUser - Update a user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}updateUser - Update a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Update a user by username" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -1132,7 +1140,7 @@ call_createComment() {
     local path_parameter_names=()
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(      )
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/comments" path_parameter_names query_parameter_names); then
@@ -1210,7 +1218,7 @@ call_getComment() {
     local path_parameter_names=(id)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(      )
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/comments/{id}" path_parameter_names query_parameter_names); then
@@ -1246,7 +1254,7 @@ call_getUserComments() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(limit offset      )
+    local query_parameter_names=(limit offset  )
     local path
 
     if ! path=$(build_request_path "/users/{username}/comments" path_parameter_names query_parameter_names); then
@@ -1282,7 +1290,7 @@ call_getUserFeed() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(      )
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/users/{username}/feed" path_parameter_names query_parameter_names); then
@@ -1318,7 +1326,7 @@ call_getUserFollowers() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(      )
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/users/{username}/followers" path_parameter_names query_parameter_names); then
@@ -1510,7 +1518,7 @@ call_deleteUser() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(      )
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/users/{username}" path_parameter_names query_parameter_names); then
@@ -1546,7 +1554,7 @@ call_followUser() {
     local path_parameter_names=(followedUsername followerUsername)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(      )
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/users/{followedUsername}/followers/{followerUsername}" path_parameter_names query_parameter_names); then
@@ -1582,7 +1590,7 @@ call_getFollowingUsers() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(      )
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/users/{username}/following" path_parameter_names query_parameter_names); then
@@ -1618,7 +1626,7 @@ call_getUserByUsername() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(      )
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/users/{username}" path_parameter_names query_parameter_names); then
@@ -1654,7 +1662,7 @@ call_getUserComments() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(limit offset      )
+    local query_parameter_names=(limit offset  )
     local path
 
     if ! path=$(build_request_path "/users/{username}/comments" path_parameter_names query_parameter_names); then
@@ -1690,7 +1698,7 @@ call_getUserFollowers() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(      )
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/users/{username}/followers" path_parameter_names query_parameter_names); then
@@ -1840,7 +1848,7 @@ call_unfollowUser() {
     local path_parameter_names=(followedUsername followerUsername)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(      )
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/users/{followedUsername}/followers/{followerUsername}" path_parameter_names query_parameter_names); then
@@ -1876,7 +1884,7 @@ call_updateUser() {
     local path_parameter_names=(username)
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(      )
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/users/{username}" path_parameter_names query_parameter_names); then
