@@ -16,7 +16,7 @@ generate-openapi:
 	rm -rf socialappapi/openapi
 	mv socialappapi/go socialappapi/openapi
 	
-	# generate client
+	# generate go client
 	openapi-generator generate --input-spec openapi.yaml  \
         --generator-name go \
         --output client \
@@ -25,6 +25,11 @@ generate-openapi:
 		--additional-properties=structPrefix=true
 	rm client/go.mod
 	rm client/go.sum
+
+	# generate rust client
+	openapi-generator generate --input-spec openapi.yaml  \
+        --generator-name rust \
+        --output generated-rust-client
 
 	# generate documentation
 	openapi-generator generate -i openapi.yaml  \
@@ -77,3 +82,7 @@ start-cady:
 
 start-jmeter:
 	jmeter -H localhost -P 9091 -t jmeter/UserApi.jmx & tail -f jmeter.log
+build-rust-client:
+	cargo build --manifest-path generated-rust-client/Cargo.toml
+run-rust-client:
+	cargo run --manifest-path generated-rust-client/Cargo.toml

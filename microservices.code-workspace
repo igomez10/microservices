@@ -22,6 +22,10 @@
 	"settings": {
 		"githubPullRequests.ignoredPullRequestBranches": [
 			"mainline"
-		]
+		],
+		"[rust]": {
+			// "editor.defaultFormatter": "rust-lang.rust", // Makes the magic
+			"editor.formatOnSave": true // Optional
+		},
 	}
 }

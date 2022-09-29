@@ -58,6 +58,18 @@
             "type": "shell",
             "command": "make start-jmeter",
             "problemMatcher": []
+        },
+        {
+            "label": "build-rust-client",
+            "type": "shell",
+            "command": "make build-rust-client",
+            "problemMatcher": []
+        },
+        {
+            "label": "rust-rust-client",
+            "type": "shell",
+            "command": "make rust-rust-client",
+            "problemMatcher": []
         }
     ]
 }
