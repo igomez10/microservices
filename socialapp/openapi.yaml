@@ -79,8 +79,6 @@ paths:
       operationId: createUser
       tags:
         - User
-      security:
-        - OAuth2: [socialapp.users.create]
       requestBody:
         description: Create a new user
         content:
@@ -755,7 +753,7 @@ components:
       example:
         access_token: 123token123
         token_type: "Bearer"
-        expires_in: "2022-09-24T21:34:55.498516+02:00"
+        expires_in: 3600
       properties:
         access_token:
           type: string
@@ -766,8 +764,7 @@ components:
           items:
             type: string
         expires_in:
-          type: string
-          format: date-time
+          type: integer
 
     Error:
       type: object

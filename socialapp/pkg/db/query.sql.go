@@ -69,6 +69,24 @@ func (q *Queries) CreateCredential(ctx context.Context, db DBTX, arg CreateCrede
 	)
 }
 
+const CreateScope = `-- name: CreateScope :execresult
+INSERT INTO scopes (
+	  name, description, deleted_at
+) VALUES (
+  ?, ?, ?
+)
+`
+
+type CreateScopeParams struct {
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	DeletedAt   sql.NullTime `json:"deleted_at"`
+}
+
+func (q *Queries) CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (sql.Result, error) {
+	return db.ExecContext(ctx, CreateScope, arg.Name, arg.Description, arg.DeletedAt)
+}
+
 const CreateToken = `-- name: CreateToken :execresult
 INSERT INTO tokens (
 	token, user_id, valid_until
@@ -85,6 +103,23 @@ type CreateTokenParams struct {
 
 func (q *Queries) CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (sql.Result, error) {
 	return db.ExecContext(ctx, CreateToken, arg.Token, arg.UserID, arg.ValidUntil)
+}
+
+const CreateTokenToScope = `-- name: CreateTokenToScope :execresult
+INSERT INTO tokens_to_scopes (
+	token_id, scope_id
+) VALUES (
+  ?, ?
+)
+`
+
+type CreateTokenToScopeParams struct {
+	TokenID int64 `json:"token_id"`
+	ScopeID int64 `json:"scope_id"`
+}
+
+func (q *Queries) CreateTokenToScope(ctx context.Context, db DBTX, arg CreateTokenToScopeParams) (sql.Result, error) {
+	return db.ExecContext(ctx, CreateTokenToScope, arg.TokenID, arg.ScopeID)
 }
 
 const CreateUser = `-- name: CreateUser :execresult
@@ -119,6 +154,23 @@ func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams)
 	)
 }
 
+const CreateUserToRole = `-- name: CreateUserToRole :execresult
+INSERT INTO users_to_roles (
+	user_id, role_id
+) VALUES (
+  ?, ?
+)
+`
+
+type CreateUserToRoleParams struct {
+	UserID int64 `json:"user_id"`
+	RoleID int64 `json:"role_id"`
+}
+
+func (q *Queries) CreateUserToRole(ctx context.Context, db DBTX, arg CreateUserToRoleParams) (sql.Result, error) {
+	return db.ExecContext(ctx, CreateUserToRole, arg.UserID, arg.RoleID)
+}
+
 const DeleteAllTokensForUser = `-- name: DeleteAllTokensForUser :exec
 UPDATE tokens
 SET valid_until = NOW()
@@ -148,6 +200,17 @@ WHERE id = ?
 
 func (q *Queries) DeleteCredential(ctx context.Context, db DBTX, id int64) error {
 	_, err := db.ExecContext(ctx, DeleteCredential, id)
+	return err
+}
+
+const DeleteScope = `-- name: DeleteScope :exec
+UPDATE scopes
+SET deleted_at = NOW()
+WHERE id = ? AND NOW() < valid_until
+`
+
+func (q *Queries) DeleteScope(ctx context.Context, db DBTX, id int64) error {
+	_, err := db.ExecContext(ctx, DeleteScope, id)
 	return err
 }
 
@@ -344,6 +407,120 @@ func (q *Queries) GetFollowers(ctx context.Context, db DBTX, followedID int64) (
 	return items, nil
 }
 
+const GetRole = `-- name: GetRole :one
+SELECT id, name, description, created_at, deleted_at FROM roles
+WHERE id = ? AND deleted_at IS NULL LIMIT 1
+`
+
+func (q *Queries) GetRole(ctx context.Context, db DBTX, id int64) (Role, error) {
+	row := db.QueryRowContext(ctx, GetRole, id)
+	var i Role
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const GetRoleByName = `-- name: GetRoleByName :one
+SELECT id, name, description, created_at, deleted_at FROM roles
+WHERE name = ? AND deleted_at IS NULL LIMIT 1
+`
+
+func (q *Queries) GetRoleByName(ctx context.Context, db DBTX, name string) (Role, error) {
+	row := db.QueryRowContext(ctx, GetRoleByName, name)
+	var i Role
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const GetRoleScopes = `-- name: GetRoleScopes :many
+SELECT
+	s.id, s.name, s.description, s.created_at, s.deleted_at
+FROM
+	scopes s
+	INNER JOIN roles_to_scopes rs ON rs.scope_id = s.id
+	INNER JOIN roles r ON r.id = rs.role_id
+WHERE
+	r.id = ?
+	AND r.deleted_at IS NULL
+	AND s.deleted_at IS NULL
+`
+
+func (q *Queries) GetRoleScopes(ctx context.Context, db DBTX, id int64) ([]Scope, error) {
+	rows, err := db.QueryContext(ctx, GetRoleScopes, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Scope
+	for rows.Next() {
+		var i Scope
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const GetScope = `-- name: GetScope :one
+SELECT id, name, description, created_at, deleted_at FROM scopes
+WHERE id = ? AND deleted_at IS NULL LIMIT 1
+`
+
+func (q *Queries) GetScope(ctx context.Context, db DBTX, id int64) (Scope, error) {
+	row := db.QueryRowContext(ctx, GetScope, id)
+	var i Scope
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const GetScopeByName = `-- name: GetScopeByName :one
+SELECT id, name, description, created_at, deleted_at FROM scopes
+WHERE name = ? AND deleted_at IS NULL LIMIT 1
+`
+
+func (q *Queries) GetScopeByName(ctx context.Context, db DBTX, name string) (Scope, error) {
+	row := db.QueryRowContext(ctx, GetScopeByName, name)
+	var i Scope
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const GetToken = `-- name: GetToken :one
 SELECT id, user_id, token, valid_from, valid_until FROM tokens
 WHERE token = ? LIMIT 1
@@ -360,6 +537,48 @@ func (q *Queries) GetToken(ctx context.Context, db DBTX, token string) (Token, e
 		&i.ValidUntil,
 	)
 	return i, err
+}
+
+const GetTokenScopes = `-- name: GetTokenScopes :many
+SELECT
+	s.id, s.name, s.description, s.created_at, s.deleted_at
+FROM
+	scopes s
+	INNER JOIN tokens_to_scopes ts ON ts.scope_id = s.id
+	INNER JOIN tokens t ON t.id = ts.token_id
+WHERE
+	t.id = ?
+	AND t.valid_until > NOW()
+	AND s.deleted_at IS NULL
+`
+
+func (q *Queries) GetTokenScopes(ctx context.Context, db DBTX, id int64) ([]Scope, error) {
+	rows, err := db.QueryContext(ctx, GetTokenScopes, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Scope
+	for rows.Next() {
+		var i Scope
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const GetUserByEmail = `-- name: GetUserByEmail :one
@@ -492,6 +711,48 @@ func (q *Queries) GetUserComments(ctx context.Context, db DBTX, arg GetUserComme
 	return items, nil
 }
 
+const GetUserRoles = `-- name: GetUserRoles :many
+SELECT
+	r.id, r.name, r.description, r.created_at, r.deleted_at
+FROM
+	users u
+	INNER JOIN users_to_roles ur ON ur.user_id = u.id
+	INNER JOIN roles r ON r.id = ur.role_id
+WHERE
+	u.id = ?
+	AND u.deleted_at IS NULL
+	AND r.deleted_at IS NULL
+`
+
+func (q *Queries) GetUserRoles(ctx context.Context, db DBTX, id int64) ([]Role, error) {
+	rows, err := db.QueryContext(ctx, GetUserRoles, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Role
+	for rows.Next() {
+		var i Role
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const ListComment = `-- name: ListComment :many
 SELECT id, content, like_count, user_id, created_at, updated_at, deleted_at FROM comments
 WHERE deleted_at IS NULL
@@ -520,6 +781,40 @@ func (q *Queries) ListComment(ctx context.Context, db DBTX, arg ListCommentParam
 			&i.UserID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const ListScopes = `-- name: ListScopes :many
+SELECT id, name, description, created_at, deleted_at FROM scopes
+WHERE deleted_at IS NULL
+`
+
+func (q *Queries) ListScopes(ctx context.Context, db DBTX) ([]Scope, error) {
+	rows, err := db.QueryContext(ctx, ListScopes)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Scope
+	for rows.Next() {
+		var i Scope
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {
 			return nil, err
@@ -597,6 +892,22 @@ type UnfollowUserParams struct {
 func (q *Queries) UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error {
 	_, err := db.ExecContext(ctx, UnfollowUser, arg.FollowerID, arg.FollowedID)
 	return err
+}
+
+const UpdateScope = `-- name: UpdateScope :execresult
+UPDATE scopes
+SET name = ?, description = ?
+WHERE id = ? AND deleted_at IS NULL
+`
+
+type UpdateScopeParams struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	ID          int64  `json:"id"`
+}
+
+func (q *Queries) UpdateScope(ctx context.Context, db DBTX, arg UpdateScopeParams) (sql.Result, error) {
+	return db.ExecContext(ctx, UpdateScope, arg.Name, arg.Description, arg.ID)
 }
 
 const UpdateUser = `-- name: UpdateUser :execresult

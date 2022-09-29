@@ -4,7 +4,9 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
+	"fmt"
 	"net/http"
+	"socialapp/internal/contexthelper"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
 	"time"
@@ -20,23 +22,39 @@ type AuthenticationService struct {
 }
 
 func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.ImplResponse, error) {
-	username := ctx.Value("username")
-	if username == nil {
+	username, ok := contexthelper.GetUsernameInContext(ctx)
+	if !ok {
+		log.Error().Str("username", username).Msg("username not found in context")
 		return openapi.ImplResponse{
 			Code: http.StatusUnauthorized,
 			Body: openapi.Error{
 				Code:    http.StatusUnauthorized,
-				Message: "Unauthorized",
+				Message: fmt.Errorf("failed to resolve username").Error(),
 			},
 		}, nil
 	}
 
-	usr, err := s.DB.GetUserByUsername(ctx, s.DBConn, username.(string))
+	requestedScopes, ok := contexthelper.GetRequestedScopesInContext(ctx)
+	if !ok {
+		log.Error().Interface("scopes", requestedScopes).Msg("scopes not found in context")
+		return openapi.ImplResponse{
+			Code: http.StatusUnauthorized,
+			Body: openapi.Error{
+				Code:    http.StatusUnauthorized,
+				Message: fmt.Errorf("failed to resolve scopes").Error(),
+			},
+		}, nil
+	}
+
+	usr, err := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get user")
 		return openapi.ImplResponse{
-			Code: http.StatusInternalServerError,
-			Body: []byte(err.Error()),
+			Code: http.StatusNotFound,
+			Body: openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: fmt.Errorf("failed to get user").Error(),
+			},
 		}, nil
 	}
 
@@ -45,15 +63,18 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 		log.Error().Err(err).Msg("Failed to generate token")
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
-			Body: []byte(err.Error()),
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: fmt.Errorf("failed to generate token").Error(),
+			},
 		}, nil
 	}
 
 	token := sha256.Sum256([]byte(uuidToken.String()))
 	tokenString := base64.URLEncoding.EncodeToString(token[:])
-	validUntil := time.Now().Add(time.Hour * 6)
+	validUntil := time.Now().UTC().Add(30 * 24 * time.Hour)
 
-	_, err = s.DB.CreateToken(ctx, s.DBConn, db.CreateTokenParams{
+	tok, err := s.DB.CreateToken(ctx, s.DBConn, db.CreateTokenParams{
 		Token:      tokenString,
 		UserID:     usr.ID,
 		ValidUntil: validUntil,
@@ -62,16 +83,78 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 		log.Error().Err(err).Msg("Failed to create token")
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
-			Body: []byte(err.Error()),
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: fmt.Errorf("failed to create token").Error(),
+			},
 		}, nil
+	}
+
+	tokenID, err := tok.LastInsertId()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get token id")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: fmt.Errorf("failed to get token id").Error(),
+			},
+		}, nil
+	}
+
+	for scopeName := range requestedScopes {
+		// get id of the scope
+		scope, err := s.DB.GetScopeByName(ctx, s.DBConn, scopeName)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to get scope")
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Code:    http.StatusInternalServerError,
+					Message: fmt.Errorf("failed to get scope").Error(),
+				},
+			}, nil
+		}
+
+		// create token scope
+		_, err = s.DB.CreateTokenToScope(ctx, s.DBConn, db.CreateTokenToScopeParams{
+			TokenID: tokenID,
+			ScopeID: scope.ID,
+		})
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to create token scope")
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Code:    http.StatusInternalServerError,
+					Message: fmt.Errorf("failed to create token scope").Error(),
+				},
+			}, nil
+		}
+	}
+
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to create token")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: fmt.Errorf("failed to create token").Error(),
+			},
+		}, nil
+	}
+
+	assignedScopes := make([]string, 0, len(requestedScopes))
+	for scopeName := range requestedScopes {
+		assignedScopes = append(assignedScopes, scopeName)
 	}
 
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: openapi.AccessToken{
 			AccessToken: tokenString,
-			Scopes:      []string{"read", "write"},
-			ExpiresIn:   validUntil,
+			Scopes:      assignedScopes,
+			ExpiresIn:   int32(time.Until(validUntil).Seconds()),
 			TokenType:   "Bearer",
 		},
 	}, nil

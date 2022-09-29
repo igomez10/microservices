@@ -35,12 +35,40 @@ type Follower struct {
 	FollowedID int64 `json:"followed_id"`
 }
 
+type Role struct {
+	ID          int64        `json:"id"`
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	CreatedAt   time.Time    `json:"created_at"`
+	DeletedAt   sql.NullTime `json:"deleted_at"`
+}
+
+type RolesToScope struct {
+	ID      int64 `json:"id"`
+	RoleID  int64 `json:"role_id"`
+	ScopeID int32 `json:"scope_id"`
+}
+
+type Scope struct {
+	ID          int64        `json:"id"`
+	Name        string       `json:"name"`
+	Description string       `json:"description"`
+	CreatedAt   time.Time    `json:"created_at"`
+	DeletedAt   sql.NullTime `json:"deleted_at"`
+}
+
 type Token struct {
 	ID         int64     `json:"id"`
 	UserID     int64     `json:"user_id"`
 	Token      string    `json:"token"`
 	ValidFrom  time.Time `json:"valid_from"`
 	ValidUntil time.Time `json:"valid_until"`
+}
+
+type TokensToScope struct {
+	ID      int64 `json:"id"`
+	TokenID int64 `json:"token_id"`
+	ScopeID int64 `json:"scope_id"`
 }
 
 type User struct {
@@ -57,4 +85,10 @@ type User struct {
 	CreatedAt               time.Time    `json:"created_at"`
 	UpdatedAt               time.Time    `json:"updated_at"`
 	DeletedAt               sql.NullTime `json:"deleted_at"`
+}
+
+type UsersToRole struct {
+	ID     int64 `json:"id"`
+	RoleID int64 `json:"role_id"`
+	UserID int64 `json:"user_id"`
 }

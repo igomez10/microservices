@@ -13,11 +13,15 @@ type Querier interface {
 	CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (sql.Result, error)
 	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (sql.Result, error)
 	CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (sql.Result, error)
+	CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (sql.Result, error)
 	CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (sql.Result, error)
+	CreateTokenToScope(ctx context.Context, db DBTX, arg CreateTokenToScopeParams) (sql.Result, error)
 	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (sql.Result, error)
+	CreateUserToRole(ctx context.Context, db DBTX, arg CreateUserToRoleParams) (sql.Result, error)
 	DeleteAllTokensForUser(ctx context.Context, db DBTX, userID int64) error
 	DeleteComment(ctx context.Context, db DBTX, id int64) error
 	DeleteCredential(ctx context.Context, db DBTX, id int64) error
+	DeleteScope(ctx context.Context, db DBTX, id int64) error
 	DeleteToken(ctx context.Context, db DBTX, token string) error
 	DeleteUser(ctx context.Context, db DBTX, id int64) error
 	DeleteUserByUsername(ctx context.Context, db DBTX, username string) error
@@ -26,14 +30,23 @@ type Querier interface {
 	GetCredential(ctx context.Context, db DBTX, publicKey string) (Credential, error)
 	GetFollowedUsers(ctx context.Context, db DBTX, followerID int64) ([]User, error)
 	GetFollowers(ctx context.Context, db DBTX, followedID int64) ([]User, error)
+	GetRole(ctx context.Context, db DBTX, id int64) (Role, error)
+	GetRoleByName(ctx context.Context, db DBTX, name string) (Role, error)
+	GetRoleScopes(ctx context.Context, db DBTX, id int64) ([]Scope, error)
+	GetScope(ctx context.Context, db DBTX, id int64) (Scope, error)
+	GetScopeByName(ctx context.Context, db DBTX, name string) (Scope, error)
 	GetToken(ctx context.Context, db DBTX, token string) (Token, error)
+	GetTokenScopes(ctx context.Context, db DBTX, id int64) ([]Scope, error)
 	GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error)
 	GetUserByID(ctx context.Context, db DBTX, id int64) (User, error)
 	GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error)
 	GetUserComments(ctx context.Context, db DBTX, arg GetUserCommentsParams) ([]Comment, error)
+	GetUserRoles(ctx context.Context, db DBTX, id int64) ([]Role, error)
 	ListComment(ctx context.Context, db DBTX, arg ListCommentParams) ([]Comment, error)
+	ListScopes(ctx context.Context, db DBTX) ([]Scope, error)
 	ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) ([]User, error)
 	UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error
+	UpdateScope(ctx context.Context, db DBTX, arg UpdateScopeParams) (sql.Result, error)
 	UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (sql.Result, error)
 	UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (sql.Result, error)
 }

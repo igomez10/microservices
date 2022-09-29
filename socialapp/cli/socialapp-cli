@@ -610,7 +610,7 @@ echo "  $ops" | column -t -s ';'
     echo -e "${BOLD}${WHITE}[user]${OFF}"
 read -r -d '' ops <<EOF
   ${CYAN}changePassword${OFF};Change password (AUTH)
-  ${CYAN}createUser${OFF};Create user (AUTH)
+  ${CYAN}createUser${OFF};Create user (AUTH) (AUTH) (AUTH)
   ${CYAN}deleteUser${OFF};Deletes a particular user (AUTH)
   ${CYAN}followUser${OFF};Add a user as a follower (AUTH)
   ${CYAN}getFollowingUsers${OFF};Get all followed users for a user (AUTH)
@@ -841,7 +841,7 @@ print_changePassword_help() {
 ##############################################################################
 print_createUser_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}createUser - Create user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}createUser - Create user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Create a new user in the system" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -1440,7 +1440,7 @@ call_createUser() {
     local path_parameter_names=()
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(  )
+    local query_parameter_names=(      )
     local path
 
     if ! path=$(build_request_path "/users" path_parameter_names query_parameter_names); then

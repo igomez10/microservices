@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `AccessToken` (
   `access_token` TEXT NOT NULL,
   `token_type` TEXT NOT NULL,
   `scopes` JSON DEFAULT NULL,
-  `expires_in` DATETIME NOT NULL
+  `expires_in` INT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

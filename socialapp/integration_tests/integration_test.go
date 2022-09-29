@@ -10,17 +10,29 @@ import (
 	"socialapp/client"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 var apiClient *client.APIClient
+var ENDPOINT_OAUTH_TOKEN string = "http://localhost:8085/oauth/token"
 
 var (
 	RENDER_SERVER_URL          = 0
 	LOCALHOST_SERVER_URL       = 1
 	LOCALHOST_DEBUG_SERVER_URL = 2
 
-	CONTEXT_SERVER = LOCALHOST_SERVER_URL
+	CONTEXT_SERVER = LOCALHOST_DEBUG_SERVER_URL
 )
+
+func getOuath2Context(initialContext context.Context, config clientcredentials.Config) (context.Context, error) {
+	tokenSource := config.TokenSource(initialContext)
+	initialContext = context.WithValue(initialContext, client.ContextOAuth2, tokenSource)
+
+	return initialContext, nil
+}
 
 func TestListUsers(t *testing.T) {
 	os.Setenv("HTTP_PROXY", "http://localhost:9091")
@@ -33,43 +45,51 @@ func TestListUsers(t *testing.T) {
 		log.Println(err)
 	}
 
-	//adding the proxy settings to the Transport object
-	transport := &http.Transport{
-		Proxy: http.ProxyURL(proxyURL),
+	// Setup http client with proxy to capture traffic
+	httpClient := &http.Client{
+		Timeout: time.Second * 10,
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		},
 	}
-	configuration.HTTPClient = &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: transport,
-	}
+	configuration.HTTPClient = httpClient
 
+	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
+
+	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
+	password := fmt.Sprintf("Password-%d1", time.Now().UnixNano())
 	apiClient = client.NewAPIClient(configuration)
-	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
-	basicAuthCtx := context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
-		UserName: "admin",
-		Password: "admin",
-	})
+	func() {
+		createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
+		_, _, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+		if err != nil {
+			t.Fatalf("Error creating user: %v", err)
+		}
+	}()
 
-	// get access token
-	token, r, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthCtx).Execute()
+	conf := clientcredentials.Config{
+		ClientID:     username1,
+		ClientSecret: password,
+		Scopes:       []string{"socialapp.users.list"},
+		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+	}
+	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 	if err != nil {
-		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v\n %+v\n", err, r)
+		t.Fatalf("Error getting oauth2 context: %v", err)
+	}
+	openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
+
+	// List users
+
+	_, r, err := apiClient.UserApi.ListUsers(openAPICtx).Limit(10).Offset(0).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `UserApi.ListUsers``: %v\n", err)
+		t.Errorf("Full HTTP response: %v\n", r)
 	}
 	if r.StatusCode != http.StatusOK {
 		t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
 	}
-
-	beaererCtx := context.WithValue(ctx, client.ContextAccessToken, token.AccessToken)
-	// List users
-	func() {
-		_, r, err := apiClient.UserApi.ListUsers(beaererCtx).Execute()
-		if err != nil {
-			t.Errorf("Error when calling `UserApi.ListUsers``: %v\n", err)
-			t.Errorf("Full HTTP response: %v\n", r)
-		}
-		if r.StatusCode != http.StatusOK {
-			t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
-		}
-	}()
 }
 
 func TestCreateUser(t *testing.T) {
@@ -80,53 +100,29 @@ func TestCreateUser(t *testing.T) {
 	proxyStr := "http://localhost:9091"
 	proxyURL, err := url.Parse(proxyStr)
 	if err != nil {
-		t.Error(err)
+		log.Println(err)
 	}
 
-	//adding the proxy settings to the Transport object
-	transport := &http.Transport{
-		Proxy: http.ProxyURL(proxyURL),
+	// Setup http client with proxy to capture traffic
+	httpClient := &http.Client{
+		Timeout: time.Second * 10,
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		},
 	}
-	configuration.HTTPClient = &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: transport,
-	}
+	configuration.HTTPClient = httpClient
+	noAuthCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	noAuthCtx = context.WithValue(noAuthCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
 
 	username := fmt.Sprintf("Test-%d", time.Now().UnixNano())
+	password := "password"
 	email := fmt.Sprintf("Test-%d-@social.com", time.Now().UnixNano())
 	user := *client.NewCreateUserRequest(username, "password", "FirstName_example", "LastName_example", email) // User | Create a new user
-	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
-	basicAuthCtx := context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
-		UserName: "admin",
-		Password: "admin",
-	})
-
-	// get access token
-	token, r, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthCtx).Execute()
-	if err != nil {
-		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v\n %+v\n", err, r)
-	}
-	if r.StatusCode != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
-	}
-
-	beaererCtx := context.WithValue(ctx, client.ContextAccessToken, token.AccessToken)
-
-	// verify a user doesnt exist yet
-	func() {
-		_, r, err := apiClient.UserApi.GetUserByUsername(beaererCtx, username).Execute()
-		if err == nil {
-			t.Errorf("User %s already exists: %+v", username, r)
-		}
-		if r.StatusCode != http.StatusNotFound {
-			t.Errorf("Expected status code %d, got %d", http.StatusNotFound, r.StatusCode)
-		}
-	}()
 
 	func() {
-		_, r, err := apiClient.UserApi.CreateUser(ctx).
+		_, r, err := apiClient.UserApi.CreateUser(noAuthCtx).
 			CreateUserRequest(user).
 			Execute()
 		if err != nil {
@@ -138,23 +134,18 @@ func TestCreateUser(t *testing.T) {
 	}()
 
 	func() {
-		basicAuthCtx := context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
-			UserName: user.Username,
-			Password: user.Password,
-		})
-
-		// get access token
-		token, r, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthCtx).Execute()
+		conf := clientcredentials.Config{
+			ClientID:     username,
+			ClientSecret: password,
+			Scopes:       []string{"socialapp.users.read"},
+			TokenURL:     ENDPOINT_OAUTH_TOKEN,
+		}
+		oauth2Ctx, err := getOuath2Context(noAuthCtx, conf)
 		if err != nil {
-			t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v\n %+v\n", err, r)
-		}
-		if r.StatusCode != http.StatusOK {
-			t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+			t.Fatalf("Error getting oauth2 context: %v", err)
 		}
 
-		beaererCtx := context.WithValue(ctx, client.ContextAccessToken, token.AccessToken)
-
-		resp, r, err := apiClient.UserApi.GetUserByUsername(beaererCtx, username).Execute()
+		resp, r, err := apiClient.UserApi.GetUserByUsername(oauth2Ctx, username).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.GetUserByUsername`: %v\n %+v\n", err, r)
 		}
@@ -188,17 +179,18 @@ func TestFollowCycle(t *testing.T) {
 		log.Println(err)
 	}
 
-	//adding the proxy settings to the Transport object
-	transport := &http.Transport{
-		Proxy: http.ProxyURL(proxyURL),
+	// Setup http client with proxy to capture traffic
+	httpClient := &http.Client{
+		Timeout: time.Second * 10,
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		},
 	}
-	configuration.HTTPClient = &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: transport,
-	}
+	configuration.HTTPClient = httpClient
+	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
-	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
 
 	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
 	email1 := fmt.Sprintf("Test-%d-1@social.com", time.Now().UnixNano())
@@ -210,14 +202,14 @@ func TestFollowCycle(t *testing.T) {
 
 	// create users
 	func() {
-		_, r1, err1 := apiClient.UserApi.CreateUser(ctx).
+		_, r1, err1 := apiClient.UserApi.CreateUser(proxyCtx).
 			CreateUserRequest(user1).
 			Execute()
 		if err1 != nil {
 			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err1, r1)
 		}
 
-		_, r2, err2 := apiClient.UserApi.CreateUser(ctx).
+		_, r2, err2 := apiClient.UserApi.CreateUser(proxyCtx).
 			CreateUserRequest(user2).
 			Execute()
 		if err2 != nil {
@@ -225,26 +217,27 @@ func TestFollowCycle(t *testing.T) {
 		}
 	}()
 
-	// get access token for user1
-	basicAuthCtx := context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
-		UserName: user1.Username,
-		Password: user1.Password,
-	})
-
-	// get access token
-	token, r, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthCtx).Execute()
-	if err != nil {
-		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v\n %+v\n", err, r)
-	}
-	if r.StatusCode != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+	conf := clientcredentials.Config{
+		ClientID:     username1,
+		ClientSecret: "password",
+		Scopes: []string{
+			"socialapp.users.read",
+			"socialapp.follower.create",
+			"socialapp.follower.read",
+			"socialapp.follower.delete",
+		},
+		TokenURL: ENDPOINT_OAUTH_TOKEN,
 	}
 
-	beaererCtx := context.WithValue(ctx, client.ContextAccessToken, token.AccessToken)
+	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 
 	// user 1 follows user 2
 	func() {
-		r, err := apiClient.UserApi.FollowUser(beaererCtx, username2, username1).Execute()
+
+		if err != nil {
+			t.Fatalf("Error getting oauth2 context: %v", err)
+		}
+		r, err := apiClient.UserApi.FollowUser(oauth2Ctx, username2, username1).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
 		}
@@ -252,7 +245,7 @@ func TestFollowCycle(t *testing.T) {
 
 	// validate user 1 follows user 2
 	func() {
-		followers, r, err := apiClient.UserApi.GetUserFollowers(beaererCtx, username2).Execute()
+		followers, r, err := apiClient.UserApi.GetUserFollowers(oauth2Ctx, username2).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
 		}
@@ -266,7 +259,7 @@ func TestFollowCycle(t *testing.T) {
 
 	// user 1 unfollows user 2
 	func() {
-		r, err := apiClient.UserApi.UnfollowUser(beaererCtx, username2, username1).Execute()
+		r, err := apiClient.UserApi.UnfollowUser(oauth2Ctx, username2, username1).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
 		}
@@ -274,7 +267,7 @@ func TestFollowCycle(t *testing.T) {
 
 	// validate user 1 unfollows user 2
 	func() {
-		followers, r, err := apiClient.UserApi.GetUserFollowers(beaererCtx, username2).Execute()
+		followers, r, err := apiClient.UserApi.GetUserFollowers(oauth2Ctx, username2).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
 		}
@@ -297,14 +290,16 @@ func TestGetExpectedFeed(t *testing.T) {
 		log.Println(err)
 	}
 
-	//adding the proxy settings to the Transport object
-	transport := &http.Transport{
-		Proxy: http.ProxyURL(proxyURL),
+	// Setup http client with proxy to capture traffic
+	httpClient := &http.Client{
+		Timeout: time.Second * 10,
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		},
 	}
-	configuration.HTTPClient = &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: transport,
-	}
+	configuration.HTTPClient = httpClient
+	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
 
@@ -316,12 +311,10 @@ func TestGetExpectedFeed(t *testing.T) {
 	email2 := fmt.Sprintf("Test-%d-2@social.com", time.Now().UnixNano())
 	user2 := *client.NewCreateUserRequest(username2, "secretPassword", "FirstName_example", "LastName_example", email2) // User | Create a new user
 
-	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
-
 	// create users
 	func() {
 		_, r1, err1 := apiClient.UserApi.
-			CreateUser(ctx).
+			CreateUser(proxyCtx).
 			CreateUserRequest(user1).
 			Execute()
 		if err1 != nil {
@@ -329,7 +322,7 @@ func TestGetExpectedFeed(t *testing.T) {
 		}
 
 		_, r2, err2 := apiClient.UserApi.
-			CreateUser(ctx).
+			CreateUser(proxyCtx).
 			CreateUserRequest(user2).
 			Execute()
 		if err2 != nil {
@@ -337,28 +330,28 @@ func TestGetExpectedFeed(t *testing.T) {
 		}
 	}()
 
-	// get access token for user1
-	// get access token for user1
-	basicAuthCtx := context.WithValue(ctx, client.ContextBasicAuth, client.BasicAuth{
-		UserName: user1.Username,
-		Password: user1.Password,
-	})
+	conf := clientcredentials.Config{
+		ClientID:     username1,
+		ClientSecret: "password",
+		Scopes: []string{
+			"socialapp.users.read",
+			"socialapp.follower.create",
+			"socialapp.follower.read",
+			"socialapp.follower.delete",
+			"socialapp.comments.create",
+			"socialapp.feed.read",
+		},
+		TokenURL: ENDPOINT_OAUTH_TOKEN,
+	}
 
-	// get access token
-	token, r, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthCtx).Execute()
+	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 	if err != nil {
-		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v\n %+v\n", err, r)
-	}
-	if r.StatusCode != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+		t.Fatalf("Error getting oauth2 context: %v", err)
 	}
 
-	beaererCtx := context.WithValue(ctx, client.ContextAccessToken, token.AccessToken)
-
-	// user 1 follows user 2
 	func() {
 		r, err := apiClient.UserApi.FollowUser(
-			beaererCtx,
+			oauth2Ctx,
 			username2,
 			username1).
 			Execute()
@@ -371,7 +364,7 @@ func TestGetExpectedFeed(t *testing.T) {
 	func() {
 		comment := *client.NewComment("Test comment", username2)
 		_, r, err := apiClient.CommentApi.
-			CreateComment(beaererCtx).
+			CreateComment(oauth2Ctx).
 			Comment(comment).
 			Execute()
 		if err != nil {
@@ -382,7 +375,7 @@ func TestGetExpectedFeed(t *testing.T) {
 	// validate feed in user 1's feed
 	func() {
 		feed, r, err := apiClient.CommentApi.
-			GetUserFeed(beaererCtx, username1).
+			GetUserFeed(oauth2Ctx, username1).
 			Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.GetUserFeed`: %v\n %+v\n", err, r)
@@ -403,25 +396,66 @@ func TestGetAccessToken(t *testing.T) {
 	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
 
 	configuration := client.NewConfiguration()
-
 	proxyStr := "http://localhost:9091"
 	proxyURL, err := url.Parse(proxyStr)
 	if err != nil {
 		log.Println(err)
 	}
 
-	//adding the proxy settings to the Transport object
-	transport := &http.Transport{
-		Proxy: http.ProxyURL(proxyURL),
+	// Setup http client with proxy to capture traffic
+	httpClient := &http.Client{
+		Timeout: time.Second * 10,
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		},
 	}
-	configuration.HTTPClient = &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: transport,
-	}
+	configuration.HTTPClient = httpClient
+	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
-	ctx := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
-	apiClient.AuthenticationApi.GetAccessToken(ctx)
+
+	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
+	password := fmt.Sprintf("Password-%d1", time.Now().UnixNano())
+	createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
+	func() {
+		_, _, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+		if err != nil {
+			t.Fatalf("Error creating user: %v", err)
+		}
+	}()
+	scopes := []string{
+		"socialapp.users.read",
+		"socialapp.follower.create",
+		"socialapp.follower.read",
+		"socialapp.follower.delete",
+		"socialapp.comments.create",
+		"socialapp.feed.read",
+	}
+	conf := clientcredentials.Config{
+		ClientID:     username1,
+		ClientSecret: password,
+		Scopes:       scopes,
+		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+	}
+	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	if err != nil {
+		t.Fatalf("Error getting oauth2 context: %v", err)
+	}
+
+	token, res, err := apiClient.AuthenticationApi.GetAccessToken(oauth2Ctx).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
+	}
+	// assert scopes are correct
+	if res.Status != "200 OK" {
+		t.Errorf("Expected status 200, got %s", res.Status)
+	}
+
+	if len(token.Scopes) != len(scopes) {
+		t.Errorf("Expected %d scopes, got %d", len(scopes), len(token.Scopes))
+		t.Log(cmp.Diff(scopes, token.Scopes))
+	}
 }
 
 func TestRegisterUserFlow(t *testing.T) {
@@ -436,15 +470,17 @@ func TestRegisterUserFlow(t *testing.T) {
 		log.Println(err)
 	}
 
-	// adding the proxy settings to the Transport object
-	transport := &http.Transport{
-		Proxy: http.ProxyURL(proxyURL),
+	// Setup http client with proxy to capture traffic
+	httpClient := &http.Client{
+		Timeout: time.Second * 10,
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		},
 	}
-	configuration.HTTPClient = &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: transport,
-	}
-	urlContext := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
+	configuration.HTTPClient = httpClient
+	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
+
 	apiClient = client.NewAPIClient(configuration)
 
 	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
@@ -454,7 +490,7 @@ func TestRegisterUserFlow(t *testing.T) {
 	// create a user, no auth needed
 	// POST /user
 	// {user}
-	_, res, err := apiClient.UserApi.CreateUser(urlContext).CreateUserRequest(*createUsrReq).Execute()
+	_, res, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
 	}
@@ -463,23 +499,23 @@ func TestRegisterUserFlow(t *testing.T) {
 		t.Errorf("Expected status code 201, got %d", res.StatusCode)
 	}
 
-	// use basic auth to get a beaer token
-	basicAuthContext := context.WithValue(urlContext, client.ContextBasicAuth, client.BasicAuth{
-		UserName: username1,
-		Password: password,
-	})
-	token, res, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthContext).Execute()
-	if err != nil {
-		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
+	scopes := []string{
+		"socialapp.users.read",
 	}
-	if res.StatusCode != http.StatusOK {
-		t.Errorf("Expected status code 200, got %d", res.StatusCode)
+	conf := clientcredentials.Config{
+		ClientID:     username1,
+		ClientSecret: password,
+		Scopes:       scopes,
+		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+	}
+	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	if err != nil {
+		t.Fatalf("Error getting oauth2 context: %v", err)
 	}
 
-	// use bearertoken to get user info
+	// Get user by using oauath2 token
 	func() {
-		bearerTokenContext := context.WithValue(urlContext, client.ContextAccessToken, token.AccessToken)
-		_, res, err := apiClient.UserApi.GetUserByUsername(bearerTokenContext, username1).Execute()
+		_, res, err := apiClient.UserApi.GetUserByUsername(oauth2Ctx, username1).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.GetUsers`: %v", err)
 		}
@@ -488,9 +524,9 @@ func TestRegisterUserFlow(t *testing.T) {
 		}
 	}()
 
-	// validate 401
+	// validate 401 if no auth is provided
 	func() {
-		user, res, err := apiClient.UserApi.GetUserByUsername(urlContext, username1).Execute()
+		user, res, err := apiClient.UserApi.GetUserByUsername(proxyCtx, username1).Execute()
 		if err == nil {
 			t.Errorf("Error when calling `UserApi.GetUsers`: %v", err)
 		}
@@ -504,25 +540,33 @@ func TestRegisterUserFlow(t *testing.T) {
 }
 
 func TestChangePassword(t *testing.T) {
+	// create two users
 	os.Setenv("HTTP_PROXY", "http://localhost:9091")
 	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
-	configuration := client.NewConfiguration()
 
+	configuration := client.NewConfiguration()
 	proxyStr := "http://localhost:9091"
 	proxyURL, err := url.Parse(proxyStr)
 	if err != nil {
 		log.Println(err)
 	}
 
-	// adding the proxy settings to the Transport object
-	transport := &http.Transport{
-		Proxy: http.ProxyURL(proxyURL),
+	// Setup http client with proxy to capture traffic
+	httpClient := &http.Client{
+		Timeout: time.Second * 10,
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		},
 	}
-	configuration.HTTPClient = &http.Client{
-		Timeout:   time.Second * 10,
-		Transport: transport,
+	configuration.HTTPClient = httpClient
+	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
+	scopes := []string{
+		"socialapp.users.read",
+		"socialapp.users.update",
 	}
-	urlContext := context.WithValue(context.Background(), client.ContextServerIndex, CONTEXT_SERVER)
+
+	// openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
 	apiClient = client.NewAPIClient(configuration)
 
 	username := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
@@ -530,7 +574,7 @@ func TestChangePassword(t *testing.T) {
 	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
 
 	// create a user, no auth needed
-	_, res, err := apiClient.UserApi.CreateUser(urlContext).CreateUserRequest(*createUsrReq).Execute()
+	_, res, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
 	}
@@ -539,40 +583,32 @@ func TestChangePassword(t *testing.T) {
 		t.Errorf("Expected status code 201, got %d", res.StatusCode)
 	}
 
-	// use basic auth to get a beaer token
-	basicAuthContext := context.WithValue(urlContext, client.ContextBasicAuth, client.BasicAuth{
-		UserName: username,
-		Password: password,
-	})
-	token, res, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthContext).Execute()
+	conf := clientcredentials.Config{
+		ClientID:     username,
+		ClientSecret: password,
+		Scopes:       scopes,
+		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+	}
+	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 	if err != nil {
-		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
+		t.Fatalf("Error getting oauth2 context: %v", err)
 	}
-	if res.StatusCode != http.StatusOK {
-		t.Errorf("Expected status code 200, got %d", res.StatusCode)
-	}
-
-	bearerTokenContext := context.WithValue(urlContext, client.ContextAccessToken, token.AccessToken)
 
 	newPassword := password + "new"
 	func() {
 		changePwdReq := client.NewChangePasswordRequest(password, newPassword)
-		_, res, err := apiClient.UserApi.ChangePassword(bearerTokenContext).ChangePasswordRequest(*changePwdReq).Execute()
+		_, res, err := apiClient.UserApi.ChangePassword(oauth2Ctx).ChangePasswordRequest(*changePwdReq).Execute()
 		if err != nil {
-			t.Errorf("Error when calling `UserApi.ChangePassword`: %v", err)
+			t.Fatalf("Error when calling `UserApi.ChangePassword`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
-			t.Errorf("Expected status code 200, got %d", res.StatusCode)
+			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
 		}
 	}()
 
 	// attempt to get token with old password, expect 401
 	func() {
-		basicAuthContext := context.WithValue(urlContext, client.ContextBasicAuth, client.BasicAuth{
-			UserName: username,
-			Password: password,
-		})
-		token, res, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthContext).Execute()
+		token, res, err := apiClient.AuthenticationApi.GetAccessToken(oauth2Ctx).Execute()
 		if err == nil {
 			t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
 		}
@@ -586,11 +622,17 @@ func TestChangePassword(t *testing.T) {
 
 	// attempt to get token with new password, expect 200
 	func() {
-		basicAuthContext := context.WithValue(urlContext, client.ContextBasicAuth, client.BasicAuth{
-			UserName: username,
-			Password: newPassword,
-		})
-		token, res, err := apiClient.AuthenticationApi.GetAccessToken(basicAuthContext).Execute()
+		newPwdConf := clientcredentials.Config{
+			ClientID:     username,
+			ClientSecret: newPassword,
+			Scopes:       scopes,
+			TokenURL:     ENDPOINT_OAUTH_TOKEN,
+		}
+		newPwdOauth2Ctx, err := getOuath2Context(proxyCtx, newPwdConf)
+		if err != nil {
+			t.Fatalf("Error getting oauth2 context: %v", err)
+		}
+		token, res, err := apiClient.AuthenticationApi.GetAccessToken(newPwdOauth2Ctx).Execute()
 		if err != nil {
 			t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
 		}

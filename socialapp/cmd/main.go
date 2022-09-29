@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	authMiddleware "socialapp/internal/middlewares/authentication"
+	"socialapp/internal/authorizationparser"
+	"socialapp/internal/middlewares/authorization"
+	"socialapp/internal/middlewares/gandalf"
 	"socialapp/pkg/controller/authentication"
 	"socialapp/pkg/controller/comment"
 	"socialapp/pkg/controller/user"
@@ -15,6 +17,7 @@ import (
 	"socialapp/socialappapi/openapi"
 	"time"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -70,19 +73,25 @@ func main() {
 		AuthApiController,
 	}
 
-	authMiddleware := authMiddleware.Middleware{DB: queries, DBConn: dbConn}
+	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn}
 	middlewares := []Middleware{
+		middleware.Logger,
 		middleware.Heartbeat("/health"),
-		authMiddleware.Authenticate,
+		authenticationMiddleware.Authenticate,
 		cors.AllowAll().Handler,
 		middleware.RequestID,
 		middleware.RealIP,
-		middleware.Logger,
 		middleware.Recoverer,
 		middleware.Timeout(60 * time.Second),
 	}
 
-	router := NewRouter(middlewares, routers)
+	doc, err := openapi3.NewLoader().LoadFromFile("../openapi.yaml")
+	if err != nil {
+		log.Fatal().Err(err)
+	}
+
+	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
+	router := NewRouter(middlewares, routers, authorizationParse)
 
 	// Expose the registered metrics via HTTP.
 	router.Handle("/metrics", promhttp.Handler())
@@ -92,7 +101,7 @@ func main() {
 		log.Info().Msg("Health check")
 		// send open api file
 		// open api file
-		file := "./openapi.yaml"
+		file := "../openapi.yaml"
 		content, err := os.ReadFile(file)
 		if err != nil {
 			log.Error().Err(err).Msg("Error reading file")
@@ -109,8 +118,12 @@ func main() {
 
 }
 
-func NewRouter(middlewares []Middleware, routers []openapi.Router) chi.Router {
+func NewRouter(middlewares []Middleware, routers []openapi.Router, authorizationParse authorizationparser.EndpointAuthorizations) chi.Router {
 	router := chi.NewRouter()
+
+	for i := range middlewares {
+		router.Use(middlewares[i])
+	}
 
 	// Custom misc middleware
 	router.Use(func(next http.Handler) http.Handler {
@@ -118,19 +131,23 @@ func NewRouter(middlewares []Middleware, routers []openapi.Router) chi.Router {
 			customW := NewCustomResponseWriter(w)
 			defer func() {
 				// log failed auth requests
-				if customW.statusCode == http.StatusUnauthorized {
-					log.Warn().
-						Str("Path", r.URL.Path).
-						Str("X-Request-ID", r.Header.Get("X-Request-ID")).
-						Str("AuthHeader", r.Header.Get("Authorization")).
-						Str("Secret", r.Header.Get("Secret")).
-						Str("ngrok", r.Header.Get("ngrok")).
-						Str("Method", r.Method).
-						Str("Path", r.URL.Path).
-						Msg("Unauthorized request")
+				logEvent := log.Warn().
+					Str("Path", r.URL.Path).
+					Str("X-Request-ID", r.Header.Get("X-Request-ID")).
+					Str("ngrok", r.Header.Get("ngrok")).
+					Str("Method", r.Method).
+					Str("Path", r.URL.Path).
+					Str("RemoteAddr", r.RemoteAddr).
+					Str("UserAgent", r.UserAgent()).
+					Str("Referer", r.Referer())
 
+				if customW.statusCode == http.StatusUnauthorized {
+					logEvent.Str("AuthHeader", r.Header.Get("Authorization")).
+						Msgf("Failed request: %d", customW.statusCode)
 				}
-				log.Info().Msgf("%s %s %d", r.Method, r.RequestURI, customW.statusCode)
+
+				logEvent.Str("StatusCode", fmt.Sprintf("%d", customW.statusCode)).
+					Msgf("Finished Request")
 			}()
 
 			requestID := uuid.NewString()
@@ -138,17 +155,12 @@ func NewRouter(middlewares []Middleware, routers []openapi.Router) chi.Router {
 			r.Header.Set("X-Request-ID", requestID)
 			r = r.WithContext(context.WithValue(r.Context(), "X-Request-ID", requestID))
 			next.ServeHTTP(customW, r)
-
 		})
 	})
 
 	mdlw := metricsMiddleware.New(metricsMiddleware.Config{
 		Recorder: prometheus.NewRecorder(prometheus.Config{}),
 	})
-
-	for i := range middlewares {
-		router.Use(middlewares[i])
-	}
 
 	for _, api := range routers {
 		for _, route := range api.Routes() {
@@ -159,6 +171,17 @@ func NewRouter(middlewares []Middleware, routers []openapi.Router) chi.Router {
 				// use a middleware to record the metrics on the route pattern.
 				r.Use(std.HandlerProvider(route.Pattern, mdlw))
 
+				// authorization
+				requiredScopesForEndpoint := authorizationParse[route.Pattern][route.Method]
+				mapRequiredScopes := map[string]bool{}
+				for _, scope := range requiredScopesForEndpoint {
+					mapRequiredScopes[scope] = true
+				}
+				authorizationRuler := authorization.Middleware{
+					RequiredScopes: mapRequiredScopes,
+				}
+
+				r.Use(authorizationRuler.Authorize)
 				r.Method(route.Method, route.Pattern, handler)
 			})
 		}

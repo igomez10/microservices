@@ -10,10 +10,6 @@
 
 package openapi
 
-import (
-	"time"
-)
-
 type AccessToken struct {
 	AccessToken string `json:"access_token"`
 
@@ -21,7 +17,7 @@ type AccessToken struct {
 
 	Scopes []string `json:"scopes,omitempty"`
 
-	ExpiresIn time.Time `json:"expires_in"`
+	ExpiresIn int32 `json:"expires_in"`
 }
 
 // AssertAccessTokenRequired checks if the required fields are not zero-ed

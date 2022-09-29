@@ -7,13 +7,13 @@ Name | Type | Description | Notes
 **AccessToken** | **string** |  | 
 **TokenType** | **string** |  | 
 **Scopes** | Pointer to **[]string** |  | [optional] 
-**ExpiresIn** | **time.Time** |  | 
+**ExpiresIn** | **int32** |  | 
 
 ## Methods
 
 ### NewAccessToken
 
-`func NewAccessToken(accessToken string, tokenType string, expiresIn time.Time, ) *AccessToken`
+`func NewAccessToken(accessToken string, tokenType string, expiresIn int32, ) *AccessToken`
 
 NewAccessToken instantiates a new AccessToken object
 This constructor will assign default values to properties that have it defined,
@@ -95,20 +95,20 @@ HasScopes returns a boolean if a field has been set.
 
 ### GetExpiresIn
 
-`func (o *AccessToken) GetExpiresIn() time.Time`
+`func (o *AccessToken) GetExpiresIn() int32`
 
 GetExpiresIn returns the ExpiresIn field if non-nil, zero value otherwise.
 
 ### GetExpiresInOk
 
-`func (o *AccessToken) GetExpiresInOk() (*time.Time, bool)`
+`func (o *AccessToken) GetExpiresInOk() (*int32, bool)`
 
 GetExpiresInOk returns a tuple with the ExpiresIn field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetExpiresIn
 
-`func (o *AccessToken) SetExpiresIn(v time.Time)`
+`func (o *AccessToken) SetExpiresIn(v int32)`
 
 SetExpiresIn sets ExpiresIn field to given value.
 

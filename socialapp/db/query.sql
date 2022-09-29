@@ -162,3 +162,89 @@ SET valid_until = NOW()
 WHERE user_id = ? AND NOW() < valid_until;
 
 
+-- name: GetScope :one
+SELECT * FROM scopes
+WHERE id = ? AND deleted_at IS NULL LIMIT 1;
+
+-- name: GetScopeByName :one
+SELECT * FROM scopes
+WHERE name = ? AND deleted_at IS NULL LIMIT 1;
+
+-- name: ListScopes :many
+SELECT * FROM scopes
+WHERE deleted_at IS NULL;
+
+-- name: CreateScope :execresult
+INSERT INTO scopes (
+	  name, description, deleted_at
+) VALUES (
+  ?, ?, ?
+);
+
+-- name: DeleteScope :exec
+UPDATE scopes
+SET deleted_at = NOW()
+WHERE id = ? AND NOW() < valid_until;
+
+-- name: UpdateScope :execresult
+UPDATE scopes
+SET name = ?, description = ?
+WHERE id = ? AND deleted_at IS NULL;
+
+-- name: GetUserRoles :many
+SELECT
+	r.*
+FROM
+	users u
+	INNER JOIN users_to_roles ur ON ur.user_id = u.id
+	INNER JOIN roles r ON r.id = ur.role_id
+WHERE
+	u.id = ?
+	AND u.deleted_at IS NULL
+	AND r.deleted_at IS NULL;
+
+-- name: GetRoleScopes :many
+SELECT
+	s.*
+FROM
+	scopes s
+	INNER JOIN roles_to_scopes rs ON rs.scope_id = s.id
+	INNER JOIN roles r ON r.id = rs.role_id
+WHERE
+	r.id = ?
+	AND r.deleted_at IS NULL
+	AND s.deleted_at IS NULL;
+
+-- name: CreateTokenToScope :execresult
+INSERT INTO tokens_to_scopes (
+	token_id, scope_id
+) VALUES (
+  ?, ?
+);
+
+-- name: GetTokenScopes :many
+SELECT
+	s.*
+FROM
+	scopes s
+	INNER JOIN tokens_to_scopes ts ON ts.scope_id = s.id
+	INNER JOIN tokens t ON t.id = ts.token_id
+WHERE
+	t.id = ?
+	AND t.valid_until > NOW()
+	AND s.deleted_at IS NULL;
+
+-- name: CreateUserToRole :execresult
+INSERT INTO users_to_roles (
+	user_id, role_id
+) VALUES (
+  ?, ?
+);
+
+-- name: GetRoleByName :one
+SELECT * FROM roles
+WHERE name = ? AND deleted_at IS NULL LIMIT 1;
+
+-- name: GetRole :one
+SELECT * FROM roles
+WHERE id = ? AND deleted_at IS NULL LIMIT 1;

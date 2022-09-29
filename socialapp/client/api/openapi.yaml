@@ -119,9 +119,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unexpected error
-      security:
-      - OAuth2:
-        - socialapp.users.create
       summary: Create user
       tags:
       - User
@@ -795,7 +792,7 @@ components:
       example:
         access_token: 123token123
         token_type: Bearer
-        expires_in: 2022-09-24T21:34:55.498516+02:00
+        expires_in: 3600
       properties:
         access_token:
           type: string
@@ -806,8 +803,7 @@ components:
             type: string
           type: array
         expires_in:
-          format: date-time
-          type: string
+          type: integer
       required:
       - access_token
       - expires_in

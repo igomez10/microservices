@@ -13,22 +13,21 @@ package client
 
 import (
 	"encoding/json"
-	"time"
 )
 
 // AccessToken struct for AccessToken
 type AccessToken struct {
-	AccessToken string    `json:"access_token"`
-	TokenType   string    `json:"token_type"`
-	Scopes      []string  `json:"scopes,omitempty"`
-	ExpiresIn   time.Time `json:"expires_in"`
+	AccessToken string   `json:"access_token"`
+	TokenType   string   `json:"token_type"`
+	Scopes      []string `json:"scopes,omitempty"`
+	ExpiresIn   int32    `json:"expires_in"`
 }
 
 // NewAccessToken instantiates a new AccessToken object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewAccessToken(accessToken string, tokenType string, expiresIn time.Time) *AccessToken {
+func NewAccessToken(accessToken string, tokenType string, expiresIn int32) *AccessToken {
 	this := AccessToken{}
 	this.AccessToken = accessToken
 	this.TokenType = tokenType
@@ -125,9 +124,9 @@ func (o *AccessToken) SetScopes(v []string) {
 }
 
 // GetExpiresIn returns the ExpiresIn field value
-func (o *AccessToken) GetExpiresIn() time.Time {
+func (o *AccessToken) GetExpiresIn() int32 {
 	if o == nil {
-		var ret time.Time
+		var ret int32
 		return ret
 	}
 
@@ -136,7 +135,7 @@ func (o *AccessToken) GetExpiresIn() time.Time {
 
 // GetExpiresInOk returns a tuple with the ExpiresIn field value
 // and a boolean to check if the value has been set.
-func (o *AccessToken) GetExpiresInOk() (*time.Time, bool) {
+func (o *AccessToken) GetExpiresInOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -144,7 +143,7 @@ func (o *AccessToken) GetExpiresInOk() (*time.Time, bool) {
 }
 
 // SetExpiresIn sets field value
-func (o *AccessToken) SetExpiresIn(v time.Time) {
+func (o *AccessToken) SetExpiresIn(v int32) {
 	o.ExpiresIn = v
 }
 
