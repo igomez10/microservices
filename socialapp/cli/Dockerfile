@@ -37,8 +37,6 @@ line REST client for $(tput setaf 6)Socialapp$(tput sgr0).\n\
 For convenience, you can export the following environment variables:\n\
 \n\
 
-
-
 \n\
 $(tput setaf 7)Basic usage:$(tput sgr0)\n\
 \n\

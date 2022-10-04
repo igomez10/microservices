@@ -65,7 +65,7 @@ Create user
 
 ### Authorization
 
-[BasicAuth](../README.md#BasicAuth), [BearerAuth](../README.md#BearerAuth), [OAuth2](../README.md#OAuth2)
+No authorization required
 
 ### HTTP request headers
 

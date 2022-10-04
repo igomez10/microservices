@@ -42,16 +42,6 @@ All URIs are relative to *https://microservices.onrender.com*
 <a name="documentation-for-authorization"></a>
 ## Documentation for Authorization
 
-<a name="BasicAuth"></a>
-### BasicAuth
-
-- **Type**: HTTP basic authentication
-
-<a name="BearerAuth"></a>
-### BearerAuth
-
-- **Type**: HTTP basic authentication
-
 <a name="OAuth2"></a>
 ### OAuth2
 

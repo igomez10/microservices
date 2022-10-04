@@ -114,33 +114,6 @@ Class | Method | HTTP request | Description
 
 
 
-### BasicAuth
-
-- **Type**: HTTP basic authentication
-
-Example
-
-```golang
-auth := context.WithValue(context.Background(), sw.ContextBasicAuth, sw.BasicAuth{
-    UserName: "username",
-    Password: "password",
-})
-r, err := client.Service.Operation(auth, args)
-```
-
-
-### BearerAuth
-
-- **Type**: HTTP Bearer token authentication
-
-Example
-
-```golang
-auth := context.WithValue(context.Background(), sw.ContextAccessToken, "BEARER_TOKEN_STRING")
-r, err := client.Service.Operation(auth, args)
-```
-
-
 ### OAuth2
 
 

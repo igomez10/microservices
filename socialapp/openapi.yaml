@@ -1,685 +1,711 @@
 openapi: 3.0.0
 info:
-  version: "1.0.0"
-  title: "Socialapp"
+  contact:
+    email: ignacio.gomez.arboleda@gmail.com
+    name: Socialapp
+    url: https://microservices.onrender.com
+  description: Socialapp is a generic social network.
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-  description: Socialapp is a generic social network.
-  contact:
-    name: "Socialapp"
-    url: "https://microservices.onrender.com"
-    email: "ignacio.gomez.arboleda@gmail.com"
+  title: Socialapp
+  version: 1.0.0
 servers:
   - url: https://microservices.onrender.com
   - url: http://localhost:8080
   - url: http://localhost:8085
-
 tags:
-  - name: User
-    description: User management
-  - name: Comment
-    description: Comment management
-  - name: Authentication
-    description: Authentication management
-  - name: Following
-    description: Following management
-
+  - description: User management
+    name: User
+  - description: Comment management
+    name: Comment
+  - description: Authentication management
+    name: Authentication
+  - description: Following management
+    name: Following
 paths:
   /users:
     get:
-      summary: "List users"
-      description: "List all users in the system (paginated)"
+      description: List all users in the system (paginated)
       operationId: listUsers
-      security:
-        - OAuth2: [socialapp.users.list]
-      tags:
-        - User
       parameters:
-        - name: limit
+        - description: Maximum number of users to return
+          explode: true
           in: query
-          description: "Maximum number of users to return"
+          name: limit
           required: false
           schema:
-            type: integer
-            format: int32
             default: 20
-        - name: offset
+            format: int32
+            type: integer
+          style: form
+        - description: Pagination offset
+          explode: true
           in: query
-          description: "Pagination offset"
+          name: offset
           required: false
           schema:
-            type: integer
-            format: int32
             default: 0
+            format: int32
+            type: integer
+          style: form
       responses:
         "200":
-          description: List of all the users
           content:
             application/json:
               schema:
-                type: array
                 items:
                   $ref: "#/components/schemas/User"
+                type: array
+          description: List of all the users
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    post:
-      summary: Create user
-      description: Create a new user in the system
-      operationId: createUser
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.users.list
+      summary: List users
       tags:
         - User
+    post:
+      description: Create a new user in the system
+      operationId: createUser
       requestBody:
-        description: Create a new user
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/CreateUserRequest"
+        description: Create a new user
         required: true
       responses:
         "200":
-          description: User was created successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+          description: User was created successfully
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
-  /password:
-    post:
-      summary: Change password
-      operationId: changePassword
-      description: Change the password of the current user
+          description: Unexpected error
+      summary: Create user
       tags:
         - User
-      security:
-        - OAuth2: [socialapp.users.update]
+  /password:
+    post:
+      description: Change the password of the current user
+      operationId: changePassword
       requestBody:
-        description: Change password request
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/ChangePasswordRequest"
+        description: Change password request
         required: true
       responses:
         "200":
-          description: Password was changed successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+          description: Password was changed successfully
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    put:
-      summary: Reset password
-      operationId: resetPassword
-      description: Reset the password of a user
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.users.update
+      summary: Change password
       tags:
         - User
-      security:
-        - OAuth2: [socialapp.users.update]
+    put:
+      description: Reset the password of a user
+      operationId: resetPassword
       requestBody:
-        description: Reset password
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/ResetPasswordRequest"
+        description: Reset password
         required: true
       responses:
         "200":
-          description: Password was reset successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+          description: Password was reset successfully
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.users.update
+      summary: Reset password
+      tags:
+        - User
   /users/{username}/feed:
     get:
-      summary: Returns a users feed
       description: Returns a users feed
       operationId: getUserFeed
-      tags:
-        - Comment
-      security:
-        - OAuth2: [socialapp.feed.read]
       parameters:
-        - name: username
+        - description: The username of the user
+          example: johndoe
+          explode: false
           in: path
-          description: The username of the user
+          name: username
           required: true
           schema:
             type: string
-          example: "johndoe"
+          style: simple
       responses:
         "200":
-          description: Get a users feed
           content:
             application/json:
               schema:
-                type: array
                 items:
                   $ref: "#/components/schemas/Comment"
+                type: array
+          description: Get a users feed
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.feed.read
+      summary: Returns a users feed
+      tags:
+        - Comment
   /users/{username}/comments:
     get:
-      summary: Gets all comments for a user
       description: Gets all comments for a user
       operationId: getUserComments
+      parameters:
+        - description: username of the user
+          example: johndoe
+          explode: false
+          in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          style: simple
+        - description: How many items to return at one time (max 100)
+          example: 20
+          explode: true
+          in: query
+          name: limit
+          required: false
+          schema:
+            format: int32
+            type: integer
+          style: form
+        - description:
+            The number of items to skip before starting to collect the result
+            set
+          example: 0
+          explode: true
+          in: query
+          name: offset
+          required: false
+          schema:
+            format: int32
+            type: integer
+          style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Comment"
+                type: array
+          description: User comments
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.comments.read
+      summary: Gets all comments for a user
       tags:
         - User
         - Comment
-      security:
-        - OAuth2: [socialapp.comments.read]
+  /users/{username}/followers:
+    get:
+      description: Get all followers for a user
+      operationId: getUserFollowers
       parameters:
-        - name: username
+        - description: username of the user
+          example: johndoe
+          explode: false
           in: path
-          description: username of the user
+          name: username
           required: true
           schema:
             type: string
-          example: "johndoe"
-        - name: limit
-          in: query
-          description: How many items to return at one time (max 100)
-          required: false
-          schema:
-            type: integer
-            format: int32
-          example: 20
-        - name: offset
-          in: query
-          description: The number of items to skip before starting to collect the result set
-          required: false
-          schema:
-            type: integer
-            format: int32
-          example: 0
+          style: simple
       responses:
         "200":
-          description: User comments
           content:
             application/json:
               schema:
-                type: array
                 items:
-                  $ref: "#/components/schemas/Comment"
+                  $ref: "#/components/schemas/User"
+                type: array
+          description: User followers
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
-  /users/{username}/followers:
-    get:
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.follower.read
       summary: Get all followers for a user
-      description: Get all followers for a user
-      operationId: getUserFollowers
       tags:
         - User
         - Following
-      security:
-        - OAuth2: [socialapp.follower.read]
-      parameters:
-        - name: username
-          in: path
-          description: username of the user
-          required: true
-          schema:
-            type: string
-          example: "johndoe"
-      responses:
-        "200":
-          description: User followers
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/User"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
   /users/{username}/following:
     get:
-      summary: Get all followed users for a user
       description: Get all followed users for a user (users that the user is following)
       operationId: getFollowingUsers
-      tags:
-        - User
-      security:
-        - OAuth2: [socialapp.following.list]
       parameters:
-        - name: username
+        - description: username of the user
+          example: johndoe
+          explode: false
           in: path
-          description: username of the user
+          name: username
           required: true
           schema:
             type: string
-          example: "johndoe"
+          style: simple
       responses:
         "200":
-          description: Followed users
           content:
             application/json:
               schema:
-                type: array
                 items:
                   $ref: "#/components/schemas/User"
+                type: array
+          description: Followed users
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
-  /users/{followedUsername}/followers/{followerUsername}:
-    post:
-      summary: Add a user as a follower
-      description: Add a user as a follower of another user
-      operationId: followUser
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.following.list
+      summary: Get all followed users for a user
       tags:
         - User
-      security:
-        - OAuth2: [socialapp.follower.create]
-      parameters:
-        - name: followedUsername
-          in: path
-          description: username of the user
-          required: true
-          schema:
-            type: string
-          example: "johndoe"
-        - name: followerUsername
-          in: path
-          description: username of the follower
-          required: true
-          schema:
-            type: string
-          example: "jackdoe"
-      responses:
-        "200":
-          description: User was followed successfully
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
+  /users/{followedUsername}/followers/{followerUsername}:
     delete:
-      summary: Remove a user as a follower
       description: Remove a user as a follower of another user
       operationId: unfollowUser
-      tags:
-        - User
-      security:
-        - OAuth2: [socialapp.follower.delete]
       parameters:
-        - name: followedUsername
+        - description: username of the user
+          example: johndoe
+          explode: false
           in: path
-          description: username of the user
+          name: followedUsername
           required: true
           schema:
             type: string
-          example: "johndoe"
-        - name: followerUsername
+          style: simple
+        - description: username of the follower
+          example: jackdoe
+          explode: false
           in: path
-          description: username of the follower
+          name: followerUsername
           required: true
           schema:
             type: string
-          example: "jackdoe"
+          style: simple
       responses:
         "200":
           description: User was unfollowed successfully
-        default:
-          description: Unexpected error
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         "401":
-          description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
-  /users/{username}:
-    delete:
-      summary: Deletes a particular user
-      description: Deletes a particular user by username
-      operationId: deleteUser
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.follower.delete
+      summary: Remove a user as a follower
       tags:
         - User
-      security:
-        - OAuth2: [socialapp.users.delete]
+    post:
+      description: Add a user as a follower of another user
+      operationId: followUser
       parameters:
-        - name: username
+        - description: username of the user
+          example: johndoe
+          explode: false
           in: path
-          description: username of the user
+          name: followedUsername
           required: true
           schema:
             type: string
-          example: "johndoe"
+          style: simple
+        - description: username of the follower
+          example: jackdoe
+          explode: false
+          in: path
+          name: followerUsername
+          required: true
+          schema:
+            type: string
+          style: simple
       responses:
         "200":
-          description: User was deleted succesfully
+          description: User was followed successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.follower.create
+      summary: Add a user as a follower
+      tags:
+        - User
+  /users/{username}:
+    delete:
+      description: Deletes a particular user by username
+      operationId: deleteUser
+      parameters:
+        - description: username of the user
+          example: johndoe
+          explode: false
+          in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        "200":
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+          description: User was deleted succesfully
         "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Username not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    get:
-      summary: Get a particular user by username
-      description: Get a particular user by username
-      operationId: getUserByUsername
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.users.delete
+      summary: Deletes a particular user
       tags:
         - User
-      security:
-        - OAuth2: [socialapp.users.read]
+    get:
+      description: Get a particular user by username
+      operationId: getUserByUsername
       parameters:
-        - name: username
+        - description: username of the user
+          example: johndoe
+          explode: false
           in: path
-          description: username of the user
+          name: username
           required: true
           schema:
             type: string
-          example: "johndoe"
+          style: simple
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
           description: Details about a user by ID
           headers:
             x-next:
               description: A link to the next page of responses
+              explode: false
               schema:
                 type: string
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
+              style: simple
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-    put:
-      summary: Update a user
-      description: Update a user by username
-      operationId: updateUser
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.users.read
+      summary: Get a particular user by username
       tags:
         - User
-      security:
-        - OAuth2: [socialapp.users.update]
+    put:
+      description: Update a user by username
+      operationId: updateUser
       parameters:
-        - name: username
+        - description: username of the user
+          example: johndoe
+          explode: false
           in: path
-          description: username of the user
+          name: username
           required: true
           schema:
             type: string
-          example: "johndoe"
+          style: simple
       requestBody:
-        description: Update a user
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/User"
+        description: Update a user
       responses:
         "200":
-          description: User was updated successfully
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
+          description: User was updated successfully
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.users.update
+      summary: Update a user
+      tags:
+        - User
   /comments/{id}:
     get:
-      summary: Returns details about a particular comment
       description: Returns details about a particular comment
       operationId: getComment
-      tags:
-        - Comment
-      security:
-        - OAuth2: [socialapp.comments.read]
       parameters:
-        - name: id
+        - description: ID of the comment
+          example: 123
+          explode: false
           in: path
-          description: ID of the comment
+          name: id
           required: true
           schema:
-            type: integer
             format: int32
-          example: 123
+            type: integer
+          style: simple
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
           description: Details about a comment by ID
           headers:
             x-next:
               description: A link to the next page of responses
+              explode: false
               schema:
                 type: string
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Comment"
+              style: simple
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
-  /comments:
-    post:
-      summary: Create a new comment
-      description: Create a new comment
-      operationId: createComment
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.comments.read
+      summary: Returns details about a particular comment
       tags:
         - Comment
-      security:
-        - OAuth2: [socialapp.comments.create]
+  /comments:
+    post:
+      description: Create a new comment
+      operationId: createComment
       requestBody:
-        description: Create a new comment
         content:
           application/json:
             schema:
               $ref: "#/components/schemas/Comment"
+        description: Create a new comment
         required: true
       responses:
         "200":
-          description: New comment was created
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Comment"
+          description: New comment was created
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.comments.create
+      summary: Create a new comment
+      tags:
+        - Comment
   /oauth/token:
     post:
-      summary: "Get an access token"
-      description: "Get an access token"
+      description: Get an access token
       operationId: getAccessToken
-      tags:
-        - Authentication
-      security:
-        - BasicAuth: []
       responses:
         "200":
-          description: Access token
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/AccessToken"
+          description: Access token
         "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
         default:
-          description: Unexpected error
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
+          description: Unexpected error
+      security:
+        - BasicAuth: []
+      summary: Get an access token
+      tags:
+        - Authentication
 components:
   schemas:
     CreateUserRequest:
-      type: object
-      required:
-        - username
-        - first_name
-        - last_name
-        - email
-        - password
       example:
-        username: "johndoe"
-        first_name: "John"
-        last_name: "Doe"
-        password: "Secure123!"
-        email: "johndoe@mail.com"
+        username: johndoe
+        first_name: John
+        last_name: Doe
+        password: Secure123!
+        email: johndoe@mail.com
       properties:
         id:
-          type: integer
           format: int64
+          type: integer
         username:
           type: string
         password:
@@ -691,24 +717,25 @@ components:
         email:
           type: string
         created_at:
-          type: string
           format: date-time
-    User:
-      type: object
+          type: string
       required:
-        - username
+        - email
         - first_name
         - last_name
-        - email
+        - password
+        - username
+      type: object
+    User:
       example:
-        username: "johndoe"
-        first_name: "John"
-        last_name: "Doe"
-        email: "johndoe@mail.com"
+        username: johndoe
+        first_name: John
+        last_name: Doe
+        email: johndoe@mail.com
       properties:
         id:
-          type: integer
           format: int64
+          type: integer
         username:
           type: string
         first_name:
@@ -718,41 +745,40 @@ components:
         email:
           type: string
         created_at:
-          type: string
           format: date-time
-
-    Comment:
-      type: object
+          type: string
       required:
-        - content
+        - email
+        - first_name
+        - last_name
         - username
+      type: object
+    Comment:
       example:
-        content: "This is a comment"
-        username: "johndoe"
+        content: This is a comment
+        username: johndoe
       properties:
         id:
-          type: integer
           format: int64
+          type: integer
         content:
           type: string
         like_count:
-          type: integer
           format: int64
+          type: integer
         created_at:
-          type: string
           format: date-time
+          type: string
         username:
           type: string
-
-    AccessToken:
-      type: object
       required:
-        - access_token
-        - token_type
-        - expires_in
+        - content
+        - username
+      type: object
+    AccessToken:
       example:
         access_token: 123token123
-        token_type: "Bearer"
+        token_type: Bearer
         expires_in: 3600
       properties:
         access_token:
@@ -760,83 +786,66 @@ components:
         token_type:
           type: string
         scopes:
-          type: array
           items:
             type: string
+          type: array
         expires_in:
           type: integer
-
-    Error:
+      required:
+        - access_token
+        - expires_in
+        - token_type
       type: object
+    Error:
+      example:
+        code: 404
+        message: Not found
+      properties:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
       required:
         - code
         - message
-      example:
-        code: 404
-        message: "Not found"
-      properties:
-        code:
-          type: integer
-          format: int32
-        message:
-          type: string
-    ChangePasswordRequest:
       type: object
-      required:
-        - old_password
-        - new_password
+    ChangePasswordRequest:
       example:
-        old_password: "Secure123!"
-        new_password: "Secure1234!"
+        old_password: Secure123!
+        new_password: Secure1234!
       properties:
         old_password:
           type: string
         new_password:
           type: string
-    ResetPasswordRequest:
-      type: object
       required:
-        - email
+        - new_password
+        - old_password
+      type: object
+    ResetPasswordRequest:
+      example:
+        email: jhon@doe.com
       properties:
         email:
           type: string
-      example:
-        email: "jhon@doe.com"
+      required:
+        - email
+      type: object
   securitySchemes:
-    BasicAuth:
-      type: http
-      scheme: basic
-    BearerAuth:
-      type: http
-      scheme: bearer
     OAuth2:
-      type: oauth2
       flows:
         clientCredentials:
-          tokenUrl: /oauth/token
           scopes:
-            socialapp.users.list: "List users"
-            socialapp.users.create: "Create users"
-            socialapp.users.update: "Update users"
-            socialapp.users.delete: "Delete users"
-            socialapp.comments.list: "List comments"
-            socialapp.comments.create: "Create comments"
-            socialapp.comments.update: "Update comments"
-            socialapp.comments.delete: "Delete comments"
-            socialapp.followers.list: "List followers"
-            socialapp.following.list: "List following"
-
-security:
-  - BasicAuth: []
-  - BearerAuth: []
-  - OAuth2:
-      - socialapp.users.list
-      - socialapp.users.create
-      - socialapp.users.update
-      - socialapp.users.delete
-      - socialapp.comments.list
-      - socialapp.comments.create
-      - socialapp.comments.update
-      - socialapp.comments.delete
-      - socialapp.followers.list
-      - socialapp.following.list
+            socialapp.users.list: List users
+            socialapp.users.create: Create users
+            socialapp.users.update: Update users
+            socialapp.users.delete: Delete users
+            socialapp.comments.list: List comments
+            socialapp.comments.create: Create comments
+            socialapp.comments.update: Update comments
+            socialapp.comments.delete: Delete comments
+            socialapp.followers.list: List followers
+            socialapp.following.list: List following
+          tokenUrl: /oauth/token
+      type: oauth2

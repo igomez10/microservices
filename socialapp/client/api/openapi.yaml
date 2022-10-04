@@ -14,20 +14,6 @@ servers:
 - url: https://microservices.onrender.com
 - url: http://localhost:8080
 - url: http://localhost:8085
-security:
-- BasicAuth: []
-- BearerAuth: []
-- OAuth2:
-  - socialapp.users.list
-  - socialapp.users.create
-  - socialapp.users.update
-  - socialapp.users.delete
-  - socialapp.comments.list
-  - socialapp.comments.create
-  - socialapp.comments.update
-  - socialapp.comments.delete
-  - socialapp.followers.list
-  - socialapp.following.list
 tags:
 - description: User management
   name: User
@@ -406,18 +392,18 @@ paths:
       responses:
         "200":
           description: User was unfollowed successfully
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Unexpected error
         "401":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
       security:
       - OAuth2:
         - socialapp.follower.delete
@@ -449,18 +435,18 @@ paths:
       responses:
         "200":
           description: User was followed successfully
-        default:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-          description: Unexpected error
         "401":
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
       security:
       - OAuth2:
         - socialapp.follower.create
@@ -846,12 +832,6 @@ components:
       - email
       type: object
   securitySchemes:
-    BasicAuth:
-      scheme: basic
-      type: http
-    BearerAuth:
-      scheme: bearer
-      type: http
     OAuth2:
       flows:
         clientCredentials:

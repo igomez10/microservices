@@ -26,11 +26,6 @@ generate-openapi:
 	rm client/go.mod
 	rm client/go.sum
 
-	# generate rust client
-	openapi-generator generate --input-spec openapi.yaml  \
-        --generator-name rust \
-        --output generated-rust-client
-
 	# generate documentation
 	openapi-generator generate -i openapi.yaml  \
 	--generator-name markdown

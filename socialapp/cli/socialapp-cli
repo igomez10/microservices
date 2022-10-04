@@ -565,10 +565,6 @@ ${BOLD}${WHITE}Usage${OFF}
 EOF
     echo -e "${BOLD}${WHITE}Authentication methods${OFF}"
     echo -e ""
-    echo -e "  - ${BLUE}Basic AUTH${OFF} - add '-u <username>:<password>' before ${YELLOW}<operation>${OFF}"
-    
-    echo -e "  - ${BLUE}Basic AUTH${OFF} - add '-u <username>:<password>' before ${YELLOW}<operation>${OFF}"
-    
     echo -e "  - ${MAGENTA}OAuth2 (flow: application)${OFF}"
     echo -e "      Token URL: "
     echo -e "        * /oauth/token"
@@ -588,7 +584,7 @@ EOF
     echo ""
     echo -e "${BOLD}${WHITE}[authentication]${OFF}"
 read -r -d '' ops <<EOF
-  ${CYAN}getAccessToken${OFF};Get an access token (AUTH)
+  ${CYAN}getAccessToken${OFF};Get an access token
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
@@ -610,7 +606,7 @@ echo "  $ops" | column -t -s ';'
     echo -e "${BOLD}${WHITE}[user]${OFF}"
 read -r -d '' ops <<EOF
   ${CYAN}changePassword${OFF};Change password (AUTH)
-  ${CYAN}createUser${OFF};Create user (AUTH) (AUTH) (AUTH)
+  ${CYAN}createUser${OFF};Create user
   ${CYAN}deleteUser${OFF};Deletes a particular user (AUTH)
   ${CYAN}followUser${OFF};Add a user as a follower (AUTH)
   ${CYAN}getFollowingUsers${OFF};Get all followed users for a user (AUTH)
@@ -681,7 +677,7 @@ print_version() {
 ##############################################################################
 print_getAccessToken_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getAccessToken - Get an access token${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getAccessToken - Get an access token${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Get an access token" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -841,7 +837,7 @@ print_changePassword_help() {
 ##############################################################################
 print_createUser_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}createUser - Create user${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - BASIC)${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}createUser - Create user${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Create a new user in the system" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -1104,7 +1100,7 @@ call_getAccessToken() {
     local path_parameter_names=()
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(  )
+    local query_parameter_names=()
     local path
 
     if ! path=$(build_request_path "/oauth/token" path_parameter_names query_parameter_names); then
@@ -1440,7 +1436,7 @@ call_createUser() {
     local path_parameter_names=()
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(      )
+    local query_parameter_names=()
     local path
 
     if ! path=$(build_request_path "/users" path_parameter_names query_parameter_names); then
