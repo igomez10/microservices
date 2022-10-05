@@ -6,6 +6,7 @@ api_authentication.go
 api_comment.go
 api_following.go
 api_role.go
+api_scope.go
 api_user.go
 client.go
 configuration.go
@@ -20,6 +21,8 @@ docs/FollowingApi.md
 docs/ResetPasswordRequest.md
 docs/Role.md
 docs/RoleApi.md
+docs/Scope.md
+docs/ScopeApi.md
 docs/User.md
 docs/UserApi.md
 git_push.sh
@@ -32,6 +35,7 @@ model_create_user_request.go
 model_error.go
 model_reset_password_request.go
 model_role.go
+model_scope.go
 model_user.go
 response.go
 utils.go

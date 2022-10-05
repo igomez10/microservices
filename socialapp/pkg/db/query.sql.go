@@ -85,20 +85,19 @@ func (q *Queries) CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams)
 
 const CreateScope = `-- name: CreateScope :execresult
 INSERT INTO scopes (
-	  name, description, deleted_at
+	  name, description
 ) VALUES (
-  ?, ?, ?
+  ?, ?
 )
 `
 
 type CreateScopeParams struct {
-	Name        string       `json:"name"`
-	Description string       `json:"description"`
-	DeletedAt   sql.NullTime `json:"deleted_at"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 func (q *Queries) CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (sql.Result, error) {
-	return db.ExecContext(ctx, CreateScope, arg.Name, arg.Description, arg.DeletedAt)
+	return db.ExecContext(ctx, CreateScope, arg.Name, arg.Description)
 }
 
 const CreateToken = `-- name: CreateToken :execresult
@@ -217,20 +216,21 @@ func (q *Queries) DeleteCredential(ctx context.Context, db DBTX, id int64) error
 	return err
 }
 
-const DeleteRole = `-- name: DeleteRole :execresult
+const DeleteRole = `-- name: DeleteRole :exec
 UPDATE roles 
 SET deleted_at = NOW()
 WHERE id = ? AND deleted_at IS NULL
 `
 
-func (q *Queries) DeleteRole(ctx context.Context, db DBTX, id int64) (sql.Result, error) {
-	return db.ExecContext(ctx, DeleteRole, id)
+func (q *Queries) DeleteRole(ctx context.Context, db DBTX, id int64) error {
+	_, err := db.ExecContext(ctx, DeleteRole, id)
+	return err
 }
 
 const DeleteScope = `-- name: DeleteScope :exec
 UPDATE scopes
 SET deleted_at = NOW()
-WHERE id = ? AND NOW() < valid_until
+WHERE id = ? AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteScope(ctx context.Context, db DBTX, id int64) error {
@@ -864,10 +864,16 @@ func (q *Queries) ListRoles(ctx context.Context, db DBTX, arg ListRolesParams) (
 const ListScopes = `-- name: ListScopes :many
 SELECT id, name, description, created_at, deleted_at FROM scopes
 WHERE deleted_at IS NULL
+LIMIT ? OFFSET ?
 `
 
-func (q *Queries) ListScopes(ctx context.Context, db DBTX) ([]Scope, error) {
-	rows, err := db.QueryContext(ctx, ListScopes)
+type ListScopesParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListScopes(ctx context.Context, db DBTX, arg ListScopesParams) ([]Scope, error) {
+	rows, err := db.QueryContext(ctx, ListScopes, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

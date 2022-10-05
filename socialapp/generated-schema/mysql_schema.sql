@@ -80,6 +80,17 @@ CREATE TABLE IF NOT EXISTS `role` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - Role.';
 
 --
+-- Table structure for table `scope` generated from model 'Scope'
+--
+
+CREATE TABLE IF NOT EXISTS `scope` (
+  `id` BIGINT DEFAULT NULL,
+  `name` TEXT NOT NULL,
+  `description` TEXT NOT NULL,
+  `created_at` DATETIME DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - Scope.';
+
+--
 -- Table structure for table `user` generated from model 'User'
 --
 

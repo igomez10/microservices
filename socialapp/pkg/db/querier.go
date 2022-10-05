@@ -22,7 +22,7 @@ type Querier interface {
 	DeleteAllTokensForUser(ctx context.Context, db DBTX, userID int64) error
 	DeleteComment(ctx context.Context, db DBTX, id int64) error
 	DeleteCredential(ctx context.Context, db DBTX, id int64) error
-	DeleteRole(ctx context.Context, db DBTX, id int64) (sql.Result, error)
+	DeleteRole(ctx context.Context, db DBTX, id int64) error
 	DeleteScope(ctx context.Context, db DBTX, id int64) error
 	DeleteToken(ctx context.Context, db DBTX, token string) error
 	DeleteUser(ctx context.Context, db DBTX, id int64) error
@@ -46,7 +46,7 @@ type Querier interface {
 	GetUserRoles(ctx context.Context, db DBTX, id int64) ([]Role, error)
 	ListComment(ctx context.Context, db DBTX, arg ListCommentParams) ([]Comment, error)
 	ListRoles(ctx context.Context, db DBTX, arg ListRolesParams) ([]Role, error)
-	ListScopes(ctx context.Context, db DBTX) ([]Scope, error)
+	ListScopes(ctx context.Context, db DBTX, arg ListScopesParams) ([]Scope, error)
 	ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) ([]User, error)
 	UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error
 	UpdateRole(ctx context.Context, db DBTX, arg UpdateRoleParams) (sql.Result, error)

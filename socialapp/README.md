@@ -18,6 +18,11 @@ All URIs are relative to *https://microservices.onrender.com*
 *RoleApi* | [**getRole**](Apis/RoleApi.md#getrole) | **GET** /roles/{id} | Returns a role |
 *RoleApi* | [**listRoles**](Apis/RoleApi.md#listroles) | **GET** /roles | Returns a list of roles |
 *RoleApi* | [**updateRole**](Apis/RoleApi.md#updaterole) | **PUT** /roles/{id} | Update a role |
+| *ScopeApi* | [**createScope**](Apis/ScopeApi.md#createscope) | **POST** /scopes | Create a new scope |
+*ScopeApi* | [**deleteScope**](Apis/ScopeApi.md#deletescope) | **DELETE** /scopes/{id} | Delete a scope |
+*ScopeApi* | [**getScope**](Apis/ScopeApi.md#getscope) | **GET** /scopes/{id} | Returns a scope |
+*ScopeApi* | [**listScopes**](Apis/ScopeApi.md#listscopes) | **GET** /scopes | Returns a list of scopes |
+*ScopeApi* | [**updateScope**](Apis/ScopeApi.md#updatescope) | **PUT** /scopes/{id} | Update a scope |
 | *UserApi* | [**changePassword**](Apis/UserApi.md#changepassword) | **POST** /password | Change password |
 *UserApi* | [**createUser**](Apis/UserApi.md#createuser) | **POST** /users | Create user |
 *UserApi* | [**deleteUser**](Apis/UserApi.md#deleteuser) | **DELETE** /users/{username} | Deletes a particular user |
@@ -42,6 +47,7 @@ All URIs are relative to *https://microservices.onrender.com*
  - [Error](./Models/Error.md)
  - [ResetPasswordRequest](./Models/ResetPasswordRequest.md)
  - [Role](./Models/Role.md)
+ - [Scope](./Models/Scope.md)
  - [User](./Models/User.md)
 
 

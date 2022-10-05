@@ -900,6 +900,212 @@ paths:
       summary: Update a role
       tags:
       - Role
+  /scopes:
+    get:
+      description: Returns a list of scopes
+      operationId: listScopes
+      parameters:
+      - description: The numbers of scopes to return
+        explode: false
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: The number of items to skip before starting to collect the result
+        explode: false
+        in: query
+        name: offset
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Scope'
+                type: array
+          description: List of scopes
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.scopes.list
+      summary: Returns a list of scopes
+      tags:
+      - Scope
+    post:
+      description: Create a new scope
+      operationId: createScope
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Scope'
+        description: Create a new scope
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scope'
+          description: New scope was created
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.scopes.create
+      summary: Create a new scope
+      tags:
+      - Scope
+  /scopes/{id}:
+    delete:
+      description: Delete a scope
+      operationId: deleteScope
+      parameters:
+      - description: id of the scope
+        example: 123
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scope'
+          description: Scope was deleted successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.scopes.delete
+      summary: Delete a scope
+      tags:
+      - Scope
+    get:
+      description: Returns a scope
+      operationId: getScope
+      parameters:
+      - description: The id of the scope
+        example: 123
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scope'
+          description: Scope is returned
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.scopes.read
+      summary: Returns a scope
+      tags:
+      - Scope
+    put:
+      description: Update a scope
+      operationId: updateScope
+      parameters:
+      - description: id of the scope
+        example: 123
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Scope'
+        description: Update a scope
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scope'
+          description: Scope was updated successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.scopes.update
+      summary: Update a scope
+      tags:
+      - Scope
 components:
   schemas:
     CreateUserRequest:
@@ -1054,6 +1260,24 @@ components:
           format: date-time
           type: string
       required:
+      - name
+      type: object
+    Scope:
+      example:
+        name: socialapp.roles.read
+      properties:
+        id:
+          format: int64
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+      required:
+      - description
       - name
       type: object
   securitySchemes:

@@ -5,6 +5,7 @@ Model/CreateUserRequest.sql
 Model/Error.sql
 Model/ResetPasswordRequest.sql
 Model/Role.sql
+Model/Scope.sql
 Model/User.sql
 README.md
 mysql_schema.sql

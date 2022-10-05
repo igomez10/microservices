@@ -126,13 +126,17 @@ INSERT INTO `scopes` (`id`, `name`, `description`, `created_at`, `deleted_at`) V
 (12, 'socialapp.follower.create', 'socialapp.follower.create', '2022-09-28 20:13:04', NULL),
 (13, 'socialapp.follower.read', 'socialapp.follower.read', '2022-09-28 20:14:03', NULL),
 (14, 'socialapp.follower.delete', 'socialapp.follower.delete', '2022-09-28 20:14:55', NULL),
-(15, 'socialapp.feed.read', 'socialapp.feed.read', '2022-09-28 20:21:07', NULL)
-(16, 'socialapp.roles.create', 'socialapp.roles.create', '2022-09-28 20:21:07', NULL)
-(17, 'socialapp.roles.read', 'socialapp.roles.read', '2022-09-28 20:21:07', NULL)
-(18, 'socialapp.roles.update', 'socialapp.roles.update', '2022-09-28 20:21:07', NULL)
-(19, 'socialapp.roles.delete', 'socialapp.roles.delete', '2022-09-28 20:21:07', NULL)
-(20, 'socialapp.roles.list', 'socialapp.roles.list', '2022-09-28 20:21:07', NULL)
-;
+(15, 'socialapp.feed.read', 'socialapp.feed.read', '2022-09-28 20:21:07', NULL),
+(16, 'socialapp.roles.create', 'socialapp.roles.create', '2022-09-28 20:21:07', NULL),
+(17, 'socialapp.roles.read', 'socialapp.roles.read', '2022-09-28 20:21:07', NULL),
+(18, 'socialapp.roles.update', 'socialapp.roles.update', '2022-09-28 20:21:07', NULL),
+(19, 'socialapp.roles.delete', 'socialapp.roles.delete', '2022-09-28 20:21:07', NULL),
+(20, 'socialapp.roles.list', 'socialapp.roles.list', '2022-09-28 20:21:07', NULL),
+(21, 'socialapp.scopes.list', 'socialapp.scopes.list', '2022-09-28 20:21:07', NULL),
+(22, 'socialapp.scopes.read', 'socialapp.scopes.read', '2022-09-28 20:21:07', NULL),
+(23, 'socialapp.scopes.create', 'socialapp.scopes.create', '2022-09-28 20:21:07', NULL),
+(24, 'socialapp.scopes.delete', 'socialapp.scopes.delete', '2022-09-28 20:21:07', NULL),
+(25, 'socialapp.scopes.update', 'socialapp.scopes.update', '2022-09-28 20:21:07', NULL);
 
 INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (1, 1, 1),
@@ -171,7 +175,17 @@ INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (34, 2, 17),
 (35, 2, 18),
 (36, 2, 19),
-(37, 2, 20);
+(37, 2, 20),
+(38, 1, 21),
+(39, 1, 22),
+(40, 1, 23),
+(41, 1, 24),
+(42, 1, 25),
+(43, 2, 21),
+(44, 2, 22),
+(45, 2, 23),
+(46, 2, 24),
+(47, 2, 25);
 
 INSERT INTO users_to_roles (id, role_id, user_id) VALUES
 (1, 1, 1);

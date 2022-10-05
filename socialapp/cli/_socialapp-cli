@@ -303,7 +303,11 @@ case $state in
             "deleteRole[Delete a role]" \
             "getRole[Returns a role]" \
             "listRoles[Returns a list of roles]" \
-            "updateRole[Update a role]"             "changePassword[Change password]" \
+            "updateRole[Update a role]"             "createScope[Create a new scope]" \
+            "deleteScope[Delete a scope]" \
+            "getScope[Returns a scope]" \
+            "listScopes[Returns a list of scopes]" \
+            "updateScope[Update a scope]"             "changePassword[Change password]" \
             "createUser[Create user]" \
             "deleteUser[Deletes a particular user]" \
             "followUser[Add a user as a follower]" \
@@ -396,6 +400,41 @@ case $state in
         local -a _op_arguments
         _op_arguments=(
           "id=:[PATH] id of the role"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      createScope)
+        local -a _op_arguments
+        _op_arguments=(
+                              )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      deleteScope)
+        local -a _op_arguments
+        _op_arguments=(
+          "id=:[PATH] id of the scope"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      getScope)
+        local -a _op_arguments
+        _op_arguments=(
+          "id=:[PATH] The id of the scope"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      listScopes)
+        local -a _op_arguments
+        _op_arguments=(
+                    "limit=:[QUERY] The numbers of scopes to return"
+"offset=:[QUERY] The number of items to skip before starting to collect the result"
+          )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      updateScope)
+        local -a _op_arguments
+        _op_arguments=(
+          "id=:[PATH] id of the scope"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;

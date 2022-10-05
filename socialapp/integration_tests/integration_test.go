@@ -797,3 +797,156 @@ func TestRoleLifecycle(t *testing.T) {
 		t.Fatalf("Expected nil, got %v", gettedRole)
 	}
 }
+
+func TestScopeLifeCycle(t *testing.T) {
+	// create two users
+	os.Setenv("HTTP_PROXY", "http://localhost:9091")
+	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
+
+	configuration := client.NewConfiguration()
+	proxyStr := "http://localhost:9091"
+	proxyURL, err := url.Parse(proxyStr)
+	if err != nil {
+		log.Println(err)
+	}
+
+	// Setup http client with proxy to capture traffic
+	httpClient := &http.Client{
+		Timeout: time.Second * 10,
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		},
+	}
+	configuration.HTTPClient = httpClient
+	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
+	scopes := []string{
+		"socialapp.scopes.read",
+		"socialapp.scopes.list",
+		"socialapp.scopes.create",
+		"socialapp.scopes.update",
+		"socialapp.scopes.delete",
+	}
+
+	// openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
+	apiClient = client.NewAPIClient(configuration)
+
+	username := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
+	password := fmt.Sprintf("Password-%d1", time.Now().UnixNano())
+	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
+
+	// create a user, no auth needed
+	_, res, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code 201, got %d", res.StatusCode)
+	}
+
+	conf := clientcredentials.Config{
+		ClientID:     username,
+		ClientSecret: password,
+		Scopes:       scopes,
+		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+	}
+	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	if err != nil {
+		t.Fatalf("Error getting oauth2 context: %v", err)
+	}
+
+	newScope := client.NewScope(fmt.Sprintf("Test-CreateScope-%d1", time.Now().UnixNano()), "Test-CreateScope-Description1")
+	// create a scope
+
+	createdScope, res, err := apiClient.ScopeApi.CreateScope(oauth2Ctx).Scope(*newScope).Execute()
+	if err != nil {
+		t.Fatalf("Error when calling `ScopeApi.CreateScope`: %v", err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+	}
+
+	// get scope
+	gettedScope, res, err := apiClient.ScopeApi.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+	if err != nil {
+		t.Fatalf("Error when calling `ScopeApi.GetScope`: %v", err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+	}
+	if gettedScope == nil {
+		t.Fatalf("Expected scope, got nil")
+	}
+
+	updatedName := fmt.Sprintf("Test-UpdateScope-%d", time.Now().UnixNano())
+	updatedDesc := fmt.Sprintf("Test-UpdateScope-Description-%d", time.Now().UnixNano())
+	newScope.Description = updatedDesc
+	newScope.Name = updatedName
+
+	// update scope
+	updatedScope, res, err := apiClient.ScopeApi.UpdateScope(oauth2Ctx, int32(*createdScope.Id)).Scope(*newScope).Execute()
+	if err != nil {
+		t.Fatalf("Error when calling `ScopeApi.UpdateScope`: %v", err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+	}
+	if updatedScope == nil {
+		t.Fatalf("Expected scope, got nil")
+	}
+	if updatedScope.Name != updatedName {
+		t.Fatalf("Expected name %s, got %s", updatedName, updatedScope.Name)
+	}
+	if updatedScope.Description != updatedDesc {
+		t.Fatalf("Expected description %s, got %s", updatedDesc, updatedScope.Description)
+	}
+
+	// get scope again to check if updated
+	gettedScope, res, err = apiClient.ScopeApi.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+	if err != nil {
+		t.Fatalf("Error when calling `ScopeApi.GetScope`: %v", err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+	}
+	if gettedScope == nil {
+		t.Fatalf("Expected scope, got nil")
+	}
+	if gettedScope.Name != updatedName {
+		t.Fatalf("Expected name %s, got %s", updatedName, gettedScope.Name)
+	}
+	if gettedScope.Description != updatedDesc {
+		t.Fatalf("Expected description %s, got %s", updatedDesc, gettedScope.Description)
+	}
+
+	// delete scope
+	deletedScope, res, err := apiClient.ScopeApi.DeleteScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+	if err != nil {
+		t.Fatalf("Error when calling `ScopeApi.DeleteScope`: %v", err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+	}
+	if deletedScope == nil {
+		t.Fatalf("Expected scope, got nil")
+	}
+	if deletedScope.Name != updatedName {
+		t.Fatalf("Expected name %s, got %s", updatedName, deletedScope.Name)
+	}
+	if deletedScope.Description != updatedDesc {
+		t.Fatalf("Expected description %s, got %s", updatedDesc, deletedScope.Description)
+	}
+
+	// try to get deleted scope
+	gettedDeletedScope, res, err := apiClient.ScopeApi.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+	if err == nil {
+		t.Fatalf("Expected error when calling `ScopeApi.GetScope`, got nil")
+	}
+	if res.StatusCode != http.StatusNotFound {
+		t.Fatalf("Expected status code 404, got %d", res.StatusCode)
+	}
+	if gettedDeletedScope != nil {
+		t.Fatalf("Expected nil, got %v", gettedScope)
+	}
+}

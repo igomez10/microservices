@@ -98,10 +98,9 @@ func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.
 		}, nil
 	}
 
-	_, deleteErr := s.DB.DeleteRole(ctx, s.DBConn, role.ID)
-	if err != nil {
+	if err := s.DB.DeleteRole(ctx, s.DBConn, role.ID); err != nil {
 		log.Error().
-			Err(deleteErr).
+			Err(err).
 			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
 			Int("role_id", int(roleID)).
 			Msg("failed to retrieve created role")

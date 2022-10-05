@@ -114,6 +114,11 @@ Class | Method | HTTP request | Description
 *RoleApi* | [**getRole**](docs/RoleApi.md#getrole) | **GET** /roles/{id} | Returns a role
 *RoleApi* | [**listRoles**](docs/RoleApi.md#listroles) | **GET** /roles | Returns a list of roles
 *RoleApi* | [**updateRole**](docs/RoleApi.md#updaterole) | **PUT** /roles/{id} | Update a role
+*ScopeApi* | [**createScope**](docs/ScopeApi.md#createscope) | **POST** /scopes | Create a new scope
+*ScopeApi* | [**deleteScope**](docs/ScopeApi.md#deletescope) | **DELETE** /scopes/{id} | Delete a scope
+*ScopeApi* | [**getScope**](docs/ScopeApi.md#getscope) | **GET** /scopes/{id} | Returns a scope
+*ScopeApi* | [**listScopes**](docs/ScopeApi.md#listscopes) | **GET** /scopes | Returns a list of scopes
+*ScopeApi* | [**updateScope**](docs/ScopeApi.md#updatescope) | **PUT** /scopes/{id} | Update a scope
 *UserApi* | [**changePassword**](docs/UserApi.md#changepassword) | **POST** /password | Change password
 *UserApi* | [**createUser**](docs/UserApi.md#createuser) | **POST** /users | Create user
 *UserApi* | [**deleteUser**](docs/UserApi.md#deleteuser) | **DELETE** /users/{username} | Deletes a particular user
@@ -137,6 +142,7 @@ Class | Method | HTTP request | Description
  - [Error](docs/Error.md)
  - [ResetPasswordRequest](docs/ResetPasswordRequest.md)
  - [Role](docs/Role.md)
+ - [Scope](docs/Scope.md)
  - [User](docs/User.md)
 
 

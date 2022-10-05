@@ -172,19 +172,20 @@ WHERE name = ? AND deleted_at IS NULL LIMIT 1;
 
 -- name: ListScopes :many
 SELECT * FROM scopes
-WHERE deleted_at IS NULL;
+WHERE deleted_at IS NULL
+LIMIT ? OFFSET ?;
 
 -- name: CreateScope :execresult
 INSERT INTO scopes (
-	  name, description, deleted_at
+	  name, description
 ) VALUES (
-  ?, ?, ?
+  ?, ?
 );
 
 -- name: DeleteScope :exec
 UPDATE scopes
 SET deleted_at = NOW()
-WHERE id = ? AND NOW() < valid_until;
+WHERE id = ? AND deleted_at IS NULL;
 
 -- name: UpdateScope :execresult
 UPDATE scopes
@@ -264,7 +265,7 @@ UPDATE roles
 SET name = ?, description = ? 
 WHERE id = ? AND deleted_at IS NULL;
 
--- name: DeleteRole :execresult
+-- name: DeleteRole :exec
 UPDATE roles 
 SET deleted_at = NOW()
 WHERE id = ? AND deleted_at IS NULL;

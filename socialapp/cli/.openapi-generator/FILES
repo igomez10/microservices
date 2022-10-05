@@ -13,6 +13,8 @@ docs/FollowingApi.md
 docs/ResetPasswordRequest.md
 docs/Role.md
 docs/RoleApi.md
+docs/Scope.md
+docs/ScopeApi.md
 docs/User.md
 docs/UserApi.md
 socialapp-cli
