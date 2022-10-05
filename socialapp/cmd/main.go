@@ -14,6 +14,7 @@ import (
 	"socialapp/pkg/controller/authentication"
 	"socialapp/pkg/controller/comment"
 	"socialapp/pkg/controller/role"
+	"socialapp/pkg/controller/scope"
 	"socialapp/pkg/controller/user"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
@@ -73,11 +74,16 @@ func main() {
 	RoleAPIService := &role.RoleApiService{DB: queries, DBConn: dbConn}
 	RoleAPIController := openapi.NewRoleApiController(RoleAPIService)
 
+	// Scope service
+	ScopeAPIService := &scope.ScopeApiService{DB: queries, DBConn: dbConn}
+	ScopeAPIController := openapi.NewScopeApiController(ScopeAPIService)
+
 	routers := []openapi.Router{
 		CommentApiController,
 		UserApiController,
 		AuthApiController,
 		RoleAPIController,
+		ScopeAPIController,
 	}
 
 	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn}
@@ -122,7 +128,7 @@ func main() {
 		log.Info().Msg("Health check")
 		// send open api file
 		// open api file
-		file := "../openapi.yaml"
+		file := "openapi.yaml"
 		content, err := os.ReadFile(file)
 		if err != nil {
 			log.Error().Err(err).Msg("Error reading file")
