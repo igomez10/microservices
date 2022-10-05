@@ -5,22 +5,22 @@
 
 
 --
--- SELECT template for table `User`
+-- SELECT template for table `user`
 --
-SELECT `id`, `username`, `first_name`, `last_name`, `email`, `created_at` FROM `User` WHERE 1;
+SELECT `id`, `username`, `first_name`, `last_name`, `email`, `created_at` FROM `user` WHERE 1;
 
 --
--- INSERT template for table `User`
+-- INSERT template for table `user`
 --
-INSERT INTO `User`(`id`, `username`, `first_name`, `last_name`, `email`, `created_at`) VALUES (:id, :username, :first_name, :last_name, :email, :created_at);
+INSERT INTO `user`(`id`, `username`, `first_name`, `last_name`, `email`, `created_at`) VALUES (:id, :username, :first_name, :last_name, :email, :created_at);
 
 --
--- UPDATE template for table `User`
+-- UPDATE template for table `user`
 --
-UPDATE `User` SET `id` = :id, `username` = :username, `first_name` = :first_name, `last_name` = :last_name, `email` = :email, `created_at` = :created_at WHERE 1;
+UPDATE `user` SET `id` = :id, `username` = :username, `first_name` = :first_name, `last_name` = :last_name, `email` = :email, `created_at` = :created_at WHERE 1;
 
 --
--- DELETE template for table `User`
+-- DELETE template for table `user`
 --
-DELETE FROM `User` WHERE 0;
+DELETE FROM `user` WHERE 0;
 

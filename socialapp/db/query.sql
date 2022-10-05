@@ -248,3 +248,24 @@ WHERE name = ? AND deleted_at IS NULL LIMIT 1;
 -- name: GetRole :one
 SELECT * FROM roles
 WHERE id = ? AND deleted_at IS NULL LIMIT 1;
+
+-- name: ListRoles :many
+SELECT * FROM roles
+WHERE deleted_at IS NULL
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?;
+
+-- name: CreateRole :execresult
+INSERT INTO roles (name, description) 
+VALUES (?, ?);
+
+-- name: UpdateRole :execresult
+UPDATE roles 
+SET name = ?, description = ? 
+WHERE id = ? AND deleted_at IS NULL;
+
+-- name: DeleteRole :execresult
+UPDATE roles 
+SET deleted_at = NOW()
+WHERE id = ? AND deleted_at IS NULL;
+

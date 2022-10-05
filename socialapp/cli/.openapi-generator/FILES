@@ -11,6 +11,8 @@ docs/CreateUserRequest.md
 docs/Error.md
 docs/FollowingApi.md
 docs/ResetPasswordRequest.md
+docs/Role.md
+docs/RoleApi.md
 docs/User.md
 docs/UserApi.md
 socialapp-cli

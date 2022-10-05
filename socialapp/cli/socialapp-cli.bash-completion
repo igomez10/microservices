@@ -74,6 +74,11 @@ _socialapp-cli()
     operations["getUserComments"]=1
     operations["getUserFeed"]=1
     operations["getUserFollowers"]=1
+    operations["createRole"]=1
+    operations["deleteRole"]=1
+    operations["getRole"]=1
+    operations["listRoles"]=1
+    operations["updateRole"]=1
     operations["changePassword"]=1
     operations["createUser"]=1
     operations["deleteUser"]=1
@@ -96,6 +101,11 @@ _socialapp-cli()
     operation_parameters["getUserComments"]="username= limit= offset= "
     operation_parameters["getUserFeed"]="username= "
     operation_parameters["getUserFollowers"]="username= "
+    operation_parameters["createRole"]=""
+    operation_parameters["deleteRole"]="id= "
+    operation_parameters["getRole"]="id= "
+    operation_parameters["listRoles"]="offset= limit= "
+    operation_parameters["updateRole"]="id= "
     operation_parameters["changePassword"]=""
     operation_parameters["createUser"]=""
     operation_parameters["deleteUser"]="username= "

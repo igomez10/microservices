@@ -69,6 +69,20 @@ func (q *Queries) CreateCredential(ctx context.Context, db DBTX, arg CreateCrede
 	)
 }
 
+const CreateRole = `-- name: CreateRole :execresult
+INSERT INTO roles (name, description) 
+VALUES (?, ?)
+`
+
+type CreateRoleParams struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams) (sql.Result, error) {
+	return db.ExecContext(ctx, CreateRole, arg.Name, arg.Description)
+}
+
 const CreateScope = `-- name: CreateScope :execresult
 INSERT INTO scopes (
 	  name, description, deleted_at
@@ -201,6 +215,16 @@ WHERE id = ?
 func (q *Queries) DeleteCredential(ctx context.Context, db DBTX, id int64) error {
 	_, err := db.ExecContext(ctx, DeleteCredential, id)
 	return err
+}
+
+const DeleteRole = `-- name: DeleteRole :execresult
+UPDATE roles 
+SET deleted_at = NOW()
+WHERE id = ? AND deleted_at IS NULL
+`
+
+func (q *Queries) DeleteRole(ctx context.Context, db DBTX, id int64) (sql.Result, error) {
+	return db.ExecContext(ctx, DeleteRole, id)
 }
 
 const DeleteScope = `-- name: DeleteScope :exec
@@ -796,6 +820,47 @@ func (q *Queries) ListComment(ctx context.Context, db DBTX, arg ListCommentParam
 	return items, nil
 }
 
+const ListRoles = `-- name: ListRoles :many
+SELECT id, name, description, created_at, deleted_at FROM roles
+WHERE deleted_at IS NULL
+ORDER BY created_at DESC
+LIMIT ? OFFSET ?
+`
+
+type ListRolesParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListRoles(ctx context.Context, db DBTX, arg ListRolesParams) ([]Role, error) {
+	rows, err := db.QueryContext(ctx, ListRoles, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Role
+	for rows.Next() {
+		var i Role
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const ListScopes = `-- name: ListScopes :many
 SELECT id, name, description, created_at, deleted_at FROM scopes
 WHERE deleted_at IS NULL
@@ -892,6 +957,22 @@ type UnfollowUserParams struct {
 func (q *Queries) UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error {
 	_, err := db.ExecContext(ctx, UnfollowUser, arg.FollowerID, arg.FollowedID)
 	return err
+}
+
+const UpdateRole = `-- name: UpdateRole :execresult
+UPDATE roles 
+SET name = ?, description = ? 
+WHERE id = ? AND deleted_at IS NULL
+`
+
+type UpdateRoleParams struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	ID          int64  `json:"id"`
+}
+
+func (q *Queries) UpdateRole(ctx context.Context, db DBTX, arg UpdateRoleParams) (sql.Result, error) {
+	return db.ExecContext(ctx, UpdateRole, arg.Name, arg.Description, arg.ID)
 }
 
 const UpdateScope = `-- name: UpdateScope :execresult

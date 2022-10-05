@@ -5,22 +5,22 @@
 
 
 --
--- SELECT template for table `Error`
+-- SELECT template for table `error`
 --
-SELECT `code`, `message` FROM `Error` WHERE 1;
+SELECT `code`, `message` FROM `error` WHERE 1;
 
 --
--- INSERT template for table `Error`
+-- INSERT template for table `error`
 --
-INSERT INTO `Error`(`code`, `message`) VALUES (:code, :message);
+INSERT INTO `error`(`code`, `message`) VALUES (:code, :message);
 
 --
--- UPDATE template for table `Error`
+-- UPDATE template for table `error`
 --
-UPDATE `Error` SET `code` = :code, `message` = :message WHERE 1;
+UPDATE `error` SET `code` = :code, `message` = :message WHERE 1;
 
 --
--- DELETE template for table `Error`
+-- DELETE template for table `error`
 --
-DELETE FROM `Error` WHERE 0;
+DELETE FROM `error` WHERE 0;
 

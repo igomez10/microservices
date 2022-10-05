@@ -5,22 +5,22 @@
 
 
 --
--- SELECT template for table `CreateUserRequest`
+-- SELECT template for table `create_user_request`
 --
-SELECT `id`, `username`, `password`, `first_name`, `last_name`, `email`, `created_at` FROM `CreateUserRequest` WHERE 1;
+SELECT `id`, `username`, `password`, `first_name`, `last_name`, `email`, `created_at` FROM `create_user_request` WHERE 1;
 
 --
--- INSERT template for table `CreateUserRequest`
+-- INSERT template for table `create_user_request`
 --
-INSERT INTO `CreateUserRequest`(`id`, `username`, `password`, `first_name`, `last_name`, `email`, `created_at`) VALUES (:id, :username, :password, :first_name, :last_name, :email, :created_at);
+INSERT INTO `create_user_request`(`id`, `username`, `password`, `first_name`, `last_name`, `email`, `created_at`) VALUES (:id, :username, :password, :first_name, :last_name, :email, :created_at);
 
 --
--- UPDATE template for table `CreateUserRequest`
+-- UPDATE template for table `create_user_request`
 --
-UPDATE `CreateUserRequest` SET `id` = :id, `username` = :username, `password` = :password, `first_name` = :first_name, `last_name` = :last_name, `email` = :email, `created_at` = :created_at WHERE 1;
+UPDATE `create_user_request` SET `id` = :id, `username` = :username, `password` = :password, `first_name` = :first_name, `last_name` = :last_name, `email` = :email, `created_at` = :created_at WHERE 1;
 
 --
--- DELETE template for table `CreateUserRequest`
+-- DELETE template for table `create_user_request`
 --
-DELETE FROM `CreateUserRequest` WHERE 0;
+DELETE FROM `create_user_request` WHERE 0;
 

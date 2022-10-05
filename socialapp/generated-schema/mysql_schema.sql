@@ -6,42 +6,42 @@
 -- --------------------------------------------------------
 
 --
--- Table structure for table `AccessToken` generated from model 'AccessToken'
+-- Table structure for table `access_token` generated from model 'AccessToken'
 --
 
-CREATE TABLE IF NOT EXISTS `AccessToken` (
+CREATE TABLE IF NOT EXISTS `access_token` (
   `access_token` TEXT NOT NULL,
   `token_type` TEXT NOT NULL,
   `scopes` JSON DEFAULT NULL,
   `expires_in` INT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - AccessToken.';
 
 --
--- Table structure for table `ChangePasswordRequest` generated from model 'ChangePasswordRequest'
+-- Table structure for table `change_password_request` generated from model 'ChangePasswordRequest'
 --
 
-CREATE TABLE IF NOT EXISTS `ChangePasswordRequest` (
+CREATE TABLE IF NOT EXISTS `change_password_request` (
   `old_password` TEXT NOT NULL,
   `new_password` TEXT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - ChangePasswordRequest.';
 
 --
--- Table structure for table `Comment` generated from model 'Comment'
+-- Table structure for table `comment` generated from model 'Comment'
 --
 
-CREATE TABLE IF NOT EXISTS `Comment` (
+CREATE TABLE IF NOT EXISTS `comment` (
   `id` BIGINT DEFAULT NULL,
   `content` TEXT NOT NULL,
   `like_count` BIGINT DEFAULT NULL,
   `created_at` DATETIME DEFAULT NULL,
   `username` TEXT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - Comment.';
 
 --
--- Table structure for table `CreateUserRequest` generated from model 'CreateUserRequest'
+-- Table structure for table `create_user_request` generated from model 'CreateUserRequest'
 --
 
-CREATE TABLE IF NOT EXISTS `CreateUserRequest` (
+CREATE TABLE IF NOT EXISTS `create_user_request` (
   `id` BIGINT DEFAULT NULL,
   `username` TEXT NOT NULL,
   `password` TEXT NOT NULL,
@@ -49,37 +49,48 @@ CREATE TABLE IF NOT EXISTS `CreateUserRequest` (
   `last_name` TEXT NOT NULL,
   `email` TEXT NOT NULL,
   `created_at` DATETIME DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - CreateUserRequest.';
 
 --
--- Table structure for table `Error` generated from model 'Error'
+-- Table structure for table `error` generated from model 'Error'
 --
 
-CREATE TABLE IF NOT EXISTS `Error` (
+CREATE TABLE IF NOT EXISTS `error` (
   `code` INT NOT NULL,
   `message` TEXT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - Error.';
 
 --
--- Table structure for table `ResetPasswordRequest` generated from model 'ResetPasswordRequest'
+-- Table structure for table `reset_password_request` generated from model 'ResetPasswordRequest'
 --
 
-CREATE TABLE IF NOT EXISTS `ResetPasswordRequest` (
+CREATE TABLE IF NOT EXISTS `reset_password_request` (
   `email` TEXT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - ResetPasswordRequest.';
 
 --
--- Table structure for table `User` generated from model 'User'
+-- Table structure for table `role` generated from model 'Role'
 --
 
-CREATE TABLE IF NOT EXISTS `User` (
+CREATE TABLE IF NOT EXISTS `role` (
+  `id` BIGINT DEFAULT NULL,
+  `name` TEXT NOT NULL,
+  `description` TEXT DEFAULT NULL,
+  `created_at` DATETIME DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - Role.';
+
+--
+-- Table structure for table `user` generated from model 'User'
+--
+
+CREATE TABLE IF NOT EXISTS `user` (
   `id` BIGINT DEFAULT NULL,
   `username` TEXT NOT NULL,
   `first_name` TEXT NOT NULL,
   `last_name` TEXT NOT NULL,
   `email` TEXT NOT NULL,
   `created_at` DATETIME DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - User.';
 
 
 --

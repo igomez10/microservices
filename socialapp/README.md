@@ -13,6 +13,11 @@ All URIs are relative to *https://microservices.onrender.com*
 *CommentApi* | [**getUserComments**](Apis/CommentApi.md#getusercomments) | **GET** /users/{username}/comments | Gets all comments for a user |
 *CommentApi* | [**getUserFeed**](Apis/CommentApi.md#getuserfeed) | **GET** /users/{username}/feed | Returns a users feed |
 | *FollowingApi* | [**getUserFollowers**](Apis/FollowingApi.md#getuserfollowers) | **GET** /users/{username}/followers | Get all followers for a user |
+| *RoleApi* | [**createRole**](Apis/RoleApi.md#createrole) | **POST** /roles | Create a new role |
+*RoleApi* | [**deleteRole**](Apis/RoleApi.md#deleterole) | **DELETE** /roles/{id} | Delete a role |
+*RoleApi* | [**getRole**](Apis/RoleApi.md#getrole) | **GET** /roles/{id} | Returns a role |
+*RoleApi* | [**listRoles**](Apis/RoleApi.md#listroles) | **GET** /roles | Returns a list of roles |
+*RoleApi* | [**updateRole**](Apis/RoleApi.md#updaterole) | **PUT** /roles/{id} | Update a role |
 | *UserApi* | [**changePassword**](Apis/UserApi.md#changepassword) | **POST** /password | Change password |
 *UserApi* | [**createUser**](Apis/UserApi.md#createuser) | **POST** /users | Create user |
 *UserApi* | [**deleteUser**](Apis/UserApi.md#deleteuser) | **DELETE** /users/{username} | Deletes a particular user |
@@ -36,6 +41,7 @@ All URIs are relative to *https://microservices.onrender.com*
  - [CreateUserRequest](./Models/CreateUserRequest.md)
  - [Error](./Models/Error.md)
  - [ResetPasswordRequest](./Models/ResetPasswordRequest.md)
+ - [Role](./Models/Role.md)
  - [User](./Models/User.md)
 
 
@@ -53,10 +59,14 @@ All URIs are relative to *https://microservices.onrender.com*
   - socialapp.users.create: Create users
   - socialapp.users.update: Update users
   - socialapp.users.delete: Delete users
+  - socialapp.users.read: Read a user
   - socialapp.comments.list: List comments
   - socialapp.comments.create: Create comments
   - socialapp.comments.update: Update comments
   - socialapp.comments.delete: Delete comments
   - socialapp.followers.list: List followers
   - socialapp.following.list: List following
+  - socialapp.roles.list: List roles
+  - socialapp.roles.create: Create roles
+  - socialapp.roles.read: Read a role
 

@@ -35,7 +35,7 @@ generate-openapi:
 	openapi-generator generate -i openapi.yaml  \
 	--generator-name mysql-schema \
 	--output generated-schema \
-	--additional-properties=namedParametersEnabled=true
+	--additional-properties=namedParametersEnabled=true \
 	--additional-properties=identifierNamingConvention=snake_case
 
 	# format go code
@@ -81,3 +81,12 @@ build-rust-client:
 	cargo build --manifest-path generated-rust-client/Cargo.toml
 run-rust-client:
 	cargo run --manifest-path generated-rust-client/Cargo.toml
+
+tf-init:
+	cd infrastructure && terraform init
+
+tf-plan:
+	cd infrastructure && terraform plan
+
+tf-apply:
+	cd infrastructure && terraform apply -auto-approve

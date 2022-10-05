@@ -60,16 +60,22 @@
             "problemMatcher": []
         },
         {
-            "label": "build-rust-client",
+            "label": "tf-init",
             "type": "shell",
-            "command": "make build-rust-client",
+            "command": "make tf-init",
             "problemMatcher": []
         },
         {
-            "label": "rust-rust-client",
+            "label": "tf-plan",
             "type": "shell",
-            "command": "make rust-rust-client",
+            "command": "make tf-plan",
             "problemMatcher": []
-        }
+        },
+        {
+            "label": "tf-apply",
+            "type": "shell",
+            "command": "make tf-apply",
+            "problemMatcher": [],
+        },
     ]
 }

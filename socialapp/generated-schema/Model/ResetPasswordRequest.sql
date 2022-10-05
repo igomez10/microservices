@@ -5,22 +5,22 @@
 
 
 --
--- SELECT template for table `ResetPasswordRequest`
+-- SELECT template for table `reset_password_request`
 --
-SELECT `email` FROM `ResetPasswordRequest` WHERE 1;
+SELECT `email` FROM `reset_password_request` WHERE 1;
 
 --
--- INSERT template for table `ResetPasswordRequest`
+-- INSERT template for table `reset_password_request`
 --
-INSERT INTO `ResetPasswordRequest`(`email`) VALUES (:email);
+INSERT INTO `reset_password_request`(`email`) VALUES (:email);
 
 --
--- UPDATE template for table `ResetPasswordRequest`
+-- UPDATE template for table `reset_password_request`
 --
-UPDATE `ResetPasswordRequest` SET `email` = :email WHERE 1;
+UPDATE `reset_password_request` SET `email` = :email WHERE 1;
 
 --
--- DELETE template for table `ResetPasswordRequest`
+-- DELETE template for table `reset_password_request`
 --
-DELETE FROM `ResetPasswordRequest` WHERE 0;
+DELETE FROM `reset_password_request` WHERE 0;
 

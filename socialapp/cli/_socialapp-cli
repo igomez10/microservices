@@ -299,7 +299,11 @@ case $state in
             "getAccessToken[Get an access token]"             "createComment[Create a new comment]" \
             "getComment[Returns details about a particular comment]" \
             "getUserComments[Gets all comments for a user]" \
-            "getUserFeed[Returns a users feed]"             "getUserFollowers[Get all followers for a user]"             "changePassword[Change password]" \
+            "getUserFeed[Returns a users feed]"             "getUserFollowers[Get all followers for a user]"             "createRole[Create a new role]" \
+            "deleteRole[Delete a role]" \
+            "getRole[Returns a role]" \
+            "listRoles[Returns a list of roles]" \
+            "updateRole[Update a role]"             "changePassword[Change password]" \
             "createUser[Create user]" \
             "deleteUser[Deletes a particular user]" \
             "followUser[Add a user as a follower]" \
@@ -357,6 +361,41 @@ case $state in
         local -a _op_arguments
         _op_arguments=(
           "username=:[PATH] username of the user"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      createRole)
+        local -a _op_arguments
+        _op_arguments=(
+                              )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      deleteRole)
+        local -a _op_arguments
+        _op_arguments=(
+          "id=:[PATH] id of the role"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      getRole)
+        local -a _op_arguments
+        _op_arguments=(
+          "id=:[PATH] The id of the role"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      listRoles)
+        local -a _op_arguments
+        _op_arguments=(
+                    "offset=:[QUERY] The number of items to skip before starting to collect the result"
+"limit=:[QUERY] The numbers of roles to return"
+          )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      updateRole)
+        local -a _op_arguments
+        _op_arguments=(
+          "id=:[PATH] id of the role"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;

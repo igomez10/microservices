@@ -5,22 +5,22 @@
 
 
 --
--- SELECT template for table `ChangePasswordRequest`
+-- SELECT template for table `change_password_request`
 --
-SELECT `old_password`, `new_password` FROM `ChangePasswordRequest` WHERE 1;
+SELECT `old_password`, `new_password` FROM `change_password_request` WHERE 1;
 
 --
--- INSERT template for table `ChangePasswordRequest`
+-- INSERT template for table `change_password_request`
 --
-INSERT INTO `ChangePasswordRequest`(`old_password`, `new_password`) VALUES (:old_password, :new_password);
+INSERT INTO `change_password_request`(`old_password`, `new_password`) VALUES (:old_password, :new_password);
 
 --
--- UPDATE template for table `ChangePasswordRequest`
+-- UPDATE template for table `change_password_request`
 --
-UPDATE `ChangePasswordRequest` SET `old_password` = :old_password, `new_password` = :new_password WHERE 1;
+UPDATE `change_password_request` SET `old_password` = :old_password, `new_password` = :new_password WHERE 1;
 
 --
--- DELETE template for table `ChangePasswordRequest`
+-- DELETE template for table `change_password_request`
 --
-DELETE FROM `ChangePasswordRequest` WHERE 0;
+DELETE FROM `change_password_request` WHERE 0;
 

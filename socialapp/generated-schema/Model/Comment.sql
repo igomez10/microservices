@@ -5,22 +5,22 @@
 
 
 --
--- SELECT template for table `Comment`
+-- SELECT template for table `comment`
 --
-SELECT `id`, `content`, `like_count`, `created_at`, `username` FROM `Comment` WHERE 1;
+SELECT `id`, `content`, `like_count`, `created_at`, `username` FROM `comment` WHERE 1;
 
 --
--- INSERT template for table `Comment`
+-- INSERT template for table `comment`
 --
-INSERT INTO `Comment`(`id`, `content`, `like_count`, `created_at`, `username`) VALUES (:id, :content, :like_count, :created_at, :username);
+INSERT INTO `comment`(`id`, `content`, `like_count`, `created_at`, `username`) VALUES (:id, :content, :like_count, :created_at, :username);
 
 --
--- UPDATE template for table `Comment`
+-- UPDATE template for table `comment`
 --
-UPDATE `Comment` SET `id` = :id, `content` = :content, `like_count` = :like_count, `created_at` = :created_at, `username` = :username WHERE 1;
+UPDATE `comment` SET `id` = :id, `content` = :content, `like_count` = :like_count, `created_at` = :created_at, `username` = :username WHERE 1;
 
 --
--- DELETE template for table `Comment`
+-- DELETE template for table `comment`
 --
-DELETE FROM `Comment` WHERE 0;
+DELETE FROM `comment` WHERE 0;
 

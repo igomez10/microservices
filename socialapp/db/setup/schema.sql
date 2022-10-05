@@ -126,7 +126,13 @@ INSERT INTO `scopes` (`id`, `name`, `description`, `created_at`, `deleted_at`) V
 (12, 'socialapp.follower.create', 'socialapp.follower.create', '2022-09-28 20:13:04', NULL),
 (13, 'socialapp.follower.read', 'socialapp.follower.read', '2022-09-28 20:14:03', NULL),
 (14, 'socialapp.follower.delete', 'socialapp.follower.delete', '2022-09-28 20:14:55', NULL),
-(15, 'socialapp.feed.read', 'socialapp.feed.read', '2022-09-28 20:21:07', NULL);
+(15, 'socialapp.feed.read', 'socialapp.feed.read', '2022-09-28 20:21:07', NULL)
+(16, 'socialapp.roles.create', 'socialapp.roles.create', '2022-09-28 20:21:07', NULL)
+(17, 'socialapp.roles.read', 'socialapp.roles.read', '2022-09-28 20:21:07', NULL)
+(18, 'socialapp.roles.update', 'socialapp.roles.update', '2022-09-28 20:21:07', NULL)
+(19, 'socialapp.roles.delete', 'socialapp.roles.delete', '2022-09-28 20:21:07', NULL)
+(20, 'socialapp.roles.list', 'socialapp.roles.list', '2022-09-28 20:21:07', NULL)
+;
 
 INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (1, 1, 1),
@@ -145,7 +151,27 @@ INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (14, 2, 7),
 (15, 2, 8),
 (16, 2, 9),
-(17, 2, 10);
+(17, 2, 10),
+(18, 1, 11),
+(19, 1, 12),
+(20, 1, 13),
+(21, 1, 14),
+(22, 1, 15),
+(23, 1, 16),
+(24, 1, 17),
+(25, 1, 18),
+(26, 1, 19),
+(27, 1, 20),
+(28, 2, 11),
+(29, 2, 12),
+(30, 2, 13),
+(31, 2, 14),
+(32, 2, 15),
+(33, 2, 16),
+(34, 2, 17),
+(35, 2, 18),
+(36, 2, 19),
+(37, 2, 20);
 
 INSERT INTO users_to_roles (id, role_id, user_id) VALUES
 (1, 1, 1);

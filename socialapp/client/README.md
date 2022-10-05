@@ -85,6 +85,11 @@ Class | Method | HTTP request | Description
 *CommentApi* | [**GetUserComments**](docs/CommentApi.md#getusercomments) | **Get** /users/{username}/comments | Gets all comments for a user
 *CommentApi* | [**GetUserFeed**](docs/CommentApi.md#getuserfeed) | **Get** /users/{username}/feed | Returns a users feed
 *FollowingApi* | [**GetUserFollowers**](docs/FollowingApi.md#getuserfollowers) | **Get** /users/{username}/followers | Get all followers for a user
+*RoleApi* | [**CreateRole**](docs/RoleApi.md#createrole) | **Post** /roles | Create a new role
+*RoleApi* | [**DeleteRole**](docs/RoleApi.md#deleterole) | **Delete** /roles/{id} | Delete a role
+*RoleApi* | [**GetRole**](docs/RoleApi.md#getrole) | **Get** /roles/{id} | Returns a role
+*RoleApi* | [**ListRoles**](docs/RoleApi.md#listroles) | **Get** /roles | Returns a list of roles
+*RoleApi* | [**UpdateRole**](docs/RoleApi.md#updaterole) | **Put** /roles/{id} | Update a role
 *UserApi* | [**ChangePassword**](docs/UserApi.md#changepassword) | **Post** /password | Change password
 *UserApi* | [**CreateUser**](docs/UserApi.md#createuser) | **Post** /users | Create user
 *UserApi* | [**DeleteUser**](docs/UserApi.md#deleteuser) | **Delete** /users/{username} | Deletes a particular user
@@ -107,6 +112,7 @@ Class | Method | HTTP request | Description
  - [CreateUserRequest](docs/CreateUserRequest.md)
  - [Error](docs/Error.md)
  - [ResetPasswordRequest](docs/ResetPasswordRequest.md)
+ - [Role](docs/Role.md)
  - [User](docs/User.md)
 
 
@@ -125,12 +131,16 @@ Class | Method | HTTP request | Description
  - **socialapp.users.create**: Create users
  - **socialapp.users.update**: Update users
  - **socialapp.users.delete**: Delete users
+ - **socialapp.users.read**: Read a user
  - **socialapp.comments.list**: List comments
  - **socialapp.comments.create**: Create comments
  - **socialapp.comments.update**: Update comments
  - **socialapp.comments.delete**: Delete comments
  - **socialapp.followers.list**: List followers
  - **socialapp.following.list**: List following
+ - **socialapp.roles.list**: List roles
+ - **socialapp.roles.create**: Create roles
+ - **socialapp.roles.read**: Read a role
 
 Example
 

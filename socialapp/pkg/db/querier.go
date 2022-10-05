@@ -13,6 +13,7 @@ type Querier interface {
 	CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (sql.Result, error)
 	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (sql.Result, error)
 	CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (sql.Result, error)
+	CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams) (sql.Result, error)
 	CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (sql.Result, error)
 	CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (sql.Result, error)
 	CreateTokenToScope(ctx context.Context, db DBTX, arg CreateTokenToScopeParams) (sql.Result, error)
@@ -21,6 +22,7 @@ type Querier interface {
 	DeleteAllTokensForUser(ctx context.Context, db DBTX, userID int64) error
 	DeleteComment(ctx context.Context, db DBTX, id int64) error
 	DeleteCredential(ctx context.Context, db DBTX, id int64) error
+	DeleteRole(ctx context.Context, db DBTX, id int64) (sql.Result, error)
 	DeleteScope(ctx context.Context, db DBTX, id int64) error
 	DeleteToken(ctx context.Context, db DBTX, token string) error
 	DeleteUser(ctx context.Context, db DBTX, id int64) error
@@ -43,9 +45,11 @@ type Querier interface {
 	GetUserComments(ctx context.Context, db DBTX, arg GetUserCommentsParams) ([]Comment, error)
 	GetUserRoles(ctx context.Context, db DBTX, id int64) ([]Role, error)
 	ListComment(ctx context.Context, db DBTX, arg ListCommentParams) ([]Comment, error)
+	ListRoles(ctx context.Context, db DBTX, arg ListRolesParams) ([]Role, error)
 	ListScopes(ctx context.Context, db DBTX) ([]Scope, error)
 	ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) ([]User, error)
 	UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error
+	UpdateRole(ctx context.Context, db DBTX, arg UpdateRoleParams) (sql.Result, error)
 	UpdateScope(ctx context.Context, db DBTX, arg UpdateScopeParams) (sql.Result, error)
 	UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (sql.Result, error)
 	UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (sql.Result, error)
