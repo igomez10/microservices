@@ -23,6 +23,8 @@ tags:
   name: Authentication
 - description: Following management
   name: Following
+- description: Role management
+  name: Role
 paths:
   /users:
     get:
@@ -692,6 +694,212 @@ paths:
       summary: Get an access token
       tags:
       - Authentication
+  /roles:
+    get:
+      description: Returns a list of roles
+      operationId: listRoles
+      parameters:
+      - description: The number of items to skip before starting to collect the result
+        explode: false
+        in: query
+        name: offset
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      - description: The numbers of roles to return
+        explode: false
+        in: query
+        name: limit
+        required: false
+        schema:
+          format: int32
+          type: integer
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Role'
+                type: array
+          description: List of roles
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.roles.list
+      summary: Returns a list of roles
+      tags:
+      - Role
+    post:
+      description: Create a new role
+      operationId: createRole
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+        description: Create a new role
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: New role was created
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.roles.create
+      summary: Create a new role
+      tags:
+      - Role
+  /roles/{id}:
+    delete:
+      description: Delete a role
+      operationId: deleteRole
+      parameters:
+      - description: id of the role
+        example: 123
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Role was deleted successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.roles.delete
+      summary: Delete a role
+      tags:
+      - Role
+    get:
+      description: Returns a role
+      operationId: getRole
+      parameters:
+      - description: The id of the role
+        example: 123
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Role is returned
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.roles.read
+      summary: Returns a role
+      tags:
+      - Role
+    put:
+      description: Update a role
+      operationId: updateRole
+      parameters:
+      - description: id of the role
+        example: 123
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Role'
+        description: Update a role
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+          description: Role was updated successfully
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.roles.update
+      summary: Update a role
+      tags:
+      - Role
 components:
   schemas:
     CreateUserRequest:
@@ -831,6 +1039,23 @@ components:
       required:
       - email
       type: object
+    Role:
+      example:
+        name: admin
+      properties:
+        id:
+          format: int64
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+      required:
+      - name
+      type: object
   securitySchemes:
     OAuth2:
       flows:
@@ -840,11 +1065,15 @@ components:
             socialapp.users.create: Create users
             socialapp.users.update: Update users
             socialapp.users.delete: Delete users
+            socialapp.users.read: Read a user
             socialapp.comments.list: List comments
             socialapp.comments.create: Create comments
             socialapp.comments.update: Update comments
             socialapp.comments.delete: Delete comments
             socialapp.followers.list: List followers
             socialapp.following.list: List following
+            socialapp.roles.list: List roles
+            socialapp.roles.create: Create roles
+            socialapp.roles.read: Read a role
           tokenUrl: /oauth/token
       type: oauth2

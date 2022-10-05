@@ -5,6 +5,7 @@ go/api.go
 go/api_authentication.go
 go/api_comment.go
 go/api_following.go
+go/api_role.go
 go/api_user.go
 go/error.go
 go/helpers.go
@@ -16,5 +17,6 @@ go/model_comment.go
 go/model_create_user_request.go
 go/model_error.go
 go/model_reset_password_request.go
+go/model_role.go
 go/model_user.go
 go/routers.go

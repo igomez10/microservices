@@ -5,5 +5,7 @@ CommentApi.csv
 CommentApi.jmx
 FollowingApi.csv
 FollowingApi.jmx
+RoleApi.csv
+RoleApi.jmx
 UserApi.csv
 UserApi.jmx

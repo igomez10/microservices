@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"socialapp/internal/authorizationparser"
@@ -12,6 +13,7 @@ import (
 	"socialapp/internal/middlewares/gandalf"
 	"socialapp/pkg/controller/authentication"
 	"socialapp/pkg/controller/comment"
+	"socialapp/pkg/controller/role"
 	"socialapp/pkg/controller/user"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
@@ -67,10 +69,15 @@ func main() {
 	AuthApiService := &authentication.AuthenticationService{DB: queries, DBConn: dbConn}
 	AuthApiController := openapi.NewAuthenticationApiController(AuthApiService)
 
+	// Role service
+	RoleAPIService := &role.RoleApiService{DB: queries, DBConn: dbConn}
+	RoleAPIController := openapi.NewRoleApiController(RoleAPIService)
+
 	routers := []openapi.Router{
 		CommentApiController,
 		UserApiController,
 		AuthApiController,
+		RoleAPIController,
 	}
 
 	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn}
@@ -85,7 +92,21 @@ func main() {
 		middleware.Timeout(60 * time.Second),
 	}
 
-	doc, err := openapi3.NewLoader().LoadFromFile("../openapi.yaml")
+	// open file
+	openAPIPath := "openapi.yaml"
+	openapiFile, err := os.Open(openAPIPath)
+	if err != nil {
+		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to open openapi file")
+	}
+
+	// read file
+	content, err := ioutil.ReadAll(openapiFile)
+	if err != nil {
+		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to read openapi file")
+	}
+
+	// parse file
+	doc, err := openapi3.NewLoader().LoadFromData(content)
 	if err != nil {
 		log.Fatal().Err(err)
 	}

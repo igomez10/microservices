@@ -39,6 +39,17 @@ type FollowingApiRouter interface {
 	GetUserFollowers(http.ResponseWriter, *http.Request)
 }
 
+// RoleApiRouter defines the required methods for binding the api requests to a responses for the RoleApi
+// The RoleApiRouter implementation should parse necessary information from the http request,
+// pass the data to a RoleApiServicer to perform the required actions, then write the service results to the http response.
+type RoleApiRouter interface {
+	CreateRole(http.ResponseWriter, *http.Request)
+	DeleteRole(http.ResponseWriter, *http.Request)
+	GetRole(http.ResponseWriter, *http.Request)
+	ListRoles(http.ResponseWriter, *http.Request)
+	UpdateRole(http.ResponseWriter, *http.Request)
+}
+
 // UserApiRouter defines the required methods for binding the api requests to a responses for the UserApi
 // The UserApiRouter implementation should parse necessary information from the http request,
 // pass the data to a UserApiServicer to perform the required actions, then write the service results to the http response.
@@ -82,6 +93,18 @@ type CommentApiServicer interface {
 // and updated with the logic required for the API.
 type FollowingApiServicer interface {
 	GetUserFollowers(context.Context, string) (ImplResponse, error)
+}
+
+// RoleApiServicer defines the api actions for the RoleApi service
+// This interface intended to stay up to date with the openapi yaml used to generate it,
+// while the service implementation can be ignored with the .openapi-generator-ignore file
+// and updated with the logic required for the API.
+type RoleApiServicer interface {
+	CreateRole(context.Context, Role) (ImplResponse, error)
+	DeleteRole(context.Context, int32) (ImplResponse, error)
+	GetRole(context.Context, int32) (ImplResponse, error)
+	ListRoles(context.Context, int32, int32) (ImplResponse, error)
+	UpdateRole(context.Context, int32, Role) (ImplResponse, error)
 }
 
 // UserApiServicer defines the api actions for the UserApi service
