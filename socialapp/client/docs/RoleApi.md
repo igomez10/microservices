@@ -220,7 +220,7 @@ Name | Type | Description  | Notes
 
 ## ListRoles
 
-> []Role ListRoles(ctx).Offset(offset).Limit(limit).Execute()
+> []Role ListRoles(ctx).Limit(limit).Offset(offset).Execute()
 
 Returns a list of roles
 
@@ -239,12 +239,12 @@ import (
 )
 
 func main() {
-    offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
     limit := int32(56) // int32 | The numbers of roles to return (optional)
+    offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.RoleApi.ListRoles(context.Background()).Offset(offset).Limit(limit).Execute()
+    resp, r, err := apiClient.RoleApi.ListRoles(context.Background()).Limit(limit).Offset(offset).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `RoleApi.ListRoles``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -265,8 +265,8 @@ Other parameters are passed through a pointer to a apiListRolesRequest struct vi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **offset** | **int32** | The number of items to skip before starting to collect the result | 
  **limit** | **int32** | The numbers of roles to return | 
+ **offset** | **int32** | The number of items to skip before starting to collect the result | 
 
 ### Return type
 

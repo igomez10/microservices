@@ -703,11 +703,6 @@ func TestRoleLifecycle(t *testing.T) {
 		t.Fatalf("Error getting oauth2 context: %v", err)
 	}
 
-	// newRole := client.Role{
-	// 	Name:        fmt.Sprintf("Test-%d1", time.Now().UnixNano()),
-	// 	Description: "Test Role",
-	// }
-
 	newRole := client.NewRole(fmt.Sprintf("Test-CreateRole-%d1", time.Now().UnixNano()))
 	// create a role
 

@@ -94,7 +94,7 @@ Returns a role
 
 <a name="listRoles"></a>
 # **listRoles**
-> List listRoles(offset, limit)
+> List listRoles(limit, offset)
 
 Returns a list of roles
 
@@ -104,8 +104,8 @@ Returns a list of roles
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **offset** | **Integer**| The number of items to skip before starting to collect the result | [optional] [default to null] |
 | **limit** | **Integer**| The numbers of roles to return | [optional] [default to null] |
+| **offset** | **Integer**| The number of items to skip before starting to collect the result | [optional] [default to null] |
 
 ### Return type
 

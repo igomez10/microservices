@@ -104,7 +104,7 @@ _socialapp-cli()
     operation_parameters["createRole"]=""
     operation_parameters["deleteRole"]="id= "
     operation_parameters["getRole"]="id= "
-    operation_parameters["listRoles"]="offset= limit= "
+    operation_parameters["listRoles"]="limit= offset= "
     operation_parameters["updateRole"]="id= "
     operation_parameters["changePassword"]=""
     operation_parameters["createUser"]=""

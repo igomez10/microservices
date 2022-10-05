@@ -141,6 +141,13 @@ Class | Method | HTTP request | Description
  - **socialapp.roles.list**: List roles
  - **socialapp.roles.create**: Create roles
  - **socialapp.roles.read**: Read a role
+ - **socialapp.roles.update**: Update roles
+ - **socialapp.roles.delete**: Delete roles
+ - **socialapp.scopes.list**: List scopes
+ - **socialapp.scopes.create**: Create scopes
+ - **socialapp.scopes.read**: Read a scope
+ - **socialapp.scopes.update**: Update scopes
+ - **socialapp.scopes.delete**: Delete scopes
 
 Example
 

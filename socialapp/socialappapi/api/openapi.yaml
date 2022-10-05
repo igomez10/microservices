@@ -699,19 +699,19 @@ paths:
       description: Returns a list of roles
       operationId: listRoles
       parameters:
-      - description: The number of items to skip before starting to collect the result
+      - description: The numbers of roles to return
         explode: false
         in: query
-        name: offset
+        name: limit
         required: false
         schema:
           format: int32
           type: integer
         style: form
-      - description: The numbers of roles to return
+      - description: The number of items to skip before starting to collect the result
         explode: false
         in: query
-        name: limit
+        name: offset
         required: false
         schema:
           format: int32
@@ -1075,5 +1075,12 @@ components:
             socialapp.roles.list: List roles
             socialapp.roles.create: Create roles
             socialapp.roles.read: Read a role
+            socialapp.roles.update: Update roles
+            socialapp.roles.delete: Delete roles
+            socialapp.scopes.list: List scopes
+            socialapp.scopes.create: Create scopes
+            socialapp.scopes.read: Read a scope
+            socialapp.scopes.update: Update scopes
+            socialapp.scopes.delete: Delete scopes
           tokenUrl: /oauth/token
       type: oauth2

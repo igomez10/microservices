@@ -126,7 +126,7 @@ Returns a list of roles
 ### Example
 
 ```bash
-socialapp-cli listRoles  offset=value  limit=value
+socialapp-cli listRoles  limit=value  offset=value
 ```
 
 ### Parameters
@@ -134,8 +134,8 @@ socialapp-cli listRoles  offset=value  limit=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **offset** | **integer** | The number of items to skip before starting to collect the result | [optional] [default to null]
  **limit** | **integer** | The numbers of roles to return | [optional] [default to null]
+ **offset** | **integer** | The number of items to skip before starting to collect the result | [optional] [default to null]
 
 ### Return type
 

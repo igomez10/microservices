@@ -387,8 +387,8 @@ case $state in
       listRoles)
         local -a _op_arguments
         _op_arguments=(
-                    "offset=:[QUERY] The number of items to skip before starting to collect the result"
-"limit=:[QUERY] The numbers of roles to return"
+                    "limit=:[QUERY] The numbers of roles to return"
+"offset=:[QUERY] The number of items to skip before starting to collect the result"
           )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;

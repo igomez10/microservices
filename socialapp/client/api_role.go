@@ -397,19 +397,19 @@ func (a *RoleApiService) GetRoleExecute(r RoleApiGetRoleRequest) (*Role, *http.R
 type RoleApiListRolesRequest struct {
 	ctx        context.Context
 	ApiService *RoleApiService
-	offset     *int32
 	limit      *int32
-}
-
-// The number of items to skip before starting to collect the result
-func (r RoleApiListRolesRequest) Offset(offset int32) RoleApiListRolesRequest {
-	r.offset = &offset
-	return r
+	offset     *int32
 }
 
 // The numbers of roles to return
 func (r RoleApiListRolesRequest) Limit(limit int32) RoleApiListRolesRequest {
 	r.limit = &limit
+	return r
+}
+
+// The number of items to skip before starting to collect the result
+func (r RoleApiListRolesRequest) Offset(offset int32) RoleApiListRolesRequest {
+	r.offset = &offset
 	return r
 }
 
@@ -454,11 +454,11 @@ func (a *RoleApiService) ListRolesExecute(r RoleApiListRolesRequest) ([]Role, *h
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
-	if r.offset != nil {
-		localVarQueryParams.Add("offset", parameterToString(*r.offset, ""))
-	}
 	if r.limit != nil {
 		localVarQueryParams.Add("limit", parameterToString(*r.limit, ""))
+	}
+	if r.offset != nil {
+		localVarQueryParams.Add("offset", parameterToString(*r.offset, ""))
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}

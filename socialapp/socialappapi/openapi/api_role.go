@@ -149,17 +149,17 @@ func (c *RoleApiController) GetRole(w http.ResponseWriter, r *http.Request) {
 // ListRoles - Returns a list of roles
 func (c *RoleApiController) ListRoles(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	offsetParam, err := parseInt32Parameter(query.Get("offset"), false)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
-	}
 	limitParam, err := parseInt32Parameter(query.Get("limit"), false)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	result, err := c.service.ListRoles(r.Context(), offsetParam, limitParam)
+	offsetParam, err := parseInt32Parameter(query.Get("offset"), false)
+	if err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	result, err := c.service.ListRoles(r.Context(), limitParam, offsetParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)
