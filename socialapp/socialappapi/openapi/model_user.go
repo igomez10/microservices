@@ -26,6 +26,8 @@ type User struct {
 	Email string `json:"email"`
 
 	CreatedAt time.Time `json:"created_at,omitempty"`
+
+	Roles []Role `json:"roles,omitempty"`
 }
 
 // AssertUserRequired checks if the required fields are not zero-ed
@@ -42,6 +44,11 @@ func AssertUserRequired(obj User) error {
 		}
 	}
 
+	for _, el := range obj.Roles {
+		if err := AssertRoleRequired(el); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

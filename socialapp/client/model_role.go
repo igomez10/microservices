@@ -22,6 +22,7 @@ type Role struct {
 	Name        string     `json:"name"`
 	Description *string    `json:"description,omitempty"`
 	CreatedAt   *time.Time `json:"created_at,omitempty"`
+	Scopes      []Scope    `json:"scopes,omitempty"`
 }
 
 // NewRole instantiates a new Role object
@@ -162,6 +163,38 @@ func (o *Role) SetCreatedAt(v time.Time) {
 	o.CreatedAt = &v
 }
 
+// GetScopes returns the Scopes field value if set, zero value otherwise.
+func (o *Role) GetScopes() []Scope {
+	if o == nil || o.Scopes == nil {
+		var ret []Scope
+		return ret
+	}
+	return o.Scopes
+}
+
+// GetScopesOk returns a tuple with the Scopes field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Role) GetScopesOk() ([]Scope, bool) {
+	if o == nil || o.Scopes == nil {
+		return nil, false
+	}
+	return o.Scopes, true
+}
+
+// HasScopes returns a boolean if a field has been set.
+func (o *Role) HasScopes() bool {
+	if o != nil && o.Scopes != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetScopes gets a reference to the given []Scope and assigns it to the Scopes field.
+func (o *Role) SetScopes(v []Scope) {
+	o.Scopes = v
+}
+
 func (o Role) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
 	if o.Id != nil {
@@ -175,6 +208,9 @@ func (o Role) MarshalJSON() ([]byte, error) {
 	}
 	if o.CreatedAt != nil {
 		toSerialize["created_at"] = o.CreatedAt
+	}
+	if o.Scopes != nil {
+		toSerialize["scopes"] = o.Scopes
 	}
 	return json.Marshal(toSerialize)
 }

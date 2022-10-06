@@ -76,7 +76,8 @@ CREATE TABLE IF NOT EXISTS `role` (
   `id` BIGINT DEFAULT NULL,
   `name` TEXT NOT NULL,
   `description` TEXT DEFAULT NULL,
-  `created_at` DATETIME DEFAULT NULL
+  `created_at` DATETIME DEFAULT NULL,
+  `scopes` JSON DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - Role.';
 
 --
@@ -100,7 +101,8 @@ CREATE TABLE IF NOT EXISTS `user` (
   `first_name` TEXT NOT NULL,
   `last_name` TEXT NOT NULL,
   `email` TEXT NOT NULL,
-  `created_at` DATETIME DEFAULT NULL
+  `created_at` DATETIME DEFAULT NULL,
+  `roles` JSON DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - User.';
 
 

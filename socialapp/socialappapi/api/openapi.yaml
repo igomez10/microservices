@@ -1203,6 +1203,10 @@ components:
         created_at:
           format: date-time
           type: string
+        roles:
+          items:
+            $ref: '#/components/schemas/Role'
+          type: array
       required:
       - email
       - first_name
@@ -1291,6 +1295,11 @@ components:
     Role:
       example:
         name: admin
+        description: Administrator Role
+        scopes:
+        - socialapp.users.read
+        - socialapp.users.update
+        - socialapp.users.delete
       properties:
         id:
           format: int64
@@ -1302,6 +1311,10 @@ components:
         created_at:
           format: date-time
           type: string
+        scopes:
+          items:
+            $ref: '#/components/schemas/Scope'
+          type: array
       required:
       - name
       type: object

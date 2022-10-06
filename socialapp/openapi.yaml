@@ -1207,6 +1207,10 @@ components:
         created_at:
           format: date-time
           type: string
+        roles:
+          items:
+            $ref: "#/components/schemas/Role"
+          type: array
       required:
         - email
         - first_name
@@ -1312,9 +1316,9 @@ components:
           format: date-time
           type: string
         scopes:
-          items:
-            type: string
           type: array
+          items:
+            $ref: "#/components/schemas/Scope"
       required:
         - name
       type: object
