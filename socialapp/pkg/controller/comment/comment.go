@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"net/http"
+	"socialapp/internal/converter"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
 
@@ -67,7 +68,7 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
-	c := FromDBCmtToAPICmt(newComment, user)
+	c := converter.FromDBCmtToAPICmt(newComment, user)
 	return openapi.Response(http.StatusOK, c), nil
 }
 
@@ -84,7 +85,7 @@ func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.Impl
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
-	c := FromDBCmtToAPICmt(comment, user)
+	c := converter.FromDBCmtToAPICmt(comment, user)
 	return openapi.Response(http.StatusOK, c), nil
 }
 
@@ -122,7 +123,7 @@ func (s *CommentService) GetUserComments(ctx context.Context, username string, l
 			continue
 		}
 
-		c := FromDBCmtToAPICmt(comments[i], user)
+		c := converter.FromDBCmtToAPICmt(comments[i], user)
 		apiComments = append(apiComments, c)
 	}
 
@@ -173,7 +174,7 @@ func (s *CommentService) GetUserFeed(ctx context.Context, username string) (open
 				// skip deleted comments
 				continue
 			}
-			apiComment := FromDBCmtToAPICmt(currentComment, currentFollowedUser)
+			apiComment := converter.FromDBCmtToAPICmt(currentComment, currentFollowedUser)
 			comments = append(comments, apiComment)
 		}
 	}
@@ -182,14 +183,4 @@ func (s *CommentService) GetUserFeed(ctx context.Context, username string) (open
 	}
 
 	return openapi.Response(http.StatusOK, comments), nil
-}
-
-func FromDBCmtToAPICmt(comment db.Comment, user db.User) openapi.Comment {
-	return openapi.Comment{
-		Id:        comment.ID,
-		Content:   comment.Content,
-		LikeCount: int64(comment.LikeCount),
-		CreatedAt: comment.CreatedAt,
-		Username:  user.Username,
-	}
 }

@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"net/http"
+	"socialapp/internal/converter"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
 	"strings"
@@ -146,7 +147,7 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 		log.Error()
 	}
 
-	apiUser := FromDBUserToOpenAPIUser(dbUser)
+	apiUser := converter.FromDBUserToAPIUser(dbUser)
 
 	return openapi.Response(http.StatusOK, apiUser), nil
 }
@@ -193,7 +194,7 @@ func (s *UserApiService) GetUserByUsername(ctx context.Context, username string)
 		}, nil
 	}
 
-	apiUser := FromDBUserToOpenAPIUser(dbUser)
+	apiUser := converter.FromDBUserToAPIUser(dbUser)
 
 	return openapi.Response(http.StatusOK, apiUser), nil
 }
@@ -254,7 +255,7 @@ func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32) (op
 
 	apiUsers := make([]openapi.User, len(dbUsers))
 	for i := range dbUsers {
-		apiUsers[i] = FromDBUserToOpenAPIUser(dbUsers[i])
+		apiUsers[i] = converter.FromDBUserToAPIUser(dbUsers[i])
 	}
 
 	return openapi.Response(http.StatusOK, apiUsers), nil
@@ -440,7 +441,7 @@ func (s *UserApiService) GetUserFollowers(ctx context.Context, username string) 
 
 	apiFollowers := make([]openapi.User, len(dbFollowers))
 	for i := range dbFollowers {
-		apiFollowers[i] = FromDBUserToOpenAPIUser(dbFollowers[i])
+		apiFollowers[i] = converter.FromDBUserToAPIUser(dbFollowers[i])
 	}
 
 	return openapi.Response(http.StatusOK, apiFollowers), nil
@@ -534,22 +535,10 @@ func (s *UserApiService) GetFollowingUsers(ctx context.Context, username string)
 
 	apiFollowing := make([]openapi.User, len(dbFollowing))
 	for i := range dbFollowing {
-		apiFollowing[i] = FromDBUserToOpenAPIUser(dbFollowing[i])
+		apiFollowing[i] = converter.FromDBUserToAPIUser(dbFollowing[i])
 	}
 
 	return openapi.Response(http.StatusOK, apiFollowing), nil
-}
-
-func FromDBUserToOpenAPIUser(u db.User) openapi.User {
-	apiUser := openapi.User{
-		Username:  u.Username,
-		FirstName: u.FirstName,
-		LastName:  u.LastName,
-		Email:     u.Email,
-		CreatedAt: u.CreatedAt,
-	}
-
-	return apiUser
 }
 
 func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangePasswordRequest) (openapi.ImplResponse, error) {
@@ -645,7 +634,7 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 		}, nil
 	}
 
-	apiUser := FromDBUserToOpenAPIUser(user)
+	apiUser := converter.FromDBUserToAPIUser(user)
 	return openapi.Response(http.StatusOK, apiUser), nil
 }
 

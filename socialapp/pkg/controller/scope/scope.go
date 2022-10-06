@@ -3,6 +3,7 @@ package scope
 import (
 	"context"
 	"net/http"
+	"socialapp/internal/converter"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
 
@@ -72,7 +73,7 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 		}, nil
 	}
 
-	apiscope := FromDBScopeToApiScope(scope)
+	apiscope := converter.FromDBScopeToApiScope(scope)
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: apiscope,
@@ -115,7 +116,7 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (opena
 		}, nil
 	}
 
-	apiScope := FromDBScopeToApiScope(scope)
+	apiScope := converter.FromDBScopeToApiScope(scope)
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: apiScope,
@@ -142,7 +143,7 @@ func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int32) (openapi.
 		}, nil
 	}
 
-	apiScope := FromDBScopeToApiScope(scope)
+	apiScope := converter.FromDBScopeToApiScope(scope)
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: apiScope,
@@ -171,7 +172,7 @@ func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset in
 
 	apiScopes := make([]openapi.Scope, len(scopes))
 	for i, scope := range scopes {
-		apiScopes[i] = FromDBScopeToApiScope(scope)
+		apiScopes[i] = converter.FromDBScopeToApiScope(scope)
 	}
 
 	return openapi.ImplResponse{
@@ -242,7 +243,7 @@ func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeID int32, update
 
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
-		Body: FromDBScopeToApiScope(scope),
+		Body: converter.FromDBScopeToApiScope(scope),
 	}, nil
 }
 
@@ -265,21 +266,11 @@ func (s *ScopeApiService) ListScopesForRole(ctx context.Context, roleID int32) (
 
 	apiScopes := make([]openapi.Scope, len(scopes))
 	for i, scope := range scopes {
-		apiScopes[i] = FromDBScopeToApiScope(scope)
+		apiScopes[i] = converter.FromDBScopeToApiScope(scope)
 	}
 
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: apiScopes,
 	}, nil
-}
-
-func FromDBScopeToApiScope(dbScope db.Scope) openapi.Scope {
-	apiScope := openapi.Scope{
-		Id:          dbScope.ID,
-		Name:        dbScope.Name,
-		Description: dbScope.Description,
-		CreatedAt:   dbScope.CreatedAt,
-	}
-	return apiScope
 }

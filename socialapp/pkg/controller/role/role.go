@@ -3,6 +3,7 @@ package role
 import (
 	"context"
 	"net/http"
+	"socialapp/internal/converter"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
 
@@ -72,7 +73,7 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 		}, nil
 	}
 
-	apiRole := FromDBRoleToApiRole(role)
+	apiRole := converter.FromDBRoleToAPIRole(role)
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: apiRole,
@@ -114,7 +115,7 @@ func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.
 		}, nil
 	}
 
-	apiRole := FromDBRoleToApiRole(role)
+	apiRole := converter.FromDBRoleToAPIRole(role)
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: apiRole,
@@ -141,7 +142,7 @@ func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.Imp
 		}, nil
 	}
 
-	apiRole := FromDBRoleToApiRole(role)
+	apiRole := converter.FromDBRoleToAPIRole(role)
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: apiRole,
@@ -170,7 +171,7 @@ func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int3
 
 	apiRoles := make([]openapi.Role, len(roles))
 	for i, role := range roles {
-		apiRoles[i] = FromDBRoleToApiRole(role)
+		apiRoles[i] = converter.FromDBRoleToAPIRole(role)
 	}
 
 	return openapi.ImplResponse{
@@ -241,16 +242,6 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
-		Body: FromDBRoleToApiRole(role),
+		Body: converter.FromDBRoleToAPIRole(role),
 	}, nil
-}
-
-func FromDBRoleToApiRole(dbRole db.Role) openapi.Role {
-	apiRole := openapi.Role{
-		Id:          dbRole.ID,
-		Name:        dbRole.Name,
-		Description: dbRole.Description,
-		CreatedAt:   dbRole.CreatedAt,
-	}
-	return apiRole
 }
