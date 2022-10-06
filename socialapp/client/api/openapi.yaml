@@ -25,6 +25,8 @@ tags:
   name: Following
 - description: Role management
   name: Role
+- description: Scope management
+  name: Scope
 paths:
   /users:
     get:
@@ -900,6 +902,47 @@ paths:
       summary: Update a role
       tags:
       - Role
+  /roles/{id}/scopes:
+    get:
+      description: Returns a list of scopes for a role
+      operationId: listScopesForRole
+      parameters:
+      - description: The id of the role
+        example: 123
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Scope'
+                type: array
+          description: List of scopes
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.roles.listscopes
+      summary: Returns a list of scopes for a role
+      tags:
+      - Scope
   /scopes:
     get:
       description: Returns a list of scopes
@@ -1306,5 +1349,6 @@ components:
             socialapp.scopes.read: Read a scope
             socialapp.scopes.update: Update scopes
             socialapp.scopes.delete: Delete scopes
+            socialapp.roles.list_scopes: List scopes of a role
           tokenUrl: /oauth/token
       type: oauth2

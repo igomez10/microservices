@@ -22,6 +22,7 @@ All URIs are relative to *https://microservices.onrender.com*
 *ScopeApi* | [**deleteScope**](Apis/ScopeApi.md#deletescope) | **DELETE** /scopes/{id} | Delete a scope |
 *ScopeApi* | [**getScope**](Apis/ScopeApi.md#getscope) | **GET** /scopes/{id} | Returns a scope |
 *ScopeApi* | [**listScopes**](Apis/ScopeApi.md#listscopes) | **GET** /scopes | Returns a list of scopes |
+*ScopeApi* | [**listScopesForRole**](Apis/ScopeApi.md#listscopesforrole) | **GET** /roles/{id}/scopes | Returns a list of scopes for a role |
 *ScopeApi* | [**updateScope**](Apis/ScopeApi.md#updatescope) | **PUT** /scopes/{id} | Update a scope |
 | *UserApi* | [**changePassword**](Apis/UserApi.md#changepassword) | **POST** /password | Change password |
 *UserApi* | [**createUser**](Apis/UserApi.md#createuser) | **POST** /users | Create user |
@@ -82,4 +83,5 @@ All URIs are relative to *https://microservices.onrender.com*
   - socialapp.scopes.read: Read a scope
   - socialapp.scopes.update: Update scopes
   - socialapp.scopes.delete: Delete scopes
+  - socialapp.roles.list_scopes: List scopes of a role
 

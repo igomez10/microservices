@@ -136,7 +136,8 @@ INSERT INTO `scopes` (`id`, `name`, `description`, `created_at`, `deleted_at`) V
 (22, 'socialapp.scopes.read', 'socialapp.scopes.read', '2022-09-28 20:21:07', NULL),
 (23, 'socialapp.scopes.create', 'socialapp.scopes.create', '2022-09-28 20:21:07', NULL),
 (24, 'socialapp.scopes.delete', 'socialapp.scopes.delete', '2022-09-28 20:21:07', NULL),
-(25, 'socialapp.scopes.update', 'socialapp.scopes.update', '2022-09-28 20:21:07', NULL);
+(25, 'socialapp.scopes.update', 'socialapp.scopes.update', '2022-09-28 20:21:07', NULL),
+(26, 'socialapp.roles.listscopes', 'socialapp.roles.listscopes','2022-09-28 20:21:07', NULL);
 
 INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (1, 1, 1),
@@ -185,7 +186,10 @@ INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (44, 2, 22),
 (45, 2, 23),
 (46, 2, 24),
-(47, 2, 25);
+(47, 2, 25),
+(48, 1, 26),
+(49, 2, 26);
+
 
 INSERT INTO users_to_roles (id, role_id, user_id) VALUES
 (1, 1, 1);

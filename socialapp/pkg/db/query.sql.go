@@ -467,48 +467,6 @@ func (q *Queries) GetRoleByName(ctx context.Context, db DBTX, name string) (Role
 	return i, err
 }
 
-const GetRoleScopes = `-- name: GetRoleScopes :many
-SELECT
-	s.id, s.name, s.description, s.created_at, s.deleted_at
-FROM
-	scopes s
-	INNER JOIN roles_to_scopes rs ON rs.scope_id = s.id
-	INNER JOIN roles r ON r.id = rs.role_id
-WHERE
-	r.id = ?
-	AND r.deleted_at IS NULL
-	AND s.deleted_at IS NULL
-`
-
-func (q *Queries) GetRoleScopes(ctx context.Context, db DBTX, id int64) ([]Scope, error) {
-	rows, err := db.QueryContext(ctx, GetRoleScopes, id)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Scope
-	for rows.Next() {
-		var i Scope
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Description,
-			&i.CreatedAt,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const GetScope = `-- name: GetScope :one
 SELECT id, name, description, created_at, deleted_at FROM scopes
 WHERE id = ? AND deleted_at IS NULL LIMIT 1
@@ -805,6 +763,48 @@ func (q *Queries) ListComment(ctx context.Context, db DBTX, arg ListCommentParam
 			&i.UserID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const ListRoleScopes = `-- name: ListRoleScopes :many
+SELECT
+	s.id, s.name, s.description, s.created_at, s.deleted_at
+FROM
+	scopes s
+	INNER JOIN roles_to_scopes rs ON rs.scope_id = s.id
+	INNER JOIN roles r ON r.id = rs.role_id
+WHERE
+	r.id = ?
+	AND r.deleted_at IS NULL
+	AND s.deleted_at IS NULL
+`
+
+func (q *Queries) ListRoleScopes(ctx context.Context, db DBTX, id int64) ([]Scope, error) {
+	rows, err := db.QueryContext(ctx, ListRoleScopes, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Scope
+	for rows.Next() {
+		var i Scope
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.CreatedAt,
 			&i.DeletedAt,
 		); err != nil {
 			return nil, err

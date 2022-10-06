@@ -307,6 +307,7 @@ case $state in
             "deleteScope[Delete a scope]" \
             "getScope[Returns a scope]" \
             "listScopes[Returns a list of scopes]" \
+            "listScopesForRole[Returns a list of scopes for a role]" \
             "updateScope[Update a scope]"             "changePassword[Change password]" \
             "createUser[Create user]" \
             "deleteUser[Deletes a particular user]" \
@@ -429,6 +430,13 @@ case $state in
                     "limit=:[QUERY] The numbers of scopes to return"
 "offset=:[QUERY] The number of items to skip before starting to collect the result"
           )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      listScopesForRole)
+        local -a _op_arguments
+        _op_arguments=(
+          "id=:[PATH] The id of the role"
+                    )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       updateScope)

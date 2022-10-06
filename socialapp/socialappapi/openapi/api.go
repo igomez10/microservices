@@ -58,6 +58,7 @@ type ScopeApiRouter interface {
 	DeleteScope(http.ResponseWriter, *http.Request)
 	GetScope(http.ResponseWriter, *http.Request)
 	ListScopes(http.ResponseWriter, *http.Request)
+	ListScopesForRole(http.ResponseWriter, *http.Request)
 	UpdateScope(http.ResponseWriter, *http.Request)
 }
 
@@ -127,6 +128,7 @@ type ScopeApiServicer interface {
 	DeleteScope(context.Context, int32) (ImplResponse, error)
 	GetScope(context.Context, int32) (ImplResponse, error)
 	ListScopes(context.Context, int32, int32) (ImplResponse, error)
+	ListScopesForRole(context.Context, int32) (ImplResponse, error)
 	UpdateScope(context.Context, int32, Scope) (ImplResponse, error)
 }
 

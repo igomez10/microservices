@@ -114,6 +114,7 @@ operation_parameters_minimum_occurrences["deleteScope:::id"]=1
 operation_parameters_minimum_occurrences["getScope:::id"]=1
 operation_parameters_minimum_occurrences["listScopes:::limit"]=0
 operation_parameters_minimum_occurrences["listScopes:::offset"]=0
+operation_parameters_minimum_occurrences["listScopesForRole:::id"]=1
 operation_parameters_minimum_occurrences["updateScope:::id"]=1
 operation_parameters_minimum_occurrences["updateScope:::Scope"]=0
 operation_parameters_minimum_occurrences["changePassword:::ChangePasswordRequest"]=1
@@ -161,6 +162,7 @@ operation_parameters_maximum_occurrences["deleteScope:::id"]=0
 operation_parameters_maximum_occurrences["getScope:::id"]=0
 operation_parameters_maximum_occurrences["listScopes:::limit"]=0
 operation_parameters_maximum_occurrences["listScopes:::offset"]=0
+operation_parameters_maximum_occurrences["listScopesForRole:::id"]=0
 operation_parameters_maximum_occurrences["updateScope:::id"]=0
 operation_parameters_maximum_occurrences["updateScope:::Scope"]=0
 operation_parameters_maximum_occurrences["changePassword:::ChangePasswordRequest"]=0
@@ -205,6 +207,7 @@ operation_parameters_collection_type["deleteScope:::id"]=""
 operation_parameters_collection_type["getScope:::id"]=""
 operation_parameters_collection_type["listScopes:::limit"]=""
 operation_parameters_collection_type["listScopes:::offset"]=""
+operation_parameters_collection_type["listScopesForRole:::id"]=""
 operation_parameters_collection_type["updateScope:::id"]=""
 operation_parameters_collection_type["updateScope:::Scope"]=""
 operation_parameters_collection_type["changePassword:::ChangePasswordRequest"]=""
@@ -632,6 +635,7 @@ EOF
     echo -e "        * socialapp.scopes.read - Read a scope"
     echo -e "        * socialapp.scopes.update - Update scopes"
     echo -e "        * socialapp.scopes.delete - Delete scopes"
+    echo -e "        * socialapp.roles.list_scopes - List scopes of a role"
     echo ""
     echo -e "${BOLD}${WHITE}Operations (grouped by tags)${OFF}"
     echo ""
@@ -672,6 +676,7 @@ read -r -d '' ops <<EOF
   ${CYAN}deleteScope${OFF};Delete a scope (AUTH)
   ${CYAN}getScope${OFF};Returns a scope (AUTH)
   ${CYAN}listScopes${OFF};Returns a list of scopes (AUTH)
+  ${CYAN}listScopesForRole${OFF};Returns a list of scopes for a role (AUTH)
   ${CYAN}updateScope${OFF};Update a scope (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
@@ -1079,6 +1084,28 @@ print_listScopes_help() {
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The number of items to skip before starting to collect the result${YELLOW} Specify as: offset=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo ""
+    echo -e "${BOLD}${WHITE}Responses${OFF}"
+    code=200
+    echo -e "${result_color_table[${code:0:1}]}  200;List of scopes${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=0
+    echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+}
+##############################################################################
+#
+# Print help for listScopesForRole operation
+#
+##############################################################################
+print_listScopesForRole_help() {
+    echo ""
+    echo -e "${BOLD}${WHITE}listScopesForRole - Returns a list of scopes for a role${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Returns a list of scopes for a role" | paste -sd' ' | fold -sw 80
+    echo -e ""
+    echo -e "${BOLD}${WHITE}Parameters${OFF}"
+    echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The id of the role ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
@@ -2104,6 +2131,42 @@ call_listScopes() {
 
 ##############################################################################
 #
+# Call listScopesForRole operation
+#
+##############################################################################
+call_listScopesForRole() {
+    # ignore error about 'path_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local path_parameter_names=(id)
+    # ignore error about 'query_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local query_parameter_names=(  )
+    local path
+
+    if ! path=$(build_request_path "/roles/{id}/scopes" path_parameter_names query_parameter_names); then
+        ERROR_MSG=$path
+        exit 1
+    fi
+    local method="GET"
+    local headers_curl
+    headers_curl=$(header_arguments_to_curl)
+    if [[ -n $header_accept ]]; then
+        headers_curl="${headers_curl} -H 'Accept: ${header_accept}'"
+    fi
+
+    local basic_auth_option=""
+    if [[ -n $basic_auth_credential ]]; then
+        basic_auth_option="-u ${basic_auth_credential}"
+    fi
+    if [[ "$print_curl" = true ]]; then
+        echo "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    else
+        eval "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    fi
+}
+
+##############################################################################
+#
 # Call updateScope operation
 #
 ##############################################################################
@@ -2922,6 +2985,9 @@ case $key in
     listScopes)
     operation="listScopes"
     ;;
+    listScopesForRole)
+    operation="listScopesForRole"
+    ;;
     updateScope)
     operation="updateScope"
     ;;
@@ -3082,6 +3148,9 @@ case $operation in
     ;;
     listScopes)
     call_listScopes
+    ;;
+    listScopesForRole)
+    call_listScopesForRole
     ;;
     updateScope)
     call_updateScope

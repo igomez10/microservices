@@ -125,7 +125,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			allowedScopes := map[string]db.Scope{}
 			for i := range roles {
 				// get role scopes from DB
-				scopes, err := m.DB.GetRoleScopes(r.Context(), m.DBConn, roles[i].ID)
+				scopes, err := m.DB.ListRoleScopes(r.Context(), m.DBConn, roles[i].ID)
 				if err != nil {
 					log.Error().Err(err).Int64("role_id", roles[i].ID).Msg("Failed to get role scopes")
 					w.WriteHeader(http.StatusInternalServerError)

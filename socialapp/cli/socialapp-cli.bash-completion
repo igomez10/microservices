@@ -83,6 +83,7 @@ _socialapp-cli()
     operations["deleteScope"]=1
     operations["getScope"]=1
     operations["listScopes"]=1
+    operations["listScopesForRole"]=1
     operations["updateScope"]=1
     operations["changePassword"]=1
     operations["createUser"]=1
@@ -115,6 +116,7 @@ _socialapp-cli()
     operation_parameters["deleteScope"]="id= "
     operation_parameters["getScope"]="id= "
     operation_parameters["listScopes"]="limit= offset= "
+    operation_parameters["listScopesForRole"]="id= "
     operation_parameters["updateScope"]="id= "
     operation_parameters["changePassword"]=""
     operation_parameters["createUser"]=""

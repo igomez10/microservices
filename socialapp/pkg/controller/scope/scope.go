@@ -246,6 +246,34 @@ func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeID int32, update
 	}, nil
 }
 
+func (s *ScopeApiService) ListScopesForRole(ctx context.Context, roleID int32) (openapi.ImplResponse, error) {
+	scopes, err := s.DB.ListRoleScopes(ctx, s.DBConn, int64(roleID))
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Msg("failed to retrieve scopes")
+
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "failed to list scopes",
+			},
+		}, nil
+	}
+
+	apiScopes := make([]openapi.Scope, len(scopes))
+	for i, scope := range scopes {
+		apiScopes[i] = FromDBScopeToApiScope(scope)
+	}
+
+	return openapi.ImplResponse{
+		Code: http.StatusOK,
+		Body: apiScopes,
+	}, nil
+}
+
 func FromDBScopeToApiScope(dbScope db.Scope) openapi.Scope {
 	apiScope := openapi.Scope{
 		Id:          dbScope.ID,

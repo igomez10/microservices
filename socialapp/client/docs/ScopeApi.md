@@ -8,6 +8,7 @@ Method | HTTP request | Description
 [**DeleteScope**](ScopeApi.md#DeleteScope) | **Delete** /scopes/{id} | Delete a scope
 [**GetScope**](ScopeApi.md#GetScope) | **Get** /scopes/{id} | Returns a scope
 [**ListScopes**](ScopeApi.md#ListScopes) | **Get** /scopes | Returns a list of scopes
+[**ListScopesForRole**](ScopeApi.md#ListScopesForRole) | **Get** /roles/{id}/scopes | Returns a list of scopes for a role
 [**UpdateScope**](ScopeApi.md#UpdateScope) | **Put** /scopes/{id} | Update a scope
 
 
@@ -267,6 +268,76 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **limit** | **int32** | The numbers of scopes to return | 
  **offset** | **int32** | The number of items to skip before starting to collect the result | 
+
+### Return type
+
+[**[]Scope**](Scope.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## ListScopesForRole
+
+> []Scope ListScopesForRole(ctx, id).Execute()
+
+Returns a list of scopes for a role
+
+
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "./openapi"
+)
+
+func main() {
+    id := int32(123) // int32 | The id of the role
+
+    configuration := openapiclient.NewConfiguration()
+    apiClient := openapiclient.NewAPIClient(configuration)
+    resp, r, err := apiClient.ScopeApi.ListScopesForRole(context.Background(), id).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `ScopeApi.ListScopesForRole``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+    // response from `ListScopesForRole`: []Scope
+    fmt.Fprintf(os.Stdout, "Response from `ScopeApi.ListScopesForRole`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**id** | **int32** | The id of the role | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiListScopesForRoleRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
 
 ### Return type
 

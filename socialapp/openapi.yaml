@@ -25,6 +25,8 @@ tags:
     name: Following
   - description: Role management
     name: Role
+  - description: Scope management
+    name: Scope
 
 paths:
   /users:
@@ -902,6 +904,48 @@ paths:
       summary: Delete a role
       tags:
         - Role
+  /roles/{id}/scopes:
+    get:
+      description: Returns a list of scopes for a role
+      operationId: listScopesForRole
+      parameters:
+        - description: The id of the role
+          example: 123
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Scope"
+                type: array
+          description: List of scopes
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.roles.listscopes
+      summary: Returns a list of scopes for a role
+      tags:
+        - Scope
+
   /scopes:
     get:
       description: Returns a list of scopes
@@ -1251,6 +1295,11 @@ components:
     Role:
       example:
         name: admin
+        description: Administrator Role
+        scopes:
+          - socialapp.users.read
+          - socialapp.users.update
+          - socialapp.users.delete
       properties:
         id:
           format: int64
@@ -1262,6 +1311,10 @@ components:
         created_at:
           format: date-time
           type: string
+        scopes:
+          items:
+            type: string
+          type: array
       required:
         - name
       type: object
@@ -1309,6 +1362,6 @@ components:
             socialapp.scopes.read: Read a scope
             socialapp.scopes.update: Update scopes
             socialapp.scopes.delete: Delete scopes
-
+            socialapp.roles.list_scopes: List scopes of a role
           tokenUrl: /oauth/token
       type: oauth2

@@ -204,7 +204,7 @@ WHERE
 	AND u.deleted_at IS NULL
 	AND r.deleted_at IS NULL;
 
--- name: GetRoleScopes :many
+-- name: ListRoleScopes :many
 SELECT
 	s.*
 FROM

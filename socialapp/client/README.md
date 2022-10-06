@@ -94,6 +94,7 @@ Class | Method | HTTP request | Description
 *ScopeApi* | [**DeleteScope**](docs/ScopeApi.md#deletescope) | **Delete** /scopes/{id} | Delete a scope
 *ScopeApi* | [**GetScope**](docs/ScopeApi.md#getscope) | **Get** /scopes/{id} | Returns a scope
 *ScopeApi* | [**ListScopes**](docs/ScopeApi.md#listscopes) | **Get** /scopes | Returns a list of scopes
+*ScopeApi* | [**ListScopesForRole**](docs/ScopeApi.md#listscopesforrole) | **Get** /roles/{id}/scopes | Returns a list of scopes for a role
 *ScopeApi* | [**UpdateScope**](docs/ScopeApi.md#updatescope) | **Put** /scopes/{id} | Update a scope
 *UserApi* | [**ChangePassword**](docs/UserApi.md#changepassword) | **Post** /password | Change password
 *UserApi* | [**CreateUser**](docs/UserApi.md#createuser) | **Post** /users | Create user
@@ -154,6 +155,7 @@ Class | Method | HTTP request | Description
  - **socialapp.scopes.read**: Read a scope
  - **socialapp.scopes.update**: Update scopes
  - **socialapp.scopes.delete**: Delete scopes
+ - **socialapp.roles.list_scopes**: List scopes of a role
 
 Example
 
