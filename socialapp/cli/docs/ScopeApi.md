@@ -8,7 +8,6 @@ Method | HTTP request | Description
 [**deleteScope**](ScopeApi.md#deleteScope) | **DELETE** /scopes/{id} | Delete a scope
 [**getScope**](ScopeApi.md#getScope) | **GET** /scopes/{id} | Returns a scope
 [**listScopes**](ScopeApi.md#listScopes) | **GET** /scopes | Returns a list of scopes
-[**listScopesForRole**](ScopeApi.md#listScopesForRole) | **GET** /roles/{id}/scopes | Returns a list of scopes for a role
 [**updateScope**](ScopeApi.md#updateScope) | **PUT** /scopes/{id} | Update a scope
 
 
@@ -137,41 +136,6 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **limit** | **integer** | The numbers of scopes to return | [optional] [default to null]
  **offset** | **integer** | The number of items to skip before starting to collect the result | [optional] [default to null]
-
-### Return type
-
-[**array[Scope]**](Scope.md)
-
-### Authorization
-
-[OAuth2](../README.md#OAuth2)
-
-### HTTP request headers
-
-- **Content-Type**: Not Applicable
-- **Accept**: application/json
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-
-## listScopesForRole
-
-Returns a list of scopes for a role
-
-Returns a list of scopes for a role
-
-### Example
-
-```bash
-socialapp-cli listScopesForRole id=value
-```
-
-### Parameters
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **id** | **integer** | The id of the role | [default to null]
 
 ### Return type
 

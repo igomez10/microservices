@@ -73,7 +73,7 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 		}, nil
 	}
 
-	apiscope := converter.FromDBScopeToApiScope(scope)
+	apiscope := converter.FromDBScopeToAPIScope(scope)
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: apiscope,
@@ -116,7 +116,7 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (opena
 		}, nil
 	}
 
-	apiScope := converter.FromDBScopeToApiScope(scope)
+	apiScope := converter.FromDBScopeToAPIScope(scope)
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: apiScope,
@@ -143,7 +143,7 @@ func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int32) (openapi.
 		}, nil
 	}
 
-	apiScope := converter.FromDBScopeToApiScope(scope)
+	apiScope := converter.FromDBScopeToAPIScope(scope)
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: apiScope,
@@ -172,7 +172,7 @@ func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset in
 
 	apiScopes := make([]openapi.Scope, len(scopes))
 	for i, scope := range scopes {
-		apiScopes[i] = converter.FromDBScopeToApiScope(scope)
+		apiScopes[i] = converter.FromDBScopeToAPIScope(scope)
 	}
 
 	return openapi.ImplResponse{
@@ -243,34 +243,6 @@ func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeID int32, update
 
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
-		Body: converter.FromDBScopeToApiScope(scope),
-	}, nil
-}
-
-func (s *ScopeApiService) ListScopesForRole(ctx context.Context, roleID int32) (openapi.ImplResponse, error) {
-	scopes, err := s.DB.ListRoleScopes(ctx, s.DBConn, int64(roleID))
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
-			Msg("failed to retrieve scopes")
-
-		return openapi.ImplResponse{
-			Code: http.StatusInternalServerError,
-			Body: openapi.Error{
-				Code:    http.StatusInternalServerError,
-				Message: "failed to list scopes",
-			},
-		}, nil
-	}
-
-	apiScopes := make([]openapi.Scope, len(scopes))
-	for i, scope := range scopes {
-		apiScopes[i] = converter.FromDBScopeToApiScope(scope)
-	}
-
-	return openapi.ImplResponse{
-		Code: http.StatusOK,
-		Body: apiScopes,
+		Body: converter.FromDBScopeToAPIScope(scope),
 	}, nil
 }

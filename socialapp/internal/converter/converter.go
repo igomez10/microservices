@@ -40,7 +40,7 @@ func FromDBUserToAPIUser(u db.User) openapi.User {
 	return apiUser
 }
 
-func FromDBScopeToApiScope(dbScope db.Scope) openapi.Scope {
+func FromDBScopeToAPIScope(dbScope db.Scope) openapi.Scope {
 	apiScope := openapi.Scope{
 		Id:          dbScope.ID,
 		Name:        dbScope.Name,

@@ -76,12 +76,6 @@ func (c *ScopeApiController) Routes() Routes {
 			c.ListScopes,
 		},
 		{
-			"ListScopesForRole",
-			strings.ToUpper("Get"),
-			"/roles/{id}/scopes",
-			c.ListScopesForRole,
-		},
-		{
 			"UpdateScope",
 			strings.ToUpper("Put"),
 			"/scopes/{id}",
@@ -166,25 +160,6 @@ func (c *ScopeApiController) ListScopes(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	result, err := c.service.ListScopes(r.Context(), limitParam, offsetParam)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
-	}
-	// If no error, encode the body and the result code
-	EncodeJSONResponse(result.Body, &result.Code, w)
-
-}
-
-// ListScopesForRole - Returns a list of scopes for a role
-func (c *ScopeApiController) ListScopesForRole(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseInt32Parameter(chi.URLParam(r, "id"), true)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
-	}
-
-	result, err := c.service.ListScopesForRole(r.Context(), idParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

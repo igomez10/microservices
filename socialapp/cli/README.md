@@ -118,7 +118,6 @@ Class | Method | HTTP request | Description
 *ScopeApi* | [**deleteScope**](docs/ScopeApi.md#deletescope) | **DELETE** /scopes/{id} | Delete a scope
 *ScopeApi* | [**getScope**](docs/ScopeApi.md#getscope) | **GET** /scopes/{id} | Returns a scope
 *ScopeApi* | [**listScopes**](docs/ScopeApi.md#listscopes) | **GET** /scopes | Returns a list of scopes
-*ScopeApi* | [**listScopesForRole**](docs/ScopeApi.md#listscopesforrole) | **GET** /roles/{id}/scopes | Returns a list of scopes for a role
 *ScopeApi* | [**updateScope**](docs/ScopeApi.md#updatescope) | **PUT** /scopes/{id} | Update a scope
 *UserApi* | [**changePassword**](docs/UserApi.md#changepassword) | **POST** /password | Change password
 *UserApi* | [**createUser**](docs/UserApi.md#createuser) | **POST** /users | Create user

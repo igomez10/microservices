@@ -8,7 +8,6 @@ All URIs are relative to *https://microservices.onrender.com*
 | [**deleteScope**](ScopeApi.md#deleteScope) | **DELETE** /scopes/{id} | Delete a scope |
 | [**getScope**](ScopeApi.md#getScope) | **GET** /scopes/{id} | Returns a scope |
 | [**listScopes**](ScopeApi.md#listScopes) | **GET** /scopes | Returns a list of scopes |
-| [**listScopesForRole**](ScopeApi.md#listScopesForRole) | **GET** /roles/{id}/scopes | Returns a list of scopes for a role |
 | [**updateScope**](ScopeApi.md#updateScope) | **PUT** /scopes/{id} | Update a scope |
 
 
@@ -107,33 +106,6 @@ Returns a list of scopes
 |------------- | ------------- | ------------- | -------------|
 | **limit** | **Integer**| The numbers of scopes to return | [optional] [default to null] |
 | **offset** | **Integer**| The number of items to skip before starting to collect the result | [optional] [default to null] |
-
-### Return type
-
-[**List**](../Models/Scope.md)
-
-### Authorization
-
-[OAuth2](../README.md#OAuth2)
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: application/json
-
-<a name="listScopesForRole"></a>
-# **listScopesForRole**
-> List listScopesForRole(id)
-
-Returns a list of scopes for a role
-
-    Returns a list of scopes for a role
-
-### Parameters
-
-|Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **id** | **Integer**| The id of the role | [default to null] |
 
 ### Return type
 

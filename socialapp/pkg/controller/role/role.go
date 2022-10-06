@@ -124,7 +124,6 @@ func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.
 }
 
 func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.ImplResponse, error) {
-	s.DB.GetRole(ctx, s.DBConn, int64(roleID))
 	role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
 	if err != nil {
 		log.Error().
@@ -142,7 +141,29 @@ func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.Imp
 		}, nil
 	}
 
+	// get scopes for role
+	dbScopes, err := s.DB.ListRoleScopes(ctx, s.DBConn, role.ID)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Int("role_id", int(roleID)).
+			Msg("failed to retrieve scopes for role")
+
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "failed to retrieve scopes for role",
+			},
+		}, nil
+	}
+
 	apiRole := converter.FromDBRoleToAPIRole(role)
+	for i := range dbScopes {
+		apiRole.Scopes = append(apiRole.Scopes, converter.FromDBScopeToAPIScope(dbScopes[i]))
+	}
+
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: apiRole,

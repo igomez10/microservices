@@ -1,2 +1,2 @@
-testCase,httpStatusCode,scope,id,id,limit,offset,id,id,scope
-Success,200,0,0,0,0,0,0,0,0
+testCase,httpStatusCode,scope,id,id,limit,offset,id,scope
+Success,200,0,0,0,0,0,0,0
