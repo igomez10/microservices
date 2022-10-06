@@ -17,7 +17,7 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 		tokenScopes, ok := contexthelper.GetRequestedScopesInContext(r.Context())
 		if !ok {
 			log.Error().
-				Str("X-Request-ID", r.Context().Value("X-Request-ID").(string)).
+				Str("X-Request-ID", contexthelper.GetRequestIDInContext(r.Context())).
 				Msg("Failed to get token scopes from context")
 
 			w.Write([]byte(`{"code":403,"message":"No scopes in context"}`))
@@ -29,7 +29,7 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 		for scopeName := range m.RequiredScopes {
 			if exist := tokenScopes[scopeName]; !exist {
 				log.Error().
-					Str("X-Request-ID", r.Context().Value("X-Request-ID").(string)).
+					Str("X-Request-ID", contexthelper.GetRequestIDInContext(r.Context())).
 					Str("scope", scopeName).
 					Str("tokenScopes", fmt.Sprintf("%v", tokenScopes)).
 					Msg("Missing scope")
@@ -41,7 +41,7 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 		}
 
 		log.Info().
-			Str("X-Request-ID", r.Context().Value("X-Request-ID").(string)).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(r.Context())).
 			Msg("Authorization successful")
 		next.ServeHTTP(w, r)
 	})

@@ -3,6 +3,7 @@ package role
 import (
 	"context"
 	"net/http"
+	"socialapp/internal/contexthelper"
 	"socialapp/internal/converter"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
@@ -26,7 +27,7 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Str("role_id", newRole.Name).
 			Msg("failed to create role")
 
@@ -43,7 +44,7 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Str("role_name", newRole.Name).
 			Msg("failed to retrieve created role")
 
@@ -60,7 +61,7 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("role_id", int(roleID)).
 			Msg("failed to retrieve created role")
 
@@ -86,7 +87,7 @@ func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("role_id", int(roleID)).
 			Msg("failed to retrieve role")
 
@@ -102,7 +103,7 @@ func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.
 	if err := s.DB.DeleteRole(ctx, s.DBConn, role.ID); err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("role_id", int(roleID)).
 			Msg("failed to retrieve created role")
 
@@ -128,7 +129,7 @@ func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.Imp
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("role_id", int(roleID)).
 			Msg("failed to retrieve created role")
 
@@ -146,7 +147,7 @@ func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.Imp
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("role_id", int(roleID)).
 			Msg("failed to retrieve scopes for role")
 
@@ -178,7 +179,7 @@ func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int3
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("failed to retrieve roles")
 
 		return openapi.ImplResponse{
@@ -207,7 +208,7 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("role_id", int(roleID)).
 			Msg("failed to retrieve role")
 
@@ -231,7 +232,7 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("role_id", int(roleID)).
 			Msg("failed to update role")
 
@@ -249,7 +250,7 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", ctx.Value("X-Request-ID").(string)).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("role_id", int(roleID)).
 			Msg("failed to retrieve updated role")
 		return openapi.ImplResponse{
