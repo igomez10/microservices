@@ -299,10 +299,13 @@ case $state in
             "getAccessToken[Get an access token]"             "createComment[Create a new comment]" \
             "getComment[Returns details about a particular comment]" \
             "getUserComments[Gets all comments for a user]" \
-            "getUserFeed[Returns a users feed]"             "getUserFollowers[Get all followers for a user]"             "createRole[Create a new role]" \
+            "getUserFeed[Returns a users feed]"             "getUserFollowers[Get all followers for a user]"             "addScopeToRole[Add a scope to a role]" \
+            "createRole[Create a new role]" \
             "deleteRole[Delete a role]" \
             "getRole[Returns a role]" \
             "listRoles[Returns a list of roles]" \
+            "listScopesForRole[Returns a list of scopes for a role]" \
+            "removeScopeFromRole[Remove a scope from a role]" \
             "updateRole[Update a role]"             "createScope[Create a new scope]" \
             "deleteScope[Delete a scope]" \
             "getScope[Returns a scope]" \
@@ -368,6 +371,13 @@ case $state in
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
+      addScopeToRole)
+        local -a _op_arguments
+        _op_arguments=(
+          "id=:[PATH] The id of the role"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
       createRole)
         local -a _op_arguments
         _op_arguments=(
@@ -394,6 +404,23 @@ case $state in
                     "limit=:[QUERY] The numbers of roles to return"
 "offset=:[QUERY] The number of items to skip before starting to collect the result"
           )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      listScopesForRole)
+        local -a _op_arguments
+        _op_arguments=(
+          "id=:[PATH] The id of the role"
+          "limit=:[QUERY] The numbers of scopes to return"
+"offset=:[QUERY] The number of items to skip before starting to collect the result"
+          )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      removeScopeFromRole)
+        local -a _op_arguments
+        _op_arguments=(
+          "role_id=:[PATH] The id of the role"
+"scope_id=:[PATH] The id of the scope"
+                    )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       updateRole)

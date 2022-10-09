@@ -214,7 +214,20 @@ FROM
 WHERE
 	r.id = ?
 	AND r.deleted_at IS NULL
-	AND s.deleted_at IS NULL;
+	AND s.deleted_at IS NULL
+ORDER BY
+	s.name;
+
+-- name: CreateRoleScope :execresult
+INSERT INTO roles_to_scopes (
+	role_id, scope_id
+) VALUES (
+	?, ?
+);
+
+-- name: DeleteRoleScope :exec
+DELETE FROM roles_to_scopes
+WHERE role_id = ? AND scope_id = ?;
 
 -- name: CreateTokenToScope :execresult
 INSERT INTO tokens_to_scopes (

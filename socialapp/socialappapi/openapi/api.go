@@ -43,10 +43,13 @@ type FollowingApiRouter interface {
 // The RoleApiRouter implementation should parse necessary information from the http request,
 // pass the data to a RoleApiServicer to perform the required actions, then write the service results to the http response.
 type RoleApiRouter interface {
+	AddScopeToRole(http.ResponseWriter, *http.Request)
 	CreateRole(http.ResponseWriter, *http.Request)
 	DeleteRole(http.ResponseWriter, *http.Request)
 	GetRole(http.ResponseWriter, *http.Request)
 	ListRoles(http.ResponseWriter, *http.Request)
+	ListScopesForRole(http.ResponseWriter, *http.Request)
+	RemoveScopeFromRole(http.ResponseWriter, *http.Request)
 	UpdateRole(http.ResponseWriter, *http.Request)
 }
 
@@ -111,10 +114,13 @@ type FollowingApiServicer interface {
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
 type RoleApiServicer interface {
+	AddScopeToRole(context.Context, int32, []string) (ImplResponse, error)
 	CreateRole(context.Context, Role) (ImplResponse, error)
 	DeleteRole(context.Context, int32) (ImplResponse, error)
 	GetRole(context.Context, int32) (ImplResponse, error)
 	ListRoles(context.Context, int32, int32) (ImplResponse, error)
+	ListScopesForRole(context.Context, int32, int32, int32) (ImplResponse, error)
+	RemoveScopeFromRole(context.Context, int32, int32) (ImplResponse, error)
 	UpdateRole(context.Context, int32, Role) (ImplResponse, error)
 }
 

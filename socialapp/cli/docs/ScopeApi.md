@@ -68,7 +68,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Scope**](Scope.md)
+(empty response body)
 
 ### Authorization
 

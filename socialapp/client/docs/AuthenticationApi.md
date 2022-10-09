@@ -57,7 +57,7 @@ Other parameters are passed through a pointer to a apiGetAccessTokenRequest stru
 
 ### Authorization
 
-No authorization required
+[OAuth2](../README.md#OAuth2)
 
 ### HTTP request headers
 

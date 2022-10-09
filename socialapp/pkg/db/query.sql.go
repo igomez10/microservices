@@ -83,6 +83,23 @@ func (q *Queries) CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams)
 	return db.ExecContext(ctx, CreateRole, arg.Name, arg.Description)
 }
 
+const CreateRoleScope = `-- name: CreateRoleScope :execresult
+INSERT INTO roles_to_scopes (
+	role_id, scope_id
+) VALUES (
+	?, ?
+)
+`
+
+type CreateRoleScopeParams struct {
+	RoleID  int64 `json:"role_id"`
+	ScopeID int64 `json:"scope_id"`
+}
+
+func (q *Queries) CreateRoleScope(ctx context.Context, db DBTX, arg CreateRoleScopeParams) (sql.Result, error) {
+	return db.ExecContext(ctx, CreateRoleScope, arg.RoleID, arg.ScopeID)
+}
+
 const CreateScope = `-- name: CreateScope :execresult
 INSERT INTO scopes (
 	  name, description
@@ -224,6 +241,21 @@ WHERE id = ? AND deleted_at IS NULL
 
 func (q *Queries) DeleteRole(ctx context.Context, db DBTX, id int64) error {
 	_, err := db.ExecContext(ctx, DeleteRole, id)
+	return err
+}
+
+const DeleteRoleScope = `-- name: DeleteRoleScope :exec
+DELETE FROM roles_to_scopes
+WHERE role_id = ? AND scope_id = ?
+`
+
+type DeleteRoleScopeParams struct {
+	RoleID  int64 `json:"role_id"`
+	ScopeID int64 `json:"scope_id"`
+}
+
+func (q *Queries) DeleteRoleScope(ctx context.Context, db DBTX, arg DeleteRoleScopeParams) error {
+	_, err := db.ExecContext(ctx, DeleteRoleScope, arg.RoleID, arg.ScopeID)
 	return err
 }
 
@@ -789,6 +821,8 @@ WHERE
 	r.id = ?
 	AND r.deleted_at IS NULL
 	AND s.deleted_at IS NULL
+ORDER BY
+	s.name
 `
 
 func (q *Queries) ListRoleScopes(ctx context.Context, db DBTX, id int64) ([]Scope, error) {

@@ -22,8 +22,6 @@ type Role struct {
 	Description string `json:"description,omitempty"`
 
 	CreatedAt time.Time `json:"created_at,omitempty"`
-
-	Scopes []Scope `json:"scopes,omitempty"`
 }
 
 // AssertRoleRequired checks if the required fields are not zero-ed
@@ -37,11 +35,6 @@ func AssertRoleRequired(obj Role) error {
 		}
 	}
 
-	for _, el := range obj.Scopes {
-		if err := AssertScopeRequired(el); err != nil {
-			return err
-		}
-	}
 	return nil
 }
 

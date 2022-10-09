@@ -46,7 +46,7 @@ type Role struct {
 type RolesToScope struct {
 	ID      int64 `json:"id"`
 	RoleID  int64 `json:"role_id"`
-	ScopeID int32 `json:"scope_id"`
+	ScopeID int64 `json:"scope_id"`
 }
 
 type Scope struct {

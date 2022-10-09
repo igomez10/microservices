@@ -85,10 +85,13 @@ Class | Method | HTTP request | Description
 *CommentApi* | [**GetUserComments**](docs/CommentApi.md#getusercomments) | **Get** /users/{username}/comments | Gets all comments for a user
 *CommentApi* | [**GetUserFeed**](docs/CommentApi.md#getuserfeed) | **Get** /users/{username}/feed | Returns a users feed
 *FollowingApi* | [**GetUserFollowers**](docs/FollowingApi.md#getuserfollowers) | **Get** /users/{username}/followers | Get all followers for a user
+*RoleApi* | [**AddScopeToRole**](docs/RoleApi.md#addscopetorole) | **Post** /roles/{id}/scopes | Add a scope to a role
 *RoleApi* | [**CreateRole**](docs/RoleApi.md#createrole) | **Post** /roles | Create a new role
 *RoleApi* | [**DeleteRole**](docs/RoleApi.md#deleterole) | **Delete** /roles/{id} | Delete a role
 *RoleApi* | [**GetRole**](docs/RoleApi.md#getrole) | **Get** /roles/{id} | Returns a role
 *RoleApi* | [**ListRoles**](docs/RoleApi.md#listroles) | **Get** /roles | Returns a list of roles
+*RoleApi* | [**ListScopesForRole**](docs/RoleApi.md#listscopesforrole) | **Get** /roles/{id}/scopes | Returns a list of scopes for a role
+*RoleApi* | [**RemoveScopeFromRole**](docs/RoleApi.md#removescopefromrole) | **Delete** /roles/{role_id}/scopes/{scope_id} | Remove a scope from a role
 *RoleApi* | [**UpdateRole**](docs/RoleApi.md#updaterole) | **Put** /roles/{id} | Update a role
 *ScopeApi* | [**CreateScope**](docs/ScopeApi.md#createscope) | **Post** /scopes | Create a new scope
 *ScopeApi* | [**DeleteScope**](docs/ScopeApi.md#deletescope) | **Delete** /scopes/{id} | Delete a scope
@@ -155,6 +158,7 @@ Class | Method | HTTP request | Description
  - **socialapp.scopes.update**: Update scopes
  - **socialapp.scopes.delete**: Delete scopes
  - **socialapp.roles.list_scopes**: List scopes of a role
+ - **socialapp.roles.scopes.create**: Create scopes of a role
 
 Example
 

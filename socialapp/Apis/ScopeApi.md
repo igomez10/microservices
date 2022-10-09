@@ -40,7 +40,7 @@ Create a new scope
 
 <a name="deleteScope"></a>
 # **deleteScope**
-> Scope deleteScope(id)
+> deleteScope(id)
 
 Delete a scope
 
@@ -54,7 +54,7 @@ Delete a scope
 
 ### Return type
 
-[**Scope**](../Models/Scope.md)
+null (empty response body)
 
 ### Authorization
 

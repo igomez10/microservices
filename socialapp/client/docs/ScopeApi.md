@@ -80,7 +80,7 @@ Name | Type | Description  | Notes
 
 ## DeleteScope
 
-> Scope DeleteScope(ctx, id).Execute()
+> DeleteScope(ctx, id).Execute()
 
 Delete a scope
 
@@ -108,8 +108,6 @@ func main() {
         fmt.Fprintf(os.Stderr, "Error when calling `ScopeApi.DeleteScope``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
-    // response from `DeleteScope`: Scope
-    fmt.Fprintf(os.Stdout, "Response from `ScopeApi.DeleteScope`: %v\n", resp)
 }
 ```
 
@@ -132,7 +130,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Scope**](Scope.md)
+ (empty response body)
 
 ### Authorization
 

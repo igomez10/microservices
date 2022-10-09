@@ -195,27 +195,7 @@ func (s *UserApiService) GetUserByUsername(ctx context.Context, username string)
 		}, nil
 	}
 
-	dbRoles, err := s.DB.GetUserRoles(ctx, s.DBConn, dbUser.ID)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Msg("Error getting user roles")
-		return openapi.ImplResponse{
-			Code: http.StatusNotFound,
-			Body: openapi.Error{
-				Code:    http.StatusNotFound,
-				Message: "Error getting user roles",
-			},
-		}, nil
-	}
-
 	apiUser := converter.FromDBUserToAPIUser(dbUser)
-	for _, dbR := range dbRoles {
-		apiRole := converter.FromDBRoleToAPIRole(dbR)
-		apiUser.Roles = append(apiUser.Roles, apiRole)
-	}
-
 	return openapi.Response(http.StatusOK, apiUser), nil
 }
 

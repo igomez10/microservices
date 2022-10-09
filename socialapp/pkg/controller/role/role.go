@@ -142,28 +142,7 @@ func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.Imp
 		}, nil
 	}
 
-	// get scopes for role
-	dbScopes, err := s.DB.ListRoleScopes(ctx, s.DBConn, role.ID)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("role_id", int(roleID)).
-			Msg("failed to retrieve scopes for role")
-
-		return openapi.ImplResponse{
-			Code: http.StatusInternalServerError,
-			Body: openapi.Error{
-				Code:    http.StatusInternalServerError,
-				Message: "failed to retrieve scopes for role",
-			},
-		}, nil
-	}
-
 	apiRole := converter.FromDBRoleToAPIRole(role)
-	for i := range dbScopes {
-		apiRole.Scopes = append(apiRole.Scopes, converter.FromDBScopeToAPIScope(dbScopes[i]))
-	}
 
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
@@ -265,5 +244,184 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: converter.FromDBRoleToAPIRole(role),
+	}, nil
+}
+
+func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scopes []string) (openapi.ImplResponse, error) {
+
+	// get role from db
+	role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+			Int("role_id", int(roleID)).
+			Msg("failed to retrieve role")
+
+		return openapi.ImplResponse{
+			Code: http.StatusNotFound,
+			Body: openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "role not found",
+			},
+		}, nil
+	}
+
+	// verify all scopes exist
+	scopeIDs := make([]int64, len(scopes))
+	for _, scope := range scopes {
+		_, err := s.DB.GetScopeByName(ctx, s.DBConn, scope)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+				Int("role_id", int(roleID)).
+				Msg("failed to retrieve scope")
+
+			return openapi.ImplResponse{
+				Code: http.StatusNotFound,
+				Body: openapi.Error{
+					Code:    http.StatusNotFound,
+					Message: "scope not found",
+				},
+			}, nil
+		}
+		scopeIDs = append(scopeIDs, int64(roleID))
+	}
+
+	// add scopes to role
+	for _, sID := range scopeIDs {
+		_, err = s.DB.CreateRoleScope(ctx, s.DBConn, db.CreateRoleScopeParams{
+			RoleID:  role.ID,
+			ScopeID: sID,
+		})
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+				Int("role_id", int(roleID)).
+				Msg("failed to add scope to role")
+
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Code:    http.StatusInternalServerError,
+					Message: "failed to add scope to role",
+				},
+			}, nil
+		}
+	}
+
+	// get role again
+	role, err = s.DB.GetRole(ctx, s.DBConn, role.ID)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+			Int("role_id", int(roleID)).
+			Msg("failed to retrieve updated role")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "failed to find updated role",
+			},
+		}, nil
+	}
+	return openapi.ImplResponse{
+		Code: http.StatusOK,
+		Body: converter.FromDBRoleToAPIRole(role),
+	}, nil
+}
+
+func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleID int32, limit int32, offset int32) (openapi.ImplResponse, error) {
+	// get role from db
+	role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+			Int("role_id", int(roleID)).
+			Msg("failed to retrieve role")
+
+		return openapi.ImplResponse{
+			Code: http.StatusNotFound,
+			Body: openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "role not found",
+			},
+		}, nil
+	}
+
+	// get role scopes from db
+	scopes, err := s.DB.ListRoleScopes(ctx, s.DBConn, role.ID)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+			Int("role_id", int(roleID)).
+			Msg("failed to retrieve role scopes")
+
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "failed to retrieve role scopes",
+			},
+		}, nil
+	}
+	apiScopes := make([]openapi.Scope, len(scopes))
+	for i, scope := range scopes {
+		apiScopes[i] = converter.FromDBScopeToAPIScope(scope)
+	}
+
+	return openapi.ImplResponse{
+		Code: http.StatusOK,
+		Body: apiScopes,
+	}, nil
+}
+
+func (s *RoleApiService) RemoveScopeFromRole(_ context.Context, roleID int32, scopeID int32) (openapi.ImplResponse, error) {
+	// verify role exists
+	role, err := s.DB.GetRole(context.Background(), s.DBConn, int64(roleID))
+	if err != nil {
+		return openapi.ImplResponse{
+			Code: http.StatusNotFound,
+			Body: openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "role not found",
+			},
+		}, nil
+	}
+
+	// verify scope exists
+	scope, err := s.DB.GetScope(context.Background(), s.DBConn, int64(scopeID))
+	if err != nil {
+		return openapi.ImplResponse{
+			Code: http.StatusNotFound,
+			Body: openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "scope not found",
+			},
+		}, nil
+	}
+
+	// remove scope from role
+	params := db.DeleteRoleScopeParams{
+		RoleID:  role.ID,
+		ScopeID: scope.ID,
+	}
+	if err := s.DB.DeleteRoleScope(context.Background(), s.DBConn, params); err != nil {
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "failed to remove scope from role",
+			},
+		}, nil
+	}
+
+	return openapi.ImplResponse{
+		Code: http.StatusNoContent,
 	}, nil
 }

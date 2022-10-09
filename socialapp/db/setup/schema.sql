@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS roles (
 CREATE TABLE IF NOT EXISTS roles_to_scopes (
     id  BIGINT  PRIMARY KEY NOT NULL AUTO_INCREMENT,
     role_id BIGINT NOT NULL REFERENCES roles(id),
-    scope_id INTEGER NOT NULL REFERENCES scopes(id),
+    scope_id BIGINT NOT NULL REFERENCES scopes(id),
     UNIQUE (role_id, scope_id)
 );
 
@@ -137,7 +137,12 @@ INSERT INTO `scopes` (`id`, `name`, `description`, `created_at`, `deleted_at`) V
 (23, 'socialapp.scopes.create', 'socialapp.scopes.create', '2022-09-28 20:21:07', NULL),
 (24, 'socialapp.scopes.delete', 'socialapp.scopes.delete', '2022-09-28 20:21:07', NULL),
 (25, 'socialapp.scopes.update', 'socialapp.scopes.update', '2022-09-28 20:21:07', NULL),
-(26, 'socialapp.roles.listscopes', 'socialapp.roles.listscopes','2022-09-28 20:21:07', NULL);
+(26, 'socialapp.roles.scopes.list', 'socialapp.roles.scopes.list', '2022-09-28 20:21:07', NULL),
+(27, 'socialapp.roles.scopes.create', 'socialapp.roles.scopes.create', '2022-09-28 20:21:07', NULL),
+(28, 'socialapp.roles.scopes.delete', 'socialapp.roles.scopes.delete', '2022-09-28 20:21:07', NULL),
+(29, 'socialapp.roles.scopes.update', 'socialapp.roles.scopes.update', '2022-09-28 20:21:07', NULL),
+(30, 'socialapp.roles.scopes.read', 'socialapp.roles.scopes.read', '2022-09-28 20:21:07', NULL);
+
 
 INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (1, 1, 1),
@@ -188,7 +193,62 @@ INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (46, 2, 24),
 (47, 2, 25),
 (48, 1, 26),
-(49, 2, 26);
+(49, 2, 26),
+(50, 1, 27),
+(51, 2, 27),
+(52, 1, 28),
+(53, 2, 28),
+(54, 1, 29),
+(55, 2, 29),
+(56, 1, 30),
+(57, 2, 30),
+(58, 1, 31),
+(59, 2, 31),
+(60, 1, 32),
+(61, 2, 32),
+(62, 1, 33),
+(63, 2, 33),
+(64, 1, 34),
+(65, 2, 34),
+(66, 1, 35),
+(67, 2, 35),
+(68, 1, 36),
+(69, 2, 36),
+(70, 1, 37),
+(71, 2, 37),
+(72, 1, 38),
+(73, 2, 38),
+(74, 1, 39),
+(75, 2, 39),
+(76, 1, 40),
+(77, 2, 40),
+(78, 1, 41),
+(79, 2, 41),
+(80, 1, 42),
+(81, 2, 42),
+(82, 1, 43),
+(83, 2, 43),
+(84, 1, 44),
+(85, 2, 44),
+(86, 1, 45),
+(87, 2, 45),
+(88, 1, 46),
+(89, 2, 46),
+(90, 1, 47),
+(91, 2, 47),
+(92, 1, 48),
+(93, 2, 48),
+(94, 1, 49),
+(95, 2, 49),
+(96, 1, 50),
+(97, 2, 50),
+(98, 1, 51),
+(99, 2, 51),
+(100, 1, 52),
+(101, 2, 52),
+(102, 1, 53),
+(103, 2, 53),
+(104, 1, 54);
 
 
 INSERT INTO users_to_roles (id, role_id, user_id) VALUES

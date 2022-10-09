@@ -14,6 +14,7 @@ type Querier interface {
 	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (sql.Result, error)
 	CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (sql.Result, error)
 	CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams) (sql.Result, error)
+	CreateRoleScope(ctx context.Context, db DBTX, arg CreateRoleScopeParams) (sql.Result, error)
 	CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (sql.Result, error)
 	CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (sql.Result, error)
 	CreateTokenToScope(ctx context.Context, db DBTX, arg CreateTokenToScopeParams) (sql.Result, error)
@@ -23,6 +24,7 @@ type Querier interface {
 	DeleteComment(ctx context.Context, db DBTX, id int64) error
 	DeleteCredential(ctx context.Context, db DBTX, id int64) error
 	DeleteRole(ctx context.Context, db DBTX, id int64) error
+	DeleteRoleScope(ctx context.Context, db DBTX, arg DeleteRoleScopeParams) error
 	DeleteScope(ctx context.Context, db DBTX, id int64) error
 	DeleteToken(ctx context.Context, db DBTX, token string) error
 	DeleteUser(ctx context.Context, db DBTX, id int64) error

@@ -13,10 +13,13 @@ All URIs are relative to *https://microservices.onrender.com*
 *CommentApi* | [**getUserComments**](Apis/CommentApi.md#getusercomments) | **GET** /users/{username}/comments | Gets all comments for a user |
 *CommentApi* | [**getUserFeed**](Apis/CommentApi.md#getuserfeed) | **GET** /users/{username}/feed | Returns a users feed |
 | *FollowingApi* | [**getUserFollowers**](Apis/FollowingApi.md#getuserfollowers) | **GET** /users/{username}/followers | Get all followers for a user |
-| *RoleApi* | [**createRole**](Apis/RoleApi.md#createrole) | **POST** /roles | Create a new role |
+| *RoleApi* | [**addScopeToRole**](Apis/RoleApi.md#addscopetorole) | **POST** /roles/{id}/scopes | Add a scope to a role |
+*RoleApi* | [**createRole**](Apis/RoleApi.md#createrole) | **POST** /roles | Create a new role |
 *RoleApi* | [**deleteRole**](Apis/RoleApi.md#deleterole) | **DELETE** /roles/{id} | Delete a role |
 *RoleApi* | [**getRole**](Apis/RoleApi.md#getrole) | **GET** /roles/{id} | Returns a role |
 *RoleApi* | [**listRoles**](Apis/RoleApi.md#listroles) | **GET** /roles | Returns a list of roles |
+*RoleApi* | [**listScopesForRole**](Apis/RoleApi.md#listscopesforrole) | **GET** /roles/{id}/scopes | Returns a list of scopes for a role |
+*RoleApi* | [**removeScopeFromRole**](Apis/RoleApi.md#removescopefromrole) | **DELETE** /roles/{role_id}/scopes/{scope_id} | Remove a scope from a role |
 *RoleApi* | [**updateRole**](Apis/RoleApi.md#updaterole) | **PUT** /roles/{id} | Update a role |
 | *ScopeApi* | [**createScope**](Apis/ScopeApi.md#createscope) | **POST** /scopes | Create a new scope |
 *ScopeApi* | [**deleteScope**](Apis/ScopeApi.md#deletescope) | **DELETE** /scopes/{id} | Delete a scope |
@@ -83,4 +86,5 @@ All URIs are relative to *https://microservices.onrender.com*
   - socialapp.scopes.update: Update scopes
   - socialapp.scopes.delete: Delete scopes
   - socialapp.roles.list_scopes: List scopes of a role
+  - socialapp.roles.scopes.create: Create scopes of a role
 

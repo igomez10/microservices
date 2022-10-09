@@ -74,10 +74,13 @@ _socialapp-cli()
     operations["getUserComments"]=1
     operations["getUserFeed"]=1
     operations["getUserFollowers"]=1
+    operations["addScopeToRole"]=1
     operations["createRole"]=1
     operations["deleteRole"]=1
     operations["getRole"]=1
     operations["listRoles"]=1
+    operations["listScopesForRole"]=1
+    operations["removeScopeFromRole"]=1
     operations["updateRole"]=1
     operations["createScope"]=1
     operations["deleteScope"]=1
@@ -106,10 +109,13 @@ _socialapp-cli()
     operation_parameters["getUserComments"]="username= limit= offset= "
     operation_parameters["getUserFeed"]="username= "
     operation_parameters["getUserFollowers"]="username= "
+    operation_parameters["addScopeToRole"]="id= "
     operation_parameters["createRole"]=""
     operation_parameters["deleteRole"]="id= "
     operation_parameters["getRole"]="id= "
     operation_parameters["listRoles"]="limit= offset= "
+    operation_parameters["listScopesForRole"]="id= limit= offset= "
+    operation_parameters["removeScopeFromRole"]="role_id= scope_id= "
     operation_parameters["updateRole"]="id= "
     operation_parameters["createScope"]=""
     operation_parameters["deleteScope"]="id= "

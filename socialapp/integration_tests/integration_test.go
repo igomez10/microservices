@@ -921,22 +921,15 @@ func TestScopeLifeCycle(t *testing.T) {
 	}
 
 	// delete scope
-	deletedScope, res, err := apiClient.ScopeApi.DeleteScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
-	if err != nil {
-		t.Fatalf("Error when calling `ScopeApi.DeleteScope`: %v", err)
-	}
-	if res.StatusCode != http.StatusOK {
-		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
-	}
-	if deletedScope == nil {
-		t.Fatalf("Expected scope, got nil")
-	}
-	if deletedScope.Name != updatedName {
-		t.Fatalf("Expected name %s, got %s", updatedName, deletedScope.Name)
-	}
-	if deletedScope.Description != updatedDesc {
-		t.Fatalf("Expected description %s, got %s", updatedDesc, deletedScope.Description)
-	}
+	func() {
+		res, err := apiClient.ScopeApi.DeleteScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `ScopeApi.DeleteScope`: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Fatalf("Expected status code 204, got %d", res.StatusCode)
+		}
+	}()
 
 	// try to get deleted scope
 	gettedDeletedScope, res, err := apiClient.ScopeApi.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()

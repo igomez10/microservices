@@ -102,11 +102,18 @@ operation_parameters_minimum_occurrences["getUserComments:::limit"]=0
 operation_parameters_minimum_occurrences["getUserComments:::offset"]=0
 operation_parameters_minimum_occurrences["getUserFeed:::username"]=1
 operation_parameters_minimum_occurrences["getUserFollowers:::username"]=1
+operation_parameters_minimum_occurrences["addScopeToRole:::id"]=1
+operation_parameters_minimum_occurrences["addScopeToRole:::request_body"]=1
 operation_parameters_minimum_occurrences["createRole:::Role"]=1
 operation_parameters_minimum_occurrences["deleteRole:::id"]=1
 operation_parameters_minimum_occurrences["getRole:::id"]=1
 operation_parameters_minimum_occurrences["listRoles:::limit"]=0
 operation_parameters_minimum_occurrences["listRoles:::offset"]=0
+operation_parameters_minimum_occurrences["listScopesForRole:::id"]=1
+operation_parameters_minimum_occurrences["listScopesForRole:::limit"]=0
+operation_parameters_minimum_occurrences["listScopesForRole:::offset"]=0
+operation_parameters_minimum_occurrences["removeScopeFromRole:::role_id"]=1
+operation_parameters_minimum_occurrences["removeScopeFromRole:::scope_id"]=1
 operation_parameters_minimum_occurrences["updateRole:::id"]=1
 operation_parameters_minimum_occurrences["updateRole:::Role"]=0
 operation_parameters_minimum_occurrences["createScope:::Scope"]=1
@@ -149,11 +156,18 @@ operation_parameters_maximum_occurrences["getUserComments:::limit"]=0
 operation_parameters_maximum_occurrences["getUserComments:::offset"]=0
 operation_parameters_maximum_occurrences["getUserFeed:::username"]=0
 operation_parameters_maximum_occurrences["getUserFollowers:::username"]=0
+operation_parameters_maximum_occurrences["addScopeToRole:::id"]=0
+operation_parameters_maximum_occurrences["addScopeToRole:::request_body"]=0
 operation_parameters_maximum_occurrences["createRole:::Role"]=0
 operation_parameters_maximum_occurrences["deleteRole:::id"]=0
 operation_parameters_maximum_occurrences["getRole:::id"]=0
 operation_parameters_maximum_occurrences["listRoles:::limit"]=0
 operation_parameters_maximum_occurrences["listRoles:::offset"]=0
+operation_parameters_maximum_occurrences["listScopesForRole:::id"]=0
+operation_parameters_maximum_occurrences["listScopesForRole:::limit"]=0
+operation_parameters_maximum_occurrences["listScopesForRole:::offset"]=0
+operation_parameters_maximum_occurrences["removeScopeFromRole:::role_id"]=0
+operation_parameters_maximum_occurrences["removeScopeFromRole:::scope_id"]=0
 operation_parameters_maximum_occurrences["updateRole:::id"]=0
 operation_parameters_maximum_occurrences["updateRole:::Role"]=0
 operation_parameters_maximum_occurrences["createScope:::Scope"]=0
@@ -193,11 +207,18 @@ operation_parameters_collection_type["getUserComments:::limit"]=""
 operation_parameters_collection_type["getUserComments:::offset"]=""
 operation_parameters_collection_type["getUserFeed:::username"]=""
 operation_parameters_collection_type["getUserFollowers:::username"]=""
+operation_parameters_collection_type["addScopeToRole:::id"]=""
+operation_parameters_collection_type["addScopeToRole:::request_body"]=
 operation_parameters_collection_type["createRole:::Role"]=""
 operation_parameters_collection_type["deleteRole:::id"]=""
 operation_parameters_collection_type["getRole:::id"]=""
 operation_parameters_collection_type["listRoles:::limit"]=""
 operation_parameters_collection_type["listRoles:::offset"]=""
+operation_parameters_collection_type["listScopesForRole:::id"]=""
+operation_parameters_collection_type["listScopesForRole:::limit"]=""
+operation_parameters_collection_type["listScopesForRole:::offset"]=""
+operation_parameters_collection_type["removeScopeFromRole:::role_id"]=""
+operation_parameters_collection_type["removeScopeFromRole:::scope_id"]=""
 operation_parameters_collection_type["updateRole:::id"]=""
 operation_parameters_collection_type["updateRole:::Role"]=""
 operation_parameters_collection_type["createScope:::Scope"]=""
@@ -633,12 +654,13 @@ EOF
     echo -e "        * socialapp.scopes.update - Update scopes"
     echo -e "        * socialapp.scopes.delete - Delete scopes"
     echo -e "        * socialapp.roles.list_scopes - List scopes of a role"
+    echo -e "        * socialapp.roles.scopes.create - Create scopes of a role"
     echo ""
     echo -e "${BOLD}${WHITE}Operations (grouped by tags)${OFF}"
     echo ""
     echo -e "${BOLD}${WHITE}[authentication]${OFF}"
 read -r -d '' ops <<EOF
-  ${CYAN}getAccessToken${OFF};Get an access token
+  ${CYAN}getAccessToken${OFF};Get an access token (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
@@ -659,10 +681,13 @@ echo "  $ops" | column -t -s ';'
     echo ""
     echo -e "${BOLD}${WHITE}[role]${OFF}"
 read -r -d '' ops <<EOF
+  ${CYAN}addScopeToRole${OFF};Add a scope to a role (AUTH)
   ${CYAN}createRole${OFF};Create a new role (AUTH)
   ${CYAN}deleteRole${OFF};Delete a role (AUTH)
   ${CYAN}getRole${OFF};Returns a role (AUTH)
   ${CYAN}listRoles${OFF};Returns a list of roles (AUTH)
+  ${CYAN}listScopesForRole${OFF};Returns a list of scopes for a role (AUTH)
+  ${CYAN}removeScopeFromRole${OFF};Remove a scope from a role (AUTH)
   ${CYAN}updateRole${OFF};Update a role (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
@@ -680,7 +705,7 @@ echo "  $ops" | column -t -s ';'
     echo -e "${BOLD}${WHITE}[user]${OFF}"
 read -r -d '' ops <<EOF
   ${CYAN}changePassword${OFF};Change password (AUTH)
-  ${CYAN}createUser${OFF};Create user
+  ${CYAN}createUser${OFF};Create user (AUTH)
   ${CYAN}deleteUser${OFF};Deletes a particular user (AUTH)
   ${CYAN}followUser${OFF};Add a user as a follower (AUTH)
   ${CYAN}getFollowingUsers${OFF};Get all followed users for a user (AUTH)
@@ -751,7 +776,7 @@ print_version() {
 ##############################################################################
 print_getAccessToken_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getAccessToken - Get an access token${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getAccessToken - Get an access token${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Get an access token" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -883,6 +908,34 @@ print_getUserFollowers_help() {
 }
 ##############################################################################
 #
+# Print help for addScopeToRole operation
+#
+##############################################################################
+print_addScopeToRole_help() {
+    echo ""
+    echo -e "${BOLD}${WHITE}addScopeToRole - Add a scope to a role${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Add a scope to a role" | paste -sd' ' | fold -sw 80
+    echo -e ""
+    echo -e "${BOLD}${WHITE}Parameters${OFF}"
+    echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The id of the role ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Add a scope to a role" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo ""
+    echo -e "${BOLD}${WHITE}Responses${OFF}"
+    code=200
+    echo -e "${result_color_table[${code:0:1}]}  200;List of scopes${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=404
+    echo -e "${result_color_table[${code:0:1}]}  404;Role not found${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=400
+    echo -e "${result_color_table[${code:0:1}]}  400;Scope not found${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=0
+    echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+}
+##############################################################################
+#
 # Print help for createRole operation
 #
 ##############################################################################
@@ -975,6 +1028,59 @@ print_listRoles_help() {
 }
 ##############################################################################
 #
+# Print help for listScopesForRole operation
+#
+##############################################################################
+print_listScopesForRole_help() {
+    echo ""
+    echo -e "${BOLD}${WHITE}listScopesForRole - Returns a list of scopes for a role${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Returns a list of scopes for a role" | paste -sd' ' | fold -sw 80
+    echo -e ""
+    echo -e "${BOLD}${WHITE}Parameters${OFF}"
+    echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The id of the role ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The numbers of scopes to return${YELLOW} Specify as: limit=value${OFF}" \
+        | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The number of items to skip before starting to collect the result${YELLOW} Specify as: offset=value${OFF}" \
+        | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo ""
+    echo -e "${BOLD}${WHITE}Responses${OFF}"
+    code=200
+    echo -e "${result_color_table[${code:0:1}]}  200;List of scopes${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=0
+    echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+}
+##############################################################################
+#
+# Print help for removeScopeFromRole operation
+#
+##############################################################################
+print_removeScopeFromRole_help() {
+    echo ""
+    echo -e "${BOLD}${WHITE}removeScopeFromRole - Remove a scope from a role${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Remove a scope from a role" | paste -sd' ' | fold -sw 80
+    echo -e ""
+    echo -e "${BOLD}${WHITE}Parameters${OFF}"
+    echo -e "  * ${GREEN}role_id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The id of the role ${YELLOW}Specify as: role_id=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}scope_id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The id of the scope ${YELLOW}Specify as: scope_id=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo ""
+    echo -e "${BOLD}${WHITE}Responses${OFF}"
+    code=204
+    echo -e "${result_color_table[${code:0:1}]}  204;Scope was removed from the role${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=404
+    echo -e "${result_color_table[${code:0:1}]}  404;Role not found${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=400
+    echo -e "${result_color_table[${code:0:1}]}  400;Scope not found${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=0
+    echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+}
+##############################################################################
+#
 # Print help for updateRole operation
 #
 ##############################################################################
@@ -991,7 +1097,7 @@ print_updateRole_help() {
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
-    echo -e "${result_color_table[${code:0:1}]}  200;Role was updated successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    echo -e "${result_color_table[${code:0:1}]}  200;Role was updated${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=401
     echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
@@ -1035,8 +1141,8 @@ print_deleteScope_help() {
     echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - id of the scope ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
-    code=200
-    echo -e "${result_color_table[${code:0:1}]}  200;Scope was deleted successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=204
+    echo -e "${result_color_table[${code:0:1}]}  204;Scope was deleted successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=401
     echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
@@ -1107,7 +1213,7 @@ print_updateScope_help() {
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
-    echo -e "${result_color_table[${code:0:1}]}  200;Scope was updated successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    echo -e "${result_color_table[${code:0:1}]}  200;Scope was updated${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=401
     echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
@@ -1143,7 +1249,7 @@ print_changePassword_help() {
 ##############################################################################
 print_createUser_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}createUser - Create user${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}createUser - Create user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Create a new user in the system" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -1406,7 +1512,7 @@ call_getAccessToken() {
     local path_parameter_names=()
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=()
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/oauth/token" path_parameter_names query_parameter_names); then
@@ -1655,6 +1761,84 @@ call_getUserFollowers() {
 
 ##############################################################################
 #
+# Call addScopeToRole operation
+#
+##############################################################################
+call_addScopeToRole() {
+    # ignore error about 'path_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local path_parameter_names=(id)
+    # ignore error about 'query_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local query_parameter_names=(  )
+    local path
+
+    if ! path=$(build_request_path "/roles/{id}/scopes" path_parameter_names query_parameter_names); then
+        ERROR_MSG=$path
+        exit 1
+    fi
+    local method="POST"
+    local headers_curl
+    headers_curl=$(header_arguments_to_curl)
+    if [[ -n $header_accept ]]; then
+        headers_curl="${headers_curl} -H 'Accept: ${header_accept}'"
+    fi
+
+    local basic_auth_option=""
+    if [[ -n $basic_auth_credential ]]; then
+        basic_auth_option="-u ${basic_auth_credential}"
+    fi
+    local body_json_curl=""
+
+    #
+    # Check if the user provided 'Content-type' headers in the
+    # command line. If not try to set them based on the OpenAPI specification
+    # if values produces and consumes are defined unambiguously
+    #
+    if [[ -z $header_content_type ]]; then
+        header_content_type="application/json"
+    fi
+
+
+    if [[ -z $header_content_type && "$force" = false ]]; then
+        :
+        echo "ERROR: Request's content-type not specified!!!"
+        echo "This operation expects content-type in one of the following formats:"
+        echo -e "\\t- application/json"
+        echo ""
+        echo "Use '--content-type' to set proper content type"
+        exit 1
+    else
+        headers_curl="${headers_curl} -H 'Content-type: ${header_content_type}'"
+    fi
+
+
+    #
+    # If we have received some body content over pipe, pass it from the
+    # temporary file to cURL
+    #
+    if [[ -n $body_content_temp_file ]]; then
+        if [[ "$print_curl" = true ]]; then
+            echo "cat ${body_content_temp_file} | curl ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\" -d @-"
+        else
+            eval "cat ${body_content_temp_file} | curl ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\" -d @-"
+        fi
+        rm "${body_content_temp_file}"
+    #
+    # If not, try to build the content body from arguments KEY==VALUE and KEY:=VALUE
+    #
+    else
+        body_json_curl=$(body_parameters_to_json)
+        if [[ "$print_curl" = true ]]; then
+            echo "curl ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} ${body_json_curl} \"${host}${path}\""
+        else
+            eval "curl ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} ${body_json_curl} \"${host}${path}\""
+        fi
+    fi
+}
+
+##############################################################################
+#
 # Call createRole operation
 #
 ##############################################################################
@@ -1822,6 +2006,78 @@ call_listRoles() {
         exit 1
     fi
     local method="GET"
+    local headers_curl
+    headers_curl=$(header_arguments_to_curl)
+    if [[ -n $header_accept ]]; then
+        headers_curl="${headers_curl} -H 'Accept: ${header_accept}'"
+    fi
+
+    local basic_auth_option=""
+    if [[ -n $basic_auth_credential ]]; then
+        basic_auth_option="-u ${basic_auth_credential}"
+    fi
+    if [[ "$print_curl" = true ]]; then
+        echo "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    else
+        eval "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    fi
+}
+
+##############################################################################
+#
+# Call listScopesForRole operation
+#
+##############################################################################
+call_listScopesForRole() {
+    # ignore error about 'path_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local path_parameter_names=(id)
+    # ignore error about 'query_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local query_parameter_names=(limit offset  )
+    local path
+
+    if ! path=$(build_request_path "/roles/{id}/scopes" path_parameter_names query_parameter_names); then
+        ERROR_MSG=$path
+        exit 1
+    fi
+    local method="GET"
+    local headers_curl
+    headers_curl=$(header_arguments_to_curl)
+    if [[ -n $header_accept ]]; then
+        headers_curl="${headers_curl} -H 'Accept: ${header_accept}'"
+    fi
+
+    local basic_auth_option=""
+    if [[ -n $basic_auth_credential ]]; then
+        basic_auth_option="-u ${basic_auth_credential}"
+    fi
+    if [[ "$print_curl" = true ]]; then
+        echo "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    else
+        eval "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    fi
+}
+
+##############################################################################
+#
+# Call removeScopeFromRole operation
+#
+##############################################################################
+call_removeScopeFromRole() {
+    # ignore error about 'path_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local path_parameter_names=(role_id scope_id)
+    # ignore error about 'query_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local query_parameter_names=(  )
+    local path
+
+    if ! path=$(build_request_path "/roles/{role_id}/scopes/{scope_id}" path_parameter_names query_parameter_names); then
+        ERROR_MSG=$path
+        exit 1
+    fi
+    local method="DELETE"
     local headers_curl
     headers_curl=$(header_arguments_to_curl)
     if [[ -n $header_accept ]]; then
@@ -2270,7 +2526,7 @@ call_createUser() {
     local path_parameter_names=()
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=()
+    local query_parameter_names=(  )
     local path
 
     if ! path=$(build_request_path "/users" path_parameter_names query_parameter_names); then
@@ -2896,6 +3152,9 @@ case $key in
     getUserFollowers)
     operation="getUserFollowers"
     ;;
+    addScopeToRole)
+    operation="addScopeToRole"
+    ;;
     createRole)
     operation="createRole"
     ;;
@@ -2907,6 +3166,12 @@ case $key in
     ;;
     listRoles)
     operation="listRoles"
+    ;;
+    listScopesForRole)
+    operation="listScopesForRole"
+    ;;
+    removeScopeFromRole)
+    operation="removeScopeFromRole"
     ;;
     updateRole)
     operation="updateRole"
@@ -3057,6 +3322,9 @@ case $operation in
     getUserFollowers)
     call_getUserFollowers
     ;;
+    addScopeToRole)
+    call_addScopeToRole
+    ;;
     createRole)
     call_createRole
     ;;
@@ -3068,6 +3336,12 @@ case $operation in
     ;;
     listRoles)
     call_listRoles
+    ;;
+    listScopesForRole)
+    call_listScopesForRole
+    ;;
+    removeScopeFromRole)
+    call_removeScopeFromRole
     ;;
     updateRole)
     call_updateRole

@@ -28,6 +28,9 @@ tags:
   - description: Scope management
     name: Scope
 
+security:
+  - OAuth2: []
+
 paths:
   /users:
     get:
@@ -694,7 +697,7 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
-        - BasicAuth: []
+        - OAuth2: []
       summary: Get an access token
       tags:
         - Authentication
@@ -847,7 +850,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Role"
-          description: Role was updated successfully
+          description: Role was updated
         "401":
           content:
             application/json:
@@ -904,7 +907,185 @@ paths:
       summary: Delete a role
       tags:
         - Role
-
+  /roles/{id}/scopes:
+    get:
+      description: Returns a list of scopes for a role
+      operationId: listScopesForRole
+      parameters:
+        - description: The id of the role
+          example: 123
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          style: simple
+        - description: The numbers of scopes to return
+          explode: false
+          in: query
+          name: limit
+          required: false
+          schema:
+            format: int32
+            type: integer
+          style: form
+        - description: The number of items to skip before starting to collect the result
+          explode: false
+          in: query
+          name: offset
+          required: false
+          schema:
+            format: int32
+            type: integer
+          style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Scope"
+                type: array
+          description: List of scopes
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.roles.scopes.list
+      summary: Returns a list of scopes for a role
+      tags:
+        - Role
+    post:
+      description: Add a scope to a role
+      operationId: addScopeToRole
+      parameters:
+        - description: The id of the role
+          example: 123
+          explode: false
+          in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+            example:
+              - socialapp.roles.read
+              - socialapp.roles.update
+        description: Add a scope to a role
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Scope"
+          description: List of scopes
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unexpected error
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Role not found
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Scope not found
+      security:
+        - OAuth2:
+            - socialapp.roles.scopes.create
+      summary: Add a scope to a role
+      tags:
+        - Role
+  /roles/{role_id}/scopes/{scope_id}:
+    delete:
+      description: Remove a scope from a role
+      operationId: removeScopeFromRole
+      parameters:
+        - description: The id of the role
+          example: 123
+          explode: false
+          in: path
+          name: role_id
+          required: true
+          schema:
+            type: integer
+          style: simple
+        - description: The id of the scope
+          example: 123
+          explode: false
+          in: path
+          name: scope_id
+          required: true
+          schema:
+            type: integer
+          style: simple
+      responses:
+        "204":
+          description: Scope was removed from the role
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unexpected error
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Role not found
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Scope not found
+      security:
+        - OAuth2:
+            - socialapp.roles.scopes.delete
+      summary: Remove a scope from a role
+      tags:
+        - Role
   /scopes:
     get:
       description: Returns a list of scopes
@@ -1054,7 +1235,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Scope"
-          description: Scope was updated successfully
+          description: Scope was updated
         "401":
           content:
             application/json:
@@ -1087,11 +1268,7 @@ paths:
             type: integer
           style: simple
       responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Scope"
+        "204":
           description: Scope was deleted successfully
         "401":
           content:
@@ -1151,6 +1328,7 @@ components:
         first_name: John
         last_name: Doe
         email: johndoe@mail.com
+        created_at: "2020-01-01T00:00:00Z"
       properties:
         id:
           format: int64
@@ -1166,10 +1344,7 @@ components:
         created_at:
           format: date-time
           type: string
-        roles:
-          items:
-            $ref: "#/components/schemas/Role"
-          type: array
+
       required:
         - email
         - first_name
@@ -1259,10 +1434,6 @@ components:
       example:
         name: admin
         description: Administrator Role
-        scopes:
-          - socialapp.users.read
-          - socialapp.users.update
-          - socialapp.users.delete
       properties:
         id:
           format: int64
@@ -1274,16 +1445,14 @@ components:
         created_at:
           format: date-time
           type: string
-        scopes:
-          type: array
-          items:
-            $ref: "#/components/schemas/Scope"
       required:
         - name
       type: object
     Scope:
       example:
         name: socialapp.roles.read
+        description: Read roles
+        id: 1
       properties:
         id:
           format: int64
@@ -1326,5 +1495,6 @@ components:
             socialapp.scopes.update: Update scopes
             socialapp.scopes.delete: Delete scopes
             socialapp.roles.list_scopes: List scopes of a role
+            socialapp.roles.scopes.create: Create scopes of a role
           tokenUrl: /oauth/token
       type: oauth2
