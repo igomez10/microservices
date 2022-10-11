@@ -110,6 +110,7 @@ Class | Method | HTTP request | Description
 *UserApi* | [**ListUsers**](docs/UserApi.md#listusers) | **Get** /users | List users
 *UserApi* | [**ResetPassword**](docs/UserApi.md#resetpassword) | **Put** /password | Reset password
 *UserApi* | [**UnfollowUser**](docs/UserApi.md#unfollowuser) | **Delete** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
+*UserApi* | [**UpdateRolesForUser**](docs/UserApi.md#updaterolesforuser) | **Put** /users/{username}/roles | Update all roles for a user
 *UserApi* | [**UpdateUser**](docs/UserApi.md#updateuser) | **Put** /users/{username} | Update a user
 
 
@@ -163,6 +164,7 @@ Class | Method | HTTP request | Description
  - **socialapp.roles.scopes.delete**: Delete scopes of a role
  - **socialapp.users.roles.list**: List roles of a user
  - **socialapp.users.roles.create**: Create roles of a user
+ - **socialapp.users.roles.update**: Update roles of a user
  - **socialapp.users.roles.delete**: Delete roles of a user
 
 Example

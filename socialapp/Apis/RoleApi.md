@@ -16,7 +16,7 @@ All URIs are relative to *https://microservices.onrender.com*
 
 <a name="addScopeToRole"></a>
 # **addScopeToRole**
-> List addScopeToRole(id, request\_body)
+> addScopeToRole(id, request\_body)
 
 Add a scope to a role
 
@@ -31,7 +31,7 @@ Add a scope to a role
 
 ### Return type
 
-[**List**](../Models/Scope.md)
+null (empty response body)
 
 ### Authorization
 

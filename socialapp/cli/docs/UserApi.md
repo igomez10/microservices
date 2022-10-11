@@ -16,6 +16,7 @@ Method | HTTP request | Description
 [**listUsers**](UserApi.md#listUsers) | **GET** /users | List users
 [**resetPassword**](UserApi.md#resetPassword) | **PUT** /password | Reset password
 [**unfollowUser**](UserApi.md#unfollowUser) | **DELETE** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
+[**updateRolesForUser**](UserApi.md#updateRolesForUser) | **PUT** /users/{username}/roles | Update all roles for a user
 [**updateUser**](UserApi.md#updateUser) | **PUT** /users/{username} | Update a user
 
 
@@ -440,6 +441,42 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
 - **Content-Type**: Not Applicable
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+
+## updateRolesForUser
+
+Update all roles for a user
+
+Update all roles for a user
+
+### Example
+
+```bash
+socialapp-cli updateRolesForUser username=value
+```
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **username** | **string** | username of the user | [default to null]
+ **requestBody** | [**array[string]**](string.md) | Update all roles for a user | [optional]
+
+### Return type
+
+[**array[Role]**](Role.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

@@ -256,6 +256,10 @@ INSERT INTO users_to_roles (
   ?, ?
 );
 
+-- name: DeleteUserToRole :exec
+DELETE FROM users_to_roles
+WHERE user_id = ? AND role_id = ?;
+
 -- name: GetRoleByName :one
 SELECT * FROM roles
 WHERE name = ? AND deleted_at IS NULL LIMIT 1;

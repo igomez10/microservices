@@ -683,3 +683,132 @@ func (s *UserApiService) GetRolesForUser(ctx context.Context, username string) (
 
 	return openapi.Response(http.StatusOK, apiRoles), nil
 }
+
+func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string, roles []string) (openapi.ImplResponse, error) {
+	// verify the user exists
+	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
+	if errGetUser != nil {
+		log.Error().
+			Err(errGetUser).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+			Msg("Error getting user")
+		return openapi.ImplResponse{
+			Code: http.StatusNotFound,
+			Body: openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "Error getting user",
+			},
+		}, nil
+	}
+
+	// verify all the roles exist
+	dbRoles := make([]db.Role, len(roles))
+	for i := range roles {
+		dbRole, err := s.DB.GetRoleByName(ctx, s.DBConn, roles[i])
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+				Msg("Error getting role")
+			return openapi.ImplResponse{
+				Code: http.StatusNotFound,
+				Body: openapi.Error{
+					Code:    http.StatusNotFound,
+					Message: "Error getting role",
+				},
+			}, nil
+		}
+		dbRoles[i] = dbRole
+	}
+
+	// get all existing roles
+	existingRoles, err := s.DB.GetUserRoles(ctx, s.DBConn, user.ID)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+			Msg("Error getting user roles")
+		return openapi.ImplResponse{
+			Code: http.StatusNotFound,
+			Body: openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "Error getting user roles",
+			},
+		}, nil
+	}
+
+	newRoles := map[string]db.Role{}
+	for _, role := range dbRoles {
+		newRoles[role.Name] = role
+	}
+
+	oldRoles := map[string]db.Role{}
+	for _, role := range existingRoles {
+		oldRoles[role.Name] = role
+	}
+
+	// roles to add
+	rolesToAdd := []string{}
+
+	for i := range newRoles {
+		if _, ok := oldRoles[i]; !ok {
+			rolesToAdd = append(rolesToAdd, i)
+		}
+	}
+
+	// roles to remove
+	rolesToRemove := []string{}
+	for i := range oldRoles {
+		if _, ok := newRoles[i]; !ok {
+			rolesToRemove = append(rolesToRemove, i)
+		}
+	}
+
+	// add new roles
+	for _, roleNameToAdd := range rolesToAdd {
+		roleID := newRoles[roleNameToAdd].ID
+		_, err := s.DB.CreateUserToRole(ctx, s.DBConn, db.CreateUserToRoleParams{
+			UserID: user.ID,
+			RoleID: roleID,
+		})
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+				Str("role", roleNameToAdd).
+				Msg("Error adding role to user")
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Code:    http.StatusInternalServerError,
+					Message: "Error adding role to user",
+				},
+			}, nil
+		}
+	}
+
+	// remove old roles
+	for _, roleNameToRemove := range rolesToRemove {
+		roleID := oldRoles[roleNameToRemove].ID
+		err := s.DB.DeleteUserToRole(ctx, s.DBConn, db.DeleteUserToRoleParams{
+			UserID: user.ID,
+			RoleID: roleID,
+		})
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+				Str("role", roleNameToRemove).
+				Msg("Error removing role from user")
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Code:    http.StatusInternalServerError,
+					Message: "Error removing role from user",
+				},
+			}, nil
+		}
+	}
+
+	return openapi.Response(http.StatusOK, nil), nil
+}

@@ -673,9 +673,13 @@ func TestRoleLifecycle(t *testing.T) {
 		"socialapp.roles.create",
 		"socialapp.roles.update",
 		"socialapp.roles.delete",
+		"socialapp.scopes.create",
+		"socialapp.roles.scopes.create",
+		"socialapp.roles.scopes.delete",
+		"socialapp.roles.scopes.list",
+		"socialapp.scopes.delete",
 	}
 
-	// openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
 	apiClient = client.NewAPIClient(configuration)
 
 	username := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
@@ -703,9 +707,8 @@ func TestRoleLifecycle(t *testing.T) {
 		t.Fatalf("Error getting oauth2 context: %v", err)
 	}
 
-	newRole := client.NewRole(fmt.Sprintf("Test-CreateRole-%d1", time.Now().UnixNano()))
 	// create a role
-
+	newRole := client.NewRole(fmt.Sprintf("Test-CreateRole-%d1", time.Now().UnixNano()))
 	createdRole, res, err := apiClient.RoleApi.CreateRole(oauth2Ctx).Role(*newRole).Execute()
 	if err != nil {
 		t.Fatalf("Error when calling `RoleApi.CreateRole`: %v", err)
@@ -725,6 +728,89 @@ func TestRoleLifecycle(t *testing.T) {
 	if gettedRole == nil {
 		t.Fatalf("Expected role, got nil")
 	}
+
+	// add scopes to role
+	// create scope
+	newScope := client.NewScope(fmt.Sprintf("Test-CreateScope-%d1", time.Now().UnixNano()), "Test-CreateScope-Description")
+	func() {
+		createdScope, res, err := apiClient.ScopeApi.CreateScope(oauth2Ctx).Scope(*newScope).Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `ScopeApi.CreateScope`: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+		}
+		// attach scope to role
+		scopesToAdd := []string{newScope.Name}
+		res, err = apiClient.RoleApi.AddScopeToRole(oauth2Ctx, int32(*createdRole.Id)).RequestBody(scopesToAdd).Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `RoleApi.AddScopeToRole`: %v", err)
+		}
+		// verify scope is attached to role
+		// get role scopes
+		roleScopes, res, err := apiClient.RoleApi.ListScopesForRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `RoleApi.ListScopesForRole`: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+		}
+		if len(roleScopes) != 1 {
+			t.Fatalf("Expected 1 scope, got %d", len(roleScopes))
+		}
+		if roleScopes[0].Name != newScope.Name {
+			t.Fatalf("Expected scope name %s, got %s", newScope.Name, roleScopes[0].Name)
+		}
+		// remove scope from role
+		res, err = apiClient.RoleApi.RemoveScopeFromRole(oauth2Ctx, int32(*createdRole.Id), int32(*createdScope.Id)).Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `RoleApi.RemoveScopeFromRole`: %v", err)
+		}
+		if res.StatusCode != http.StatusNoContent {
+			t.Fatalf("Expected status code 204, got %d", res.StatusCode)
+		}
+		// verify scope is removed from role
+		// get role scopes
+		roleScopes, res, err = apiClient.RoleApi.ListScopesForRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `RoleApi.ListScopesForRole`: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+		}
+		if len(roleScopes) != 0 {
+			t.Fatalf("Expected 0 scopes, got %d", len(roleScopes))
+		}
+		// detach scope from role
+		res, err = apiClient.RoleApi.RemoveScopeFromRole(oauth2Ctx, int32(*createdRole.Id), int32(*createdScope.Id)).Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `RoleApi.RemoveScopeFromRole`: %v", err)
+		}
+		if res.StatusCode != http.StatusNoContent {
+			t.Fatalf("Expected status code 204, got %d", res.StatusCode)
+		}
+		// verify scope is detached from role
+		// get role scopes
+		roleScopes, res, err = apiClient.RoleApi.ListScopesForRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `RoleApi.ListScopesForRole`: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+		}
+		if len(roleScopes) != 0 {
+			t.Fatalf("Expected 0 scopes, got %d", len(roleScopes))
+		}
+
+		// delete scope
+		res, err = apiClient.ScopeApi.DeleteScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `ScopeApi.DeleteScope`: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+		}
+	}()
 
 	updatedName := fmt.Sprintf("Test-UpdateRole-%d", time.Now().UnixNano())
 	updatedDesc := fmt.Sprintf("Test-UpdateRole-Description-%d", time.Now().UnixNano())

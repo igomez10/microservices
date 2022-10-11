@@ -17,7 +17,7 @@ Method | HTTP request | Description
 
 ## AddScopeToRole
 
-> []Scope AddScopeToRole(ctx, id).RequestBody(requestBody).Execute()
+> AddScopeToRole(ctx, id).RequestBody(requestBody).Execute()
 
 Add a scope to a role
 
@@ -46,8 +46,6 @@ func main() {
         fmt.Fprintf(os.Stderr, "Error when calling `RoleApi.AddScopeToRole``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
-    // response from `AddScopeToRole`: []Scope
-    fmt.Fprintf(os.Stdout, "Response from `RoleApi.AddScopeToRole`: %v\n", resp)
 }
 ```
 
@@ -71,7 +69,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**[]Scope**](Scope.md)
+ (empty response body)
 
 ### Authorization
 

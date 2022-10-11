@@ -636,6 +636,60 @@ paths:
       summary: Get all roles for a user
       tags:
         - User
+    put:
+      description: Update all roles for a user
+      operationId: updateRolesForUser
+      parameters:
+        - description: username of the user
+          example: johndoe
+          explode: false
+          in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                type: string
+              type: array
+              example:
+                - "administrator"
+                - "user"
+                - "owner"
+                - "editor"
+        description: Update all roles for a user
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Role"
+                type: array
+          description: Roles for a user
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.users.roles.update
+      summary: Update all roles for a user
+      tags:
+        - User
+
   /comments/{id}:
     get:
       description: Returns details about a particular comment
@@ -1045,12 +1099,6 @@ paths:
         required: true
       responses:
         "200":
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Scope"
           description: List of scopes
         "401":
           content:
@@ -1554,6 +1602,7 @@ components:
             socialapp.roles.scopes.delete: Delete scopes of a role
             socialapp.users.roles.list: List roles of a user
             socialapp.users.roles.create: Create roles of a user
+            socialapp.users.roles.update: Update roles of a user
             socialapp.users.roles.delete: Delete roles of a user
           tokenUrl: /oauth/token
       type: oauth2

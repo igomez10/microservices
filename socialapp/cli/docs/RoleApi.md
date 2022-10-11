@@ -37,7 +37,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**array[Scope]**](Scope.md)
+(empty response body)
 
 ### Authorization
 

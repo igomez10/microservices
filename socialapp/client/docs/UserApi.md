@@ -16,6 +16,7 @@ Method | HTTP request | Description
 [**ListUsers**](UserApi.md#ListUsers) | **Get** /users | List users
 [**ResetPassword**](UserApi.md#ResetPassword) | **Put** /password | Reset password
 [**UnfollowUser**](UserApi.md#UnfollowUser) | **Delete** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
+[**UpdateRolesForUser**](UserApi.md#UpdateRolesForUser) | **Put** /users/{username}/roles | Update all roles for a user
 [**UpdateUser**](UserApi.md#UpdateUser) | **Put** /users/{username} | Update a user
 
 
@@ -845,6 +846,78 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## UpdateRolesForUser
+
+> []Role UpdateRolesForUser(ctx, username).RequestBody(requestBody).Execute()
+
+Update all roles for a user
+
+
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "./openapi"
+)
+
+func main() {
+    username := "johndoe" // string | username of the user
+    requestBody := []string{"Property_example"} // []string | Update all roles for a user (optional)
+
+    configuration := openapiclient.NewConfiguration()
+    apiClient := openapiclient.NewAPIClient(configuration)
+    resp, r, err := apiClient.UserApi.UpdateRolesForUser(context.Background(), username).RequestBody(requestBody).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.UpdateRolesForUser``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+    // response from `UpdateRolesForUser`: []Role
+    fmt.Fprintf(os.Stdout, "Response from `UserApi.UpdateRolesForUser`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**username** | **string** | username of the user | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiUpdateRolesForUserRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+ **requestBody** | **[]string** | Update all roles for a user | 
+
+### Return type
+
+[**[]Role**](Role.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)

@@ -124,6 +124,12 @@ func (c *UserApiController) Routes() Routes {
 			c.UnfollowUser,
 		},
 		{
+			"UpdateRolesForUser",
+			strings.ToUpper("Put"),
+			"/users/{username}/roles",
+			c.UpdateRolesForUser,
+		},
+		{
 			"UpdateUser",
 			strings.ToUpper("Put"),
 			"/users/{username}",
@@ -353,6 +359,28 @@ func (c *UserApiController) UnfollowUser(w http.ResponseWriter, r *http.Request)
 	followerUsernameParam := chi.URLParam(r, "followerUsername")
 
 	result, err := c.service.UnfollowUser(r.Context(), followedUsernameParam, followerUsernameParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+
+}
+
+// UpdateRolesForUser - Update all roles for a user
+func (c *UserApiController) UpdateRolesForUser(w http.ResponseWriter, r *http.Request) {
+	usernameParam := chi.URLParam(r, "username")
+
+	requestBodyParam := []string{}
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&requestBodyParam); err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	result, err := c.service.UpdateRolesForUser(r.Context(), usernameParam, requestBodyParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

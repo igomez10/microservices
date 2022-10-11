@@ -29,6 +29,7 @@ type Querier interface {
 	DeleteToken(ctx context.Context, db DBTX, token string) error
 	DeleteUser(ctx context.Context, db DBTX, id int64) error
 	DeleteUserByUsername(ctx context.Context, db DBTX, username string) error
+	DeleteUserToRole(ctx context.Context, db DBTX, arg DeleteUserToRoleParams) error
 	FollowUser(ctx context.Context, db DBTX, arg FollowUserParams) error
 	GetComment(ctx context.Context, db DBTX, id int64) (Comment, error)
 	GetCredential(ctx context.Context, db DBTX, publicKey string) (Credential, error)

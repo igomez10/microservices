@@ -16,6 +16,7 @@ All URIs are relative to *https://microservices.onrender.com*
 | [**listUsers**](UserApi.md#listUsers) | **GET** /users | List users |
 | [**resetPassword**](UserApi.md#resetPassword) | **PUT** /password | Reset password |
 | [**unfollowUser**](UserApi.md#unfollowUser) | **DELETE** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower |
+| [**updateRolesForUser**](UserApi.md#updateRolesForUser) | **PUT** /users/{username}/roles | Update all roles for a user |
 | [**updateUser**](UserApi.md#updateUser) | **PUT** /users/{username} | Update a user |
 
 
@@ -346,6 +347,34 @@ null (empty response body)
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="updateRolesForUser"></a>
+# **updateRolesForUser**
+> List updateRolesForUser(username, request\_body)
+
+Update all roles for a user
+
+    Update all roles for a user
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **username** | **String**| username of the user | [default to null] |
+| **request\_body** | [**List**](../Models/string.md)| Update all roles for a user | [optional] |
+
+### Return type
+
+[**List**](../Models/Role.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 <a name="updateUser"></a>

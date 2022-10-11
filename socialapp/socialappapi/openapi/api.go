@@ -80,6 +80,7 @@ type UserApiRouter interface {
 	ListUsers(http.ResponseWriter, *http.Request)
 	ResetPassword(http.ResponseWriter, *http.Request)
 	UnfollowUser(http.ResponseWriter, *http.Request)
+	UpdateRolesForUser(http.ResponseWriter, *http.Request)
 	UpdateUser(http.ResponseWriter, *http.Request)
 }
 
@@ -154,5 +155,6 @@ type UserApiServicer interface {
 	ListUsers(context.Context, int32, int32) (ImplResponse, error)
 	ResetPassword(context.Context, ResetPasswordRequest) (ImplResponse, error)
 	UnfollowUser(context.Context, string, string) (ImplResponse, error)
+	UpdateRolesForUser(context.Context, string, []string) (ImplResponse, error)
 	UpdateUser(context.Context, string, User) (ImplResponse, error)
 }

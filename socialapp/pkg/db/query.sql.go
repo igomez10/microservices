@@ -303,6 +303,21 @@ func (q *Queries) DeleteUserByUsername(ctx context.Context, db DBTX, username st
 	return err
 }
 
+const DeleteUserToRole = `-- name: DeleteUserToRole :exec
+DELETE FROM users_to_roles
+WHERE user_id = ? AND role_id = ?
+`
+
+type DeleteUserToRoleParams struct {
+	UserID int64 `json:"user_id"`
+	RoleID int64 `json:"role_id"`
+}
+
+func (q *Queries) DeleteUserToRole(ctx context.Context, db DBTX, arg DeleteUserToRoleParams) error {
+	_, err := db.ExecContext(ctx, DeleteUserToRole, arg.UserID, arg.RoleID)
+	return err
+}
+
 const FollowUser = `-- name: FollowUser :exec
 INSERT INTO followers (
   follower_id, followed_id

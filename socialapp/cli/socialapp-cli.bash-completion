@@ -99,6 +99,7 @@ _socialapp-cli()
     operations["listUsers"]=1
     operations["resetPassword"]=1
     operations["unfollowUser"]=1
+    operations["updateRolesForUser"]=1
     operations["updateUser"]=1
 
     # An associative array of operations to their parameters
@@ -135,6 +136,7 @@ _socialapp-cli()
     operation_parameters["listUsers"]="limit= offset= "
     operation_parameters["resetPassword"]=""
     operation_parameters["unfollowUser"]="followedUsername= followerUsername= "
+    operation_parameters["updateRolesForUser"]="username= "
     operation_parameters["updateUser"]="username= "
 
     # An associative array of possible values for enum parameters

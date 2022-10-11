@@ -322,6 +322,7 @@ case $state in
             "listUsers[List users]" \
             "resetPassword[Reset password]" \
             "unfollowUser[Remove a user as a follower]" \
+            "updateRolesForUser[Update all roles for a user]" \
             "updateUser[Update a user]" \
 
     _arguments "(--help)--help[Print information about operation]"
@@ -549,6 +550,13 @@ case $state in
         _op_arguments=(
           "followedUsername=:[PATH] username of the user"
 "followerUsername=:[PATH] username of the follower"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      updateRolesForUser)
+        local -a _op_arguments
+        _op_arguments=(
+          "username=:[PATH] username of the user"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;

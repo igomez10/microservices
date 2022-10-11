@@ -38,6 +38,7 @@ All URIs are relative to *https://microservices.onrender.com*
 *UserApi* | [**listUsers**](Apis/UserApi.md#listusers) | **GET** /users | List users |
 *UserApi* | [**resetPassword**](Apis/UserApi.md#resetpassword) | **PUT** /password | Reset password |
 *UserApi* | [**unfollowUser**](Apis/UserApi.md#unfollowuser) | **DELETE** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower |
+*UserApi* | [**updateRolesForUser**](Apis/UserApi.md#updaterolesforuser) | **PUT** /users/{username}/roles | Update all roles for a user |
 *UserApi* | [**updateUser**](Apis/UserApi.md#updateuser) | **PUT** /users/{username} | Update a user |
 
 
@@ -91,5 +92,6 @@ All URIs are relative to *https://microservices.onrender.com*
   - socialapp.roles.scopes.delete: Delete scopes of a role
   - socialapp.users.roles.list: List roles of a user
   - socialapp.users.roles.create: Create roles of a user
+  - socialapp.users.roles.update: Update roles of a user
   - socialapp.users.roles.delete: Delete roles of a user
 
