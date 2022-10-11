@@ -1,2 +1,2 @@
-testCase,httpStatusCode,changePasswordRequest,createUserRequest,username,followedUsername,followerUsername,username,username,username,limit,offset,username,limit,offset,resetPasswordRequest,followedUsername,followerUsername,username,user
-Success,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+testCase,httpStatusCode,changePasswordRequest,createUserRequest,username,followedUsername,followerUsername,username,username,username,username,limit,offset,username,limit,offset,resetPasswordRequest,followedUsername,followerUsername,username,user
+Success,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0

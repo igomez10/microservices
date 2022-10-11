@@ -92,6 +92,7 @@ _socialapp-cli()
     operations["deleteUser"]=1
     operations["followUser"]=1
     operations["getFollowingUsers"]=1
+    operations["getRolesForUser"]=1
     operations["getUserByUsername"]=1
     operations["getUserComments"]=1
     operations["getUserFollowers"]=1
@@ -127,6 +128,7 @@ _socialapp-cli()
     operation_parameters["deleteUser"]="username= "
     operation_parameters["followUser"]="followedUsername= followerUsername= "
     operation_parameters["getFollowingUsers"]="username= "
+    operation_parameters["getRolesForUser"]="username= "
     operation_parameters["getUserByUsername"]="username= "
     operation_parameters["getUserComments"]="username= limit= offset= "
     operation_parameters["getUserFollowers"]="username= "

@@ -216,7 +216,8 @@ WHERE
 	AND r.deleted_at IS NULL
 	AND s.deleted_at IS NULL
 ORDER BY
-	s.name;
+	s.name
+LIMIT ? OFFSET ?;
 
 -- name: CreateRoleScope :execresult
 INSERT INTO roles_to_scopes (

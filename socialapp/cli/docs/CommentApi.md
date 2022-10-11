@@ -99,7 +99,7 @@ socialapp-cli getUserComments username=value  limit=value  offset=value
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **username** | **string** | username of the user | [default to null]
- **limit** | **integer** | How many items to return at one time (max 100) | [optional] [default to null]
+ **limit** | **integer** | How many items to return at one time (max 100) | [optional] [default to 20]
  **offset** | **integer** | The number of items to skip before starting to collect the result set | [optional] [default to null]
 
 ### Return type

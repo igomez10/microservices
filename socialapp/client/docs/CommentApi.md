@@ -169,7 +169,7 @@ import (
 
 func main() {
     username := "johndoe" // string | username of the user
-    limit := int32(20) // int32 | How many items to return at one time (max 100) (optional)
+    limit := int32(20) // int32 | How many items to return at one time (max 100) (optional) (default to 20)
     offset := int32(0) // int32 | The number of items to skip before starting to collect the result set (optional)
 
     configuration := openapiclient.NewConfiguration()
@@ -200,7 +200,7 @@ Other parameters are passed through a pointer to a apiGetUserCommentsRequest str
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **limit** | **int32** | How many items to return at one time (max 100) | 
+ **limit** | **int32** | How many items to return at one time (max 100) | [default to 20]
  **offset** | **int32** | The number of items to skip before starting to collect the result set | 
 
 ### Return type

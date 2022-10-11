@@ -151,6 +151,11 @@ func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.Imp
 }
 
 func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int32) (openapi.ImplResponse, error) {
+	limit = limit % 20
+	if limit == 0 {
+		limit = 20
+	}
+
 	roles, err := s.DB.ListRoles(ctx, s.DBConn, db.ListRolesParams{
 		Limit:  limit,
 		Offset: offset,
@@ -353,8 +358,16 @@ func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleID int32, li
 		}, nil
 	}
 
+	limit = limit % 20
+	if limit == 0 {
+		limit = 20
+	}
 	// get role scopes from db
-	scopes, err := s.DB.ListRoleScopes(ctx, s.DBConn, role.ID)
+	scopes, err := s.DB.ListRoleScopes(ctx, s.DBConn, db.ListRoleScopesParams{
+		ID:     role.ID,
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		log.Error().
 			Err(err).

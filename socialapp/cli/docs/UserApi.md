@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**deleteUser**](UserApi.md#deleteUser) | **DELETE** /users/{username} | Deletes a particular user
 [**followUser**](UserApi.md#followUser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
 [**getFollowingUsers**](UserApi.md#getFollowingUsers) | **GET** /users/{username}/following | Get all followed users for a user
+[**getRolesForUser**](UserApi.md#getRolesForUser) | **GET** /users/{username}/roles | Get all roles for a user
 [**getUserByUsername**](UserApi.md#getUserByUsername) | **GET** /users/{username} | Get a particular user by username
 [**getUserComments**](UserApi.md#getUserComments) | **GET** /users/{username}/comments | Gets all comments for a user
 [**getUserFollowers**](UserApi.md#getUserFollowers) | **GET** /users/{username}/followers | Get all followers for a user
@@ -195,6 +196,41 @@ Name | Type | Description  | Notes
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 
+## getRolesForUser
+
+Get all roles for a user
+
+Get all roles for a user
+
+### Example
+
+```bash
+socialapp-cli getRolesForUser username=value
+```
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **username** | **string** | username of the user | [default to null]
+
+### Return type
+
+[**array[Role]**](Role.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: Not Applicable
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+
 ## getUserByUsername
 
 Get a particular user by username
@@ -248,7 +284,7 @@ socialapp-cli getUserComments username=value  limit=value  offset=value
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **username** | **string** | username of the user | [default to null]
- **limit** | **integer** | How many items to return at one time (max 100) | [optional] [default to null]
+ **limit** | **integer** | How many items to return at one time (max 100) | [optional] [default to 20]
  **offset** | **integer** | The number of items to skip before starting to collect the result set | [optional] [default to null]
 
 ### Return type

@@ -103,6 +103,7 @@ Class | Method | HTTP request | Description
 *UserApi* | [**DeleteUser**](docs/UserApi.md#deleteuser) | **Delete** /users/{username} | Deletes a particular user
 *UserApi* | [**FollowUser**](docs/UserApi.md#followuser) | **Post** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
 *UserApi* | [**GetFollowingUsers**](docs/UserApi.md#getfollowingusers) | **Get** /users/{username}/following | Get all followed users for a user
+*UserApi* | [**GetRolesForUser**](docs/UserApi.md#getrolesforuser) | **Get** /users/{username}/roles | Get all roles for a user
 *UserApi* | [**GetUserByUsername**](docs/UserApi.md#getuserbyusername) | **Get** /users/{username} | Get a particular user by username
 *UserApi* | [**GetUserComments**](docs/UserApi.md#getusercomments) | **Get** /users/{username}/comments | Gets all comments for a user
 *UserApi* | [**GetUserFollowers**](docs/UserApi.md#getuserfollowers) | **Get** /users/{username}/followers | Get all followers for a user
@@ -159,6 +160,10 @@ Class | Method | HTTP request | Description
  - **socialapp.scopes.delete**: Delete scopes
  - **socialapp.roles.list_scopes**: List scopes of a role
  - **socialapp.roles.scopes.create**: Create scopes of a role
+ - **socialapp.roles.scopes.delete**: Delete scopes of a role
+ - **socialapp.users.roles.list**: List roles of a user
+ - **socialapp.users.roles.create**: Create roles of a user
+ - **socialapp.users.roles.delete**: Delete roles of a user
 
 Example
 

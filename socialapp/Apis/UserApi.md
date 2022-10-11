@@ -9,6 +9,7 @@ All URIs are relative to *https://microservices.onrender.com*
 | [**deleteUser**](UserApi.md#deleteUser) | **DELETE** /users/{username} | Deletes a particular user |
 | [**followUser**](UserApi.md#followUser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower |
 | [**getFollowingUsers**](UserApi.md#getFollowingUsers) | **GET** /users/{username}/following | Get all followed users for a user |
+| [**getRolesForUser**](UserApi.md#getRolesForUser) | **GET** /users/{username}/roles | Get all roles for a user |
 | [**getUserByUsername**](UserApi.md#getUserByUsername) | **GET** /users/{username} | Get a particular user by username |
 | [**getUserComments**](UserApi.md#getUserComments) | **GET** /users/{username}/comments | Gets all comments for a user |
 | [**getUserFollowers**](UserApi.md#getUserFollowers) | **GET** /users/{username}/followers | Get all followers for a user |
@@ -154,6 +155,33 @@ Get all followed users for a user
 - **Content-Type**: Not defined
 - **Accept**: application/json
 
+<a name="getRolesForUser"></a>
+# **getRolesForUser**
+> List getRolesForUser(username)
+
+Get all roles for a user
+
+    Get all roles for a user
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **username** | **String**| username of the user | [default to null] |
+
+### Return type
+
+[**List**](../Models/Role.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
 <a name="getUserByUsername"></a>
 # **getUserByUsername**
 > User getUserByUsername(username)
@@ -194,7 +222,7 @@ Gets all comments for a user
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **username** | **String**| username of the user | [default to null] |
-| **limit** | **Integer**| How many items to return at one time (max 100) | [optional] [default to null] |
+| **limit** | **Integer**| How many items to return at one time (max 100) | [optional] [default to 20] |
 | **offset** | **Integer**| The number of items to skip before starting to collect the result set | [optional] [default to null] |
 
 ### Return type

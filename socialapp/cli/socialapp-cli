@@ -129,6 +129,7 @@ operation_parameters_minimum_occurrences["deleteUser:::username"]=1
 operation_parameters_minimum_occurrences["followUser:::followedUsername"]=1
 operation_parameters_minimum_occurrences["followUser:::followerUsername"]=1
 operation_parameters_minimum_occurrences["getFollowingUsers:::username"]=1
+operation_parameters_minimum_occurrences["getRolesForUser:::username"]=1
 operation_parameters_minimum_occurrences["getUserByUsername:::username"]=1
 operation_parameters_minimum_occurrences["getUserComments:::username"]=1
 operation_parameters_minimum_occurrences["getUserComments:::limit"]=0
@@ -183,6 +184,7 @@ operation_parameters_maximum_occurrences["deleteUser:::username"]=0
 operation_parameters_maximum_occurrences["followUser:::followedUsername"]=0
 operation_parameters_maximum_occurrences["followUser:::followerUsername"]=0
 operation_parameters_maximum_occurrences["getFollowingUsers:::username"]=0
+operation_parameters_maximum_occurrences["getRolesForUser:::username"]=0
 operation_parameters_maximum_occurrences["getUserByUsername:::username"]=0
 operation_parameters_maximum_occurrences["getUserComments:::username"]=0
 operation_parameters_maximum_occurrences["getUserComments:::limit"]=0
@@ -234,6 +236,7 @@ operation_parameters_collection_type["deleteUser:::username"]=""
 operation_parameters_collection_type["followUser:::followedUsername"]=""
 operation_parameters_collection_type["followUser:::followerUsername"]=""
 operation_parameters_collection_type["getFollowingUsers:::username"]=""
+operation_parameters_collection_type["getRolesForUser:::username"]=""
 operation_parameters_collection_type["getUserByUsername:::username"]=""
 operation_parameters_collection_type["getUserComments:::username"]=""
 operation_parameters_collection_type["getUserComments:::limit"]=""
@@ -655,6 +658,10 @@ EOF
     echo -e "        * socialapp.scopes.delete - Delete scopes"
     echo -e "        * socialapp.roles.list_scopes - List scopes of a role"
     echo -e "        * socialapp.roles.scopes.create - Create scopes of a role"
+    echo -e "        * socialapp.roles.scopes.delete - Delete scopes of a role"
+    echo -e "        * socialapp.users.roles.list - List roles of a user"
+    echo -e "        * socialapp.users.roles.create - Create roles of a user"
+    echo -e "        * socialapp.users.roles.delete - Delete roles of a user"
     echo ""
     echo -e "${BOLD}${WHITE}Operations (grouped by tags)${OFF}"
     echo ""
@@ -709,6 +716,7 @@ read -r -d '' ops <<EOF
   ${CYAN}deleteUser${OFF};Deletes a particular user (AUTH)
   ${CYAN}followUser${OFF};Add a user as a follower (AUTH)
   ${CYAN}getFollowingUsers${OFF};Get all followed users for a user (AUTH)
+  ${CYAN}getRolesForUser${OFF};Get all roles for a user (AUTH)
   ${CYAN}getUserByUsername${OFF};Get a particular user by username (AUTH)
   ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH)
   ${CYAN}getUserFollowers${OFF};Get all followers for a user (AUTH)
@@ -849,7 +857,7 @@ print_getUserComments_help() {
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
-    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - How many items to return at one time (max 100)${YELLOW} Specify as: limit=value${OFF}" \
+    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 20)${OFF} - How many items to return at one time (max 100)${YELLOW} Specify as: limit=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The number of items to skip before starting to collect the result set${YELLOW} Specify as: offset=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -1013,7 +1021,7 @@ print_listRoles_help() {
     echo -e "Returns a list of roles" | paste -sd' ' | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The numbers of roles to return${YELLOW} Specify as: limit=value${OFF}" \
+    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 20)${OFF} - The numbers of roles to return${YELLOW} Specify as: limit=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The number of items to skip before starting to collect the result${YELLOW} Specify as: offset=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -1039,7 +1047,7 @@ print_listScopesForRole_help() {
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The id of the role ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
-    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The numbers of scopes to return${YELLOW} Specify as: limit=value${OFF}" \
+    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 20)${OFF} - The numbers of scopes to return${YELLOW} Specify as: limit=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The number of items to skip before starting to collect the result${YELLOW} Specify as: offset=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -1182,7 +1190,7 @@ print_listScopes_help() {
     echo -e "Returns a list of scopes" | paste -sd' ' | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The numbers of scopes to return${YELLOW} Specify as: limit=value${OFF}" \
+    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 20)${OFF} - The numbers of scopes to return${YELLOW} Specify as: limit=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The number of items to skip before starting to collect the result${YELLOW} Specify as: offset=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -1334,6 +1342,28 @@ print_getFollowingUsers_help() {
 }
 ##############################################################################
 #
+# Print help for getRolesForUser operation
+#
+##############################################################################
+print_getRolesForUser_help() {
+    echo ""
+    echo -e "${BOLD}${WHITE}getRolesForUser - Get all roles for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Get all roles for a user" | paste -sd' ' | fold -sw 80
+    echo -e ""
+    echo -e "${BOLD}${WHITE}Parameters${OFF}"
+    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo ""
+    echo -e "${BOLD}${WHITE}Responses${OFF}"
+    code=200
+    echo -e "${result_color_table[${code:0:1}]}  200;Roles for a user${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=0
+    echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+}
+##############################################################################
+#
 # Print help for getUserByUsername operation
 #
 ##############################################################################
@@ -1369,7 +1399,7 @@ print_getUserComments_help() {
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
-    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - How many items to return at one time (max 100)${YELLOW} Specify as: limit=value${OFF}" \
+    echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 20)${OFF} - How many items to return at one time (max 100)${YELLOW} Specify as: limit=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The number of items to skip before starting to collect the result set${YELLOW} Specify as: offset=value${OFF}" \
         | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
@@ -2703,6 +2733,42 @@ call_getFollowingUsers() {
 
 ##############################################################################
 #
+# Call getRolesForUser operation
+#
+##############################################################################
+call_getRolesForUser() {
+    # ignore error about 'path_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local path_parameter_names=(username)
+    # ignore error about 'query_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local query_parameter_names=(  )
+    local path
+
+    if ! path=$(build_request_path "/users/{username}/roles" path_parameter_names query_parameter_names); then
+        ERROR_MSG=$path
+        exit 1
+    fi
+    local method="GET"
+    local headers_curl
+    headers_curl=$(header_arguments_to_curl)
+    if [[ -n $header_accept ]]; then
+        headers_curl="${headers_curl} -H 'Accept: ${header_accept}'"
+    fi
+
+    local basic_auth_option=""
+    if [[ -n $basic_auth_credential ]]; then
+        basic_auth_option="-u ${basic_auth_credential}"
+    fi
+    if [[ "$print_curl" = true ]]; then
+        echo "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    else
+        eval "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    fi
+}
+
+##############################################################################
+#
 # Call getUserByUsername operation
 #
 ##############################################################################
@@ -3206,6 +3272,9 @@ case $key in
     getFollowingUsers)
     operation="getFollowingUsers"
     ;;
+    getRolesForUser)
+    operation="getRolesForUser"
+    ;;
     getUserByUsername)
     operation="getUserByUsername"
     ;;
@@ -3375,6 +3444,9 @@ case $operation in
     ;;
     getFollowingUsers)
     call_getFollowingUsers
+    ;;
+    getRolesForUser)
+    call_getRolesForUser
     ;;
     getUserByUsername)
     call_getUserByUsername

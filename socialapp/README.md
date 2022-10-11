@@ -31,6 +31,7 @@ All URIs are relative to *https://microservices.onrender.com*
 *UserApi* | [**deleteUser**](Apis/UserApi.md#deleteuser) | **DELETE** /users/{username} | Deletes a particular user |
 *UserApi* | [**followUser**](Apis/UserApi.md#followuser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower |
 *UserApi* | [**getFollowingUsers**](Apis/UserApi.md#getfollowingusers) | **GET** /users/{username}/following | Get all followed users for a user |
+*UserApi* | [**getRolesForUser**](Apis/UserApi.md#getrolesforuser) | **GET** /users/{username}/roles | Get all roles for a user |
 *UserApi* | [**getUserByUsername**](Apis/UserApi.md#getuserbyusername) | **GET** /users/{username} | Get a particular user by username |
 *UserApi* | [**getUserComments**](Apis/UserApi.md#getusercomments) | **GET** /users/{username}/comments | Gets all comments for a user |
 *UserApi* | [**getUserFollowers**](Apis/UserApi.md#getuserfollowers) | **GET** /users/{username}/followers | Get all followers for a user |
@@ -87,4 +88,8 @@ All URIs are relative to *https://microservices.onrender.com*
   - socialapp.scopes.delete: Delete scopes
   - socialapp.roles.list_scopes: List scopes of a role
   - socialapp.roles.scopes.create: Create scopes of a role
+  - socialapp.roles.scopes.delete: Delete scopes of a role
+  - socialapp.users.roles.list: List roles of a user
+  - socialapp.users.roles.create: Create roles of a user
+  - socialapp.users.roles.delete: Delete roles of a user
 

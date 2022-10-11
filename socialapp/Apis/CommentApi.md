@@ -77,7 +77,7 @@ Gets all comments for a user
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **username** | **String**| username of the user | [default to null] |
-| **limit** | **Integer**| How many items to return at one time (max 100) | [optional] [default to null] |
+| **limit** | **Integer**| How many items to return at one time (max 100) | [optional] [default to 20] |
 | **offset** | **Integer**| The number of items to skip before starting to collect the result set | [optional] [default to null] |
 
 ### Return type

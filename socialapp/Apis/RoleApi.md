@@ -135,7 +135,7 @@ Returns a list of roles
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **limit** | **Integer**| The numbers of roles to return | [optional] [default to null] |
+| **limit** | **Integer**| The numbers of roles to return | [optional] [default to 20] |
 | **offset** | **Integer**| The number of items to skip before starting to collect the result | [optional] [default to null] |
 
 ### Return type
@@ -164,7 +164,7 @@ Returns a list of scopes for a role
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **id** | **Integer**| The id of the role | [default to null] |
-| **limit** | **Integer**| The numbers of scopes to return | [optional] [default to null] |
+| **limit** | **Integer**| The numbers of scopes to return | [optional] [default to 20] |
 | **offset** | **Integer**| The number of items to skip before starting to collect the result | [optional] [default to null] |
 
 ### Return type

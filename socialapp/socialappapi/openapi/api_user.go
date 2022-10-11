@@ -82,6 +82,12 @@ func (c *UserApiController) Routes() Routes {
 			c.GetFollowingUsers,
 		},
 		{
+			"GetRolesForUser",
+			strings.ToUpper("Get"),
+			"/users/{username}/roles",
+			c.GetRolesForUser,
+		},
+		{
 			"GetUserByUsername",
 			strings.ToUpper("Get"),
 			"/users/{username}",
@@ -211,6 +217,21 @@ func (c *UserApiController) GetFollowingUsers(w http.ResponseWriter, r *http.Req
 	usernameParam := chi.URLParam(r, "username")
 
 	result, err := c.service.GetFollowingUsers(r.Context(), usernameParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+
+}
+
+// GetRolesForUser - Get all roles for a user
+func (c *UserApiController) GetRolesForUser(w http.ResponseWriter, r *http.Request) {
+	usernameParam := chi.URLParam(r, "username")
+
+	result, err := c.service.GetRolesForUser(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

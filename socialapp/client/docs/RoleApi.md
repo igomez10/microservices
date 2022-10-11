@@ -314,7 +314,7 @@ import (
 )
 
 func main() {
-    limit := int32(56) // int32 | The numbers of roles to return (optional)
+    limit := int32(56) // int32 | The numbers of roles to return (optional) (default to 20)
     offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
 
     configuration := openapiclient.NewConfiguration()
@@ -340,7 +340,7 @@ Other parameters are passed through a pointer to a apiListRolesRequest struct vi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **limit** | **int32** | The numbers of roles to return | 
+ **limit** | **int32** | The numbers of roles to return | [default to 20]
  **offset** | **int32** | The number of items to skip before starting to collect the result | 
 
 ### Return type
@@ -383,7 +383,7 @@ import (
 
 func main() {
     id := int32(123) // int32 | The id of the role
-    limit := int32(56) // int32 | The numbers of scopes to return (optional)
+    limit := int32(56) // int32 | The numbers of scopes to return (optional) (default to 20)
     offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
 
     configuration := openapiclient.NewConfiguration()
@@ -414,7 +414,7 @@ Other parameters are passed through a pointer to a apiListScopesForRoleRequest s
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **limit** | **int32** | The numbers of scopes to return | 
+ **limit** | **int32** | The numbers of scopes to return | [default to 20]
  **offset** | **int32** | The number of items to skip before starting to collect the result | 
 
 ### Return type

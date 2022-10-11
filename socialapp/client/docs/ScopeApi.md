@@ -237,7 +237,7 @@ import (
 )
 
 func main() {
-    limit := int32(56) // int32 | The numbers of scopes to return (optional)
+    limit := int32(56) // int32 | The numbers of scopes to return (optional) (default to 20)
     offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
 
     configuration := openapiclient.NewConfiguration()
@@ -263,7 +263,7 @@ Other parameters are passed through a pointer to a apiListScopesRequest struct v
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **limit** | **int32** | The numbers of scopes to return | 
+ **limit** | **int32** | The numbers of scopes to return | [default to 20]
  **offset** | **int32** | The number of items to skip before starting to collect the result | 
 
 ### Return type

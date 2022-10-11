@@ -46,7 +46,7 @@ type Querier interface {
 	GetUserComments(ctx context.Context, db DBTX, arg GetUserCommentsParams) ([]Comment, error)
 	GetUserRoles(ctx context.Context, db DBTX, id int64) ([]Role, error)
 	ListComment(ctx context.Context, db DBTX, arg ListCommentParams) ([]Comment, error)
-	ListRoleScopes(ctx context.Context, db DBTX, id int64) ([]Scope, error)
+	ListRoleScopes(ctx context.Context, db DBTX, arg ListRoleScopesParams) ([]Scope, error)
 	ListRoles(ctx context.Context, db DBTX, arg ListRolesParams) ([]Role, error)
 	ListScopes(ctx context.Context, db DBTX, arg ListScopesParams) ([]Scope, error)
 	ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) ([]User, error)

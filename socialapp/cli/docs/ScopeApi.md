@@ -134,7 +134,7 @@ socialapp-cli listScopes  limit=value  offset=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **limit** | **integer** | The numbers of scopes to return | [optional] [default to null]
+ **limit** | **integer** | The numbers of scopes to return | [optional] [default to 20]
  **offset** | **integer** | The number of items to skip before starting to collect the result | [optional] [default to null]
 
 ### Return type

@@ -823,10 +823,17 @@ WHERE
 	AND s.deleted_at IS NULL
 ORDER BY
 	s.name
+LIMIT ? OFFSET ?
 `
 
-func (q *Queries) ListRoleScopes(ctx context.Context, db DBTX, id int64) ([]Scope, error) {
-	rows, err := db.QueryContext(ctx, ListRoleScopes, id)
+type ListRoleScopesParams struct {
+	ID     int64 `json:"id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) ListRoleScopes(ctx context.Context, db DBTX, arg ListRoleScopesParams) ([]Scope, error) {
+	rows, err := db.QueryContext(ctx, ListRoleScopes, arg.ID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

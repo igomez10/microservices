@@ -152,6 +152,11 @@ func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int32) (openapi.
 }
 
 func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset int32) (openapi.ImplResponse, error) {
+	limit = limit % 20
+	if limit == 0 {
+		limit = 20
+	}
+
 	scopes, err := s.DB.ListScopes(ctx, s.DBConn, db.ListScopesParams{
 		Limit:  limit,
 		Offset: offset,

@@ -641,3 +641,45 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 func (s *UserApiService) ResetPassword(_ context.Context, _ openapi.ResetPasswordRequest) (openapi.ImplResponse, error) {
 	panic("not implemented") // TODO: Implement
 }
+
+func (s *UserApiService) GetRolesForUser(ctx context.Context, username string) (openapi.ImplResponse, error) {
+	// validate user exists
+	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
+	if errGetUser != nil {
+		log.Error().
+			Err(errGetUser).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+			Msg("Error getting user")
+		return openapi.ImplResponse{
+			Code: http.StatusNotFound,
+			Body: openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "Error getting user",
+			},
+		}, nil
+	}
+
+	// get user roles
+	dbRoles, err := s.DB.GetUserRoles(ctx, s.DBConn, user.ID)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+			Msg("Error getting user roles")
+		return openapi.ImplResponse{
+			Code: http.StatusNotFound,
+			Body: openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "Error getting user roles",
+			},
+		}, nil
+	}
+
+	// convert to api response
+	apiRoles := make([]openapi.Role, len(dbRoles))
+	for i := range dbRoles {
+		apiRoles[i] = converter.FromDBRoleToAPIRole(dbRoles[i])
+	}
+
+	return openapi.Response(http.StatusOK, apiRoles), nil
+}

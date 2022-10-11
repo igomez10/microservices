@@ -9,6 +9,7 @@ Method | HTTP request | Description
 [**DeleteUser**](UserApi.md#DeleteUser) | **Delete** /users/{username} | Deletes a particular user
 [**FollowUser**](UserApi.md#FollowUser) | **Post** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
 [**GetFollowingUsers**](UserApi.md#GetFollowingUsers) | **Get** /users/{username}/following | Get all followed users for a user
+[**GetRolesForUser**](UserApi.md#GetRolesForUser) | **Get** /users/{username}/roles | Get all roles for a user
 [**GetUserByUsername**](UserApi.md#GetUserByUsername) | **Get** /users/{username} | Get a particular user by username
 [**GetUserComments**](UserApi.md#GetUserComments) | **Get** /users/{username}/comments | Gets all comments for a user
 [**GetUserFollowers**](UserApi.md#GetUserFollowers) | **Get** /users/{username}/followers | Get all followers for a user
@@ -362,6 +363,76 @@ Name | Type | Description  | Notes
 [[Back to README]](../README.md)
 
 
+## GetRolesForUser
+
+> []Role GetRolesForUser(ctx, username).Execute()
+
+Get all roles for a user
+
+
+
+### Example
+
+```go
+package main
+
+import (
+    "context"
+    "fmt"
+    "os"
+    openapiclient "./openapi"
+)
+
+func main() {
+    username := "johndoe" // string | username of the user
+
+    configuration := openapiclient.NewConfiguration()
+    apiClient := openapiclient.NewAPIClient(configuration)
+    resp, r, err := apiClient.UserApi.GetRolesForUser(context.Background(), username).Execute()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.GetRolesForUser``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+    }
+    // response from `GetRolesForUser`: []Role
+    fmt.Fprintf(os.Stdout, "Response from `UserApi.GetRolesForUser`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
+**username** | **string** | username of the user | 
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiGetRolesForUserRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+
+
+### Return type
+
+[**[]Role**](Role.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
 ## GetUserByUsername
 
 > User GetUserByUsername(ctx, username).Execute()
@@ -454,7 +525,7 @@ import (
 
 func main() {
     username := "johndoe" // string | username of the user
-    limit := int32(20) // int32 | How many items to return at one time (max 100) (optional)
+    limit := int32(20) // int32 | How many items to return at one time (max 100) (optional) (default to 20)
     offset := int32(0) // int32 | The number of items to skip before starting to collect the result set (optional)
 
     configuration := openapiclient.NewConfiguration()
@@ -485,7 +556,7 @@ Other parameters are passed through a pointer to a apiGetUserCommentsRequest str
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
- **limit** | **int32** | How many items to return at one time (max 100) | 
+ **limit** | **int32** | How many items to return at one time (max 100) | [default to 20]
  **offset** | **int32** | The number of items to skip before starting to collect the result set | 
 
 ### Return type
