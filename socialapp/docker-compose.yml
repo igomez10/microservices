@@ -22,8 +22,6 @@ services:
   grafana:
     image: grafana/grafana
     user: "472"
-    depends_on:
-      - prometheus
     ports:
       - 3005:3000
     volumes:
