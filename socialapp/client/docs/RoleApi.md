@@ -153,7 +153,7 @@ Name | Type | Description  | Notes
 
 ## DeleteRole
 
-> Role DeleteRole(ctx, id).Execute()
+> DeleteRole(ctx, id).Execute()
 
 Delete a role
 
@@ -181,8 +181,6 @@ func main() {
         fmt.Fprintf(os.Stderr, "Error when calling `RoleApi.DeleteRole``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
-    // response from `DeleteRole`: Role
-    fmt.Fprintf(os.Stdout, "Response from `RoleApi.DeleteRole`: %v\n", resp)
 }
 ```
 
@@ -205,7 +203,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Role**](Role.md)
+ (empty response body)
 
 ### Authorization
 

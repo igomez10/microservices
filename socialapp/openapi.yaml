@@ -987,10 +987,6 @@ paths:
           style: simple
       responses:
         "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Role"
           description: Role was deleted successfully
         "401":
           content:

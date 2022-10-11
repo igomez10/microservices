@@ -107,7 +107,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**Role**](Role.md)
+(empty response body)
 
 ### Authorization
 

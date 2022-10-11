@@ -71,7 +71,7 @@ Create a new role
 
 <a name="deleteRole"></a>
 # **deleteRole**
-> Role deleteRole(id)
+> deleteRole(id)
 
 Delete a role
 
@@ -85,7 +85,7 @@ Delete a role
 
 ### Return type
 
-[**Role**](../Models/Role.md)
+null (empty response body)
 
 ### Authorization
 

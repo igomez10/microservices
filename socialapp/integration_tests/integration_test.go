@@ -81,7 +81,6 @@ func TestListUsers(t *testing.T) {
 	openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	// List users
-
 	_, r, err := apiClient.UserApi.ListUsers(openAPICtx).Limit(10).Offset(0).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `UserApi.ListUsers``: %v\n", err)
@@ -566,7 +565,6 @@ func TestChangePassword(t *testing.T) {
 		"socialapp.users.update",
 	}
 
-	// openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
 	apiClient = client.NewAPIClient(configuration)
 
 	username := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
@@ -854,22 +852,15 @@ func TestRoleLifecycle(t *testing.T) {
 	}
 
 	// delete role
-	deletedRole, res, err := apiClient.RoleApi.DeleteRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
-	if err != nil {
-		t.Fatalf("Error when calling `RoleApi.DeleteRole`: %v", err)
-	}
-	if res.StatusCode != http.StatusOK {
-		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
-	}
-	if deletedRole == nil {
-		t.Fatalf("Expected role, got nil")
-	}
-	if deletedRole.Name != updatedName {
-		t.Fatalf("Expected name %s, got %s", updatedName, deletedRole.Name)
-	}
-	if *deletedRole.Description != updatedDesc {
-		t.Fatalf("Expected description %s, got %s", updatedDesc, *deletedRole.Description)
-	}
+	func() {
+		res, err := apiClient.RoleApi.DeleteRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `RoleApi.DeleteRole`: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+		}
+	}()
 
 	// try to get deleted role
 	gettedDeletedRole, res, err := apiClient.RoleApi.GetRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
@@ -885,7 +876,6 @@ func TestRoleLifecycle(t *testing.T) {
 }
 
 func TestScopeLifeCycle(t *testing.T) {
-	// create two users
 	os.Setenv("HTTP_PROXY", "http://localhost:9091")
 	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
 
@@ -914,7 +904,6 @@ func TestScopeLifeCycle(t *testing.T) {
 		"socialapp.scopes.delete",
 	}
 
-	// openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
 	apiClient = client.NewAPIClient(configuration)
 
 	username := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
@@ -1027,5 +1016,134 @@ func TestScopeLifeCycle(t *testing.T) {
 	}
 	if gettedDeletedScope != nil {
 		t.Fatalf("Expected nil, got %v", gettedScope)
+	}
+}
+
+func TestUserRoleLifeCycle(t *testing.T) {
+	os.Setenv("HTTP_PROXY", "http://localhost:9091")
+	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
+
+	configuration := client.NewConfiguration()
+	proxyStr := "http://localhost:9091"
+	proxyURL, err := url.Parse(proxyStr)
+	if err != nil {
+		log.Println(err)
+	}
+
+	// Setup http client with proxy to capture traffic
+	httpClient := &http.Client{
+		Timeout: time.Second * 10,
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		},
+	}
+	configuration.HTTPClient = httpClient
+	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
+	scopes := []string{
+		"socialapp.scopes.read",
+		"socialapp.scopes.list",
+		"socialapp.scopes.create",
+		"socialapp.scopes.update",
+		"socialapp.scopes.delete",
+		"socialapp.roles.create",
+		"socialapp.users.roles.update",
+		"socialapp.users.roles.list",
+		"socialapp.roles.delete",
+	}
+
+	apiClient = client.NewAPIClient(configuration)
+
+	username := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
+	password := fmt.Sprintf("Password-%d1", time.Now().UnixNano())
+	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
+
+	// create a user, no auth needed
+	_, res, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code 201, got %d", res.StatusCode)
+	}
+
+	conf := clientcredentials.Config{
+		ClientID:     username,
+		ClientSecret: password,
+		Scopes:       scopes,
+		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+	}
+	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	if err != nil {
+		t.Fatalf("Error getting oauth2 context: %v", err)
+	}
+
+	newScope := client.NewScope(fmt.Sprintf("Test-CreateScope-%d1", time.Now().UnixNano()), "Test-CreateScope-Description1")
+
+	// create a scope
+	cretedScope, res, err := apiClient.ScopeApi.CreateScope(oauth2Ctx).Scope(*newScope).Execute()
+	if err != nil {
+		t.Fatalf("Error when calling `ScopeApi.CreateScope`: %v", err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+	}
+	t.Cleanup(func() {
+		// delete scope
+		res, err := apiClient.ScopeApi.DeleteScope(oauth2Ctx, int32(*cretedScope.Id)).Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `ScopeApi.DeleteScope`: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Fatalf("Expected status code 204, got %d", res.StatusCode)
+		}
+	})
+
+	// create role
+	newRole := client.NewRole(fmt.Sprintf("Test-CreateRole-%d1", time.Now().UnixNano()))
+	createdRole, res, err := apiClient.RoleApi.CreateRole(oauth2Ctx).Role(*newRole).Execute()
+	if err != nil {
+		t.Fatalf("Error when calling `RoleApi.CreateRole`: %v", err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+	}
+
+	// attach role to user
+	_, res, err = apiClient.UserApi.UpdateRolesForUser(oauth2Ctx, username).RequestBody([]string{createdRole.Name}).Execute()
+	if err != nil {
+		t.Fatalf("Error when calling `UserApi.UpdateRolesForUser`: %v", err)
+	}
+
+	t.Cleanup(func() {
+		// delete role
+		res, err := apiClient.RoleApi.DeleteRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `RoleApi.DeleteRole`: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Fatalf("Expected status code 204, got %d", res.StatusCode)
+		}
+	})
+
+	// List user roles
+	roles, res, err := apiClient.UserApi.GetRolesForUser(oauth2Ctx, username).Execute()
+	if err != nil {
+		t.Fatalf("Error when calling `UserApi.GetRolesForUser`: %v", err)
+	}
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
+	}
+	// verify role is attached to user, default roles are already attached
+	foundRole := false
+	for i := range roles {
+		if roles[i].Name == createdRole.Name {
+			foundRole = true
+			break
+		}
+	}
+	if !foundRole {
+		t.Fatalf("Expected to find role %s, got %v", createdRole.Name, roles)
 	}
 }
