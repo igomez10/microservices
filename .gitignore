@@ -28,3 +28,5 @@ socialapp/cmd/__debug_bin
 socialapp/.openapi-generator/FILES
 socialapp/.openapi-generator/VERSION
 socialapp/jmeter.log
+
+*/prometheus/data/*
