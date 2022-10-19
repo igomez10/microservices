@@ -93,15 +93,6 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
-	createdUserID, err := createdUser.LastInsertId()
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Msg("Error getting created user id")
-		return openapi.Response(http.StatusNotFound, nil), nil
-	}
-
 	// attach "user" role to new user
 
 	// get the role id for "user"
@@ -123,7 +114,7 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 
 	// attach the role to the user
 	params2 := db.CreateUserToRoleParams{
-		UserID: createdUserID,
+		UserID: createdUser.ID,
 		RoleID: role.ID,
 	}
 	if _, err := s.DB.CreateUserToRole(ctx, s.DBConn, params2); err != nil {
@@ -143,7 +134,7 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 	}
 
 	// get user from db
-	dbUser, err := s.DB.GetUserByID(ctx, s.DBConn, createdUserID)
+	dbUser, err := s.DB.GetUserByID(ctx, s.DBConn, createdUser.ID)
 	if err != nil {
 		log.Error()
 	}
@@ -333,8 +324,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	}
 
 	log.Debug().Msgf("UpdateUserByUsernameParams: \n%+v\n", params)
-	uUser, err := s.DB.UpdateUserByUsername(ctx, s.DBConn, params)
-	if err != nil {
+	if err := s.DB.UpdateUserByUsername(ctx, s.DBConn, params); err != nil {
 		log.Error().
 			Err(err).
 			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
@@ -349,7 +339,26 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 		}, nil
 	}
 
-	return openapi.Response(http.StatusOK, uUser), nil
+	// get the updated user
+	updatedUser, err := s.DB.GetUserByUsername(ctx, s.DBConn, existingUser.Username)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
+			Msg("Error getting user")
+
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Error getting user",
+			},
+		}, nil
+	}
+
+	apiUser := converter.FromDBUserToAPIUser(updatedUser)
+
+	return openapi.Response(http.StatusOK, apiUser), nil
 }
 
 func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string, followerUsername string) (openapi.ImplResponse, error) {
@@ -593,7 +602,7 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 	encryptedHashedNewPassword := EncryptPassword(req.NewPassword, user.Salt)
 
 	// update the password
-	_, err := s.DB.UpdateUser(ctx, s.DBConn, db.UpdateUserParams{
+	params := db.UpdateUserParams{
 		ID:                      user.ID,
 		HashedPassword:          string(encryptedHashedNewPassword),
 		Username:                user.Username,
@@ -604,8 +613,9 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 		HashedPasswordExpiresAt: user.HashedPasswordExpiresAt,
 		EmailToken:              user.EmailToken,
 		EmailVerifiedAt:         user.EmailVerifiedAt,
-	})
-	if err != nil {
+	}
+
+	if err := s.DB.UpdateUser(ctx, s.DBConn, params); err != nil {
 		log.Error().
 			Err(err).
 			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
@@ -620,7 +630,7 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 	}
 
 	// invalidate existing tokens
-	if err = s.DB.DeleteAllTokensForUser(ctx, s.DBConn, user.ID); err != nil {
+	if err := s.DB.DeleteAllTokensForUser(ctx, s.DBConn, user.ID); err != nil {
 		log.Error().
 			Err(err).
 			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).

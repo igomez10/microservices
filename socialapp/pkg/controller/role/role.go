@@ -23,7 +23,7 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 		Name:        newRole.Name,
 		Description: newRole.Description,
 	}
-	res, err := s.DB.CreateRole(ctx, s.DBConn, params)
+	createdRole, err := s.DB.CreateRole(ctx, s.DBConn, params)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -40,29 +40,12 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 		}, nil
 	}
 
-	roleID, err := res.LastInsertId()
+	role, err := s.DB.GetRole(ctx, s.DBConn, createdRole.ID)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Str("role_name", newRole.Name).
-			Msg("failed to retrieve created role")
-
-		return openapi.ImplResponse{
-			Code: http.StatusInternalServerError,
-			Body: openapi.Error{
-				Code:    http.StatusInternalServerError,
-				Message: "failed to retrieve created role id",
-			},
-		}, nil
-	}
-
-	role, err := s.DB.GetRole(ctx, s.DBConn, roleID)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("role_id", int(roleID)).
+			Int("role_id", int(createdRole.ID)).
 			Msg("failed to retrieve created role")
 
 		return openapi.ImplResponse{
@@ -212,8 +195,7 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 	}
 
 	// update role
-	_, err = s.DB.UpdateRole(ctx, s.DBConn, params)
-	if err != nil {
+	if err = s.DB.UpdateRole(ctx, s.DBConn, params); err != nil {
 		log.Error().
 			Err(err).
 			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).

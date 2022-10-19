@@ -1,58 +1,81 @@
+
+CREATE SEQUENCE IF NOT EXISTS users_id_seq;
 CREATE TABLE IF NOT EXISTS users (
-    id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    username VARCHAR(100) NOT NULL,
-    hashed_password VARCHAR(256) NOT NULL DEFAULT '',
-    hashed_password_expires_at TIMESTAMP NOT NULL DEFAULT '2000-01-01 00:00:00',
-    salt VARCHAR(100) NOT NULL DEFAULT '',
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    email_token VARCHAR(100) NOT NULL DEFAULT '',
-    email_verified_at TIMESTAMP NULL DEFAULT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL 
+	id BIGINT NOT NULL PRIMARY KEY DEFAULT nextval('users_id_seq'::regclass),
+	username VARCHAR(100) NOT NULL,
+	hashed_password VARCHAR(256) NOT NULL DEFAULT '',
+	hashed_password_expires_at TIMESTAMP NOT NULL DEFAULT '2000-01-01 00:00:00',
+	salt VARCHAR(100) NOT NULL DEFAULT '',
+	first_name VARCHAR(100) NOT NULL,
+	last_name VARCHAR(100) NOT NULL,
+	email VARCHAR(100) NOT NULL,
+	email_token VARCHAR(100) NOT NULL DEFAULT '',
+	email_verified_at TIMESTAMP NULL DEFAULT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	deleted_at TIMESTAMP NULL
 );
 
+CREATE SEQUENCE IF NOT EXISTS comments_id_seq;
 CREATE TABLE IF NOT EXISTS comments (
-    id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id BIGINT NOT NULL PRIMARY KEY DEFAULT nextval('comments_id_seq'::regclass),
     content VARCHAR(8192) NOT NULL,
-    like_count INTEGER NOT NULL DEFAULT 0,
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    like_count BIGINT NOT NULL DEFAULT 0,
+    user_id BIGINT NOT NULL,
+    CONSTRAINT fk_user_id
+      FOREIGN KEY(user_id) 
+	  REFERENCES users(id),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
 
+CREATE SEQUENCE IF NOT EXISTS followers_id_seq;
 CREATE TABLE IF NOT EXISTS followers (
-    id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    follower_id BIGINT NOT NULL REFERENCES users(id),
-    followed_id BIGINT NOT NULL REFERENCES users(id),
+    id BIGINT NOT NULL DEFAULT nextval('followers_id_seq'::regclass) PRIMARY KEY,
+    follower_id BIGINT NOT NULL,
+    followed_id BIGINT NOT NULL,
+    CONSTRAINT followers_follower_id_fkey FOREIGN KEY ("follower_id") REFERENCES "public"."users"("id"),
+    CONSTRAINT followers_followed_id_fkey FOREIGN KEY ("followed_id") REFERENCES "public"."users"("id"),
+    UNIQUE (follower_id, followed_id),
     UNIQUE (follower_id, followed_id)
 );
 
+CREATE SEQUENCE IF NOT EXISTS credentials_id_seq;
 CREATE TABLE IF NOT EXISTS credentials ( -- long term api keys
-    id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    user_id BIGINT NOT NULL REFERENCES users(id),
+    id BIGINT NOT NULL DEFAULT nextval('credentials_id_seq'::regclass) PRIMARY KEY,
+    user_id BIGINT NOT NULL,
     public_key VARCHAR(512) NOT NULL,
     description VARCHAR(100) NOT NULL,
     name VARCHAR(100) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP,
+    CONSTRAINT credentials_user_id_fkey FOREIGN KEY (user_id) REFERENCES "public"."users"("id"),
     UNIQUE (user_id, public_key)
 );
 
+CREATE SEQUENCE IF NOT EXISTS tokens_id_seq;
 CREATE TABLE IF NOT EXISTS tokens ( -- short term tokens
-	id BIGINT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-	user_id BIGINT NOT NULL REFERENCES users(id),
+	id BIGINT NOT NULL DEFAULT nextval('tokens_id_seq'::regclass) PRIMARY KEY,
+	user_id BIGINT NOT NULL,
 	token VARCHAR(512) NOT NULL UNIQUE,
 	valid_from TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	valid_until TIMESTAMP NOT NULL DEFAULT '2030-01-01 00:00:00'
+	valid_until TIMESTAMP NOT NULL DEFAULT '2030-01-01 00:00:00',
+    CONSTRAINT tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES "public"."users"("id")
 );
 
-
+CREATE SEQUENCE IF NOT EXISTS roles_id_seq;
 CREATE TABLE IF NOT EXISTS roles (
-    id BIGINT  PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    id BIGINT NOT NULL DEFAULT nextval('roles_id_seq'::regclass) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL
+);
+
+CREATE SEQUENCE IF NOT EXISTS scopes_id_seq;
+CREATE TABLE IF NOT EXISTS scopes (
+    id BIGINT NOT NULL DEFAULT nextval('scopes_id_seq'::regclass) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -60,33 +83,33 @@ CREATE TABLE IF NOT EXISTS roles (
 );
 
 
+CREATE SEQUENCE IF NOT EXISTS roles_to_scopes_id_seq;
 CREATE TABLE IF NOT EXISTS roles_to_scopes (
-    id  BIGINT  PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    role_id BIGINT NOT NULL REFERENCES roles(id),
-    scope_id BIGINT NOT NULL REFERENCES scopes(id),
+    id BIGINT NOT NULL DEFAULT nextval('roles_to_scopes_id_seq'::regclass) PRIMARY KEY,
+    role_id BIGINT NOT NULL,
+    scope_id BIGINT NOT NULL,
+    CONSTRAINT roles_to_scopes_role_id_fkey FOREIGN KEY (role_id) REFERENCES "public"."roles"("id"),
+    CONSTRAINT roles_to_scopes_scope_id_fkey FOREIGN KEY (scope_id) REFERENCES "public"."scopes"("id"),
     UNIQUE (role_id, scope_id)
 );
 
-CREATE TABLE IF NOT EXISTS scopes (
-    id BIGINT  PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL,
-    description VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP NULL
-);
-
+CREATE SEQUENCE IF NOT EXISTS users_to_roles_id_seq;
 CREATE TABLE IF NOT EXISTS users_to_roles (
-    id BIGINT  PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    role_id BIGINT NOT NULL REFERENCES roles(id),
-    user_id BIGINT NOT NULL REFERENCES users(id),
-    UNIQUE (role_id, user_id)
+    id BIGINT NOT NULL DEFAULT nextval('users_to_roles_id_seq'::regclass) PRIMARY KEY,
+    role_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL,
+    UNIQUE (role_id, user_id),
+    CONSTRAINT users_to_roles_role_id_fkey FOREIGN KEY (role_id) REFERENCES "public"."roles"("id"),
+    CONSTRAINT users_to_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES "public"."users"("id")
 );
 
+CREATE SEQUENCE IF NOT EXISTS users_to_scopes_id_seq;
 CREATE TABLE IF NOT EXISTS  tokens_to_scopes (
-    id BIGINT  PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    token_id BIGINT NOT NULL REFERENCES tokens(id),
-    scope_id BIGINT NOT NULL REFERENCES scopes(id),
-    INDEX (token_id)
+    id BIGINT NOT NULL DEFAULT nextval('users_to_scopes_id_seq'::regclass) PRIMARY KEY,
+    token_id BIGINT NOT NULL,
+    scope_id BIGINT NOT NULL,
+    CONSTRAINT tokens_to_scopes_token_id_fkey FOREIGN KEY (token_id) REFERENCES "public"."tokens"("id"),
+    CONSTRAINT tokens_to_scopes_scope_id_fkey FOREIGN KEY (scope_id) REFERENCES "public"."scopes"("id")
 );
 
 --  SEEDING DATA
@@ -111,7 +134,7 @@ INSERT INTO roles (id, name, description, created_at, deleted_at) VALUES
 (1, 'administrator', 'administrator', '2020-01-01 00:00:00', NULL),
 (2, 'user', 'socialapp user', '2020-01-01 00:00:00', NULL);
 
-INSERT INTO `scopes` (`id`, `name`, `description`, `created_at`, `deleted_at`) VALUES
+INSERT INTO scopes (id, name, description, created_at, deleted_at) VALUES
 (1, 'socialapp.users.list', 'socialapp.users.list', '2020-01-01 00:00:00', NULL),
 (2, 'socialapp.users.create', 'socialapp.users.create', '2020-01-01 00:00:00', NULL),
 (3, 'socialapp.users.update', 'socialapp.users.update', '2020-01-01 00:00:00', NULL),

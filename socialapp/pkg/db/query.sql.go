@@ -11,12 +11,13 @@ import (
 	"time"
 )
 
-const CreateComment = `-- name: CreateComment :execresult
+const CreateComment = `-- name: CreateComment :one
 INSERT INTO comments (
   user_id, content
 ) VALUES (
-  ?, ?
+  $1, $2
 )
+RETURNING id, content, like_count, user_id, created_at, updated_at, deleted_at
 `
 
 type CreateCommentParams struct {
@@ -24,16 +25,28 @@ type CreateCommentParams struct {
 	Content string `json:"content"`
 }
 
-func (q *Queries) CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (sql.Result, error) {
-	return db.ExecContext(ctx, CreateComment, arg.UserID, arg.Content)
+func (q *Queries) CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (Comment, error) {
+	row := db.QueryRowContext(ctx, CreateComment, arg.UserID, arg.Content)
+	var i Comment
+	err := row.Scan(
+		&i.ID,
+		&i.Content,
+		&i.LikeCount,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
-const CreateCommentForUser = `-- name: CreateCommentForUser :execresult
+const CreateCommentForUser = `-- name: CreateCommentForUser :one
 INSERT INTO comments (
   user_id, content
 ) VALUES (
-  (SELECT id FROM users WHERE username = ? AND deleted_at IS NULL), ?
+  (SELECT id FROM users WHERE username = $1 AND deleted_at IS NULL), $2
 )
+RETURNING id, content, like_count, user_id, created_at, updated_at, deleted_at
 `
 
 type CreateCommentForUserParams struct {
@@ -41,16 +54,28 @@ type CreateCommentForUserParams struct {
 	Content  string `json:"content"`
 }
 
-func (q *Queries) CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (sql.Result, error) {
-	return db.ExecContext(ctx, CreateCommentForUser, arg.Username, arg.Content)
+func (q *Queries) CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (Comment, error) {
+	row := db.QueryRowContext(ctx, CreateCommentForUser, arg.Username, arg.Content)
+	var i Comment
+	err := row.Scan(
+		&i.ID,
+		&i.Content,
+		&i.LikeCount,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
-const CreateCredential = `-- name: CreateCredential :execresult
+const CreateCredential = `-- name: CreateCredential :one
 INSERT INTO credentials (
   user_id, public_key, description, name
 ) VALUES (
-  ?, ?, ?, ?
+  $1, $2, $3, $4
 )
+RETURNING id, user_id, public_key, description, name, created_at, deleted_at
 `
 
 type CreateCredentialParams struct {
@@ -60,18 +85,30 @@ type CreateCredentialParams struct {
 	Name        string `json:"name"`
 }
 
-func (q *Queries) CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (sql.Result, error) {
-	return db.ExecContext(ctx, CreateCredential,
+func (q *Queries) CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (Credential, error) {
+	row := db.QueryRowContext(ctx, CreateCredential,
 		arg.UserID,
 		arg.PublicKey,
 		arg.Description,
 		arg.Name,
 	)
+	var i Credential
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.PublicKey,
+		&i.Description,
+		&i.Name,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
-const CreateRole = `-- name: CreateRole :execresult
+const CreateRole = `-- name: CreateRole :one
 INSERT INTO roles (name, description) 
-VALUES (?, ?)
+VALUES ($1, $2)
+RETURNING id, name, description, created_at, deleted_at
 `
 
 type CreateRoleParams struct {
@@ -79,16 +116,26 @@ type CreateRoleParams struct {
 	Description string `json:"description"`
 }
 
-func (q *Queries) CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams) (sql.Result, error) {
-	return db.ExecContext(ctx, CreateRole, arg.Name, arg.Description)
+func (q *Queries) CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams) (Role, error) {
+	row := db.QueryRowContext(ctx, CreateRole, arg.Name, arg.Description)
+	var i Role
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
-const CreateRoleScope = `-- name: CreateRoleScope :execresult
+const CreateRoleScope = `-- name: CreateRoleScope :one
 INSERT INTO roles_to_scopes (
 	role_id, scope_id
 ) VALUES (
-	?, ?
+	$1, $2
 )
+RETURNING id, role_id, scope_id
 `
 
 type CreateRoleScopeParams struct {
@@ -96,16 +143,20 @@ type CreateRoleScopeParams struct {
 	ScopeID int64 `json:"scope_id"`
 }
 
-func (q *Queries) CreateRoleScope(ctx context.Context, db DBTX, arg CreateRoleScopeParams) (sql.Result, error) {
-	return db.ExecContext(ctx, CreateRoleScope, arg.RoleID, arg.ScopeID)
+func (q *Queries) CreateRoleScope(ctx context.Context, db DBTX, arg CreateRoleScopeParams) (RolesToScope, error) {
+	row := db.QueryRowContext(ctx, CreateRoleScope, arg.RoleID, arg.ScopeID)
+	var i RolesToScope
+	err := row.Scan(&i.ID, &i.RoleID, &i.ScopeID)
+	return i, err
 }
 
-const CreateScope = `-- name: CreateScope :execresult
+const CreateScope = `-- name: CreateScope :one
 INSERT INTO scopes (
 	  name, description
 ) VALUES (
-  ?, ?
+	$1, $2
 )
+RETURNING id, name, description, created_at, deleted_at
 `
 
 type CreateScopeParams struct {
@@ -113,16 +164,26 @@ type CreateScopeParams struct {
 	Description string `json:"description"`
 }
 
-func (q *Queries) CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (sql.Result, error) {
-	return db.ExecContext(ctx, CreateScope, arg.Name, arg.Description)
+func (q *Queries) CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (Scope, error) {
+	row := db.QueryRowContext(ctx, CreateScope, arg.Name, arg.Description)
+	var i Scope
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
-const CreateToken = `-- name: CreateToken :execresult
+const CreateToken = `-- name: CreateToken :one
 INSERT INTO tokens (
 	token, user_id, valid_until
 ) VALUES (
-  ?, ?, ?
+	$1, $2, $3
 )
+RETURNING id, user_id, token, valid_from, valid_until
 `
 
 type CreateTokenParams struct {
@@ -131,16 +192,26 @@ type CreateTokenParams struct {
 	ValidUntil time.Time `json:"valid_until"`
 }
 
-func (q *Queries) CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (sql.Result, error) {
-	return db.ExecContext(ctx, CreateToken, arg.Token, arg.UserID, arg.ValidUntil)
+func (q *Queries) CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (Token, error) {
+	row := db.QueryRowContext(ctx, CreateToken, arg.Token, arg.UserID, arg.ValidUntil)
+	var i Token
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Token,
+		&i.ValidFrom,
+		&i.ValidUntil,
+	)
+	return i, err
 }
 
-const CreateTokenToScope = `-- name: CreateTokenToScope :execresult
+const CreateTokenToScope = `-- name: CreateTokenToScope :one
 INSERT INTO tokens_to_scopes (
 	token_id, scope_id
 ) VALUES (
-  ?, ?
+  $1, $2
 )
+RETURNING id, token_id, scope_id
 `
 
 type CreateTokenToScopeParams struct {
@@ -148,16 +219,20 @@ type CreateTokenToScopeParams struct {
 	ScopeID int64 `json:"scope_id"`
 }
 
-func (q *Queries) CreateTokenToScope(ctx context.Context, db DBTX, arg CreateTokenToScopeParams) (sql.Result, error) {
-	return db.ExecContext(ctx, CreateTokenToScope, arg.TokenID, arg.ScopeID)
+func (q *Queries) CreateTokenToScope(ctx context.Context, db DBTX, arg CreateTokenToScopeParams) (TokensToScope, error) {
+	row := db.QueryRowContext(ctx, CreateTokenToScope, arg.TokenID, arg.ScopeID)
+	var i TokensToScope
+	err := row.Scan(&i.ID, &i.TokenID, &i.ScopeID)
+	return i, err
 }
 
-const CreateUser = `-- name: CreateUser :execresult
+const CreateUser = `-- name: CreateUser :one
 INSERT INTO users (
     username, hashed_password, salt, first_name, last_name, email, email_token, email_verified_at
 ) VALUES (
-	?, ?, ?, ?, ?, ?, ?, ?
+	$1, $2, $3, $4, $5, $6, $7, $8
 )
+RETURNING id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, email_token, email_verified_at, created_at, updated_at, deleted_at
 `
 
 type CreateUserParams struct {
@@ -171,8 +246,8 @@ type CreateUserParams struct {
 	EmailVerifiedAt sql.NullTime `json:"email_verified_at"`
 }
 
-func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (sql.Result, error) {
-	return db.ExecContext(ctx, CreateUser,
+func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (User, error) {
+	row := db.QueryRowContext(ctx, CreateUser,
 		arg.Username,
 		arg.HashedPassword,
 		arg.Salt,
@@ -182,14 +257,32 @@ func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams)
 		arg.EmailToken,
 		arg.EmailVerifiedAt,
 	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.HashedPassword,
+		&i.HashedPasswordExpiresAt,
+		&i.Salt,
+		&i.FirstName,
+		&i.LastName,
+		&i.Email,
+		&i.EmailToken,
+		&i.EmailVerifiedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
 }
 
-const CreateUserToRole = `-- name: CreateUserToRole :execresult
+const CreateUserToRole = `-- name: CreateUserToRole :one
 INSERT INTO users_to_roles (
 	user_id, role_id
 ) VALUES (
-  ?, ?
+	$1, $2
 )
+RETURNING id, role_id, user_id
 `
 
 type CreateUserToRoleParams struct {
@@ -197,14 +290,17 @@ type CreateUserToRoleParams struct {
 	RoleID int64 `json:"role_id"`
 }
 
-func (q *Queries) CreateUserToRole(ctx context.Context, db DBTX, arg CreateUserToRoleParams) (sql.Result, error) {
-	return db.ExecContext(ctx, CreateUserToRole, arg.UserID, arg.RoleID)
+func (q *Queries) CreateUserToRole(ctx context.Context, db DBTX, arg CreateUserToRoleParams) (UsersToRole, error) {
+	row := db.QueryRowContext(ctx, CreateUserToRole, arg.UserID, arg.RoleID)
+	var i UsersToRole
+	err := row.Scan(&i.ID, &i.RoleID, &i.UserID)
+	return i, err
 }
 
 const DeleteAllTokensForUser = `-- name: DeleteAllTokensForUser :exec
 UPDATE tokens
 SET valid_until = NOW()
-WHERE user_id = ? AND NOW() < valid_until
+WHERE user_id = $1 AND NOW() < valid_until
 `
 
 func (q *Queries) DeleteAllTokensForUser(ctx context.Context, db DBTX, userID int64) error {
@@ -215,7 +311,7 @@ func (q *Queries) DeleteAllTokensForUser(ctx context.Context, db DBTX, userID in
 const DeleteComment = `-- name: DeleteComment :exec
 UPDATE comments
 SET deleted_at = NOW()
-WHERE id = ? AND deleted_at IS NULL
+WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteComment(ctx context.Context, db DBTX, id int64) error {
@@ -225,7 +321,7 @@ func (q *Queries) DeleteComment(ctx context.Context, db DBTX, id int64) error {
 
 const DeleteCredential = `-- name: DeleteCredential :exec
 DELETE FROM credentials
-WHERE id = ?
+WHERE id = $1
 `
 
 func (q *Queries) DeleteCredential(ctx context.Context, db DBTX, id int64) error {
@@ -236,7 +332,7 @@ func (q *Queries) DeleteCredential(ctx context.Context, db DBTX, id int64) error
 const DeleteRole = `-- name: DeleteRole :exec
 UPDATE roles 
 SET deleted_at = NOW()
-WHERE id = ? AND deleted_at IS NULL
+WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteRole(ctx context.Context, db DBTX, id int64) error {
@@ -246,7 +342,7 @@ func (q *Queries) DeleteRole(ctx context.Context, db DBTX, id int64) error {
 
 const DeleteRoleScope = `-- name: DeleteRoleScope :exec
 DELETE FROM roles_to_scopes
-WHERE role_id = ? AND scope_id = ?
+WHERE role_id = $1 AND scope_id = $2
 `
 
 type DeleteRoleScopeParams struct {
@@ -262,7 +358,7 @@ func (q *Queries) DeleteRoleScope(ctx context.Context, db DBTX, arg DeleteRoleSc
 const DeleteScope = `-- name: DeleteScope :exec
 UPDATE scopes
 SET deleted_at = NOW()
-WHERE id = ? AND deleted_at IS NULL
+WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteScope(ctx context.Context, db DBTX, id int64) error {
@@ -273,7 +369,7 @@ func (q *Queries) DeleteScope(ctx context.Context, db DBTX, id int64) error {
 const DeleteToken = `-- name: DeleteToken :exec
 UPDATE tokens
 SET valid_until = NOW()
-WHERE token = ? AND NOW() < valid_until
+WHERE token = $1 AND NOW() < valid_until
 `
 
 func (q *Queries) DeleteToken(ctx context.Context, db DBTX, token string) error {
@@ -284,7 +380,7 @@ func (q *Queries) DeleteToken(ctx context.Context, db DBTX, token string) error 
 const DeleteUser = `-- name: DeleteUser :exec
 UPDATE users
 SET deleted_at = NOW()
-WHERE id = ? AND deleted_at IS NULL
+WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, db DBTX, id int64) error {
@@ -295,7 +391,7 @@ func (q *Queries) DeleteUser(ctx context.Context, db DBTX, id int64) error {
 const DeleteUserByUsername = `-- name: DeleteUserByUsername :exec
 UPDATE users
 SET deleted_at = NOW()
-WHERE username = ? AND deleted_at IS NULL
+WHERE username = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteUserByUsername(ctx context.Context, db DBTX, username string) error {
@@ -305,7 +401,7 @@ func (q *Queries) DeleteUserByUsername(ctx context.Context, db DBTX, username st
 
 const DeleteUserToRole = `-- name: DeleteUserToRole :exec
 DELETE FROM users_to_roles
-WHERE user_id = ? AND role_id = ?
+WHERE user_id = $1 AND role_id = $2
 `
 
 type DeleteUserToRoleParams struct {
@@ -322,7 +418,7 @@ const FollowUser = `-- name: FollowUser :exec
 INSERT INTO followers (
   follower_id, followed_id
 ) VALUES (
-  ?, ?
+  $1, $2
 )
 `
 
@@ -338,7 +434,7 @@ func (q *Queries) FollowUser(ctx context.Context, db DBTX, arg FollowUserParams)
 
 const GetComment = `-- name: GetComment :one
 SELECT id, content, like_count, user_id, created_at, updated_at, deleted_at FROM comments
-WHERE id = ? AND deleted_at IS NULL LIMIT 1
+WHERE id = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetComment(ctx context.Context, db DBTX, id int64) (Comment, error) {
@@ -358,7 +454,7 @@ func (q *Queries) GetComment(ctx context.Context, db DBTX, id int64) (Comment, e
 
 const GetCredential = `-- name: GetCredential :one
 SELECT id, user_id, public_key, description, name, created_at, deleted_at FROM credentials
-WHERE public_key = ? AND deleted_at IS NULL LIMIT 1
+WHERE public_key = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetCredential(ctx context.Context, db DBTX, publicKey string) (Credential, error) {
@@ -383,7 +479,7 @@ FROM
 	users u,
 	followers f
 WHERE
-	f.follower_id = ?
+	f.follower_id = $1
 	AND f.followed_id = u.id
 	AND u.deleted_at IS NULL
 ORDER BY
@@ -434,7 +530,7 @@ FROM
 	users u,
 	followers f
 WHERE
-	f.followed_id = ?
+	f.followed_id = $1
 	AND f.follower_id = u.id
 	AND u.deleted_at IS NULL
 ORDER BY
@@ -480,7 +576,7 @@ func (q *Queries) GetFollowers(ctx context.Context, db DBTX, followedID int64) (
 
 const GetRole = `-- name: GetRole :one
 SELECT id, name, description, created_at, deleted_at FROM roles
-WHERE id = ? AND deleted_at IS NULL LIMIT 1
+WHERE id = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetRole(ctx context.Context, db DBTX, id int64) (Role, error) {
@@ -498,7 +594,7 @@ func (q *Queries) GetRole(ctx context.Context, db DBTX, id int64) (Role, error) 
 
 const GetRoleByName = `-- name: GetRoleByName :one
 SELECT id, name, description, created_at, deleted_at FROM roles
-WHERE name = ? AND deleted_at IS NULL LIMIT 1
+WHERE name = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetRoleByName(ctx context.Context, db DBTX, name string) (Role, error) {
@@ -516,7 +612,7 @@ func (q *Queries) GetRoleByName(ctx context.Context, db DBTX, name string) (Role
 
 const GetScope = `-- name: GetScope :one
 SELECT id, name, description, created_at, deleted_at FROM scopes
-WHERE id = ? AND deleted_at IS NULL LIMIT 1
+WHERE id = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetScope(ctx context.Context, db DBTX, id int64) (Scope, error) {
@@ -534,7 +630,7 @@ func (q *Queries) GetScope(ctx context.Context, db DBTX, id int64) (Scope, error
 
 const GetScopeByName = `-- name: GetScopeByName :one
 SELECT id, name, description, created_at, deleted_at FROM scopes
-WHERE name = ? AND deleted_at IS NULL LIMIT 1
+WHERE name = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetScopeByName(ctx context.Context, db DBTX, name string) (Scope, error) {
@@ -552,7 +648,7 @@ func (q *Queries) GetScopeByName(ctx context.Context, db DBTX, name string) (Sco
 
 const GetToken = `-- name: GetToken :one
 SELECT id, user_id, token, valid_from, valid_until FROM tokens
-WHERE token = ? LIMIT 1
+WHERE token = $1 LIMIT 1
 `
 
 func (q *Queries) GetToken(ctx context.Context, db DBTX, token string) (Token, error) {
@@ -576,7 +672,7 @@ FROM
 	INNER JOIN tokens_to_scopes ts ON ts.scope_id = s.id
 	INNER JOIN tokens t ON t.id = ts.token_id
 WHERE
-	t.id = ?
+	t.id = $1
 	AND t.valid_until > NOW()
 	AND s.deleted_at IS NULL
 `
@@ -612,7 +708,7 @@ func (q *Queries) GetTokenScopes(ctx context.Context, db DBTX, id int64) ([]Scop
 
 const GetUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, email_token, email_verified_at, created_at, updated_at, deleted_at FROM users
-WHERE email = ? AND deleted_at IS NULL LIMIT 1
+WHERE email = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error) {
@@ -638,7 +734,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, db DBTX, email string) (Us
 
 const GetUserByID = `-- name: GetUserByID :one
 SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, email_token, email_verified_at, created_at, updated_at, deleted_at FROM users
-WHERE id = ? AND deleted_at IS NULL LIMIT 1
+WHERE id = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, db DBTX, id int64) (User, error) {
@@ -664,7 +760,7 @@ func (q *Queries) GetUserByID(ctx context.Context, db DBTX, id int64) (User, err
 
 const GetUserByUsername = `-- name: GetUserByUsername :one
 SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, email_token, email_verified_at, created_at, updated_at, deleted_at FROM users
-WHERE username = ? AND deleted_at IS NULL LIMIT 1
+WHERE username = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error) {
@@ -695,12 +791,12 @@ FROM
 	comments c JOIN users u
 	ON c.user_id = u.id
 WHERE
-	u.username = ?
+	u.username = $1
 	AND c.deleted_at IS NULL
 	AND u.deleted_at IS NULL
 ORDER BY
 	c.created_at DESC
-LIMIT ? OFFSET ?
+LIMIT $2 OFFSET $3
 `
 
 type GetUserCommentsParams struct {
@@ -748,7 +844,7 @@ FROM
 	INNER JOIN users_to_roles ur ON ur.user_id = u.id
 	INNER JOIN roles r ON r.id = ur.role_id
 WHERE
-	u.id = ?
+	u.id = $1
 	AND u.deleted_at IS NULL
 	AND r.deleted_at IS NULL
 `
@@ -786,7 +882,7 @@ const ListComment = `-- name: ListComment :many
 SELECT id, content, like_count, user_id, created_at, updated_at, deleted_at FROM comments
 WHERE deleted_at IS NULL
 ORDER BY created_at DESC
-LIMIT ? OFFSET ?
+LIMIT $1 OFFSET $2
 `
 
 type ListCommentParams struct {
@@ -833,12 +929,12 @@ FROM
 	INNER JOIN roles_to_scopes rs ON rs.scope_id = s.id
 	INNER JOIN roles r ON r.id = rs.role_id
 WHERE
-	r.id = ?
+	r.id = $1
 	AND r.deleted_at IS NULL
 	AND s.deleted_at IS NULL
 ORDER BY
 	s.name
-LIMIT ? OFFSET ?
+LIMIT $2 OFFSET $3
 `
 
 type ListRoleScopesParams struct {
@@ -880,7 +976,7 @@ const ListRoles = `-- name: ListRoles :many
 SELECT id, name, description, created_at, deleted_at FROM roles
 WHERE deleted_at IS NULL
 ORDER BY created_at DESC
-LIMIT ? OFFSET ?
+LIMIT $1 OFFSET $2
 `
 
 type ListRolesParams struct {
@@ -920,7 +1016,7 @@ func (q *Queries) ListRoles(ctx context.Context, db DBTX, arg ListRolesParams) (
 const ListScopes = `-- name: ListScopes :many
 SELECT id, name, description, created_at, deleted_at FROM scopes
 WHERE deleted_at IS NULL
-LIMIT ? OFFSET ?
+LIMIT $1 OFFSET $2
 `
 
 type ListScopesParams struct {
@@ -961,7 +1057,7 @@ const ListUsers = `-- name: ListUsers :many
 SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, email_token, email_verified_at, created_at, updated_at, deleted_at FROM users
 WHERE deleted_at IS NULL
 ORDER BY created_at ASC
-LIMIT ? OFFSET ?
+LIMIT $1 OFFSET $2
 `
 
 type ListUsersParams struct {
@@ -1008,7 +1104,7 @@ func (q *Queries) ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) (
 
 const UnfollowUser = `-- name: UnfollowUser :exec
 DELETE FROM followers
-WHERE follower_id = ? AND followed_id = ?
+WHERE follower_id = $1 AND followed_id = $2
 `
 
 type UnfollowUserParams struct {
@@ -1021,10 +1117,10 @@ func (q *Queries) UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserPar
 	return err
 }
 
-const UpdateRole = `-- name: UpdateRole :execresult
+const UpdateRole = `-- name: UpdateRole :exec
 UPDATE roles 
-SET name = ?, description = ? 
-WHERE id = ? AND deleted_at IS NULL
+SET name = $1, description = $2
+WHERE id = $3 AND deleted_at IS NULL
 `
 
 type UpdateRoleParams struct {
@@ -1033,14 +1129,15 @@ type UpdateRoleParams struct {
 	ID          int64  `json:"id"`
 }
 
-func (q *Queries) UpdateRole(ctx context.Context, db DBTX, arg UpdateRoleParams) (sql.Result, error) {
-	return db.ExecContext(ctx, UpdateRole, arg.Name, arg.Description, arg.ID)
+func (q *Queries) UpdateRole(ctx context.Context, db DBTX, arg UpdateRoleParams) error {
+	_, err := db.ExecContext(ctx, UpdateRole, arg.Name, arg.Description, arg.ID)
+	return err
 }
 
 const UpdateScope = `-- name: UpdateScope :execresult
 UPDATE scopes
-SET name = ?, description = ?
-WHERE id = ? AND deleted_at IS NULL
+SET name = $1, description = $2
+WHERE id = $3 AND deleted_at IS NULL
 `
 
 type UpdateScopeParams struct {
@@ -1053,10 +1150,10 @@ func (q *Queries) UpdateScope(ctx context.Context, db DBTX, arg UpdateScopeParam
 	return db.ExecContext(ctx, UpdateScope, arg.Name, arg.Description, arg.ID)
 }
 
-const UpdateUser = `-- name: UpdateUser :execresult
+const UpdateUser = `-- name: UpdateUser :exec
 UPDATE users 
-SET username=?, hashed_password=?, hashed_password_expires_at=?, salt=?, first_name=?, last_name=?, email=?, email_token=?, email_verified_at=?
-WHERE id = ? AND deleted_at IS NULL
+SET username=$1, hashed_password=$2, hashed_password_expires_at=$3, salt=$4, first_name=$5, last_name=$6, email=$7, email_token=$8, email_verified_at=$9, updated_at=$10
+WHERE id=$11 AND deleted_at IS NULL
 `
 
 type UpdateUserParams struct {
@@ -1069,11 +1166,12 @@ type UpdateUserParams struct {
 	Email                   string       `json:"email"`
 	EmailToken              string       `json:"email_token"`
 	EmailVerifiedAt         sql.NullTime `json:"email_verified_at"`
+	UpdatedAt               time.Time    `json:"updated_at"`
 	ID                      int64        `json:"id"`
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (sql.Result, error) {
-	return db.ExecContext(ctx, UpdateUser,
+func (q *Queries) UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) error {
+	_, err := db.ExecContext(ctx, UpdateUser,
 		arg.Username,
 		arg.HashedPassword,
 		arg.HashedPasswordExpiresAt,
@@ -1083,18 +1181,19 @@ func (q *Queries) UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams)
 		arg.Email,
 		arg.EmailToken,
 		arg.EmailVerifiedAt,
+		arg.UpdatedAt,
 		arg.ID,
 	)
+	return err
 }
 
-const UpdateUserByUsername = `-- name: UpdateUserByUsername :execresult
+const UpdateUserByUsername = `-- name: UpdateUserByUsername :exec
 UPDATE users 
-SET username = ?, hashed_password=?, hashed_password_expires_at=?, salt=?, first_name=?, last_name=?, email=?, email_token=?, email_verified_at=?
-WHERE username = ? AND deleted_at IS NULL
+SET username = $10, hashed_password=$1, hashed_password_expires_at=$2, salt=$3, first_name=$4, last_name=$5, email=$6, email_token=$7, email_verified_at=$8, updated_at=$9
+WHERE username = $11 AND deleted_at IS NULL
 `
 
 type UpdateUserByUsernameParams struct {
-	NewUsername             string       `json:"new_username"`
 	HashedPassword          string       `json:"hashed_password"`
 	HashedPasswordExpiresAt time.Time    `json:"hashed_password_expires_at"`
 	Salt                    string       `json:"salt"`
@@ -1103,12 +1202,13 @@ type UpdateUserByUsernameParams struct {
 	Email                   string       `json:"email"`
 	EmailToken              string       `json:"email_token"`
 	EmailVerifiedAt         sql.NullTime `json:"email_verified_at"`
+	UpdatedAt               time.Time    `json:"updated_at"`
+	NewUsername             string       `json:"new_username"`
 	OldUsername             string       `json:"old_username"`
 }
 
-func (q *Queries) UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (sql.Result, error) {
-	return db.ExecContext(ctx, UpdateUserByUsername,
-		arg.NewUsername,
+func (q *Queries) UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) error {
+	_, err := db.ExecContext(ctx, UpdateUserByUsername,
 		arg.HashedPassword,
 		arg.HashedPasswordExpiresAt,
 		arg.Salt,
@@ -1117,6 +1217,9 @@ func (q *Queries) UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateU
 		arg.Email,
 		arg.EmailToken,
 		arg.EmailVerifiedAt,
+		arg.UpdatedAt,
+		arg.NewUsername,
 		arg.OldUsername,
 	)
+	return err
 }

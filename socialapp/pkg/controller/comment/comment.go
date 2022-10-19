@@ -47,7 +47,7 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 		Content:  comment.Content,
 	}
 
-	newCommentResult, err := s.DB.CreateCommentForUser(ctx, s.DBConn, params)
+	createdComment, err := s.DB.CreateCommentForUser(ctx, s.DBConn, params)
 	if err != nil {
 		log.Error().Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).Err(err).Msg("Error creating comment")
 		return openapi.Response(http.StatusNotFound, openapi.Error{
@@ -56,20 +56,7 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 		}), nil
 	}
 
-	newCommentID, err := newCommentResult.LastInsertId()
-	if err != nil {
-		log.Error().Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).Err(err).Msg("Error getting last insert id")
-		return openapi.Response(http.StatusNotFound, nil), nil
-	}
-
-	// get comment from db
-	newComment, errGetComment := s.DB.GetComment(ctx, s.DBConn, newCommentID)
-	if errGetComment != nil {
-		log.Error().Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).Err(errGetComment).Msg("Error getting comment from db")
-		return openapi.Response(http.StatusInternalServerError, nil), nil
-	}
-
-	c := converter.FromDBCmtToAPICmt(newComment, user)
+	c := converter.FromDBCmtToAPICmt(createdComment, user)
 	return openapi.Response(http.StatusOK, c), nil
 }
 

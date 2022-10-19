@@ -10,16 +10,16 @@ import (
 )
 
 type Querier interface {
-	CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (sql.Result, error)
-	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (sql.Result, error)
-	CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (sql.Result, error)
-	CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams) (sql.Result, error)
-	CreateRoleScope(ctx context.Context, db DBTX, arg CreateRoleScopeParams) (sql.Result, error)
-	CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (sql.Result, error)
-	CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (sql.Result, error)
-	CreateTokenToScope(ctx context.Context, db DBTX, arg CreateTokenToScopeParams) (sql.Result, error)
-	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (sql.Result, error)
-	CreateUserToRole(ctx context.Context, db DBTX, arg CreateUserToRoleParams) (sql.Result, error)
+	CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (Comment, error)
+	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (Comment, error)
+	CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (Credential, error)
+	CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams) (Role, error)
+	CreateRoleScope(ctx context.Context, db DBTX, arg CreateRoleScopeParams) (RolesToScope, error)
+	CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (Scope, error)
+	CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (Token, error)
+	CreateTokenToScope(ctx context.Context, db DBTX, arg CreateTokenToScopeParams) (TokensToScope, error)
+	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (User, error)
+	CreateUserToRole(ctx context.Context, db DBTX, arg CreateUserToRoleParams) (UsersToRole, error)
 	DeleteAllTokensForUser(ctx context.Context, db DBTX, userID int64) error
 	DeleteComment(ctx context.Context, db DBTX, id int64) error
 	DeleteCredential(ctx context.Context, db DBTX, id int64) error
@@ -52,10 +52,10 @@ type Querier interface {
 	ListScopes(ctx context.Context, db DBTX, arg ListScopesParams) ([]Scope, error)
 	ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) ([]User, error)
 	UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error
-	UpdateRole(ctx context.Context, db DBTX, arg UpdateRoleParams) (sql.Result, error)
+	UpdateRole(ctx context.Context, db DBTX, arg UpdateRoleParams) error
 	UpdateScope(ctx context.Context, db DBTX, arg UpdateScopeParams) (sql.Result, error)
-	UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) (sql.Result, error)
-	UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) (sql.Result, error)
+	UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) error
+	UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) error
 }
 
 var _ Querier = (*Queries)(nil)

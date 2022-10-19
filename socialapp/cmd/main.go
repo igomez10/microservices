@@ -24,8 +24,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
+	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/slok/go-http-metrics/metrics/prometheus"
 	metricsMiddleware "github.com/slok/go-http-metrics/middleware"
@@ -44,7 +44,7 @@ func main() {
 	flag.Parse()
 	log.Info().Msgf("Starting PORT: %d", *appPort)
 
-	dbConn, err := sql.Open("mysql", os.Getenv("DATABASE_URL"))
+	dbConn, err := sql.Open("postgres",  os.Getenv("DATABASE_URL"))
 
 	if err != nil {
 		log.Fatal().Err(err)

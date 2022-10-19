@@ -30,17 +30,13 @@ func TestFetchURLIntegration(t *testing.T) {
 		Email:     "first@last.com",
 	}
 
-	createdUserResult, err := queries.CreateUser(ctx, dbConn, createUserReq)
-	if err != nil {
-		t.Fatal(err)
-	}
-	createdUserID, err := createdUserResult.LastInsertId()
+	createdUser, err := queries.CreateUser(ctx, dbConn, createUserReq)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// -------------
-	actualUser, err := queries.GetUserByID(ctx, dbConn, createdUserID)
+	actualUser, err := queries.GetUserByID(ctx, dbConn, createdUser.ID)
 	if err != nil {
 		t.Fatal(err)
 	}

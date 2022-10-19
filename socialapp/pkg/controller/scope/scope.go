@@ -23,7 +23,7 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 		Name:        newScope.Name,
 		Description: newScope.Description,
 	}
-	res, err := s.DB.CreateScope(ctx, s.DBConn, params)
+	createdScope, err := s.DB.CreateScope(ctx, s.DBConn, params)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -40,29 +40,12 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 		}, nil
 	}
 
-	scopeID, err := res.LastInsertId()
+	scope, err := s.DB.GetScope(ctx, s.DBConn, createdScope.ID)
 	if err != nil {
 		log.Error().
 			Err(err).
 			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Str("scope_name", newScope.Name).
-			Msg("failed to retrieve created scope")
-
-		return openapi.ImplResponse{
-			Code: http.StatusInternalServerError,
-			Body: openapi.Error{
-				Code:    http.StatusInternalServerError,
-				Message: "failed to retrieve created scope id",
-			},
-		}, nil
-	}
-
-	scope, err := s.DB.GetScope(ctx, s.DBConn, scopeID)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("scope_id", int(scopeID)).
+			Int("scope_id", int(createdScope.ID)).
 			Msg("failed to retrieve created scope")
 
 		return openapi.ImplResponse{
@@ -158,6 +141,7 @@ func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset in
 	}
 
 	scopes, err := s.DB.ListScopes(ctx, s.DBConn, db.ListScopesParams{
+
 		Limit:  limit,
 		Offset: offset,
 	})

@@ -74,7 +74,7 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 	tokenString := base64.URLEncoding.EncodeToString(token[:])
 	validUntil := time.Now().UTC().Add(30 * 24 * time.Hour)
 
-	tok, err := s.DB.CreateToken(ctx, s.DBConn, db.CreateTokenParams{
+	createdToken, err := s.DB.CreateToken(ctx, s.DBConn, db.CreateTokenParams{
 		Token:      tokenString,
 		UserID:     usr.ID,
 		ValidUntil: validUntil,
@@ -86,18 +86,6 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 			Body: openapi.Error{
 				Code:    http.StatusInternalServerError,
 				Message: fmt.Errorf("failed to create token").Error(),
-			},
-		}, nil
-	}
-
-	tokenID, err := tok.LastInsertId()
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to get token id")
-		return openapi.ImplResponse{
-			Code: http.StatusInternalServerError,
-			Body: openapi.Error{
-				Code:    http.StatusInternalServerError,
-				Message: fmt.Errorf("failed to get token id").Error(),
 			},
 		}, nil
 	}
@@ -118,7 +106,7 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 
 		// create token scope
 		_, err = s.DB.CreateTokenToScope(ctx, s.DBConn, db.CreateTokenToScopeParams{
-			TokenID: tokenID,
+			TokenID: createdToken.ID,
 			ScopeID: scope.ID,
 		})
 		if err != nil {

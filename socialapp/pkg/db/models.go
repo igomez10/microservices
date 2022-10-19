@@ -12,7 +12,7 @@ import (
 type Comment struct {
 	ID        int64        `json:"id"`
 	Content   string       `json:"content"`
-	LikeCount int32        `json:"like_count"`
+	LikeCount int64        `json:"like_count"`
 	UserID    int64        `json:"user_id"`
 	CreatedAt time.Time    `json:"created_at"`
 	UpdatedAt time.Time    `json:"updated_at"`
