@@ -1,12 +1,13 @@
 version: "3"
 
 volumes:
-    prometheus_data: {}
-    grafana_data: {}
-    db_data: {}
+  prometheus_data: {}
+  grafana_data: {}
+  db_data: {}
 networks:
   front-tier:
   back-tier:
+
 
 services:
   database:
@@ -15,10 +16,11 @@ services:
       POSTGRES_PASSWORD: password
     volumes:
       - ./db/setup:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/postgresql/data
     ports:
-      - 127.0.0.1:5433:5432
+      - 127.0.0.1:5432:5432
     restart: always
-  
+
   grafana:
     image: grafana/grafana
     user: "472"
