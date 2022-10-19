@@ -12,7 +12,7 @@ import (
 // integration
 func TestFetchURLIntegration(t *testing.T) {
 	ctx := context.Background()
-	dbConn, err := sql.Open("postgres", "postgres://postgres:password@localhost:5433/postgres?sslmode=disable")
+	dbConn, err := sql.Open("postgres", "postgres://postgres:password@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,7 +50,7 @@ func TestFetchURLIntegration(t *testing.T) {
 }
 
 // func TestCreateUsers(t *testing.T) {
-// 	dbConn, err := sql.Open("postgres", "postgres://postgres:password@localhost:5433/postgres?sslmode=disable")
+// 	dbConn, err := sql.Open("postgres", "postgres://postgres:password@localhost:5432/postgres?sslmode=disable")
 // 	if err != nil {
 // 		log.Fatal().Err(err)
 // 	}
