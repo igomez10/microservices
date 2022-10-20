@@ -64,7 +64,7 @@ scrape_configs:
     scrape_interval: 2s
     static_configs:
       - targets:
-          - localhost:9100
+          - node-exporter:9100
 #  - job_name: 'pushgateway'
 #    scrape_interval: 10s
 #    dns_sd_configs:
