@@ -105,9 +105,9 @@ CREATE TABLE IF NOT EXISTS users_to_roles (
     CONSTRAINT users_to_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES "public"."users"("id")
 );
 
-CREATE SEQUENCE IF NOT EXISTS users_to_scopes_id_seq;
+CREATE SEQUENCE IF NOT EXISTS tokens_to_scopes_id_seq;
 CREATE TABLE IF NOT EXISTS  tokens_to_scopes (
-    id BIGINT NOT NULL DEFAULT nextval('users_to_scopes_id_seq'::regclass) PRIMARY KEY,
+    id BIGINT NOT NULL DEFAULT nextval('tokens_to_scopes_id_seq'::regclass) PRIMARY KEY,
     token_id BIGINT NOT NULL,
     scope_id BIGINT NOT NULL,
     CONSTRAINT tokens_to_scopes_token_id_fkey FOREIGN KEY (token_id) REFERENCES "public"."tokens"("id"),
