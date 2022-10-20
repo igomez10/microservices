@@ -1,4 +1,6 @@
 
+CREATE DATABASE IF NOT EXISTS `socialapp`;
+
 CREATE SEQUENCE IF NOT EXISTS users_id_seq;
 CREATE TABLE IF NOT EXISTS users (
 	id BIGINT NOT NULL PRIMARY KEY DEFAULT nextval('users_id_seq'::regclass),
@@ -116,6 +118,7 @@ CREATE TABLE IF NOT EXISTS  tokens_to_scopes (
 INSERT INTO users (
     id , username , hashed_password , hashed_password_expires_at , salt , first_name , last_name , email , created_at , updated_at , deleted_at ) 
 VALUES (1, 'admin', 'LPWJbW+u2por79jDW+uClI+VvxrX7HpT5eX53kdNd4U=', '2030-01-01 00:00:00', 'MTUyNzJkYjgtZjVjNi00YjIxLTk3ZDktZDJkMTEzODM5NjQ1', 'first_name', 'last_name', 'email@email.com', '2020-01-01 00:00:00', '2020-01-01 00:00:00', NULL);
+ALTER SEQUENCE users_id_seq RESTART WITH 2;
 
 INSERT INTO comments (id, content, like_count, created_at, user_id, deleted_at) VALUES
 (1, 'something', 0, '2022-08-20 11:53:21.218349', 1, NULL),
@@ -126,13 +129,16 @@ INSERT INTO comments (id, content, like_count, created_at, user_id, deleted_at) 
 (5, 'something', 0, '2022-08-20 11:53:21.218349', 2, NULL),
 (6, 'something', 0, '2022-08-20 11:53:21.218349', 2, NULL),
 (7, 'something', 0, '2022-08-20 11:53:21.218349', 2, NULL);
+ALTER SEQUENCE comments_id_seq RESTART WITH 8;
 
 INSERT INTO followers (follower_id, followed_id) VALUES
 (1, 2);
+ALTER SEQUENCE followers_id_seq RESTART WITH 2;
 
 INSERT INTO roles (id, name, description, created_at, deleted_at) VALUES
 (1, 'administrator', 'administrator', '2020-01-01 00:00:00', NULL),
 (2, 'user', 'socialapp user', '2020-01-01 00:00:00', NULL);
+ALTER SEQUENCE roles_id_seq RESTART WITH 3;
 
 INSERT INTO scopes (id, name, description, created_at, deleted_at) VALUES
 (1, 'socialapp.users.list', 'socialapp.users.list', '2020-01-01 00:00:00', NULL),
@@ -175,6 +181,7 @@ INSERT INTO scopes (id, name, description, created_at, deleted_at) VALUES
 (38, 'socialapp.users.roles.delete', 'socialapp.users.roles.delete', '2022-09-28 20:21:07', NULL),
 (39, 'socialapp.users.roles.update', 'socialapp.users.roles.update', '2022-09-28 20:21:07', NULL),
 (40, 'socialapp.users.roles.read', 'socialapp.users.roles.read', '2022-09-28 20:21:07', NULL);
+ALTER SEQUENCE scopes_id_seq RESTART WITH 41;
 
 INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (1, 1, 1),
@@ -257,9 +264,8 @@ INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (78, 2, 39),
 (79, 1, 40),
 (80, 2, 40);
-
+ALTER SEQUENCE roles_to_scopes_id_seq RESTART WITH 81;
 
 INSERT INTO users_to_roles (id, role_id, user_id) VALUES
 (1, 1, 1);
-
-
+ALTER SEQUENCE users_to_roles_id_seq RESTART WITH 2;

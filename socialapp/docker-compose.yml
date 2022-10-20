@@ -14,11 +14,12 @@ services:
     image: postgres
     environment:
       POSTGRES_PASSWORD: password
+      POSTGRES_DB: socialapp
     volumes:
       - ./db/setup:/docker-entrypoint-initdb.d
       - db_data:/var/lib/postgresql/data
     ports:
-      - 127.0.0.1:5432:5432
+      - "5432:5432"
     restart: always
 
   grafana:
