@@ -1,4 +1,4 @@
-job "docs" {
+job "tests" {
     type = "batch"
     periodic {
         cron             = "*/1 * * * * *"
@@ -6,6 +6,7 @@ job "docs" {
     }
     datacenters = ["dc1"]
     group "docs" {
+        count = 8
         task "docs" {
         driver = "docker"
     
@@ -13,8 +14,8 @@ job "docs" {
             image = "igomeza/socialapptests"
         }
         resources {
-            cpu    = 500
-            memory = 1024
+            cpu    = 100
+            memory = 256
         }
         }
     }
