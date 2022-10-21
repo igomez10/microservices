@@ -30,3 +30,4 @@ socialapp/.openapi-generator/VERSION
 socialapp/jmeter.log
 
 */prometheus/data/*
+socialapp/.env

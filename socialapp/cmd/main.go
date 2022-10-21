@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -10,7 +9,9 @@ import (
 	"os"
 	"socialapp/internal/authorizationparser"
 	"socialapp/internal/middlewares/authorization"
+	"socialapp/internal/middlewares/failedrequests"
 	"socialapp/internal/middlewares/gandalf"
+	"socialapp/internal/middlewares/requestid"
 	"socialapp/pkg/controller/authentication"
 	"socialapp/pkg/controller/comment"
 	"socialapp/pkg/controller/role"
@@ -24,7 +25,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/slok/go-http-metrics/metrics/prometheus"
@@ -44,7 +44,7 @@ func main() {
 	flag.Parse()
 	log.Info().Msgf("Starting PORT: %d", *appPort)
 
-	dbConn, err := sql.Open("postgres",  os.Getenv("DATABASE_URL"))
+	dbConn, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 
 	if err != nil {
 		log.Fatal().Err(err)
@@ -54,6 +54,11 @@ func main() {
 	if dbConn == nil {
 		log.Fatal().Msg("db is nil")
 	}
+
+	if err := dbConn.Ping(); err != nil {
+		log.Fatal().Err(err).Msg("failed to ping database, shutting down")
+	}
+
 	defer dbConn.Close()
 
 	queries := db.New()
@@ -88,14 +93,16 @@ func main() {
 
 	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn}
 	middlewares := []Middleware{
+		requestid.RequestIDMiddleware,
+		failedrequests.FailedRequestsMiddleware,
 		middleware.Logger,
+		middleware.Recoverer,
+		middleware.RequestID,
+		middleware.Timeout(60 * time.Second),
 		middleware.Heartbeat("/health"),
 		authenticationMiddleware.Authenticate,
 		cors.AllowAll().Handler,
-		middleware.RequestID,
 		middleware.RealIP,
-		middleware.Recoverer,
-		middleware.Timeout(60 * time.Second),
 	}
 
 	// open file
@@ -135,7 +142,6 @@ func main() {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		// w.Header().Set("Content-Type", "application/json")
 		w.Write(content)
 	})
 
@@ -152,39 +158,6 @@ func NewRouter(middlewares []Middleware, routers []openapi.Router, authorization
 		router.Use(middlewares[i])
 	}
 
-	// Custom misc middleware
-	router.Use(func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			customW := NewCustomResponseWriter(w)
-			defer func() {
-				// log failed auth requests
-				logEvent := log.Warn().
-					Str("Path", r.URL.Path).
-					Str("X-Request-ID", r.Header.Get("X-Request-ID")).
-					Str("ngrok", r.Header.Get("ngrok")).
-					Str("Method", r.Method).
-					Str("Path", r.URL.Path).
-					Str("RemoteAddr", r.RemoteAddr).
-					Str("UserAgent", r.UserAgent()).
-					Str("Referer", r.Referer())
-
-				if customW.statusCode == http.StatusUnauthorized {
-					logEvent.Str("AuthHeader", r.Header.Get("Authorization")).
-						Msgf("Failed request: %d", customW.statusCode)
-				}
-
-				logEvent.Str("StatusCode", fmt.Sprintf("%d", customW.statusCode)).
-					Msgf("Finished Request")
-			}()
-
-			requestID := uuid.NewString()
-			customW.Header().Set("X-Request-ID", requestID)
-			r.Header.Set("X-Request-ID", requestID)
-			r = r.WithContext(context.WithValue(r.Context(), "X-Request-ID", requestID))
-			next.ServeHTTP(customW, r)
-		})
-	})
-
 	mdlw := metricsMiddleware.New(metricsMiddleware.Config{
 		Recorder: prometheus.NewRecorder(prometheus.Config{}),
 	})
@@ -195,7 +168,7 @@ func NewRouter(middlewares []Middleware, routers []openapi.Router, authorization
 			handler = route.HandlerFunc
 
 			router.Group(func(r chi.Router) {
-				// use a middleware to record the metrics on the route pattern.
+				// use a  custom middleware to record the metrics on the route pattern.
 				r.Use(std.HandlerProvider(route.Pattern, mdlw))
 
 				// authorization
@@ -215,19 +188,4 @@ func NewRouter(middlewares []Middleware, routers []openapi.Router, authorization
 	}
 
 	return router
-}
-
-// custom response writer for capturing status code in the response
-type customResponseWriter struct {
-	http.ResponseWriter
-	statusCode int
-}
-
-func NewCustomResponseWriter(w http.ResponseWriter) *customResponseWriter {
-	return &customResponseWriter{w, http.StatusOK}
-}
-
-func (lrw *customResponseWriter) WriteHeader(code int) {
-	lrw.statusCode = code
-	lrw.ResponseWriter.WriteHeader(code)
 }

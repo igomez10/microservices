@@ -33,3 +33,7 @@ func GetRequestIDInContext(ctx context.Context) string {
 	}
 	return requestID
 }
+
+func SetRequestIDInContext(r *http.Request, requestID string) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), "X-Request-ID", requestID))
+}

@@ -13,7 +13,8 @@
             "args": [
                 "--port=8085",
             ],
-            "cwd": "."
+            "cwd": ".",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
