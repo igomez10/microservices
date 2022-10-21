@@ -3,10 +3,7 @@ package integration_tests
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
-	"net/url"
-	"os"
 	"socialapp/client"
 	"testing"
 	"time"
@@ -17,15 +14,34 @@ import (
 )
 
 var apiClient *client.APIClient
-var ENDPOINT_OAUTH_TOKEN string = "http://localhost:8085/oauth/token"
+var ENDPOINT_OAUTH_TOKEN string = "https://microservices.onrender.com/oauth/token"
 
 var (
 	RENDER_SERVER_URL          = 0
 	LOCALHOST_SERVER_URL       = 1
 	LOCALHOST_DEBUG_SERVER_URL = 2
 
-	CONTEXT_SERVER = LOCALHOST_DEBUG_SERVER_URL
+	CONTEXT_SERVER = RENDER_SERVER_URL
 )
+
+func getHTTPClient() *http.Client {
+	// proxyStr := "http://localhost:9091"
+	// proxyURL, err := url.Parse(proxyStr)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	panic(err)
+	// }
+
+	// Setup htt client with proxy to capture traffic
+	httpClient := &http.Client{
+		Timeout:   time.Second * 10,
+		Transport: &http.Transport{
+			// Proxy: http.ProxyURL(proxyURL),
+		},
+	}
+
+	return httpClient
+}
 
 func getOuath2Context(initialContext context.Context, config clientcredentials.Config) (context.Context, error) {
 	tokenSource := config.TokenSource(initialContext)
@@ -35,23 +51,8 @@ func getOuath2Context(initialContext context.Context, config clientcredentials.C
 }
 
 func TestListUsers(t *testing.T) {
-	os.Setenv("HTTP_PROXY", "http://localhost:9091")
-	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
-
 	configuration := client.NewConfiguration()
-	proxyStr := "http://localhost:9091"
-	proxyURL, err := url.Parse(proxyStr)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// Setup http client with proxy to capture traffic
-	httpClient := &http.Client{
-		Timeout: time.Second * 10,
-		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		},
-	}
+	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
@@ -92,23 +93,8 @@ func TestListUsers(t *testing.T) {
 }
 
 func TestCreateUser(t *testing.T) {
-	os.Setenv("HTTP_PROXY", "http://localhost:9091")
-	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
-
 	configuration := client.NewConfiguration()
-	proxyStr := "http://localhost:9091"
-	proxyURL, err := url.Parse(proxyStr)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// Setup http client with proxy to capture traffic
-	httpClient := &http.Client{
-		Timeout: time.Second * 10,
-		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		},
-	}
+	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	noAuthCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
 	noAuthCtx = context.WithValue(noAuthCtx, client.ContextServerIndex, CONTEXT_SERVER)
@@ -168,23 +154,8 @@ func TestCreateUser(t *testing.T) {
 
 func TestFollowCycle(t *testing.T) {
 	// create two users
-	os.Setenv("HTTP_PROXY", "http://localhost:9091")
-	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
-
 	configuration := client.NewConfiguration()
-	proxyStr := "http://localhost:9091"
-	proxyURL, err := url.Parse(proxyStr)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// Setup http client with proxy to capture traffic
-	httpClient := &http.Client{
-		Timeout: time.Second * 10,
-		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		},
-	}
+	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
@@ -279,23 +250,8 @@ func TestFollowCycle(t *testing.T) {
 
 func TestGetExpectedFeed(t *testing.T) {
 	// create two users
-	os.Setenv("HTTP_PROXY", "http://localhost:9091")
-	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
-
 	configuration := client.NewConfiguration()
-	proxyStr := "http://localhost:9091"
-	proxyURL, err := url.Parse(proxyStr)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// Setup http client with proxy to capture traffic
-	httpClient := &http.Client{
-		Timeout: time.Second * 10,
-		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		},
-	}
+	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
@@ -391,23 +347,8 @@ func TestGetExpectedFeed(t *testing.T) {
 
 func TestGetAccessToken(t *testing.T) {
 	// create two users
-	os.Setenv("HTTP_PROXY", "http://localhost:9091")
-	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
-
 	configuration := client.NewConfiguration()
-	proxyStr := "http://localhost:9091"
-	proxyURL, err := url.Parse(proxyStr)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// Setup http client with proxy to capture traffic
-	httpClient := &http.Client{
-		Timeout: time.Second * 10,
-		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		},
-	}
+	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
@@ -459,23 +400,8 @@ func TestGetAccessToken(t *testing.T) {
 
 func TestRegisterUserFlow(t *testing.T) {
 	// create two users
-	os.Setenv("HTTP_PROXY", "http://localhost:9091")
-	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
-
 	configuration := client.NewConfiguration()
-	proxyStr := "http://localhost:9091"
-	proxyURL, err := url.Parse(proxyStr)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// Setup http client with proxy to capture traffic
-	httpClient := &http.Client{
-		Timeout: time.Second * 10,
-		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		},
-	}
+	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
@@ -540,23 +466,8 @@ func TestRegisterUserFlow(t *testing.T) {
 
 func TestChangePassword(t *testing.T) {
 	// create two users
-	os.Setenv("HTTP_PROXY", "http://localhost:9091")
-	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
-
 	configuration := client.NewConfiguration()
-	proxyStr := "http://localhost:9091"
-	proxyURL, err := url.Parse(proxyStr)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// Setup http client with proxy to capture traffic
-	httpClient := &http.Client{
-		Timeout: time.Second * 10,
-		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		},
-	}
+	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
@@ -645,23 +556,8 @@ func TestChangePassword(t *testing.T) {
 
 func TestRoleLifecycle(t *testing.T) {
 	// create two users
-	os.Setenv("HTTP_PROXY", "http://localhost:9091")
-	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
-
 	configuration := client.NewConfiguration()
-	proxyStr := "http://localhost:9091"
-	proxyURL, err := url.Parse(proxyStr)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// Setup http client with proxy to capture traffic
-	httpClient := &http.Client{
-		Timeout: time.Second * 10,
-		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		},
-	}
+	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
@@ -876,23 +772,8 @@ func TestRoleLifecycle(t *testing.T) {
 }
 
 func TestScopeLifeCycle(t *testing.T) {
-	os.Setenv("HTTP_PROXY", "http://localhost:9091")
-	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
-
 	configuration := client.NewConfiguration()
-	proxyStr := "http://localhost:9091"
-	proxyURL, err := url.Parse(proxyStr)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// Setup http client with proxy to capture traffic
-	httpClient := &http.Client{
-		Timeout: time.Second * 10,
-		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		},
-	}
+	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
@@ -1020,23 +901,8 @@ func TestScopeLifeCycle(t *testing.T) {
 }
 
 func TestUserRoleLifeCycle(t *testing.T) {
-	os.Setenv("HTTP_PROXY", "http://localhost:9091")
-	os.Setenv("HTTPS_PROXY", "http://localhost:9091")
-
 	configuration := client.NewConfiguration()
-	proxyStr := "http://localhost:9091"
-	proxyURL, err := url.Parse(proxyStr)
-	if err != nil {
-		log.Println(err)
-	}
-
-	// Setup http client with proxy to capture traffic
-	httpClient := &http.Client{
-		Timeout: time.Second * 10,
-		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		},
-	}
+	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
