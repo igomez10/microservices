@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"socialapp/internal/contexthelper"
-
-	"github.com/rs/zerolog/log"
 )
 
 type Middleware struct {
@@ -14,10 +12,10 @@ type Middleware struct {
 
 func (m *Middleware) Authorize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log := contexthelper.GetLoggerInContext(r.Context())
 		tokenScopes, ok := contexthelper.GetRequestedScopesInContext(r.Context())
 		if !ok {
 			log.Error().
-				Str("X-Request-ID", contexthelper.GetRequestIDInContext(r.Context())).
 				Msg("Failed to get token scopes from context")
 
 			w.Write([]byte(`{"code":403,"message":"No scopes in context"}`))
@@ -29,7 +27,6 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 		for scopeName := range m.RequiredScopes {
 			if exist := tokenScopes[scopeName]; !exist {
 				log.Error().
-					Str("X-Request-ID", contexthelper.GetRequestIDInContext(r.Context())).
 					Str("scope", scopeName).
 					Str("tokenScopes", fmt.Sprintf("%v", tokenScopes)).
 					Msg("Missing scope")
@@ -41,7 +38,6 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 		}
 
 		log.Info().
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(r.Context())).
 			Msg("Authorization successful")
 		next.ServeHTTP(w, r)
 	})

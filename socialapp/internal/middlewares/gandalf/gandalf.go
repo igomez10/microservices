@@ -73,7 +73,6 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			if time.Now().After(token.ValidUntil) {
 				log.Error().
 					Err(err).
-					Str("X-Request-ID", contexthelper.GetRequestIDInContext(r.Context())).
 					Msg("Token expired")
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte(`{"code": 401, "message": "Token expired"}`))
@@ -144,7 +143,6 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			default:
 				log.Error().
 					Err(err).
-					Str("X-Request-ID", contexthelper.GetRequestIDInContext(r.Context())).
 					Msg("Error while getting user")
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte(`{"code": 500, "message": "Error while getting user"}`))

@@ -6,7 +6,6 @@ import (
 	"socialapp/internal/contexthelper"
 
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 // LogFailedRequestsMiddleware logs failed requests, specially useful for detecting attacks
@@ -20,19 +19,19 @@ func FailedRequestsMiddleware(next http.Handler) http.Handler {
 		// HANDLE RESPONSE
 		// ---------
 
+		log := contexthelper.GetLoggerInContext(r.Context())
 		var logEvent *zerolog.Event
 		if customW.statusCode == http.StatusUnauthorized {
 			username, _ := contexthelper.GetUsernameInContext(r.Context())
-			logEvent = log.Error().
+			logEvent = log.WithLevel(zerolog.ErrorLevel).
 				Str("Authorization", r.Header.Get("Authorization")).
 				Str("Username", username).
 				Str("Error", "Unauthorized")
 		} else {
-			logEvent = log.Info()
+			logEvent = log.WithLevel(zerolog.InfoLevel)
 		}
 
 		logEvent.Str("Path", r.URL.Path).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(r.Context())).
 			Str("Method", r.Method).
 			Str("Path", r.URL.Path).
 			Str("RemoteAddr", r.RemoteAddr).
