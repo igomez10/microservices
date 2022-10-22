@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rs/zerolog/log"
 )
 
 // implements the UserServicer interface
@@ -27,11 +26,11 @@ type UserApiService struct {
 const DEFAULT_ROLE_NAME = "administrator"
 
 func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUserRequest) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	// validate we dont have a user with the same username that is not deleted
 	if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, user.Username); err == nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Username already exists")
 		return openapi.Response(http.StatusConflict, nil), nil
 	}
@@ -40,7 +39,6 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 	if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, user.Email); err == nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Email already exists")
 		return openapi.Response(http.StatusConflict, nil), nil
 	}
@@ -50,7 +48,6 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error generating random string for salt")
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
@@ -63,7 +60,6 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error generating random string for salt")
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
@@ -88,7 +84,6 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error creating user")
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
@@ -100,7 +95,6 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting role id for user")
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
@@ -120,7 +114,6 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 	if _, err := s.DB.CreateUserToRole(ctx, s.DBConn, params2); err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Str("username", user.Username).
 			Str("default_role", DEFAULT_ROLE_NAME).
 			Msg("Error attaching role to user")
@@ -153,9 +146,9 @@ func EncryptPassword(plaintextPassword string, salt string) string {
 
 // DeleteUser - Deletes a particular user
 func (s *UserApiService) DeleteUser(ctx context.Context, username string) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	if err := s.DB.DeleteUserByUsername(ctx, s.DBConn, username); err != nil {
 		log.Error().Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error deleting user")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -171,11 +164,11 @@ func (s *UserApiService) DeleteUser(ctx context.Context, username string) (opena
 
 // GetUserByUsername - Get a particular user by username
 func (s *UserApiService) GetUserByUsername(ctx context.Context, username string) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	dbUser, err := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting user")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -192,6 +185,8 @@ func (s *UserApiService) GetUserByUsername(ctx context.Context, username string)
 
 // GetUserComments - Gets all comments for a user
 func (s *UserApiService) GetUserComments(ctx context.Context, username string, limit int32, offset int32) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+
 	limit = limit % 100
 	if limit == 0 {
 		limit = 100
@@ -204,7 +199,6 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string, l
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting user comments")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -220,6 +214,7 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string, l
 
 // ListUsers - Returns all the users
 func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	limit = limit % 20
 	if limit == 0 {
 		limit = 20
@@ -232,7 +227,6 @@ func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32) (op
 		log.Error().
 			Stack().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error listing users")
 
 		return openapi.ImplResponse{
@@ -253,12 +247,12 @@ func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32) (op
 }
 
 func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string, newUserData openapi.User) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	// get the user to update
 	existingUser, err := s.DB.GetUserByUsername(ctx, s.DBConn, existingUsername)
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting user")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -275,7 +269,6 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 		if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, noCaseUsername); err == nil {
 			log.Error().
 				Err(err).
-				Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 				Msg("Username already exists")
 
 			return openapi.ImplResponse{
@@ -295,7 +288,6 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 		if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, noCaseEmail); err == nil {
 			log.Error().
 				Err(err).
-				Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 				Msg("Email already exists")
 			return openapi.ImplResponse{
 				Code: http.StatusConflict,
@@ -327,7 +319,6 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	if err := s.DB.UpdateUserByUsername(ctx, s.DBConn, params); err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error updating user")
 
 		return openapi.ImplResponse{
@@ -344,7 +335,6 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting user")
 
 		return openapi.ImplResponse{
@@ -362,12 +352,12 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 }
 
 func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string, followerUsername string) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	// validate the user exists
 	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, s.DBConn, followedUsername)
 	if errGetFollowed != nil {
 		log.Error().
 			Err(errGetFollowed).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting followed user")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -382,7 +372,6 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 	if errGetFollower != nil {
 		log.Error().
 			Err(errGetFollower).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting follower user")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -401,7 +390,6 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 	if err != nil {
 		log.Error().
 			Err(errGetFollower).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error following user")
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
@@ -416,12 +404,12 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 }
 
 func (s *UserApiService) GetUserFollowers(ctx context.Context, username string) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	// validate the user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
 		log.Error().
 			Err(errGetUser).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting user")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -436,7 +424,6 @@ func (s *UserApiService) GetUserFollowers(ctx context.Context, username string) 
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int64("user_id", user.ID).
 			Msg("Error getting followers")
 		return openapi.ImplResponse{
@@ -457,12 +444,12 @@ func (s *UserApiService) GetUserFollowers(ctx context.Context, username string) 
 }
 
 func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername string, followerUsername string) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	// validate the user exists
 	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, s.DBConn, followedUsername)
 	if errGetFollowed != nil {
 		log.Error().
 			Err(errGetFollowed).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting followed user")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -477,7 +464,6 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 	if errGetFollower != nil {
 		log.Error().
 			Err(errGetFollower).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting follower user")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -496,7 +482,6 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error unfollowing user")
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
@@ -511,12 +496,12 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 }
 
 func (s *UserApiService) GetFollowingUsers(ctx context.Context, username string) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	// validate the user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
 		log.Error().
 			Err(errGetUser).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting user")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -531,7 +516,6 @@ func (s *UserApiService) GetFollowingUsers(ctx context.Context, username string)
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting followed users")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -551,11 +535,11 @@ func (s *UserApiService) GetFollowingUsers(ctx context.Context, username string)
 }
 
 func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangePasswordRequest) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	// get user from request context
 	username, ok := ctx.Value("username").(string)
 	if !ok {
 		log.Error().
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting user from context")
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
@@ -571,7 +555,6 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 	if errGetUser != nil {
 		log.Error().
 			Err(errGetUser).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting user")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -586,7 +569,6 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 	encryptedHashedOldPassword := EncryptPassword(req.OldPassword, user.Salt)
 	if encryptedHashedOldPassword != user.HashedPassword {
 		log.Error().
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error validating old password")
 
 		return openapi.ImplResponse{
@@ -618,7 +600,6 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 	if err := s.DB.UpdateUser(ctx, s.DBConn, params); err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error updating password")
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
@@ -633,7 +614,6 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 	if err := s.DB.DeleteAllTokensForUser(ctx, s.DBConn, user.ID); err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error deleting existing tokens")
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
@@ -649,16 +629,17 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 }
 
 func (s *UserApiService) ResetPassword(_ context.Context, _ openapi.ResetPasswordRequest) (openapi.ImplResponse, error) {
+	// log := contexthelper.GetLoggerInContext(ctx)
 	panic("not implemented") // TODO: Implement
 }
 
 func (s *UserApiService) GetRolesForUser(ctx context.Context, username string) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	// validate user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
 		log.Error().
 			Err(errGetUser).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting user")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -674,7 +655,6 @@ func (s *UserApiService) GetRolesForUser(ctx context.Context, username string) (
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting user roles")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -695,12 +675,12 @@ func (s *UserApiService) GetRolesForUser(ctx context.Context, username string) (
 }
 
 func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string, roles []string) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	// verify the user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
 		log.Error().
 			Err(errGetUser).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting user")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -718,7 +698,6 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 		if err != nil {
 			log.Error().
 				Err(err).
-				Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 				Msg("Error getting role")
 			return openapi.ImplResponse{
 				Code: http.StatusNotFound,
@@ -736,7 +715,6 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("Error getting user roles")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -784,7 +762,6 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 		if err != nil {
 			log.Error().
 				Err(err).
-				Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 				Str("role", roleNameToAdd).
 				Msg("Error adding role to user")
 			return openapi.ImplResponse{
@@ -807,7 +784,6 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 		if err != nil {
 			log.Error().
 				Err(err).
-				Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 				Str("role", roleNameToRemove).
 				Msg("Error removing role from user")
 			return openapi.ImplResponse{

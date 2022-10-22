@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rs/zerolog/log"
 )
 
 // s *AuthenticationService openapi.AuthenticationApiServicer
@@ -22,6 +21,7 @@ type AuthenticationService struct {
 }
 
 func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
 	username, ok := contexthelper.GetUsernameInContext(ctx)
 	if !ok {
 		log.Error().Str("username", username).Msg("username not found in context")

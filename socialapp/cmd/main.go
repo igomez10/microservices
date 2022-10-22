@@ -30,6 +30,7 @@ import (
 	"github.com/slok/go-http-metrics/metrics/prometheus"
 	metricsMiddleware "github.com/slok/go-http-metrics/middleware"
 
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/slok/go-http-metrics/middleware/std"
 )
@@ -42,6 +43,11 @@ type Middleware func(http.Handler) http.Handler
 
 func main() {
 	flag.Parse()
+
+	// Setup logger
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+	zerolog.TimeFieldFormat = time.RFC3339
+
 	log.Info().Msgf("Starting PORT: %d", *appPort)
 
 	dbConn, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
@@ -95,7 +101,6 @@ func main() {
 	middlewares := []Middleware{
 		requestid.RequestIDMiddleware,
 		failedrequests.FailedRequestsMiddleware,
-		middleware.Logger,
 		middleware.Recoverer,
 		middleware.RequestID,
 		middleware.Timeout(60 * time.Second),

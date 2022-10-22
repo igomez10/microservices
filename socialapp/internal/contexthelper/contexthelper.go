@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -36,4 +37,17 @@ func GetRequestIDInContext(ctx context.Context) string {
 
 func SetRequestIDInContext(r *http.Request, requestID string) *http.Request {
 	return r.WithContext(context.WithValue(r.Context(), "X-Request-ID", requestID))
+}
+
+func SetLoggerInContext(r *http.Request, logger zerolog.Logger) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), "logger", logger))
+}
+
+func GetLoggerInContext(ctx context.Context) zerolog.Logger {
+	logger, ok := ctx.Value("logger").(zerolog.Logger)
+	if !ok {
+		log.Error().Msg("failed to retrieve logger from context")
+		return log.Logger
+	}
+	return logger
 }

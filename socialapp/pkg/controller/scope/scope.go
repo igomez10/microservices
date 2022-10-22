@@ -2,13 +2,12 @@ package scope
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"socialapp/internal/contexthelper"
 	"socialapp/internal/converter"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
-
-	"github.com/rs/zerolog/log"
 )
 
 // s *ScopeApiService openapi.ScopeApiServicer
@@ -18,6 +17,12 @@ type ScopeApiService struct {
 }
 
 func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scope) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.
+		With().
+		Str("new_scope", fmt.Sprintf("%+v", newScope)).
+		Logger()
+
 	// check scope with name doesnt exist
 	params := db.CreateScopeParams{
 		Name:        newScope.Name,
@@ -27,8 +32,6 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Str("scope_id", newScope.Name).
 			Msg("failed to create scope")
 
 		return openapi.ImplResponse{
@@ -40,24 +43,7 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 		}, nil
 	}
 
-	scope, err := s.DB.GetScope(ctx, s.DBConn, createdScope.ID)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("scope_id", int(createdScope.ID)).
-			Msg("failed to retrieve created scope")
-
-		return openapi.ImplResponse{
-			Code: http.StatusInternalServerError,
-			Body: openapi.Error{
-				Code:    http.StatusInternalServerError,
-				Message: "failed to find created scope",
-			},
-		}, nil
-	}
-
-	apiscope := converter.FromDBScopeToAPIScope(scope)
+	apiscope := converter.FromDBScopeToAPIScope(createdScope)
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: apiscope,
@@ -65,12 +51,17 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 }
 
 func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.
+		With().
+		Int("scope_id", int(scopeID)).
+		Logger()
+
 	//verify scope exists
 	scope, err := s.DB.GetScope(ctx, s.DBConn, int64(scopeID))
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("scope_id", int(scopeID)).
 			Msg("failed to retrieve scope")
 
@@ -87,7 +78,6 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (opena
 	if err != nil {
 		log.Error().
 			Err(deleteErr).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("scope_id", int(scopeID)).
 			Msg("failed to retrieve created scope")
 
@@ -109,12 +99,17 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (opena
 }
 
 func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int32) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.
+		With().
+		Int("scope_id", int(scopeID)).
+		Logger()
+
 	s.DB.GetScope(ctx, s.DBConn, int64(scopeID))
 	scope, err := s.DB.GetScope(ctx, s.DBConn, int64(scopeID))
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("scope_id", int(scopeID)).
 			Msg("failed to retrieve created scope")
 
@@ -135,6 +130,13 @@ func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int32) (openapi.
 }
 
 func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset int32) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.
+		With().
+		Int("limit", int(limit)).
+		Int("offset", int(offset)).
+		Logger()
+
 	limit = limit % 20
 	if limit == 0 {
 		limit = 20
@@ -148,7 +150,6 @@ func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset in
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("failed to retrieve scopes")
 
 		return openapi.ImplResponse{
@@ -172,13 +173,18 @@ func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset in
 }
 
 func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeID int32, updatedScope openapi.Scope) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.
+		With().
+		Int("scope_id", int(scopeID)).
+		Str("updated_scope", fmt.Sprintf("%+v", updatedScope)).
+		Logger()
+
 	// get scope from db
 	scope, err := s.DB.GetScope(ctx, s.DBConn, int64(scopeID))
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("scope_id", int(scopeID)).
 			Msg("failed to retrieve scope")
 
 		return openapi.ImplResponse{
@@ -201,8 +207,6 @@ func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeID int32, update
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("scope_id", int(scopeID)).
 			Msg("failed to update scope")
 
 		return openapi.ImplResponse{
@@ -219,8 +223,6 @@ func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeID int32, update
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("scope_id", int(scopeID)).
 			Msg("failed to retrieve updated scope")
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,

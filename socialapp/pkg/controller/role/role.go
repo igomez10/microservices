@@ -2,13 +2,12 @@ package role
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"socialapp/internal/contexthelper"
 	"socialapp/internal/converter"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
-
-	"github.com/rs/zerolog/log"
 )
 
 // s *RoleApiService openapi.RoleApiServicer
@@ -18,6 +17,11 @@ type RoleApiService struct {
 }
 
 func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.With().
+		Str("newrole", fmt.Sprintf("%+v", newRole)).
+		Logger()
+
 	// check role with name doesnt exist
 	params := db.CreateRoleParams{
 		Name:        newRole.Name,
@@ -27,8 +31,6 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Str("role_id", newRole.Name).
 			Msg("failed to create role")
 
 		return openapi.ImplResponse{
@@ -44,7 +46,6 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("role_id", int(createdRole.ID)).
 			Msg("failed to retrieve created role")
 
@@ -65,13 +66,15 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 }
 
 func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.With().
+		Int("role_id", int(roleID)).
+		Logger()
 	//verify role exists
 	role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("role_id", int(roleID)).
 			Msg("failed to retrieve role")
 
 		return openapi.ImplResponse{
@@ -86,8 +89,6 @@ func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.
 	if err := s.DB.DeleteRole(ctx, s.DBConn, role.ID); err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("role_id", int(roleID)).
 			Msg("failed to retrieve created role")
 
 		return openapi.ImplResponse{
@@ -108,12 +109,15 @@ func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.
 }
 
 func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.With().
+		Int("role_id", int(roleID)).
+		Logger()
+
 	role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("role_id", int(roleID)).
 			Msg("failed to retrieve created role")
 
 		return openapi.ImplResponse{
@@ -134,6 +138,12 @@ func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.Imp
 }
 
 func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int32) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.With().
+		Int("limit", int(limit)).
+		Int("offset", int(offset)).
+		Logger()
+
 	limit = limit % 20
 	if limit == 0 {
 		limit = 20
@@ -146,7 +156,6 @@ func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int3
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Msg("failed to retrieve roles")
 
 		return openapi.ImplResponse{
@@ -170,13 +179,17 @@ func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int3
 }
 
 func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole openapi.Role) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.With().
+		Int("role_id", int(roleID)).
+		Str("new_role", fmt.Sprintf("%+v", newRole)).
+		Logger()
+
 	// get role from db
 	role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("role_id", int(roleID)).
 			Msg("failed to retrieve role")
 
 		return openapi.ImplResponse{
@@ -198,7 +211,6 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 	if err = s.DB.UpdateRole(ctx, s.DBConn, params); err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
 			Int("role_id", int(roleID)).
 			Msg("failed to update role")
 
@@ -216,8 +228,6 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("role_id", int(roleID)).
 			Msg("failed to retrieve updated role")
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
@@ -235,13 +245,17 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 }
 
 func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scopes []string) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.With().
+		Strs("scopes", scopes).
+		Int32("role_id", roleID).
+		Logger()
+
 	// get role from db
 	role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("role_id", int(roleID)).
 			Msg("failed to retrieve role")
 
 		return openapi.ImplResponse{
@@ -260,8 +274,6 @@ func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scope
 		if err != nil {
 			log.Error().
 				Err(err).
-				Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-				Int("role_id", int(roleID)).
 				Msg("failed to retrieve scope")
 
 			return openapi.ImplResponse{
@@ -284,8 +296,6 @@ func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scope
 		if err != nil {
 			log.Error().
 				Err(err).
-				Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-				Int("role_id", int(roleID)).
 				Msg("failed to add scope to role")
 
 			return openapi.ImplResponse{
@@ -305,13 +315,18 @@ func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scope
 }
 
 func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleID int32, limit int32, offset int32) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.With().
+		Int("role_id", int(roleID)).
+		Int("limit", int(limit)).
+		Int("offset", int(offset)).
+		Logger()
+
 	// get role from db
 	role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("role_id", int(roleID)).
 			Msg("failed to retrieve role")
 
 		return openapi.ImplResponse{
@@ -336,8 +351,6 @@ func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleID int32, li
 	if err != nil {
 		log.Error().
 			Err(err).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(ctx)).
-			Int("role_id", int(roleID)).
 			Msg("failed to retrieve role scopes")
 
 		return openapi.ImplResponse{
@@ -359,10 +372,20 @@ func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleID int32, li
 	}, nil
 }
 
-func (s *RoleApiService) RemoveScopeFromRole(_ context.Context, roleID int32, scopeID int32) (openapi.ImplResponse, error) {
+func (s *RoleApiService) RemoveScopeFromRole(ctx context.Context, roleID int32, scopeID int32) (openapi.ImplResponse, error) {
+	log := contexthelper.GetLoggerInContext(ctx)
+	log = log.With().
+		Int("role_id", int(roleID)).
+		Int("scope_id", int(scopeID)).
+		Logger()
+
 	// verify role exists
 	role, err := s.DB.GetRole(context.Background(), s.DBConn, int64(roleID))
 	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("failed to retrieve role")
+
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
 			Body: openapi.Error{
@@ -373,8 +396,12 @@ func (s *RoleApiService) RemoveScopeFromRole(_ context.Context, roleID int32, sc
 	}
 
 	// verify scope exists
-	scope, err := s.DB.GetScope(context.Background(), s.DBConn, int64(scopeID))
+	scope, err := s.DB.GetScope(ctx, s.DBConn, int64(scopeID))
 	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("failed to retrieve scope")
+
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
 			Body: openapi.Error{
@@ -390,6 +417,10 @@ func (s *RoleApiService) RemoveScopeFromRole(_ context.Context, roleID int32, sc
 		ScopeID: scope.ID,
 	}
 	if err := s.DB.DeleteRoleScope(context.Background(), s.DBConn, params); err != nil {
+		log.Error().
+			Err(err).
+			Msg("failed to remove scope from role")
+
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
 			Body: openapi.Error{

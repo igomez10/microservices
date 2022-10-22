@@ -32,7 +32,7 @@ func FailedRequestsMiddleware(next http.Handler) http.Handler {
 		}
 
 		logEvent.Str("Path", r.URL.Path).
-			Str("X-Request-ID", r.Header.Get("X-Request-ID")).
+			Str("X-Request-ID", contexthelper.GetRequestIDInContext(r.Context())).
 			Str("Method", r.Method).
 			Str("Path", r.URL.Path).
 			Str("RemoteAddr", r.RemoteAddr).
