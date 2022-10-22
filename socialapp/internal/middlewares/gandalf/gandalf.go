@@ -40,10 +40,10 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		panic(err)
 	}
 
-	// scopesCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
-	// if err != nil {
-	// 	panic(err)
-	// }
+	scopesCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
+	if err != nil {
+		panic(err)
+	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log := contexthelper.GetLoggerInContext(r.Context())
@@ -119,25 +119,52 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			}
 
 			// get token scopes
-			dbTokenScopes, err := m.DB.GetTokenScopes(r.Context(), m.DBConn, token.ID)
-			switch err {
-			case nil:
-				// exit switch
-			case sql.ErrNoRows:
-				log.Error().
-					Err(err).
-					Msg("Token scopes not found")
-				http.Error(w, "Token scopes not found", http.StatusUnauthorized)
-				w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
-			default:
-				log.Error().Err(err).Msg("Error while getting token scopes")
-				http.Error(w, "Error while getting token scopes", http.StatusInternalServerError)
-				w.Write([]byte(`{"code": 500, "message": "Error while getting token scopes"}`))
+			var scopes []db.Scope
+			// check scopes in cache
+			cachedScopesBytes, err := scopesCache.Get(givenToken)
+			if err != nil {
+				dbTokenScopes, err := m.DB.GetTokenScopes(r.Context(), m.DBConn, token.ID)
+				switch err {
+				case nil:
+					scopes = dbTokenScopes
+					// update cache
+					scopesBytes, err := json.Marshal(scopes)
+					if err != nil {
+						log.Error().
+							Err(err).
+							Str("middleware", "gandalf").
+							Msg("Failed to marshal scopes")
+					} else {
+						scopesCache.Set(givenToken, scopesBytes)
+					}
+
+				case sql.ErrNoRows:
+					log.Error().
+						Err(err).
+						Msg("Token scopes not found")
+					http.Error(w, "Token scopes not found", http.StatusUnauthorized)
+					w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
+				default:
+					log.Error().Err(err).Msg("Error while getting token scopes")
+					http.Error(w, "Error while getting token scopes", http.StatusInternalServerError)
+					w.Write([]byte(`{"code": 500, "message": "Error while getting token scopes"}`))
+				}
+			} else {
+				// token found in cache
+				if err := json.Unmarshal(cachedScopesBytes, &scopes); err != nil {
+					log.Error().
+						Err(err).
+						Str("middleware", "gandalf").
+						Msg("Failed to unmarshal token scopes")
+					w.Write([]byte(`{"code": 500, "message": "Error while getting token scopes"}`))
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
 			}
 
 			scopesMap := map[string]bool{}
-			for i := range dbTokenScopes {
-				scopesMap[dbTokenScopes[i].Name] = true
+			for i := range scopes {
+				scopesMap[scopes[i].Name] = true
 			}
 
 			r = contexthelper.SetRequestedScopesInContext(r, scopesMap)
