@@ -25,6 +25,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/slok/go-http-metrics/metrics/prometheus"
@@ -45,8 +46,11 @@ func main() {
 	flag.Parse()
 
 	// Setup logger
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
-	zerolog.TimeFieldFormat = time.RFC3339
+	log.Logger = zerolog.New(os.Stdout).With().
+		Str("app", "socialapp").
+		Str("instance", uuid.NewString()).
+		Timestamp().
+		Logger()
 
 	log.Info().Msgf("Starting PORT: %d", *appPort)
 
