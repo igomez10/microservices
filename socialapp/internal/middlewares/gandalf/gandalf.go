@@ -2,6 +2,7 @@ package gandalf
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"socialapp/internal/authorizationparser"
@@ -10,6 +11,8 @@ import (
 	"socialapp/pkg/db"
 	"strings"
 	"time"
+
+	"github.com/allegro/bigcache/v3"
 )
 
 type Middleware struct {
@@ -32,6 +35,16 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		},
 	}
 
+	tokenCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
+	if err != nil {
+		panic(err)
+	}
+
+	// scopesCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
+	// if err != nil {
+	// 	panic(err)
+	// }
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log := contexthelper.GetLoggerInContext(r.Context())
 
@@ -52,22 +65,48 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		if strings.HasPrefix(authHeader, "Bearer ") {
 			// check givenToken in DB
 			givenToken := strings.TrimPrefix(authHeader, "Bearer ")
-			token, err := m.DB.GetToken(r.Context(), m.DBConn, givenToken)
-			switch err {
-			case nil:
-				// exit switch
-			case sql.ErrNoRows:
-				log.Error().
-					Err(err).
-					Msg("Token not found")
-				http.Error(w, "Token not found", http.StatusUnauthorized)
-				w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
-			default:
-				log.Error().
-					Err(err).
-					Msg("Error while getting token")
-				http.Error(w, "Error while getting token", http.StatusInternalServerError)
-				w.Write([]byte(`{"code": 500, "message": "Error while getting token"}`))
+			var token db.Token
+			// check token in cache
+			cachedTokenBytes, err := tokenCache.Get(givenToken)
+			if err != nil {
+				dbtoken, err := m.DB.GetToken(r.Context(), m.DBConn, givenToken)
+				switch err {
+				case nil:
+					token = dbtoken
+					// update cache
+					tokenBytes, err := json.Marshal(token)
+					if err != nil {
+						log.Error().
+							Err(err).
+							Str("middleware", "gandalf").
+							Msg("Failed to marshal token")
+					} else {
+						tokenCache.Set(givenToken, tokenBytes)
+					}
+				case sql.ErrNoRows:
+					log.Error().
+						Err(err).
+						Msg("Token not found")
+					http.Error(w, "Token not found", http.StatusUnauthorized)
+					w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
+				default:
+					log.Error().
+						Err(err).
+						Msg("Error while getting token")
+					http.Error(w, "Error while getting token", http.StatusInternalServerError)
+					w.Write([]byte(`{"code": 500, "message": "Error while getting token"}`))
+				}
+			} else {
+				// token found in cache
+				if err := json.Unmarshal(cachedTokenBytes, &token); err != nil {
+					log.Error().
+						Err(err).
+						Str("middleware", "gandalf").
+						Msg("Failed to unmarshal token")
+					w.Write([]byte(`{"code": 500, "message": "Error while getting token"}`))
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
 			}
 
 			if time.Now().After(token.ValidUntil) {
