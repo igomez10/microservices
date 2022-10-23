@@ -14,39 +14,26 @@ import (
 
 	"github.com/allegro/bigcache/v3"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
-var gandalf_token_cache_hits = prometheus.NewCounterVec(
-	prometheus.CounterOpts{
-		Name: "gandalf_cache_hits",
-		Help: "Number of cache hits",
-	},
-	[]string{"cache", "status"},
-)
+var gandalf_token_cache_hits = promauto.NewCounterVec(prometheus.CounterOpts{
+	Name: "gandalf_token_cache_hits",
+	Help: "The total number of token cache hits",
+}, []string{"cache", "status"})
 
-var gandalf_token_cache_misses = prometheus.NewCounterVec(
-	prometheus.CounterOpts{
-		Name: "gandalf_cache_misses",
-		Help: "Number of cache misses",
-	},
-	[]string{"cache", "status"},
-)
-
-var gandalf_scope_cache_hits = prometheus.NewCounterVec(
-	prometheus.CounterOpts{
-		Name: "gandalf_scope_cache_hits",
-		Help: "Number of cache hits",
-	},
-	[]string{"cache", "status"},
-)
-
-var gandalf_scope_cache_misses = prometheus.NewCounterVec(
-	prometheus.CounterOpts{
-		Name: "gandalf_scope_cache_misses",
-		Help: "Number of cache misses",
-	},
-	[]string{"cache", "status"},
-)
+var gandalf_scope_cache_hits = promauto.NewCounterVec(prometheus.CounterOpts{
+	Name: "gandalf_scope_cache_hits",
+	Help: "The total number of scope cache hits",
+}, []string{"cache", "status"})
+var gandalf_token_cache_misses = promauto.NewCounterVec(prometheus.CounterOpts{
+	Name: "gandalf_token_cache_misses",
+	Help: "The total number of token cache misses",
+}, []string{"cache", "status"})
+var gandalf_scope_cache_misses = promauto.NewCounterVec(prometheus.CounterOpts{
+	Name: "gandalf_scope_cache_misses",
+	Help: "The total number of scope cache misses",
+}, []string{"cache", "status"})
 
 type Middleware struct {
 	DB                  db.Querier
