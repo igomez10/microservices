@@ -55,12 +55,16 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		},
 	}
 
-	tokenCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
+	cacheconfig := bigcache.DefaultConfig(10 * time.Minute)
+	cacheconfig.HardMaxCacheSize = 64
+	cacheconfig.Shards = 64
+
+	tokenCache, err := bigcache.NewBigCache(cacheconfig)
 	if err != nil {
 		panic(err)
 	}
 
-	scopesCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(10 * time.Minute))
+	scopesCache, err := bigcache.NewBigCache(cacheconfig)
 	if err != nil {
 		panic(err)
 	}
