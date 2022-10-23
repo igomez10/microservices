@@ -103,14 +103,14 @@ func main() {
 
 	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn}
 	middlewares := []Middleware{
+		cors.AllowAll().Handler,
+		middleware.Heartbeat("/health"),
 		requestid.RequestIDMiddleware,
 		failedrequests.FailedRequestsMiddleware,
 		middleware.Recoverer,
 		middleware.RequestID,
 		middleware.Timeout(60 * time.Second),
-		middleware.Heartbeat("/health"),
 		authenticationMiddleware.Authenticate,
-		cors.AllowAll().Handler,
 		middleware.RealIP,
 	}
 
@@ -136,24 +136,6 @@ func main() {
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
 	router := NewRouter(middlewares, routers, authorizationParse)
 
-	// Expose the registered metrics via HTTP.
-	router.Handle("/metrics", promhttp.Handler())
-
-	// Expose the api spec via HTTP.
-	router.HandleFunc("/apispec", func(w http.ResponseWriter, r *http.Request) {
-		log.Info().Msg("Health check")
-		// send open api file
-		// open api file
-		file := "openapi.yaml"
-		content, err := os.ReadFile(file)
-		if err != nil {
-			log.Error().Err(err).Msg("Error reading file")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		w.Write(content)
-	})
-
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", *appPort), router); err != nil {
 		log.Fatal().Err(err).Msgf("Shutting down")
 	}
@@ -161,40 +143,70 @@ func main() {
 }
 
 func NewRouter(middlewares []Middleware, routers []openapi.Router, authorizationParse authorizationparser.EndpointAuthorizations) chi.Router {
-	router := chi.NewRouter()
+	mainRouter := chi.NewRouter()
 
-	for i := range middlewares {
-		router.Use(middlewares[i])
-	}
+	// Expose health the registered metrics via HTTP, no logging for those requests
+	mainRouter.Group(func(r chi.Router) {
+		// HEALTH
+		r.MethodFunc("GET", "/health", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("OK"))
+		})
 
-	mdlw := metricsMiddleware.New(metricsMiddleware.Config{
-		Recorder: prometheus.NewRecorder(prometheus.Config{}),
+		// METRICS
+		r.Handle("/metrics", promhttp.Handler())
+
+		// OPENAPI
+		// Expose the api spec via HTTP.
+		r.HandleFunc("/apispec", func(w http.ResponseWriter, r *http.Request) {
+			// send open api file
+			// open api file
+			file := "openapi.yaml"
+			content, err := os.ReadFile(file)
+			if err != nil {
+				log.Error().Err(err).Msg("Error reading file")
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			w.Write(content)
+		})
 	})
 
-	for _, api := range routers {
-		for _, route := range api.Routes() {
-			var handler http.Handler
-			handler = route.HandlerFunc
-
-			router.Group(func(r chi.Router) {
-				// use a  custom middleware to record the metrics on the route pattern.
-				r.Use(std.HandlerProvider(route.Pattern, mdlw))
-
-				// authorization
-				requiredScopesForEndpoint := authorizationParse[route.Pattern][route.Method]
-				mapRequiredScopes := map[string]bool{}
-				for _, scope := range requiredScopesForEndpoint {
-					mapRequiredScopes[scope] = true
-				}
-				authorizationRuler := authorization.Middleware{
-					RequiredScopes: mapRequiredScopes,
-				}
-
-				r.Use(authorizationRuler.Authorize)
-				r.Method(route.Method, route.Pattern, handler)
-			})
+	// Main router group, here is the main logic
+	mainRouter.Group(func(r chi.Router) {
+		for i := range middlewares {
+			r.Use(middlewares[i])
 		}
-	}
 
-	return router
+		mdlw := metricsMiddleware.New(metricsMiddleware.Config{
+			Recorder: prometheus.NewRecorder(prometheus.Config{}),
+		})
+
+		for _, api := range routers {
+			for _, route := range api.Routes() {
+				var handler http.Handler
+				handler = route.HandlerFunc
+
+				r.Group(func(r chi.Router) {
+					// use a  custom middleware to record the metrics on the route pattern.
+					r.Use(std.HandlerProvider(route.Pattern, mdlw))
+
+					// authorization
+					requiredScopesForEndpoint := authorizationParse[route.Pattern][route.Method]
+					mapRequiredScopes := map[string]bool{}
+					for _, scope := range requiredScopesForEndpoint {
+						mapRequiredScopes[scope] = true
+					}
+					authorizationRuler := authorization.Middleware{
+						RequiredScopes: mapRequiredScopes,
+					}
+
+					r.Use(authorizationRuler.Authorize)
+					r.Method(route.Method, route.Pattern, handler)
+				})
+			}
+		}
+	})
+
+	return mainRouter
 }
