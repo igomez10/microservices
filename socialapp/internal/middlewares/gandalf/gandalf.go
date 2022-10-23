@@ -13,6 +13,39 @@ import (
 	"time"
 
 	"github.com/allegro/bigcache/v3"
+	"github.com/prometheus/client_golang/prometheus"
+)
+
+var gandalf_token_cache_hits = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "gandalf_cache_hits",
+		Help: "Number of cache hits",
+	},
+	[]string{"cache", "status"},
+)
+
+var gandalf_token_cache_misses = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "gandalf_cache_misses",
+		Help: "Number of cache misses",
+	},
+	[]string{"cache", "status"},
+)
+
+var gandalf_scope_cache_hits = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "gandalf_scope_cache_hits",
+		Help: "Number of cache hits",
+	},
+	[]string{"cache", "status"},
+)
+
+var gandalf_scope_cache_misses = prometheus.NewCounterVec(
+	prometheus.CounterOpts{
+		Name: "gandalf_scope_cache_misses",
+		Help: "Number of cache misses",
+	},
+	[]string{"cache", "status"},
 )
 
 type Middleware struct {
@@ -63,12 +96,13 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 
 		authHeader := r.Header.Get("Authorization")
 		if strings.HasPrefix(authHeader, "Bearer ") {
-			// check givenToken in DB
 			givenToken := strings.TrimPrefix(authHeader, "Bearer ")
 			var token db.Token
 			// check token in cache
 			cachedTokenBytes, err := tokenCache.Get(givenToken)
 			if err != nil {
+				gandalf_token_cache_misses.WithLabelValues("token", "miss").Inc()
+				// token not in cache, get from db
 				dbtoken, err := m.DB.GetToken(r.Context(), m.DBConn, givenToken)
 				switch err {
 				case nil:
@@ -98,6 +132,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				}
 			} else {
 				// token found in cache
+				gandalf_token_cache_hits.WithLabelValues("token", "hit").Inc()
 				if err := json.Unmarshal(cachedTokenBytes, &token); err != nil {
 					log.Error().
 						Err(err).
@@ -123,6 +158,8 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			// check scopes in cache
 			cachedScopesBytes, err := scopesCache.Get(givenToken)
 			if err != nil {
+				gandalf_scope_cache_misses.WithLabelValues("scopes", "miss").Inc()
+				// scopes not in cache, get from db
 				dbTokenScopes, err := m.DB.GetTokenScopes(r.Context(), m.DBConn, token.ID)
 				switch err {
 				case nil:
@@ -150,7 +187,8 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 					w.Write([]byte(`{"code": 500, "message": "Error while getting token scopes"}`))
 				}
 			} else {
-				// token found in cache
+				gandalf_scope_cache_hits.WithLabelValues("scopes", "hit").Inc()
+				// scopes found in cache
 				if err := json.Unmarshal(cachedScopesBytes, &scopes); err != nil {
 					log.Error().
 						Err(err).
