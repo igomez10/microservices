@@ -9,6 +9,7 @@ import (
 	"os"
 	"socialapp/internal/authorizationparser"
 	"socialapp/internal/middlewares/authorization"
+	"socialapp/internal/middlewares/cache"
 	"socialapp/internal/middlewares/failedrequests"
 	"socialapp/internal/middlewares/gandalf"
 	"socialapp/internal/middlewares/requestid"
@@ -25,15 +26,16 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/go-redis/redis"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/slok/go-http-metrics/metrics/prometheus"
 	metricsMiddleware "github.com/slok/go-http-metrics/middleware"
+	"github.com/slok/go-http-metrics/middleware/std"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/slok/go-http-metrics/middleware/std"
 )
 
 var (
@@ -102,6 +104,13 @@ func main() {
 	}
 
 	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn}
+	cache := cache.NewCache(cache.CacheConfig{
+		RedisOpts: &redis.Options{
+			Addr:     os.Getenv("REDIS_HOST"),
+			Password: os.Getenv("REDIS_PASSWORD"),
+			DB:       0,
+		},
+	})
 	middlewares := []Middleware{
 		cors.AllowAll().Handler,
 		middleware.Heartbeat("/health"),
@@ -112,6 +121,7 @@ func main() {
 		middleware.Timeout(60 * time.Second),
 		authenticationMiddleware.Authenticate,
 		middleware.RealIP,
+		cache.Middleware,
 	}
 
 	// open file
