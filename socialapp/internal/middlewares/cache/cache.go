@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog/log"
 )
 
@@ -30,11 +32,17 @@ func NewCache(config CacheConfig) *Cache {
 	return c
 }
 
+var metricRedisCahe = promauto.NewCounterVec(prometheus.CounterOpts{
+	Name: "socialapp_api_cache",
+	Help: "The total number of cache hits",
+}, []string{"cache", "status"})
+
 func (c *Cache) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// check if cache should be used
 		shouldSearchCache := true
 		if r.Header.Get("Cache-Control") == "no-store" {
+			metricRedisCahe.WithLabelValues("redis", "skipped").Inc()
 			shouldSearchCache = false
 		}
 		customW := responseWriter.NewCustomResponseWriter(w)
@@ -42,19 +50,21 @@ func (c *Cache) Middleware(next http.Handler) http.Handler {
 			// attempt to return here, if not found in cache, continue to handler
 			key := r.Method + "+" + r.URL.Path
 			val, err := c.Client.Get(key).Result()
-			if err != nil {
-				log.Error().Stack().Err(err).Msg("Failed to get key from redis")
-			} else {
-				log.Info().Msgf("Found key %q in redis", key)
+			if err == nil {
+				metricRedisCahe.WithLabelValues("redis", "hit").Inc()
+				customW.Header().Set("X-Cache", "HIT")
+				customW.Header().Set("Content-Type", "application/json")
+				customW.Header().Set("Cache-Control", "public, max-age=3600")
 				customW.Write([]byte(val))
-				customW.Header().Add("Cache-Control", "public, max-age=3600")
+
 				return
 			}
 
 			defer func() {
 				// if response is 200, cache response
 				if customW.StatusCode == http.StatusOK {
-					log.Info().Msgf("Caching response for key %q", r.Method+"+"+r.URL.Path)
+					// count this response as a miss because it was a 200 and we didnt had the value in the cache
+					metricRedisCahe.WithLabelValues("redis", "miss").Inc()
 					key := r.Method + "+" + r.URL.Path
 
 					err := c.Client.Set(key, customW.Body, time.Minute*10).Err()
