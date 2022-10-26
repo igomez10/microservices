@@ -48,7 +48,7 @@ func (c *Cache) Middleware(next http.Handler) http.Handler {
 		customW := responseWriter.NewCustomResponseWriter(w)
 		if r.Method == http.MethodGet && shouldSearchCache {
 			// attempt to return here, if not found in cache, continue to handler
-			key := r.Method + "+" + r.URL.Path
+			key := r.Method + "+" + r.URL.Path + r.URL.RawQuery
 			val, err := c.Client.Get(key).Result()
 			if err == nil {
 				metricRedisCahe.WithLabelValues("redis", "hit").Inc()
