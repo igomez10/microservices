@@ -2,11 +2,11 @@ job "tests" {
     type = "batch"
     periodic {
         cron             = "*/1 * * * * *"
-        prohibit_overlap = false
+        prohibit_overlap = true
     }
     datacenters = ["dc1"]
     group "docs" {
-        count = 8
+        count = 1
         task "docs" {
         driver = "docker"
     

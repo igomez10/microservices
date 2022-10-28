@@ -1,11 +1,12 @@
 package cache
 
 import (
+	"context"
 	"net/http"
 	"socialapp/internal/responseWriter"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog/log"
@@ -21,7 +22,7 @@ type CacheConfig struct {
 
 func NewCache(config CacheConfig) *Cache {
 	client := redis.NewClient(config.RedisOpts)
-	_, err := client.Ping().Result()
+	_, err := client.Ping(context.Background()).Result()
 	if err != nil {
 		log.Fatal().Stack().Err(err).Msg("Failed to connect to redis")
 	}
@@ -49,7 +50,7 @@ func (c *Cache) Middleware(next http.Handler) http.Handler {
 		if r.Method == http.MethodGet && shouldSearchCache {
 			// attempt to return here, if not found in cache, continue to handler
 			key := r.Method + "+" + r.URL.Path + r.URL.RawQuery
-			val, err := c.Client.Get(key).Result()
+			val, err := c.Client.Get(r.Context(), key).Result()
 			if err == nil {
 				metricRedisCahe.WithLabelValues("redis", "hit").Inc()
 				customW.Header().Set("X-Cache", "HIT")
@@ -67,7 +68,7 @@ func (c *Cache) Middleware(next http.Handler) http.Handler {
 					metricRedisCahe.WithLabelValues("redis", "miss").Inc()
 					key := r.Method + "+" + r.URL.Path
 
-					err := c.Client.Set(key, customW.Body, time.Minute*10).Err()
+					err := c.Client.Set(r.Context(), key, customW.Body, time.Minute*10).Err()
 					if err != nil {
 						log.Error().Stack().Err(err).Msg("Failed to set key in redis")
 					}

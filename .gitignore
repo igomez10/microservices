@@ -31,3 +31,4 @@ socialapp/jmeter.log
 
 */prometheus/data/*
 socialapp/.env
+socialapp/integration_tests/__debug_bin

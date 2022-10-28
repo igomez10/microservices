@@ -26,7 +26,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -104,13 +104,15 @@ func main() {
 	}
 
 	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn}
+	redisOpts, err := redis.ParseURL(os.Getenv("REDIS_URL"))
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to parse redis url")
+	}
+
 	cache := cache.NewCache(cache.CacheConfig{
-		RedisOpts: &redis.Options{
-			Addr:     os.Getenv("REDIS_HOST"),
-			Password: os.Getenv("REDIS_PASSWORD"),
-			DB:       0,
-		},
+		RedisOpts: redisOpts,
 	})
+
 	middlewares := []Middleware{
 		cors.AllowAll().Handler,
 		middleware.Heartbeat("/health"),

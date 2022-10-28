@@ -61,6 +61,8 @@ func TestListUsers(t *testing.T) {
 	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
 	password := fmt.Sprintf("Password-%d1", time.Now().UnixNano())
 	apiClient = client.NewAPIClient(configuration)
+	//skip cache for tests
+	configuration.DefaultHeader["Cache-Control"] = "no-store"
 	func() {
 		createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
 		_, _, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
@@ -94,6 +96,8 @@ func TestListUsers(t *testing.T) {
 
 func TestCreateUser(t *testing.T) {
 	configuration := client.NewConfiguration()
+	//skip cache for tests
+	configuration.DefaultHeader["Cache-Control"] = "no-store"
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	noAuthCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
@@ -155,6 +159,8 @@ func TestCreateUser(t *testing.T) {
 func TestFollowCycle(t *testing.T) {
 	// create two users
 	configuration := client.NewConfiguration()
+	//skip cache for tests
+	configuration.DefaultHeader["Cache-Control"] = "no-store"
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
@@ -251,6 +257,8 @@ func TestFollowCycle(t *testing.T) {
 func TestGetExpectedFeed(t *testing.T) {
 	// create two users
 	configuration := client.NewConfiguration()
+	//skip cache for tests
+	configuration.DefaultHeader["Cache-Control"] = "no-store"
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
@@ -348,6 +356,8 @@ func TestGetExpectedFeed(t *testing.T) {
 func TestGetAccessToken(t *testing.T) {
 	// create two users
 	configuration := client.NewConfiguration()
+	//skip cache for tests
+	configuration.DefaultHeader["Cache-Control"] = "no-store"
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
@@ -399,8 +409,9 @@ func TestGetAccessToken(t *testing.T) {
 }
 
 func TestRegisterUserFlow(t *testing.T) {
-	// create two users
 	configuration := client.NewConfiguration()
+	//skip cache for tests
+	configuration.DefaultHeader["Cache-Control"] = "no-store"
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
@@ -465,8 +476,9 @@ func TestRegisterUserFlow(t *testing.T) {
 }
 
 func TestChangePassword(t *testing.T) {
-	// create two users
 	configuration := client.NewConfiguration()
+	//skip cache for tests
+	configuration.DefaultHeader["Cache-Control"] = "no-store"
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
@@ -555,8 +567,9 @@ func TestChangePassword(t *testing.T) {
 }
 
 func TestRoleLifecycle(t *testing.T) {
-	// create two users
 	configuration := client.NewConfiguration()
+	//skip cache for tests
+	configuration.DefaultHeader["Cache-Control"] = "no-store"
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
@@ -773,6 +786,8 @@ func TestRoleLifecycle(t *testing.T) {
 
 func TestScopeLifeCycle(t *testing.T) {
 	configuration := client.NewConfiguration()
+	//skip cache for tests
+	configuration.DefaultHeader["Cache-Control"] = "no-store"
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
@@ -902,6 +917,8 @@ func TestScopeLifeCycle(t *testing.T) {
 
 func TestUserRoleLifeCycle(t *testing.T) {
 	configuration := client.NewConfiguration()
+	//skip cache for tests
+	configuration.DefaultHeader["Cache-Control"] = "no-store"
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
@@ -1045,8 +1062,14 @@ func TestCacheRequestSameUser(t *testing.T) {
 	}
 	openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
 
-	// List 100 users
-	listedUsers, r, err := apiClient.UserApi.ListUsers(openAPICtx).Limit(10).Offset(0).Execute()
+	// List 100 users, different offset on every execution
+	offset := time.Now().UnixNano() % 5000
+	listedUsers, r, err := apiClient.UserApi.
+		ListUsers(openAPICtx).
+		Limit(10).
+		Offset(int32(offset)).
+		Execute()
+
 	if err != nil {
 		t.Errorf("Error when calling `UserApi.ListUsers`: %v\n", err)
 		t.Errorf("Full HTTP response: %v\n", r)
@@ -1066,6 +1089,7 @@ func TestCacheRequestSameUser(t *testing.T) {
 			if r.StatusCode != http.StatusOK {
 				t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
 			}
+			// t.Logf("%q: %d/100\n", currentUser.Username, i)
 		}
 	}
 }
