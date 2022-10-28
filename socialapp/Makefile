@@ -93,4 +93,5 @@ tf-apply:
 
 build-push-integration-tests:
 	docker build . -f Integration.Dockerfile --platform=linux/arm64 -t igomeza/socialapptests 
+	
 	docker push igomeza/socialapptests
