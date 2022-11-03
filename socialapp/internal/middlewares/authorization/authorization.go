@@ -10,9 +10,12 @@ type Middleware struct {
 	RequiredScopes map[string]bool
 }
 
+// Authorize checks if the user has the required scopes
+// The scopes are expected in the context of the request
 func (m *Middleware) Authorize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log := contexthelper.GetLoggerInContext(r.Context())
+		// get scopes from context
 		tokenScopes, ok := contexthelper.GetRequestedScopesInContext(r.Context())
 		if !ok {
 			log.Error().
