@@ -103,7 +103,6 @@ func main() {
 		ScopeAPIController,
 	}
 
-	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn}
 	redisOpts, err := redis.ParseURL(os.Getenv("REDIS_URL"))
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse redis url")
@@ -112,6 +111,8 @@ func main() {
 	cache := cache.NewCache(cache.CacheConfig{
 		RedisOpts: redisOpts,
 	})
+
+	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn, Cache: cache}
 
 	middlewares := []Middleware{
 		cors.AllowAll().Handler,

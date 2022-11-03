@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"socialapp/internal/authorizationparser"
 	"socialapp/internal/contexthelper"
+	"socialapp/internal/middlewares/cache"
 	"socialapp/pkg/controller/user"
 	"socialapp/pkg/db"
 	"strings"
 	"time"
 
-	"github.com/allegro/bigcache/v3"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -39,6 +39,7 @@ type Middleware struct {
 	DB                  db.Querier
 	DBConn              *sql.DB
 	Authorizationparser authorizationparser.EndpointAuthorizations
+	Cache               *cache.Cache
 }
 
 func (m *Middleware) Authenticate(next http.Handler) http.Handler {
@@ -55,23 +56,8 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		},
 	}
 
-	cacheconfig := bigcache.DefaultConfig(10 * time.Minute)
-	cacheconfig.HardMaxCacheSize = 64
-	cacheconfig.Shards = 64
-
-	tokenCache, err := bigcache.NewBigCache(cacheconfig)
-	if err != nil {
-		panic(err)
-	}
-
-	scopesCache, err := bigcache.NewBigCache(cacheconfig)
-	if err != nil {
-		panic(err)
-	}
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log := contexthelper.GetLoggerInContext(r.Context())
-
 		// get token from header
 		if allowlistedPaths[r.URL.Path] != nil && allowlistedPaths[r.URL.Path][r.Method] {
 			r = contexthelper.SetRequestedScopesInContext(r, map[string]bool{})
@@ -90,7 +76,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			givenToken := strings.TrimPrefix(authHeader, "Bearer ")
 			var token db.Token
 			// check token in cache
-			cachedTokenBytes, err := tokenCache.Get(givenToken)
+			cachedToken, err := m.Cache.Client.Get(r.Context(), "token_"+givenToken).Result()
 			if err != nil {
 				gandalf_token_cache_misses.WithLabelValues("token", "miss").Inc()
 				// token not in cache, get from db
@@ -98,7 +84,8 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				switch err {
 				case nil:
 					token = dbtoken
-					// update cache
+
+					// save token in cache
 					tokenBytes, err := json.Marshal(token)
 					if err != nil {
 						log.Error().
@@ -106,31 +93,33 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 							Str("middleware", "gandalf").
 							Msg("Failed to marshal token")
 					} else {
-						tokenCache.Set(givenToken, tokenBytes)
+						m.Cache.Client.Set(r.Context(), "token_"+givenToken, string(tokenBytes), time.Hour*1)
 					}
 				case sql.ErrNoRows:
 					log.Error().
 						Err(err).
 						Msg("Token not found")
-					http.Error(w, "Token not found", http.StatusUnauthorized)
+					w.WriteHeader(http.StatusUnauthorized)
 					w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
+					return
 				default:
 					log.Error().
 						Err(err).
 						Msg("Error while getting token")
-					http.Error(w, "Error while getting token", http.StatusInternalServerError)
+					w.WriteHeader(http.StatusInternalServerError)
 					w.Write([]byte(`{"code": 500, "message": "Error while getting token"}`))
+					return
 				}
 			} else {
 				// token found in cache
 				gandalf_token_cache_hits.WithLabelValues("token", "hit").Inc()
-				if err := json.Unmarshal(cachedTokenBytes, &token); err != nil {
+				if err := json.Unmarshal([]byte(cachedToken), &token); err != nil {
 					log.Error().
 						Err(err).
 						Str("middleware", "gandalf").
-						Msg("Failed to unmarshal token")
-					w.Write([]byte(`{"code": 500, "message": "Error while getting token"}`))
+						Msg("Failed to unmarshal token stored in cache")
 					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"code": 500, "message": "Error while getting token"}`))
 					return
 				}
 			}
@@ -147,7 +136,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			// get token scopes
 			var scopes []db.Scope
 			// check scopes in cache
-			cachedScopesBytes, err := scopesCache.Get(givenToken)
+			cachedScopes, err := m.Cache.Client.Get(r.Context(), "token_to_scopes_"+givenToken).Result()
 			if err != nil {
 				gandalf_scope_cache_misses.WithLabelValues("scopes", "miss").Inc()
 				// scopes not in cache, get from db
@@ -155,7 +144,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				switch err {
 				case nil:
 					scopes = dbTokenScopes
-					// update cache
+					// save scopes in cache
 					scopesBytes, err := json.Marshal(scopes)
 					if err != nil {
 						log.Error().
@@ -163,30 +152,32 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 							Str("middleware", "gandalf").
 							Msg("Failed to marshal scopes")
 					} else {
-						scopesCache.Set(givenToken, scopesBytes)
+						m.Cache.Client.Set(r.Context(), "token_to_scopes_"+givenToken, string(scopesBytes), time.Hour*1)
 					}
 
 				case sql.ErrNoRows:
 					log.Error().
 						Err(err).
 						Msg("Token scopes not found")
-					http.Error(w, "Token scopes not found", http.StatusUnauthorized)
+					w.WriteHeader(http.StatusUnauthorized)
 					w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
+					return
 				default:
 					log.Error().Err(err).Msg("Error while getting token scopes")
 					http.Error(w, "Error while getting token scopes", http.StatusInternalServerError)
 					w.Write([]byte(`{"code": 500, "message": "Error while getting token scopes"}`))
+					return
 				}
 			} else {
 				gandalf_scope_cache_hits.WithLabelValues("scopes", "hit").Inc()
 				// scopes found in cache
-				if err := json.Unmarshal(cachedScopesBytes, &scopes); err != nil {
+				if err := json.Unmarshal([]byte(cachedScopes), &scopes); err != nil {
 					log.Error().
 						Err(err).
 						Str("middleware", "gandalf").
 						Msg("Failed to unmarshal token scopes")
-					w.Write([]byte(`{"code": 500, "message": "Error while getting token scopes"}`))
 					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte(`{"code": 500, "message": "Error while getting token scopes"}`))
 					return
 				}
 			}
@@ -204,7 +195,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 					Err(err).
 					Int64("userID", token.UserID).
 					Msg("Failed to get user from token")
-				w.WriteHeader(http.StatusUnauthorized)
+				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte(`{"code": 500, "message": "Failed to get user from token"}`))
 				return
 			}
@@ -235,12 +226,14 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 					Msg("User not found")
 				w.WriteHeader(http.StatusUnauthorized)
 				w.Write([]byte(`{"code": 401, "message": "Invalid username or password"}`))
+				return
 			default:
 				log.Error().
 					Err(err).
 					Msg("Error while getting user")
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte(`{"code": 500, "message": "Error while getting user"}`))
+				return
 			}
 
 			encryptedPassword := user.EncryptPassword(password, usr.Salt)
@@ -272,6 +265,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 					Msg("Error while getting user roles")
 				w.WriteHeader(http.StatusInternalServerError)
 				w.Write([]byte(`{"code": 500, "message": "Error while getting user roles"}`))
+				return
 			}
 
 			allowedScopes := map[string]db.Scope{}
@@ -293,6 +287,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 						Msg("Error while getting role scopes")
 					w.WriteHeader(http.StatusInternalServerError)
 					w.Write([]byte(`{"code": 500, "message": "Error while getting role scopes"}`))
+					return
 				}
 
 				for j := range scopes {

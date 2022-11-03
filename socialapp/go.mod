@@ -3,7 +3,6 @@ module socialapp
 go 1.19
 
 require (
-	github.com/allegro/bigcache/v3 v3.0.2
 	github.com/getkin/kin-openapi v0.103.0
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/go-chi/cors v1.2.1
