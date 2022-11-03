@@ -18,8 +18,8 @@ import (
 )
 
 var gandalf_token_cache = promauto.NewCounterVec(prometheus.CounterOpts{
-	Name: "gandalf_token_cache_hits",
-	Help: "The total number of token cache hits",
+	Name: "gandalf_token_cache",
+	Help: "The total number of gandalf token cache",
 }, []string{"cache", "status"})
 
 var gandalf_duration_seconds = promauto.NewHistogramVec(prometheus.HistogramOpts{
