@@ -48,19 +48,22 @@ func (c *Cache) Middleware(next http.Handler) http.Handler {
 		}
 		customW := responseWriter.NewCustomResponseWriter(w)
 		if r.Method == http.MethodGet && shouldSearchCache {
-			// attempt to return here, if not found in cache, continue to handler
+			// attempt to return here, if not found in cache then continue to handler
 			key := r.Method + "+" + r.URL.Path + r.URL.RawQuery
-			val, err := c.Client.Get(r.Context(), key).Result()
+			// search in cache
+			val, err := c.Client.Get(r.Context(), key).Bytes()
 			if err == nil {
+				// found in cache
 				metricRedisCahe.WithLabelValues("redis", "hit").Inc()
 				customW.Header().Set("X-Cache", "HIT")
 				customW.Header().Set("Content-Type", "application/json")
 				customW.Header().Set("Cache-Control", "public, max-age=3600")
-				customW.Write([]byte(val))
+				customW.Write(val)
 
 				return
 			}
 
+			// not found in cache
 			defer func() {
 				// if response is 200, cache response
 				if customW.StatusCode == http.StatusOK {
