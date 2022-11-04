@@ -148,7 +148,7 @@ func main() {
 
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
 	router := NewRouter(middlewares, routers, authorizationParse)
-
+	log.Info().Msgf("Listening on port %d", *appPort)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", *appPort), router); err != nil {
 		log.Fatal().Err(err).Msgf("Shutting down")
 	}

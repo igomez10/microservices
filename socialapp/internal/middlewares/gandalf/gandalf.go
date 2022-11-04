@@ -1,8 +1,9 @@
 package gandalf
 
 import (
+	"bytes"
 	"database/sql"
-	"encoding/json"
+	"encoding/gob"
 	"fmt"
 	"net/http"
 	"socialapp/internal/authorizationparser"
@@ -65,7 +66,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				givenToken := strings.TrimPrefix(authHeader, "Bearer ")
 				var token db.Token
 				// check token in cache
-				cachedToken, err := m.Cache.Client.Get(r.Context(), "token_"+givenToken).Result()
+				cachedTokenBytes, err := m.Cache.Client.Get(r.Context(), "token_"+givenToken).Result()
 				if err != nil {
 					gandalf_token_cache.WithLabelValues("token", "miss").Inc()
 					// token not in cache, get from db
@@ -73,16 +74,16 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 					switch err {
 					case nil:
 						token = dbtoken
-
 						// save token in cache
-						tokenBytes, err := json.Marshal(token)
-						if err != nil {
+						buf := &bytes.Buffer{}
+						encoder := gob.NewEncoder(buf)
+						if err := encoder.Encode(token); err != nil {
 							log.Error().
 								Err(err).
 								Str("middleware", "gandalf").
 								Msg("Failed to marshal token")
 						} else {
-							m.Cache.Client.Set(r.Context(), "token_"+givenToken, string(tokenBytes), time.Hour*1)
+							m.Cache.Client.Set(r.Context(), "token_"+givenToken, buf.Bytes(), time.Hour*1)
 						}
 					case sql.ErrNoRows:
 						log.Error().
@@ -102,7 +103,10 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				} else {
 					// token found in cache
 					gandalf_token_cache.WithLabelValues("token", "hit").Inc()
-					if err := json.Unmarshal([]byte(cachedToken), &token); err != nil {
+					b := bytes.Buffer{}
+					b.Write([]byte(cachedTokenBytes))
+					d := gob.NewDecoder(&b)
+					if err := d.Decode(&token); err != nil {
 						log.Error().
 							Err(err).
 							Str("middleware", "gandalf").
@@ -134,14 +138,15 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 					case nil:
 						scopes = dbTokenScopes
 						// save scopes in cache
-						scopesBytes, err := json.Marshal(scopes)
-						if err != nil {
+						buf := &bytes.Buffer{}
+						encoder := gob.NewEncoder(buf)
+						if err := encoder.Encode(scopes); err != nil {
 							log.Error().
 								Err(err).
 								Str("middleware", "gandalf").
 								Msg("Failed to marshal scopes")
 						} else {
-							m.Cache.Client.Set(r.Context(), "token_to_scopes_"+givenToken, string(scopesBytes), time.Hour*1)
+							m.Cache.Client.Set(r.Context(), "token_to_scopes_"+givenToken, buf.Bytes(), time.Hour*1)
 						}
 
 					case sql.ErrNoRows:
@@ -160,7 +165,10 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				} else {
 					gandalf_token_cache.WithLabelValues("scopes", "hit").Inc()
 					// scopes found in cache
-					if err := json.Unmarshal([]byte(cachedScopes), &scopes); err != nil {
+					b := bytes.Buffer{}
+					b.Write([]byte(cachedScopes))
+					d := gob.NewDecoder(&b)
+					if err := d.Decode(&scopes); err != nil {
 						log.Error().
 							Err(err).
 							Str("middleware", "gandalf").
