@@ -1,9 +1,9 @@
 version: "3"
 
 volumes:
-  prometheus_data: {}
-  grafana_data: {}
-  db_data: {}
+  prometheus_data: { external: true }
+  grafana_data: { external: true }
+  db_data: { external: true }
 
 services:
   database:

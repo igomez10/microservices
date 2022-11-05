@@ -57,3 +57,5 @@ sudo apt install -y tldr
 sudo apt install -y ncdu
 ## docker compose
 sudo apt install -y docker-compose
+## clone docker elk
+git clone https://github.com/deviantony/docker-elk.git
