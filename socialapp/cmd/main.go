@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 	"socialapp/internal/authorizationparser"
@@ -48,7 +49,19 @@ func main() {
 	flag.Parse()
 
 	// Setup logger
-	log.Logger = zerolog.New(os.Stdout).With().
+	conn, err := net.Dial("udp", os.Getenv("LOGSTASH_HOST"))
+	if err != nil {
+		log.Warn().Err(err).Msg("Error connecting to logstash, default to stdout")
+	}
+
+	if conn == nil {
+		log.Logger = zerolog.New(os.Stdout)
+	} else {
+		fmt.Printf("Writing logs to logstash: %q \n", conn.RemoteAddr())
+		log.Logger = zerolog.New(conn)
+	}
+
+	log.Logger = log.With().
 		Str("app", "socialapp").
 		Str("instance", uuid.NewString()).
 		Timestamp().
