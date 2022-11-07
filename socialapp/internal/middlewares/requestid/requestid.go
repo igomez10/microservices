@@ -1,10 +1,12 @@
 package requestid
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
+	"runtime/pprof"
 	"socialapp/internal/contexthelper"
 
 	"github.com/google/uuid"
@@ -42,7 +44,12 @@ func RequestIDMiddleware(next http.Handler) http.Handler {
 
 		// ---------
 		//  HANDLE REQUEST
-		next.ServeHTTP(w, r)
+		labels := pprof.Labels("path", r.URL.Path)
+		pprof.Do(r.Context(), labels, func(ctx context.Context) {
+			// Do some work...
+			next.ServeHTTP(w, r)
+		})
+
 		// HANDLE RESPONSE
 		// ---------
 	})

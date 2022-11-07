@@ -35,6 +35,8 @@ import (
 	metricsMiddleware "github.com/slok/go-http-metrics/middleware"
 	"github.com/slok/go-http-metrics/middleware/std"
 
+	_ "net/http/pprof"
+
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -170,6 +172,8 @@ func main() {
 
 func NewRouter(middlewares []Middleware, routers []openapi.Router, authorizationParse authorizationparser.EndpointAuthorizations) chi.Router {
 	mainRouter := chi.NewRouter()
+
+	mainRouter.Mount("/debug", middleware.Profiler())
 
 	// Expose health the registered metrics via HTTP, no logging for those requests
 	mainRouter.Group(func(r chi.Router) {
