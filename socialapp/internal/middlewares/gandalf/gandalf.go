@@ -11,6 +11,7 @@ import (
 	"socialapp/internal/middlewares/cache"
 	"socialapp/pkg/controller/user"
 	"socialapp/pkg/db"
+	"strconv"
 	"strings"
 	"time"
 
@@ -186,19 +187,32 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 
 				// add scopes to request context
 				r = contexthelper.SetRequestedScopesInContext(r, scopesMap)
-
-				usr, err := m.DB.GetUserByID(r.Context(), m.DBConn, token.UserID)
+				// check user in cache
+				var username string
+				cacheKey := "userid_to_username" + strconv.Itoa(int(token.UserID))
+				cached_username, err := m.Cache.Client.Get(r.Context(), cacheKey).Result()
 				if err != nil {
-					log.Error().
-						Err(err).
-						Int64("userID", token.UserID).
-						Msg("Failed to get user from token")
-					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(`{"code": 500, "message": "Failed to get user from token"}`))
-					return
+					gandalf_token_cache.WithLabelValues("user", "miss").Inc()
+					// user not in cache, get from db
+					usr, err := m.DB.GetUserByID(r.Context(), m.DBConn, token.UserID)
+					if err != nil {
+						log.Error().
+							Err(err).
+							Int64("userID", token.UserID).
+							Msg("Failed to get user from token")
+						w.WriteHeader(http.StatusInternalServerError)
+						w.Write([]byte(`{"code": 500, "message": "Failed to get user from token"}`))
+						return
+					}
+					username = usr.Username
+					// store it in cache
+					m.Cache.Client.Set(r.Context(), cacheKey, username, time.Minute*10)
+				} else {
+					gandalf_token_cache.WithLabelValues("user", "hit").Inc()
+					username = cached_username
 				}
 
-				r = contexthelper.SetUsernameInContext(r, usr.Username)
+				r = contexthelper.SetUsernameInContext(r, username)
 			} else if strings.HasPrefix(authHeader, "Basic ") && r.URL.Path == "/oauth/token" {
 				// check grant type is client_credentials
 				username, password, ok := r.BasicAuth()
