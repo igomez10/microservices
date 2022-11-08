@@ -10,8 +10,8 @@ import (
 	"os"
 	"socialapp/internal/authorizationparser"
 	"socialapp/internal/middlewares/authorization"
+	"socialapp/internal/middlewares/beacon"
 	"socialapp/internal/middlewares/cache"
-	"socialapp/internal/middlewares/failedrequests"
 	"socialapp/internal/middlewares/gandalf"
 	"socialapp/internal/middlewares/requestid"
 	"socialapp/pkg/controller/authentication"
@@ -129,11 +129,13 @@ func main() {
 
 	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn, Cache: cache}
 
+	beacon := beacon.Beacon{Logger: log.Logger}
+
 	middlewares := []Middleware{
 		cors.AllowAll().Handler,
 		middleware.Heartbeat("/health"),
-		requestid.RequestIDMiddleware,
-		failedrequests.FailedRequestsMiddleware,
+		beacon.Middleware,
+		requestid.Middleware,
 		middleware.Recoverer,
 		middleware.RequestID,
 		middleware.Timeout(60 * time.Second),

@@ -380,7 +380,7 @@ func (s *RoleApiService) RemoveScopeFromRole(ctx context.Context, roleID int32, 
 		Logger()
 
 	// verify role exists
-	role, err := s.DB.GetRole(context.Background(), s.DBConn, int64(roleID))
+	role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -416,7 +416,7 @@ func (s *RoleApiService) RemoveScopeFromRole(ctx context.Context, roleID int32, 
 		RoleID:  role.ID,
 		ScopeID: scope.ID,
 	}
-	if err := s.DB.DeleteRoleScope(context.Background(), s.DBConn, params); err != nil {
+	if err := s.DB.DeleteRoleScope(ctx, s.DBConn, params); err != nil {
 		log.Error().
 			Err(err).
 			Msg("failed to remove scope from role")

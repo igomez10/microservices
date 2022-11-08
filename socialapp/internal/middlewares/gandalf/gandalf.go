@@ -59,7 +59,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				Str("path", r.URL.Path).
 				Str("method", r.Method).
 				Str("middleware", "gandalf").
-				Msg("Allowlisted path")
+				Msg("allowlisted path")
 		} else {
 			authHeader := r.Header.Get("Authorization")
 			if strings.HasPrefix(authHeader, "Bearer ") {
