@@ -18,6 +18,7 @@ type Beacon struct {
 func (b *Beacon) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		customW := responseWriter.NewCustomResponseWriter(w)
+		r = contexthelper.SetLoggerInContext(r, b.Logger)
 		startTime := time.Now()
 		// ---------
 		//  HANDLE REQUEST
@@ -25,16 +26,15 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 		// HANDLE RESPONSE
 		// ---------
 		latency := time.Since(startTime).Milliseconds()
-		log := contexthelper.GetLoggerInContext(r.Context())
 		var logEvent *zerolog.Event
 		if customW.StatusCode == http.StatusUnauthorized {
 			username, _ := contexthelper.GetUsernameInContext(r.Context())
-			logEvent = log.WithLevel(zerolog.ErrorLevel).
+			logEvent = b.Logger.WithLevel(zerolog.ErrorLevel).
 				Str("authorization", r.Header.Get("Authorization")).
 				Str("username", username).
 				Str("error", "Unauthorized")
 		} else {
-			logEvent = log.WithLevel(zerolog.InfoLevel)
+			logEvent = b.Logger.WithLevel(zerolog.InfoLevel)
 		}
 
 		logEvent.Str("path", r.URL.Path).
@@ -45,8 +45,6 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 			Str("referer", r.Referer()).
 			Str("host", r.Host).
 			Int("status_code", customW.StatusCode).
-			Str("pattern", contexthelper.GetRoutePatternInContext(r.Context())).
-			Str("X-Request-ID", contexthelper.GetRequestIDInContext(r.Context())).
 			Int64("latency_ms", latency).
 			Msgf("finished request")
 	})
