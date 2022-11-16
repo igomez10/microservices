@@ -2,7 +2,6 @@ package contexthelper
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/rs/zerolog"
@@ -28,7 +27,6 @@ func SetRequestedScopesInContext(r *http.Request, scopes map[string]bool) *http.
 }
 
 func GetRequestIDInContext(ctx context.Context) *string {
-	fmt.Println(ctx.Value("X-Request-ID"))
 	requestID, ok := ctx.Value("X-Request-ID").(*string)
 	if !ok {
 		log.Error().Msg("failed to retrieve request ID from context")
@@ -58,7 +56,6 @@ func SetLoggerInContext(r *http.Request, logger zerolog.Logger) *http.Request {
 }
 
 func GetRequestPatternInContext(ctx context.Context) *string {
-	fmt.Println(ctx.Value("pattern"))
 	pattern, ok := ctx.Value("pattern").(*string)
 	if !ok {
 		log.Error().Msg("failed to retrieve pattern from context")
