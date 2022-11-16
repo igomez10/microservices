@@ -2,6 +2,7 @@ package contexthelper
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/rs/zerolog"
@@ -17,30 +18,30 @@ func SetUsernameInContext(r *http.Request, username string) *http.Request {
 	return r.WithContext(context.WithValue(r.Context(), "username", username))
 }
 
-func SetRequestedScopesInContext(r *http.Request, scopes map[string]bool) *http.Request {
-	return r.WithContext(context.WithValue(r.Context(), "scopes", scopes))
-}
-
 func GetRequestedScopesInContext(ctx context.Context) (map[string]bool, bool) {
 	scopes, ok := ctx.Value("scopes").(map[string]bool)
 	return scopes, ok
 }
 
-func GetRequestIDInContext(ctx context.Context) string {
-	requestID, ok := ctx.Value("X-Request-ID").(string)
+func SetRequestedScopesInContext(r *http.Request, scopes map[string]bool) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), "scopes", scopes))
+}
+
+func GetRequestIDInContext(ctx context.Context) *string {
+	fmt.Println(ctx.Value("X-Request-ID"))
+	requestID, ok := ctx.Value("X-Request-ID").(*string)
 	if !ok {
 		log.Error().Msg("failed to retrieve request ID from context")
-		return "Request ID not found in context"
+		defaultRequestID := "Request ID not found in context"
+		return &defaultRequestID
 	}
 	return requestID
 }
 
-func SetRequestIDInContext(r *http.Request, requestID string) *http.Request {
-	return r.WithContext(context.WithValue(r.Context(), "X-Request-ID", requestID))
-}
-
-func SetLoggerInContext(r *http.Request, logger zerolog.Logger) *http.Request {
-	return r.WithContext(context.WithValue(r.Context(), "logger", logger))
+func SetRequestIDInContext(ctx context.Context, requestID *string) context.Context {
+	oldRequestID := GetRequestIDInContext(ctx)
+	*oldRequestID = *requestID
+	return context.WithValue(ctx, "X-Request-ID", oldRequestID)
 }
 
 func GetLoggerInContext(ctx context.Context) zerolog.Logger {
@@ -50,4 +51,25 @@ func GetLoggerInContext(ctx context.Context) zerolog.Logger {
 		return log.Logger
 	}
 	return logger
+}
+
+func SetLoggerInContext(r *http.Request, logger zerolog.Logger) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), "logger", logger))
+}
+
+func GetRequestPatternInContext(ctx context.Context) *string {
+	fmt.Println(ctx.Value("pattern"))
+	pattern, ok := ctx.Value("pattern").(*string)
+	if !ok {
+		log.Error().Msg("failed to retrieve pattern from context")
+		defaultPattern := "Pattern not found in context"
+		return &defaultPattern
+	}
+	return pattern
+}
+
+func SetRequestPatternInContext(ctx context.Context, pattern *string) context.Context {
+	oldPattern := GetRequestPatternInContext(ctx)
+	*oldPattern = *pattern
+	return context.WithValue(ctx, "pattern", oldPattern)
 }

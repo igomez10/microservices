@@ -13,6 +13,7 @@ import (
 	"socialapp/internal/middlewares/beacon"
 	"socialapp/internal/middlewares/cache"
 	"socialapp/internal/middlewares/gandalf"
+	"socialapp/internal/middlewares/pattern"
 	"socialapp/internal/middlewares/requestid"
 	"socialapp/pkg/controller/authentication"
 	"socialapp/pkg/controller/comment"
@@ -134,10 +135,9 @@ func main() {
 	middlewares := []Middleware{
 		cors.AllowAll().Handler,
 		middleware.Heartbeat("/health"),
-		beacon.Middleware,
 		requestid.Middleware,
+		beacon.Middleware,
 		middleware.Recoverer,
-		middleware.RequestID,
 		middleware.Timeout(60 * time.Second),
 		authenticationMiddleware.Authenticate,
 		middleware.RealIP,
@@ -156,6 +156,7 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to read openapi file")
 	}
+	openapiFile.Close()
 
 	// parse file
 	doc, err := openapi3.NewLoader().LoadFromData(content)
@@ -206,9 +207,6 @@ func NewRouter(middlewares []Middleware, routers []openapi.Router, authorization
 
 	// Main router group, here is the main logic
 	mainRouter.Group(func(r chi.Router) {
-		for i := range middlewares {
-			r.Use(middlewares[i])
-		}
 
 		mdlw := metricsMiddleware.New(metricsMiddleware.Config{
 			Recorder: prometheus.NewRecorder(prometheus.Config{}),
@@ -222,6 +220,13 @@ func NewRouter(middlewares []Middleware, routers []openapi.Router, authorization
 				r.Group(func(r chi.Router) {
 					// use a  custom middleware to record the metrics on the route pattern.
 					r.Use(std.HandlerProvider(route.Pattern, mdlw))
+
+					pattern := pattern.Pattern{Pattern: route.Pattern}
+					r.Use(pattern.Middleware)
+
+					for i := range middlewares {
+						r.Use(middlewares[i])
+					}
 
 					// authorization
 					requiredScopesForEndpoint := authorizationParse[route.Pattern][route.Method]

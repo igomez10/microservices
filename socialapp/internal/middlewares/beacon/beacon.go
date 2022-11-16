@@ -25,6 +25,9 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 		next.ServeHTTP(customW, r)
 		// HANDLE RESPONSE
 		// ---------
+
+		requestPattern := contexthelper.GetRequestPatternInContext(r.Context())
+		requestID := contexthelper.GetRequestIDInContext(r.Context())
 		latency := time.Since(startTime).Milliseconds()
 		var logEvent *zerolog.Event
 		if customW.StatusCode == http.StatusUnauthorized {
@@ -39,6 +42,8 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 
 		logEvent.Str("path", r.URL.Path).
 			Str("query", r.URL.RawQuery).
+			Str("pattern", *requestPattern).
+			Str("X-Request-ID", *requestID).
 			Str("method", r.Method).
 			Str("remote_addr", r.RemoteAddr).
 			Str("user_agent", r.UserAgent()).
