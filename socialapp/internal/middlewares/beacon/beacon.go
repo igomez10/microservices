@@ -48,7 +48,7 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 			Str("remote_addr", r.RemoteAddr).
 			Str("user_agent", r.UserAgent()).
 			Str("referer", r.Referer()).
-			Str("host", r.Host).
+			Str("request_host", r.Host).
 			Int("status_code", customW.StatusCode).
 			Int64("latency_ms", latency).
 			Msgf("finished request")
