@@ -26,47 +26,42 @@ func SetRequestedScopesInContext(r *http.Request, scopes map[string]bool) *http.
 	return r.WithContext(context.WithValue(r.Context(), "scopes", scopes))
 }
 
-func GetRequestIDInContext(ctx context.Context) *string {
-	requestID, ok := ctx.Value("X-Request-ID").(*string)
+func GetRequestIDInContext(ctx context.Context) string {
+	requestID, ok := ctx.Value("X-Request-ID").(string)
 	if !ok {
 		log.Error().Msg("failed to retrieve request ID from context")
 		defaultRequestID := "Request ID not found in context"
-		return &defaultRequestID
+		return defaultRequestID
 	}
 	return requestID
 }
 
-func SetRequestIDInContext(ctx context.Context, requestID *string) context.Context {
-	oldRequestID := GetRequestIDInContext(ctx)
-	*oldRequestID = *requestID
-	return context.WithValue(ctx, "X-Request-ID", oldRequestID)
+func SetRequestIDInContext(ctx context.Context, requestID string) context.Context {
+	return context.WithValue(ctx, "X-Request-ID", requestID)
 }
 
 func GetLoggerInContext(ctx context.Context) zerolog.Logger {
 	logger, ok := ctx.Value("logger").(zerolog.Logger)
 	if !ok {
-		log.Error().Msg("failed to retrieve logger from context")
 		return log.Logger
 	}
 	return logger
 }
 
-func SetLoggerInContext(r *http.Request, logger zerolog.Logger) *http.Request {
-	return r.WithContext(context.WithValue(r.Context(), "logger", logger))
+func SetLoggerInContext(ctx context.Context, logger zerolog.Logger) context.Context {
+	return context.WithValue(ctx, "logger", logger)
 }
 
-func GetRequestPatternInContext(ctx context.Context) *string {
-	pattern, ok := ctx.Value("pattern").(*string)
+func GetRequestPatternInContext(ctx context.Context) string {
+	pattern, ok := ctx.Value("pattern").(string)
 	if !ok {
 		log.Error().Msg("failed to retrieve pattern from context")
 		defaultPattern := "Pattern not found in context"
-		return &defaultPattern
+		return defaultPattern
 	}
 	return pattern
 }
 
-func SetRequestPatternInContext(ctx context.Context, pattern *string) context.Context {
-	oldPattern := GetRequestPatternInContext(ctx)
-	*oldPattern = *pattern
-	return context.WithValue(ctx, "pattern", oldPattern)
+func SetRequestPatternInContext(ctx context.Context, pattern string) context.Context {
+	return context.WithValue(ctx, "pattern", pattern)
 }

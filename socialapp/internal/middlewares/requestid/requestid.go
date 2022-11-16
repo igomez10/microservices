@@ -17,13 +17,13 @@ func Middleware(next http.Handler) http.Handler {
 		r.Header.Set("X-Request-ID", requestID)
 
 		// Add request id as attribute to the logger
-		r = r.WithContext(contexthelper.SetRequestIDInContext(r.Context(), &requestID))
+		r = r.WithContext(contexthelper.SetRequestIDInContext(r.Context(), requestID))
 		log := contexthelper.GetLoggerInContext(r.Context())
 		log = log.With().
 			Str("X-Request-ID", requestID).
 			Logger()
 
-		r = contexthelper.SetLoggerInContext(r, log)
+		r = r.WithContext(contexthelper.SetLoggerInContext(r.Context(), log))
 
 		// ---------
 		//  HANDLE REQUEST

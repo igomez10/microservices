@@ -14,7 +14,7 @@ type Pattern struct {
 // string pointer saved in the context as "pattern"
 func (p *Pattern) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r = r.WithContext(contexthelper.SetRequestPatternInContext(r.Context(), &p.Pattern))
+		r = r.WithContext(contexthelper.SetRequestPatternInContext(r.Context(), p.Pattern))
 		next.ServeHTTP(w, r)
 	})
 }

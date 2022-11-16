@@ -18,7 +18,7 @@ type Beacon struct {
 func (b *Beacon) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		customW := responseWriter.NewCustomResponseWriter(w)
-		r = contexthelper.SetLoggerInContext(r, b.Logger)
+		r = r.WithContext(contexthelper.SetLoggerInContext(r.Context(), b.Logger))
 		startTime := time.Now()
 		// ---------
 		//  HANDLE REQUEST
@@ -42,8 +42,8 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 
 		logEvent.Str("path", r.URL.Path).
 			Str("query", r.URL.RawQuery).
-			Str("pattern", *requestPattern).
-			Str("X-Request-ID", *requestID).
+			Str("pattern", requestPattern).
+			Str("X-Request-ID", requestID).
 			Str("method", r.Method).
 			Str("remote_addr", r.RemoteAddr).
 			Str("user_agent", r.UserAgent()).
