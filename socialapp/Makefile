@@ -63,6 +63,7 @@ sqlc-generate:
 compose-up:
 	docker compose down && docker-compose up
 
+# export $(cat .env | xargs) &&  make start-dev-server
 start-dev-server:
 	reflex -r .go -s --decoration="fancy" --  go run ./...
 

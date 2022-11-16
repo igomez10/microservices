@@ -1,9 +1,10 @@
 version: "3"
 
 volumes:
-  prometheus_data: { external: true }
-  grafana_data: { external: true }
-  db_data: { external: true }
+  prometheus_data: {}
+  grafana_data: {}
+  db_data: {}
+  phlare_data: {}
 
 services:
   database:
@@ -23,6 +24,8 @@ services:
     user: "472"
     ports:
       - 3005:3000
+    environment:
+      - GF_FEATURE_TOGGLES_ENABLE=flameGraph
     expose:
       - 3000
     volumes:
@@ -68,3 +71,16 @@ services:
   inspector:
     image: ubuntu:latest
     command: sleep infinity
+
+  phlare:
+    image: grafana/phlare:latest
+    ports:
+      - 4100:4100
+    volumes:
+      - ./phlare/phlare.yml:/etc/phlare/phlare.yml
+      - phlare_data:/data
+    command:
+      - '--config.file=/etc/phlare/phlare.yml'
+    expose:
+      - 4100
+    restart: always
