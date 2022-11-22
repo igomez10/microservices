@@ -180,8 +180,9 @@ INSERT INTO scopes (id, name, description, created_at, deleted_at) VALUES
 (37, 'socialapp.users.roles.create', 'socialapp.users.roles.create', '2022-09-28 20:21:07', NULL),
 (38, 'socialapp.users.roles.delete', 'socialapp.users.roles.delete', '2022-09-28 20:21:07', NULL),
 (39, 'socialapp.users.roles.update', 'socialapp.users.roles.update', '2022-09-28 20:21:07', NULL),
-(40, 'socialapp.users.roles.read', 'socialapp.users.roles.read', '2022-09-28 20:21:07', NULL);
-ALTER SEQUENCE scopes_id_seq RESTART WITH 41;
+(40, 'socialapp.users.roles.read', 'socialapp.users.roles.read', '2022-09-28 20:21:07', NULL),
+(41, 'socialapp.roles.list_scopes', 'socialapp.roles.list_scopes','2022-09-28 20:21:07', NULL);
+ALTER SEQUENCE scopes_id_seq RESTART WITH 42;
 
 INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (1, 1, 1),
@@ -264,6 +265,8 @@ INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (78, 2, 39),
 (79, 1, 40),
 (80, 2, 40);
+(81, 1, 41),
+(82, 2, 41),
 ALTER SEQUENCE roles_to_scopes_id_seq RESTART WITH 81;
 
 INSERT INTO users_to_roles (id, role_id, user_id) VALUES
