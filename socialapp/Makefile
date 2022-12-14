@@ -1,7 +1,8 @@
 generate-openapi:
+	openapi-generator-cli version-manager set 6.2.0
 	#  generate server:
 	rm -rf ./socialappapi
-	openapi-generator generate --input-spec openapi.yaml  \
+	openapi-generator-cli generate --input-spec openapi.yaml  \
 	--generator-name go-server \
 	--output socialappapi \
 	--ignore-file-override \
@@ -17,7 +18,7 @@ generate-openapi:
 	mv socialappapi/go socialappapi/openapi
 	
 	# generate go client
-	openapi-generator generate --input-spec openapi.yaml  \
+	openapi-generator-cli generate --input-spec openapi.yaml  \
         --generator-name go \
         --output client \
 		--additional-properties=isGoSubmodule=true \
@@ -27,12 +28,12 @@ generate-openapi:
 	rm client/go.sum
 
 	# generate documentation
-	openapi-generator generate -i openapi.yaml  \
+	openapi-generator-cli generate -i openapi.yaml  \
 	--generator-name markdown
 	
 	# generate schema
 	rm -rf mysql-schema
-	openapi-generator generate -i openapi.yaml  \
+	openapi-generator-cli generate -i openapi.yaml  \
 	--generator-name mysql-schema \
 	--output generated-schema \
 	--additional-properties=namedParametersEnabled=true \
@@ -44,7 +45,7 @@ generate-openapi:
 	
 	# generate cli 
 	rm -rf cli
-	openapi-generator generate --input-spec openapi.yaml \
+	openapi-generator-cli generate --input-spec openapi.yaml \
 		--generator-name bash \
         --output cli \
 		--additional-properties=generateZshCompletion=true \
@@ -52,7 +53,7 @@ generate-openapi:
 
 	# generate jmeter
 	rm -rf jmeter
-	openapi-generator generate --input-spec openapi.yaml \
+	openapi-generator-cli generate --input-spec openapi.yaml \
 		--generator-name jmeter \
 		--output jmeter
 
