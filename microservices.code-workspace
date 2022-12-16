@@ -17,7 +17,13 @@
 		},
 		{
 			"path": "socialapp/socialappapi"
-		}
+		},
+		{
+			"path": "../docker-elk"
+		},
+		{
+			"path": "../puttyknife"
+		},
 	],
 	"settings": {
 		"githubPullRequests.ignoredPullRequestBranches": [
