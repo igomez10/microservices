@@ -1,5 +1,10 @@
 version: "3"
 
+networks:
+  elk:
+    external:
+      name: docker-elk_elk
+
 volumes:
   prometheus_data: {}
   grafana_data: {}
@@ -84,3 +89,16 @@ services:
     expose:
       - 4100
     restart: always
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    expose:
+      - 80
+    restart: always
+    networks:
+      - elk
