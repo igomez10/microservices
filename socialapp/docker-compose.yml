@@ -2,8 +2,7 @@ version: "3"
 
 networks:
   elk:
-    external:
-      name: docker-elk_elk
+    name: docker-elk_elk
 
 volumes:
   prometheus_data: {}
@@ -102,3 +101,4 @@ services:
     restart: always
     networks:
       - elk
+      - default
