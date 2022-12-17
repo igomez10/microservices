@@ -35,26 +35,16 @@ type Middleware struct {
 	DBConn              *sql.DB
 	Authorizationparser authorizationparser.EndpointAuthorizations
 	Cache               *cache.Cache
+	AllowlistedPaths    map[string]map[string]bool
 }
 
 func (m *Middleware) Authenticate(next http.Handler) http.Handler {
-	allowlistedPaths := map[string]map[string]bool{
-		"/users": {
-			"POST": true,
-		},
-		"/metrics": {
-			"GET": true,
-		},
-		"/apispec": {
-			"GET": true,
-		},
-	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		log := contexthelper.GetLoggerInContext(r.Context())
 		// get token from header
-		if allowlistedPaths[r.URL.Path] != nil && allowlistedPaths[r.URL.Path][r.Method] {
+		if m.AllowlistedPaths[r.URL.Path] != nil && m.AllowlistedPaths[r.URL.Path][r.Method] {
 			r = contexthelper.SetRequestedScopesInContext(r, map[string]bool{})
 			log.Info().
 				Str("path", r.URL.Path).

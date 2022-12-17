@@ -7,16 +7,16 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	_ "net/http/pprof"
 	"net/url"
 	"os"
 	"socialapp/internal/authorizationparser"
-	"socialapp/internal/middlewares/authorization"
 	"socialapp/internal/middlewares/beacon"
 	"socialapp/internal/middlewares/cache"
 	"socialapp/internal/middlewares/gandalf"
-	"socialapp/internal/middlewares/pattern"
 	"socialapp/internal/middlewares/requestid"
-	"socialapp/internal/middlewares/reverseproxy"
+	"socialapp/internal/routers/proxyrouter"
+	"socialapp/internal/routers/socialapprouter"
 	"socialapp/pkg/controller/authentication"
 	"socialapp/pkg/controller/comment"
 	"socialapp/pkg/controller/role"
@@ -33,13 +33,6 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/slok/go-http-metrics/metrics/prometheus"
-	metricsMiddleware "github.com/slok/go-http-metrics/middleware"
-	"github.com/slok/go-http-metrics/middleware/std"
-
-	_ "net/http/pprof"
-
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -47,8 +40,6 @@ import (
 var (
 	appPort *int = flag.Int("port", 8080, "main port for application")
 )
-
-type Middleware func(http.Handler) http.Handler
 
 func main() {
 	flag.Parse()
@@ -130,21 +121,20 @@ func main() {
 		RedisOpts: redisOpts,
 	})
 
-	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn, Cache: cache}
+	allowlistedPaths := map[string]map[string]bool{
+		"/users": {
+			"POST": true,
+		},
+		"/metrics": {
+			"GET": true,
+		},
+		"/apispec": {
+			"GET": true,
+		},
+	}
+	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn, Cache: cache, AllowlistedPaths: allowlistedPaths}
 
 	beacon := beacon.Beacon{Logger: log.Logger}
-
-	middlewares := []Middleware{
-		cors.AllowAll().Handler,
-		middleware.Heartbeat("/health"),
-		requestid.Middleware,
-		beacon.Middleware,
-		middleware.Recoverer,
-		middleware.Timeout(60 * time.Second),
-		authenticationMiddleware.Authenticate,
-		middleware.RealIP,
-		cache.Middleware,
-	}
 
 	// open file
 	openAPIPath := "openapi.yaml"
@@ -166,96 +156,52 @@ func main() {
 		log.Fatal().Err(err)
 	}
 
-	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
-	router := NewRouter(middlewares, routers, authorizationParse)
-	log.Info().Msgf("Listening on port %d", *appPort)
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", *appPort), router); err != nil {
-		log.Fatal().Err(err).Msgf("Shutting down")
-	}
-
-}
-
-func NewRouter(middlewares []Middleware, routers []openapi.Router, authorizationParse authorizationparser.EndpointAuthorizations) chi.Router {
-	mainRouter := chi.NewRouter()
-
-	kibanaURL, err := url.Parse(os.Getenv("KIBANA_URL"))
+	targetURL, err := url.Parse(os.Getenv("KIBANA_URL"))
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse kibana url")
+		log.Fatal().Err(err).Msg("failed to parse target url")
 	}
 
-	revProxy := reverseproxy.ReverseProxy{
-		KibanaURL: *kibanaURL,
+	// 1. Kibana router (proxy)
+	kibanaRouterMiddlewares := []func(http.Handler) http.Handler{
+		cors.AllowAll().Handler,
+		requestid.Middleware,
+		beacon.Middleware,
+		middleware.Recoverer,
+		middleware.Timeout(60 * time.Second),
+		authenticationMiddleware.Authenticate,
+		middleware.RealIP,
 	}
-	mainRouter.Use(revProxy.Middleware)
+	kibanaRouter := proxyrouter.NewProxyRouter(os.Getenv("KIBANA_SUBDOMAIN"), targetURL, kibanaRouterMiddlewares)
 
-	mainRouter.Mount("/debug", middleware.Profiler())
+	// 2. SocialApp router
+	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
+	socialappMiddlewares := []func(http.Handler) http.Handler{
+		cors.AllowAll().Handler,
+		middleware.Heartbeat("/health"),
+		requestid.Middleware,
+		beacon.Middleware,
+		middleware.Recoverer,
+		middleware.Timeout(60 * time.Second),
+		authenticationMiddleware.Authenticate,
+		middleware.RealIP,
+		cache.Middleware,
+	}
+	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse)
 
-	// Expose health the registered metrics via HTTP, no logging for those requests
-	mainRouter.Group(func(r chi.Router) {
-		// HEALTH
-		r.MethodFunc("GET", "/health", func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("OK"))
-		})
-
-		// METRICS
-		r.Handle("/metrics", promhttp.Handler())
-
-		// OPENAPI
-		// Expose the api spec via HTTP.
-		r.HandleFunc("/apispec", func(w http.ResponseWriter, r *http.Request) {
-			// send open api file
-			// open api file
-			file := "openapi.yaml"
-			content, err := os.ReadFile(file)
-			if err != nil {
-				log.Error().Err(err).Msg("Error reading file")
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-			w.Write(content)
-		})
-	})
-
-	// Main router group, here is the main logic
-	mainRouter.Group(func(r chi.Router) {
-
-		mdlw := metricsMiddleware.New(metricsMiddleware.Config{
-			Recorder: prometheus.NewRecorder(prometheus.Config{}),
-		})
-
-		for _, api := range routers {
-			for _, route := range api.Routes() {
-				var handler http.Handler
-				handler = route.HandlerFunc
-
-				r.Group(func(r chi.Router) {
-					// use a  custom middleware to record the metrics on the route pattern.
-					r.Use(std.HandlerProvider(route.Pattern, mdlw))
-
-					pattern := pattern.Pattern{Pattern: route.Pattern}
-					r.Use(pattern.Middleware)
-
-					for i := range middlewares {
-						r.Use(middlewares[i])
-					}
-
-					// authorization
-					requiredScopesForEndpoint := authorizationParse[route.Pattern][route.Method]
-					mapRequiredScopes := map[string]bool{}
-					for _, scope := range requiredScopesForEndpoint {
-						mapRequiredScopes[scope] = true
-					}
-					authorizationRuler := authorization.Middleware{
-						RequiredScopes: mapRequiredScopes,
-					}
-
-					r.Use(authorizationRuler.Authorize)
-					r.Method(route.Method, route.Pattern, handler)
-				})
-			}
+	// 3. Main router for routing to different routers based on subdomain
+	mainRouter := chi.NewRouter()
+	mainRouter.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Host {
+		case os.Getenv("KIBANA_SUBDOMAIN"):
+			kibanaRouter.Router.ServeHTTP(w, r)
+		default:
+			socialappRouter.Router.ServeHTTP(w, r)
 		}
 	})
 
-	return mainRouter
+	log.Info().Msgf("Listening on port %d", *appPort)
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", *appPort), mainRouter); err != nil {
+		log.Fatal().Err(err).Msgf("Shutting down")
+	}
+
 }
