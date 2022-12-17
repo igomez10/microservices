@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"socialapp/internal/authorizationparser"
 	"socialapp/internal/middlewares/authorization"
@@ -15,6 +16,7 @@ import (
 	"socialapp/internal/middlewares/gandalf"
 	"socialapp/internal/middlewares/pattern"
 	"socialapp/internal/middlewares/requestid"
+	"socialapp/internal/middlewares/reverseproxy"
 	"socialapp/pkg/controller/authentication"
 	"socialapp/pkg/controller/comment"
 	"socialapp/pkg/controller/role"
@@ -175,6 +177,16 @@ func main() {
 
 func NewRouter(middlewares []Middleware, routers []openapi.Router, authorizationParse authorizationparser.EndpointAuthorizations) chi.Router {
 	mainRouter := chi.NewRouter()
+
+	kibanaURL, err := url.Parse(os.Getenv("KIBANA_URL"))
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to parse kibana url")
+	}
+
+	revProxy := reverseproxy.ReverseProxy{
+		KibanaURL: *kibanaURL,
+	}
+	mainRouter.Use(revProxy.Middleware)
 
 	mainRouter.Mount("/debug", middleware.Profiler())
 
