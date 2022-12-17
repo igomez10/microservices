@@ -1,0 +1,435 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            },
+            {
+                "annotation": {
+                    "datasource": "GitHub",
+                    "field": "id",
+                    "options": {
+                        "gitRef": "mainline"
+                    },
+                    "owner": "igomez10",
+                    "queryType": "Commits",
+                    "refId": "",
+                    "repository": "microservices",
+                    "timeField": "pushed_at"
+                },
+                "datasource": {
+                    "type": "grafana-github-datasource",
+                    "uid": "v98TGevVk"
+                },
+                "datasourceId": 10,
+                "enable": true,
+                "iconColor": "red",
+                "name": "New annotation"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 13,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "datasource": {
+                "type": "phlare",
+                "uid": "vqJ98kO4k"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 3,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "phlare",
+                        "uid": "vqJ98kO4k"
+                    },
+                    "groupBy": [],
+                    "key": "Q-ad3bd3e3-58d1-469b-ba22-171799dd03f2-0",
+                    "labelSelector": "{}",
+                    "profileTypeId": "memory:alloc_space:bytes:space:bytes",
+                    "queryType": "metrics",
+                    "refId": "A"
+                }
+            ],
+            "title": "Memory Allocated space",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "phlare",
+                "uid": "vqJ98kO4k"
+            },
+            "gridPos": {
+                "h": 23,
+                "w": 24,
+                "x": 0,
+                "y": 8
+            },
+            "id": 7,
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "phlare",
+                        "uid": "vqJ98kO4k"
+                    },
+                    "groupBy": [],
+                    "key": "Q-ad3bd3e3-58d1-469b-ba22-171799dd03f2-0",
+                    "labelSelector": "{}",
+                    "profileTypeId": "memory:alloc_space:bytes:space:bytes",
+                    "queryType": "profile",
+                    "refId": "A"
+                }
+            ],
+            "title": "Memory Allocated space",
+            "type": "flamegraph"
+        },
+        {
+            "datasource": {
+                "type": "phlare",
+                "uid": "vqJ98kO4k"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 24,
+                "x": 0,
+                "y": 31
+            },
+            "id": 2,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "phlare",
+                        "uid": "vqJ98kO4k"
+                    },
+                    "groupBy": [],
+                    "key": "Q-099270ca-df16-449e-a54d-61c760a45cc9-0",
+                    "labelSelector": "{}",
+                    "profileTypeId": "memory:inuse_space:bytes:space:bytes",
+                    "queryType": "metrics",
+                    "refId": "A"
+                }
+            ],
+            "title": "Memory in use space",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "phlare",
+                "uid": "vqJ98kO4k"
+            },
+            "gridPos": {
+                "h": 25,
+                "w": 24,
+                "x": 0,
+                "y": 40
+            },
+            "id": 6,
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "phlare",
+                        "uid": "vqJ98kO4k"
+                    },
+                    "groupBy": [],
+                    "key": "Q-099270ca-df16-449e-a54d-61c760a45cc9-0",
+                    "labelSelector": "{}",
+                    "profileTypeId": "memory:inuse_space:bytes:space:bytes",
+                    "queryType": "profile",
+                    "refId": "A"
+                }
+            ],
+            "title": "Memory in use space",
+            "type": "flamegraph"
+        },
+        {
+            "datasource": {
+                "type": "phlare",
+                "uid": "vqJ98kO4k"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green"
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 65
+            },
+            "id": 5,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "9.3.0-beta1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "phlare",
+                        "uid": "vqJ98kO4k"
+                    },
+                    "groupBy": [],
+                    "labelSelector": "{}",
+                    "profileTypeId": "process_cpu:cpu:nanoseconds:cpu:nanoseconds",
+                    "queryType": "metrics",
+                    "refId": "A"
+                }
+            ],
+            "title": "Profiling CPU",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "phlare",
+                "uid": "vqJ98kO4k"
+            },
+            "gridPos": {
+                "h": 18,
+                "w": 24,
+                "x": 0,
+                "y": 73
+            },
+            "id": 1,
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "phlare",
+                        "uid": "vqJ98kO4k"
+                    },
+                    "groupBy": [],
+                    "key": "Q-1232ea15-f9c3-4b6b-ae5c-96aea2025d5d-0",
+                    "labelSelector": "{}",
+                    "profileTypeId": "process_cpu:cpu:nanoseconds:cpu:nanoseconds",
+                    "queryType": "profile",
+                    "refId": "A"
+                }
+            ],
+            "title": "CPU Profiling",
+            "type": "flamegraph"
+        }
+    ],
+    "refresh": false,
+    "schemaVersion": 37,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+        "list": []
+    },
+    "time": {
+        "from": "now-6h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Profiling",
+    "uid": "83pqUzOVk",
+    "version": 7,
+    "weekStart": ""
+}
