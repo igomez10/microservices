@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"flag"
 	"fmt"
@@ -76,7 +77,10 @@ func main() {
 		log.Fatal().Msg("db is nil")
 	}
 
-	if err := dbConn.Ping(); err != nil {
+	// try to ping database with 5 seconds timeout
+	pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := dbConn.PingContext(pingCtx); err != nil {
 		log.Fatal().Err(err).Msg("failed to ping database, shutting down")
 	}
 
