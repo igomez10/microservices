@@ -166,7 +166,7 @@ func main() {
 		log.Fatal().Err(err)
 	}
 
-	targetURL, err := url.Parse(os.Getenv("KIBANA_URL"))
+	kibanaTargetURL, err := url.Parse(os.Getenv("KIBANA_URL"))
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse target url")
 	}
@@ -193,7 +193,7 @@ func main() {
 		// authorizationRuler.Authorize,
 		middleware.RealIP,
 	}
-	kibanaRouter := proxyrouter.NewProxyRouter(os.Getenv("KIBANA_SUBDOMAIN"), targetURL, kibanaRouterMiddlewares)
+	kibanaRouter := proxyrouter.NewProxyRouter(os.Getenv("KIBANA_SUBDOMAIN"), kibanaTargetURL, kibanaRouterMiddlewares)
 
 	// 2. SocialApp router
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
