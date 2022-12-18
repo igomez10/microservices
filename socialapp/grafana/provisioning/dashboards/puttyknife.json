@@ -24,7 +24,6 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 14,
     "links": [],
     "liveNow": false,
     "panels": [
@@ -196,7 +195,7 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 8,
+                "h": 9,
                 "w": 24,
                 "x": 0,
                 "y": 9
@@ -249,6 +248,7 @@
             "type": "timeseries"
         }
     ],
+    "refresh": false,
     "schemaVersion": 37,
     "style": "dark",
     "tags": [],
@@ -263,6 +263,6 @@
     "timezone": "",
     "title": "Puttyknife",
     "uid": "f8WWU45Vz",
-    "version": 4,
+    "version": 5,
     "weekStart": ""
 }
