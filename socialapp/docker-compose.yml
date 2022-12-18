@@ -1,4 +1,4 @@
-version: "3"
+version: "3.7"
 
 networks:
   elk:
@@ -30,6 +30,9 @@ services:
       - 3005:3000
     environment:
       - GF_FEATURE_TOGGLES_ENABLE=flameGraph
+      - POSTGRESQL_PROPERTIES_PASSWORD=${POSTGRESQL_PROPERTIES_PASSWORD}
+      - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
+      - GITHUB_ACCESSTOKEN=${GITHUB_ACCESSTOKEN}
     expose:
       - 3000
     volumes:
