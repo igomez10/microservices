@@ -181,6 +181,7 @@ func main() {
 	}
 	kibanaRouterMiddlewares := []func(http.Handler) http.Handler{
 		cors.AllowAll().Handler,
+		middleware.Heartbeat("/health"),
 		requestid.Middleware,
 		beacon.Middleware,
 		middleware.Recoverer,
