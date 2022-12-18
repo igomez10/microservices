@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"socialapp/internal/authorizationparser"
+	"socialapp/internal/middlewares/authorization"
 	"socialapp/internal/middlewares/beacon"
 	"socialapp/internal/middlewares/cache"
 	"socialapp/internal/middlewares/gandalf"
@@ -121,7 +122,7 @@ func main() {
 		RedisOpts: redisOpts,
 	})
 
-	allowlistedPaths := map[string]map[string]bool{
+	socialappAllowlistedPaths := map[string]map[string]bool{
 		"/users": {
 			"POST": true,
 		},
@@ -132,25 +133,31 @@ func main() {
 			"GET": true,
 		},
 	}
-	authenticationMiddleware := gandalf.Middleware{DB: queries, DBConn: dbConn, Cache: cache, AllowlistedPaths: allowlistedPaths}
+	socialappAuthenticationMiddleware := gandalf.Middleware{
+		DB:               queries,
+		DBConn:           dbConn,
+		Cache:            cache,
+		AllowlistedPaths: socialappAllowlistedPaths,
+		AllowBasicAuth:   false,
+	}
 
 	beacon := beacon.Beacon{Logger: log.Logger}
 
-	// open file
+	// open apispec file
 	openAPIPath := "openapi.yaml"
 	openapiFile, err := os.Open(openAPIPath)
 	if err != nil {
 		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to open openapi file")
 	}
 
-	// read file
+	// read api spec
 	content, err := ioutil.ReadAll(openapiFile)
 	if err != nil {
 		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to read openapi file")
 	}
 	openapiFile.Close()
 
-	// parse file
+	// parse api spec
 	doc, err := openapi3.NewLoader().LoadFromData(content)
 	if err != nil {
 		log.Fatal().Err(err)
@@ -162,13 +169,24 @@ func main() {
 	}
 
 	// 1. Kibana router (proxy)
+	kibanaAuthMiddleware := gandalf.Middleware{
+		DB:               queries,
+		DBConn:           dbConn,
+		Cache:            cache,
+		AllowlistedPaths: map[string]map[string]bool{},
+		AllowBasicAuth:   true,
+	}
+	authorizationRuler := authorization.Middleware{
+		RequiredScopes: map[string]bool{"kibana:read": true},
+	}
 	kibanaRouterMiddlewares := []func(http.Handler) http.Handler{
 		cors.AllowAll().Handler,
 		requestid.Middleware,
 		beacon.Middleware,
 		middleware.Recoverer,
 		middleware.Timeout(60 * time.Second),
-		authenticationMiddleware.Authenticate,
+		kibanaAuthMiddleware.Authenticate,
+		authorizationRuler.Authorize,
 		middleware.RealIP,
 	}
 	kibanaRouter := proxyrouter.NewProxyRouter(os.Getenv("KIBANA_SUBDOMAIN"), targetURL, kibanaRouterMiddlewares)
@@ -182,7 +200,7 @@ func main() {
 		beacon.Middleware,
 		middleware.Recoverer,
 		middleware.Timeout(60 * time.Second),
-		authenticationMiddleware.Authenticate,
+		socialappAuthenticationMiddleware.Authenticate,
 		middleware.RealIP,
 		cache.Middleware,
 	}

@@ -6,7 +6,6 @@ import (
 	"encoding/gob"
 	"fmt"
 	"net/http"
-	"socialapp/internal/authorizationparser"
 	"socialapp/internal/contexthelper"
 	"socialapp/internal/middlewares/cache"
 	"socialapp/pkg/controller/user"
@@ -31,11 +30,11 @@ var gandalf_duration_seconds = promauto.NewHistogramVec(prometheus.HistogramOpts
 }, []string{"status"})
 
 type Middleware struct {
-	DB                  db.Querier
-	DBConn              *sql.DB
-	Authorizationparser authorizationparser.EndpointAuthorizations
-	Cache               *cache.Cache
-	AllowlistedPaths    map[string]map[string]bool
+	DB               db.Querier
+	DBConn           *sql.DB
+	Cache            *cache.Cache
+	AllowlistedPaths map[string]map[string]bool
+	AllowBasicAuth   bool
 }
 
 func (m *Middleware) Authenticate(next http.Handler) http.Handler {
@@ -203,7 +202,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				}
 
 				r = contexthelper.SetUsernameInContext(r, username)
-			} else if strings.HasPrefix(authHeader, "Basic ") && r.URL.Path == "/oauth/token" {
+			} else if m.AllowBasicAuth || (strings.HasPrefix(authHeader, "Basic ") && r.URL.Path == "/oauth/token") {
 				// check grant type is client_credentials
 				username, password, ok := r.BasicAuth()
 				if !ok {
