@@ -12,6 +12,7 @@ import (
 	"net/url"
 	"os"
 	"socialapp/internal/authorizationparser"
+	"socialapp/internal/middlewares/authorization"
 	"socialapp/internal/middlewares/beacon"
 	"socialapp/internal/middlewares/cache"
 	"socialapp/internal/middlewares/gandalf"
@@ -172,16 +173,16 @@ func main() {
 	}
 
 	// 1. Kibana router (proxy)
-	// kibanaAuthMiddleware := gandalf.Middleware{
-	// 	DB:               queries,
-	// 	DBConn:           dbConn,
-	// 	Cache:            cache,
-	// 	AllowlistedPaths: map[string]map[string]bool{},
-	// 	AllowBasicAuth:   true,
-	// }
-	// authorizationRuler := authorization.Middleware{
-	// 	RequiredScopes: map[string]bool{"kibana:read": true},
-	// }
+	kibanaAuthMiddleware := gandalf.Middleware{
+		DB:               queries,
+		DBConn:           dbConn,
+		Cache:            cache,
+		AllowlistedPaths: map[string]map[string]bool{},
+		AllowBasicAuth:   true,
+	}
+	authorizationRuler := authorization.Middleware{
+		RequiredScopes: map[string]bool{"kibana:read": true},
+	}
 	kibanaRouterMiddlewares := []func(http.Handler) http.Handler{
 		cors.AllowAll().Handler,
 		middleware.Heartbeat("/health"),
@@ -189,11 +190,22 @@ func main() {
 		beacon.Middleware,
 		middleware.Recoverer,
 		middleware.Timeout(60 * time.Second),
-		// kibanaAuthMiddleware.Authenticate,
-		// authorizationRuler.Authorize,
 		middleware.RealIP,
 	}
 	kibanaRouter := proxyrouter.NewProxyRouter(os.Getenv("KIBANA_SUBDOMAIN"), kibanaTargetURL, kibanaRouterMiddlewares)
+
+	authKibanaRouterMiddlewares := []func(http.Handler) http.Handler{
+		cors.AllowAll().Handler,
+		middleware.Heartbeat("/health"),
+		requestid.Middleware,
+		beacon.Middleware,
+		middleware.Recoverer,
+		middleware.Timeout(60 * time.Second),
+		kibanaAuthMiddleware.Authenticate,
+		authorizationRuler.Authorize,
+		middleware.RealIP,
+	}
+	authKibanaRouter := proxyrouter.NewProxyRouter("authkibana.gomezignacio.com", kibanaTargetURL, authKibanaRouterMiddlewares)
 
 	// 2. SocialApp router
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
@@ -216,6 +228,8 @@ func main() {
 		switch r.Host {
 		case os.Getenv("KIBANA_SUBDOMAIN"):
 			kibanaRouter.Router.ServeHTTP(w, r)
+		case "authkibana.gomezignacio.com":
+			authKibanaRouter.Router.ServeHTTP(w, r)
 		default:
 			socialappRouter.Router.ServeHTTP(w, r)
 		}

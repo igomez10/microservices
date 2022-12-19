@@ -44,7 +44,8 @@ func NewProxyRouter(host string, target *url.URL, middlewares []func(http.Handle
 		log.Info().Msgf("Proxying request to %s", req.Host)
 		prometheusProxyRequests.WithLabelValues(req.Host).Inc()
 		startTime := time.Now()
-
+		// remove auth header
+		req.Header.Del("Authorization")
 		proxy.ServeHTTP(w, req)
 
 		latency := float64(time.Since(startTime).Milliseconds())
