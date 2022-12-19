@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -231,10 +232,23 @@ func main() {
 		case "authkibana.gomezignacio.com":
 			// check for auth cookie
 			if cookie, err := r.Cookie("kibanaauthtoken"); err != nil {
+				usr, pwd, ok := r.BasicAuth()
+				if !ok {
+					w.Header().Set("WWW-Authenticate", `Basic realm="`+"Please enter your username and password for this site"+`"`)
+					w.WriteHeader(401)
+					w.Write([]byte("Unauthorized.\n"))
+					return
+				} else {
+					// add form value to body
+					r.Header.Add("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(usr+":"+pwd)))
+				}
 				log.Warn().Err(err).Msg("failed to get auth cookie")
 			} else {
 				r.Header.Add("Authorization", "Bearer "+cookie.Value)
 			}
+
+			r.Form = url.Values{}
+			r.Form.Set("scope", "kibana:read")
 			authKibanaRouter.Router.ServeHTTP(w, r)
 		default:
 			socialappRouter.Router.ServeHTTP(w, r)

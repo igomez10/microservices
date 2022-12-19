@@ -248,7 +248,11 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				r = contexthelper.SetUsernameInContext(r, usr.Username)
 
 				// get requested scopes
-				requestedScopes := strings.Split(r.FormValue("scope"), " ")
+				requestedScopes := []string{}
+				if len(r.FormValue("scope")) > 0 {
+					requestedScopes = strings.Split(r.FormValue("scope"), " ")
+				}
+
 				// validate every requested scope exists in the DB
 
 				// get user roles from DB
