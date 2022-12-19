@@ -229,6 +229,12 @@ func main() {
 		case os.Getenv("KIBANA_SUBDOMAIN"):
 			kibanaRouter.Router.ServeHTTP(w, r)
 		case "authkibana.gomezignacio.com":
+			// check for auth cookie
+			if cookie, err := r.Cookie("kibanaauthtoken"); err != nil {
+				log.Warn().Err(err).Msg("failed to get auth cookie")
+			} else {
+				r.Header.Add("Authorization", "Bearer "+cookie.Value)
+			}
 			authKibanaRouter.Router.ServeHTTP(w, r)
 		default:
 			socialappRouter.Router.ServeHTTP(w, r)
