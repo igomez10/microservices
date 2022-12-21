@@ -228,8 +228,6 @@ func main() {
 	mainRouter.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Host {
 		case os.Getenv("KIBANA_SUBDOMAIN"):
-			kibanaRouter.Router.ServeHTTP(w, r)
-		case "authkibana.gomezignacio.com":
 			// check for auth cookie
 			if cookie, err := r.Cookie("kibanaauthtoken"); err != nil {
 				usr, pwd, ok := r.BasicAuth()
