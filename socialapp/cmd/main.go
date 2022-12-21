@@ -191,22 +191,12 @@ func main() {
 		beacon.Middleware,
 		middleware.Recoverer,
 		middleware.Timeout(60 * time.Second),
-		middleware.RealIP,
-	}
-	kibanaRouter := proxyrouter.NewProxyRouter(os.Getenv("KIBANA_SUBDOMAIN"), kibanaTargetURL, kibanaRouterMiddlewares)
-
-	authKibanaRouterMiddlewares := []func(http.Handler) http.Handler{
-		cors.AllowAll().Handler,
-		middleware.Heartbeat("/health"),
-		requestid.Middleware,
-		beacon.Middleware,
-		middleware.Recoverer,
-		middleware.Timeout(60 * time.Second),
 		kibanaAuthMiddleware.Authenticate,
 		authorizationRuler.Authorize,
 		middleware.RealIP,
 	}
-	authKibanaRouter := proxyrouter.NewProxyRouter("authkibana.gomezignacio.com", kibanaTargetURL, authKibanaRouterMiddlewares)
+	kibanaSubdomain := os.Getenv("KIBANA_SUBDOMAIN")
+	authKibanaRouter := proxyrouter.NewProxyRouter(kibanaSubdomain, kibanaTargetURL, kibanaRouterMiddlewares)
 
 	// 2. SocialApp router
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
@@ -227,7 +217,7 @@ func main() {
 	mainRouter := chi.NewRouter()
 	mainRouter.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Host {
-		case os.Getenv("KIBANA_SUBDOMAIN"):
+		case kibanaSubdomain:
 			// check for auth cookie
 			if cookie, err := r.Cookie("kibanaauthtoken"); err != nil {
 				usr, pwd, ok := r.BasicAuth()
