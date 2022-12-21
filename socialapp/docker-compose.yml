@@ -22,6 +22,11 @@ services:
     ports:
       - "5432:5432"
     restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://host.docker.internal:51000"
+        tag: "database"
 
   grafana:
     image: grafana/grafana
@@ -41,6 +46,12 @@ services:
     env_file:
       - ./grafana/config.monitoring
     restart: always
+    # send logs to syslog
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://host.docker.internal:51000"
+        tag: "grafana"
 
   prometheus:
     image: prom/prometheus:latest
@@ -58,6 +69,11 @@ services:
     expose:
       - 9090
     restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://host.docker.internal:51000"
+        tag: "prometheus"
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -76,9 +92,20 @@ services:
       - 9100
     ports:
       - 9100:9100
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://host.docker.internal:51000"
+        tag: "node-exporter"
+
   inspector:
     image: ubuntu:latest
     command: sleep infinity
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://host.docker.internal:51000"
+        tag: "inspector"
 
   phlare:
     image: grafana/phlare:latest
@@ -92,6 +119,11 @@ services:
     expose:
       - 4100
     restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://host.docker.internal:51000"
+        tag: "phlare"
 
   nginx:
     image: nginx:latest
@@ -106,3 +138,8 @@ services:
     networks:
       - elk
       - default
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://host.docker.internal:51000"
+        tag: "nginx"
