@@ -25,7 +25,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://host.docker.internal:51000"
+        syslog-address: "udp://localhost:51000"
         tag: "database"
 
   grafana:
@@ -50,7 +50,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://host.docker.internal:51000"
+        syslog-address: "udp://localhost:51000"
         tag: "grafana"
 
   prometheus:
@@ -72,7 +72,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://host.docker.internal:51000"
+        syslog-address: "udp://localhost:51000"
         tag: "prometheus"
 
   node-exporter:
@@ -95,7 +95,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://host.docker.internal:51000"
+        syslog-address: "udp://localhost:51000"
         tag: "node-exporter"
 
   inspector:
@@ -104,7 +104,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://host.docker.internal:51000"
+        syslog-address: "udp://localhost:51000"
         tag: "inspector"
 
   phlare:
@@ -122,7 +122,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://host.docker.internal:51000"
+        syslog-address: "udp://localhost:51000"
         tag: "phlare"
 
   nginx:
@@ -141,5 +141,5 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://host.docker.internal:51000"
+        syslog-address: "udp://localhost:51000"
         tag: "nginx"
