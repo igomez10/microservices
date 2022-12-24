@@ -74,6 +74,22 @@ services:
       options:
         syslog-address: "udp://localhost:51000"
         tag: "prometheus"
+  alertmanager:
+    image: prom/alertmanager:latest
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+    ports:
+      - 9093:9093
+    expose:
+      - 9093
+    restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:51000"
+        tag: "alertmanager"
 
   node-exporter:
     image: prom/node-exporter:latest
