@@ -94,11 +94,14 @@ services:
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
+    privileged: true
     restart: unless-stopped
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /:/rootfs:ro
+      - /etc:/host/etc:ro
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
     command:
       - '--path.procfs=/host/proc'
       - '--path.rootfs=/rootfs'
