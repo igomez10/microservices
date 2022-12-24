@@ -28,15 +28,6 @@ alerting:
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
 
-  - job_name: "socialapp"
-
-    # Override the global default and scrape targets from this job every 5 seconds.
-    scrape_interval: 15s
-
-    static_configs:
-      - targets:
-          - host.docker.internal:9095
-
   - job_name: "socialapprender"
     # Override the global default and scrape targets from this job every 5 seconds.
     scrape_interval: 15s
