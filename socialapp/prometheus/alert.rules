@@ -1,5 +1,5 @@
 groups:
-- name: example
+- name: node-rules
   rules:
 
   # Alert for any instance that is unreachable for >2 minutes.
@@ -20,3 +20,40 @@ groups:
     annotations:
       summary: "Instance {{ $labels.instance }} under high load"
       description: "{{ $labels.instance }} of job {{ $labels.job }} is under high load."
+
+  - alert: high_memory
+    expr: node_memory_MemFree_bytes / node_memory_MemTotal_bytes < 0.1
+    for: 2m
+    labels:
+      severity: page
+    annotations:
+      summary: "Instance {{ $labels.instance }} under high memory"
+      description: "{{ $labels.instance }} of job {{ $labels.job }} is under high memory."
+
+  - alert: high_cpu
+    expr: node_cpu{mode="idle"} < 0.1
+    for: 2m
+    labels:
+      severity: page
+    annotations:
+      summary: "Instance {{ $labels.instance }} under high cpu"
+      description: "{{ $labels.instance }} of job {{ $labels.job }} is under high cpu."
+
+  - alert: high_disk
+    expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} < 0.1
+    for: 2m
+    labels:
+      severity: page
+    annotations:
+      summary: "Instance {{ $labels.instance }} under high disk"
+      description: "{{ $labels.instance }} of job {{ $labels.job }} is under high disk."
+
+  - alert: high_disk_inodes
+    expr: node_filesystem_files_free{mountpoint="/"} / node_filesystem_files{mountpoint="/"} < 0.1
+    for: 2m
+    labels:
+      severity: page
+    annotations:
+      summary: "Instance {{ $labels.instance }} under high disk inodes"
+      description: "{{ $labels.instance }} of job {{ $labels.job }} is under high disk inodes."
+    
