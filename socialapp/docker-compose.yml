@@ -104,6 +104,12 @@ services:
       - '--path.rootfs=/rootfs'
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      # enable process collector
+      - '--collector.processes'
+      # enable textfile collector
+      - '--collector.textfile.directory=/var/lib/node-exporter'
+      #  enable systemd collector
+      - '--collector.systemd'
     expose:
       - 9100
     ports:
@@ -140,22 +146,21 @@ services:
       options:
         syslog-address: "udp://localhost:51000"
         tag: "phlare"
-
-  nginx:
-    image: nginx:latest
-    ports:
-      - 80:80
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    expose:
-      - 80
-    restart: always
-    networks:
-      - elk
-      - default
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "udp://localhost:51000"
-        tag: "nginx"
+  # nginx:
+  #   image: nginx:latest
+  #   ports:
+  #     - 80:80
+  #   volumes:
+  #     - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  #     - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+  #   expose:
+  #     - 80
+  #   restart: unless-stopped
+  #   networks:
+  #     - elk
+  #     - default
+  #   logging:
+  #     driver: "syslog"
+  #     options:
+  #       syslog-address: "udp://localhost:51000"
+  #       tag: "nginx"
