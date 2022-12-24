@@ -106,8 +106,6 @@ services:
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
       # enable process collector
       - '--collector.processes'
-      # enable textfile collector
-      - '--collector.textfile.directory=/var/lib/node-exporter'
       #  enable systemd collector
       - '--collector.systemd'
     expose:
