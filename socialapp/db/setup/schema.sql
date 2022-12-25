@@ -17,6 +17,10 @@ CREATE TABLE IF NOT EXISTS users (
 	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	deleted_at TIMESTAMP NULL
 );
+CREATE INDEX IF NOT EXISTS users_username_idx ON users (username);
+CREATE INDEX IF NOT EXISTS users_email_idx ON users (email);
+CREATE INDEX IF NOT EXISTS users_deleted_at_idx ON users (deleted_at);
+CREATE INDEX IF NOT EXISTS users_created_at_idx ON users (created_at);
 
 CREATE SEQUENCE IF NOT EXISTS comments_id_seq;
 CREATE TABLE IF NOT EXISTS comments (
@@ -31,6 +35,9 @@ CREATE TABLE IF NOT EXISTS comments (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP
 );
+CREATE INDEX IF NOT EXISTS comments_user_id_idx ON comments (user_id);
+CREATE INDEX IF NOT EXISTS comments_deleted_at_idx ON comments (deleted_at);
+CREATE INDEX IF NOT EXISTS comments_created_at_idx ON comments (created_at);
 
 CREATE SEQUENCE IF NOT EXISTS followers_id_seq;
 CREATE TABLE IF NOT EXISTS followers (
@@ -42,6 +49,10 @@ CREATE TABLE IF NOT EXISTS followers (
     UNIQUE (follower_id, followed_id),
     UNIQUE (follower_id, followed_id)
 );
+CREATE INDEX IF NOT EXISTS followers_follower_id_idx ON followers (follower_id);
+CREATE INDEX IF NOT EXISTS followers_followed_id_idx ON followers (followed_id);
+CREATE INDEX IF NOT EXISTS followers_follower_id_followed_id_idx ON followers (follower_id, followed_id);
+CREATE INDEX IF NOT EXISTS followers_followed_id_follower_id_idx ON followers (followed_id, follower_id);
 
 CREATE SEQUENCE IF NOT EXISTS credentials_id_seq;
 CREATE TABLE IF NOT EXISTS credentials ( -- long term api keys
@@ -55,6 +66,9 @@ CREATE TABLE IF NOT EXISTS credentials ( -- long term api keys
     CONSTRAINT credentials_user_id_fkey FOREIGN KEY (user_id) REFERENCES "public"."users"("id"),
     UNIQUE (user_id, public_key)
 );
+CREATE INDEX IF NOT EXISTS credentials_user_id_idx ON credentials (user_id);
+CREATE INDEX IF NOT EXISTS credentials_public_key_idx ON credentials (public_key);
+CREATE INDEX IF NOT EXISTS credentials_deleted_at_idx ON credentials (deleted_at);
 
 CREATE SEQUENCE IF NOT EXISTS tokens_id_seq;
 CREATE TABLE IF NOT EXISTS tokens ( -- short term tokens
@@ -65,6 +79,8 @@ CREATE TABLE IF NOT EXISTS tokens ( -- short term tokens
 	valid_until TIMESTAMP NOT NULL DEFAULT '2030-01-01 00:00:00',
     CONSTRAINT tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES "public"."users"("id")
 );
+CREATE INDEX IF NOT EXISTS tokens_user_id_idx ON tokens (user_id);
+CREATE INDEX IF NOT EXISTS tokens_token_idx ON tokens (token);
 
 CREATE SEQUENCE IF NOT EXISTS roles_id_seq;
 CREATE TABLE IF NOT EXISTS roles (
@@ -74,6 +90,7 @@ CREATE TABLE IF NOT EXISTS roles (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL
 );
+CREATE INDEX IF NOT EXISTS roles_name_idx ON roles (name);
 
 CREATE SEQUENCE IF NOT EXISTS scopes_id_seq;
 CREATE TABLE IF NOT EXISTS scopes (
@@ -83,7 +100,7 @@ CREATE TABLE IF NOT EXISTS scopes (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL
 );
-
+CREATE INDEX IF NOT EXISTS scopes_name_idx ON scopes (name);
 
 CREATE SEQUENCE IF NOT EXISTS roles_to_scopes_id_seq;
 CREATE TABLE IF NOT EXISTS roles_to_scopes (
@@ -94,6 +111,10 @@ CREATE TABLE IF NOT EXISTS roles_to_scopes (
     CONSTRAINT roles_to_scopes_scope_id_fkey FOREIGN KEY (scope_id) REFERENCES "public"."scopes"("id"),
     UNIQUE (role_id, scope_id)
 );
+CREATE INDEX IF NOT EXISTS roles_to_scopes_role_id_idx ON roles_to_scopes (role_id);
+CREATE INDEX IF NOT EXISTS roles_to_scopes_scope_id_idx ON roles_to_scopes (scope_id);
+CREATE INDEX IF NOT EXISTS roles_to_scopes_role_id_scope_id_idx ON roles_to_scopes (role_id, scope_id);
+CREATE INDEX IF NOT EXISTS roles_to_scopes_scope_id_role_id_idx ON roles_to_scopes (scope_id, role_id);
 
 CREATE SEQUENCE IF NOT EXISTS users_to_roles_id_seq;
 CREATE TABLE IF NOT EXISTS users_to_roles (
@@ -104,6 +125,10 @@ CREATE TABLE IF NOT EXISTS users_to_roles (
     CONSTRAINT users_to_roles_role_id_fkey FOREIGN KEY (role_id) REFERENCES "public"."roles"("id"),
     CONSTRAINT users_to_roles_user_id_fkey FOREIGN KEY (user_id) REFERENCES "public"."users"("id")
 );
+CREATE INDEX IF NOT EXISTS users_to_roles_role_id_idx ON users_to_roles (role_id);
+CREATE INDEX IF NOT EXISTS users_to_roles_user_id_idx ON users_to_roles (user_id);
+CREATE INDEX IF NOT EXISTS users_to_roles_role_id_user_id_idx ON users_to_roles (role_id, user_id);
+CREATE INDEX IF NOT EXISTS users_to_roles_user_id_role_id_idx ON users_to_roles (user_id, role_id);
 
 CREATE SEQUENCE IF NOT EXISTS tokens_to_scopes_id_seq;
 CREATE TABLE IF NOT EXISTS  tokens_to_scopes (
@@ -113,6 +138,11 @@ CREATE TABLE IF NOT EXISTS  tokens_to_scopes (
     CONSTRAINT tokens_to_scopes_token_id_fkey FOREIGN KEY (token_id) REFERENCES "public"."tokens"("id"),
     CONSTRAINT tokens_to_scopes_scope_id_fkey FOREIGN KEY (scope_id) REFERENCES "public"."scopes"("id")
 );
+CREATE INDEX IF NOT EXISTS tokens_to_scopes_token_id_idx ON tokens_to_scopes (token_id);
+CREATE INDEX IF NOT EXISTS tokens_to_scopes_scope_id_idx ON tokens_to_scopes (scope_id);
+CREATE INDEX IF NOT EXISTS tokens_to_scopes_token_id_scope_id_idx ON tokens_to_scopes (token_id, scope_id);
+CREATE INDEX IF NOT EXISTS tokens_to_scopes_scope_id_token_id_idx ON tokens_to_scopes (scope_id, token_id);
+
 
 --  SEEDING DATA
 INSERT INTO users (
