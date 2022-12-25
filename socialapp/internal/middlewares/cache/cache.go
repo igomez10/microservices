@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	newrelic "github.com/newrelic/go-agent"
 	nrredis "github.com/newrelic/go-agent/v3/integrations/nrredis-v8"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -52,6 +53,9 @@ func (c *Cache) Middleware(next http.Handler) http.Handler {
 		}
 		customW := responseWriter.NewCustomResponseWriter(w)
 		if r.Method == http.MethodGet && shouldSearchCache {
+			txn := newrelic.FromContext(r.Context())
+			r = r.WithContext(newrelic.NewContext(r.Context(), txn))
+
 			// attempt to return here, if not found in cache then continue to handler
 			key := r.Method + "+" + r.URL.Path + r.URL.RawQuery
 			// search in cache
