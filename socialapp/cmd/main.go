@@ -215,7 +215,7 @@ func main() {
 
 	var newrelicApp *newrelic.Application
 	newRelicLicense := os.Getenv("NEW_RELIC_LICENSE")
-	if newRelicLicense == "" {
+	if newRelicLicense != "" {
 		app, err := newrelic.NewApplication(
 			newrelic.ConfigAppName("socialapp"),
 			newrelic.ConfigLicense(newRelicLicense),
