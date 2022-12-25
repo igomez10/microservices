@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	nrredis "github.com/newrelic/go-agent/v3/integrations/nrredis-v8"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog/log"
@@ -26,6 +27,9 @@ func NewCache(config CacheConfig) *Cache {
 	if err != nil {
 		log.Fatal().Stack().Err(err).Msg("Failed to connect to redis")
 	}
+
+	// New Relic setup for redis
+	client.AddHook(nrredis.NewHook(config.RedisOpts))
 
 	c := &Cache{
 		Client: client,
