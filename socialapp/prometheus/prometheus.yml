@@ -47,8 +47,8 @@ scrape_configs:
         type: "A"
         port: 8080
 
-  #     static_configs:
-  #          - targets: ['cadvisor:8080']
+    static_configs:
+      - targets: ["cadvisor:8080"]
 
   - job_name: "node"
     # Override the global default and scrape targets from this job every 5 seconds.
