@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
 	"github.com/slok/go-http-metrics/metrics/prometheus"
@@ -23,7 +24,7 @@ type SocialAppRouter struct {
 
 type Middleware func(http.Handler) http.Handler
 
-func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers []openapi.Router, authorizationParse authorizationparser.EndpointAuthorizations) SocialAppRouter {
+func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers []openapi.Router, authorizationParse authorizationparser.EndpointAuthorizations, newrelicApp *newrelic.Application) SocialAppRouter {
 	mainRouter := chi.NewRouter()
 
 	mainRouter.Mount("/debug", middleware.Profiler())
@@ -89,7 +90,8 @@ func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers [
 					}
 
 					r.Use(authorizationRuler.Authorize)
-					r.Method(route.Method, route.Pattern, handler)
+					_, wrappedHandler := newrelic.WrapHandle(newrelicApp, route.Pattern, handler)
+					r.Method(route.Method, route.Pattern, wrappedHandler)
 				})
 			}
 		}

@@ -36,6 +36,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -211,7 +212,23 @@ func main() {
 		middleware.RealIP,
 		cache.Middleware,
 	}
-	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse)
+
+	var newrelicApp *newrelic.Application
+	newRelicLicense := os.Getenv("NEW_RELIC_LICENSE")
+	if newRelicLicense == "" {
+		app, err := newrelic.NewApplication(
+			newrelic.ConfigAppName("socialapp"),
+			newrelic.ConfigLicense(newRelicLicense),
+			newrelic.ConfigAppLogForwardingEnabled(true),
+		)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to create new relic application")
+		} else {
+			newrelicApp = app
+		}
+	}
+
+	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse, newrelicApp)
 
 	// 3. Main router for routing to different routers based on subdomain
 	mainRouter := chi.NewRouter()
