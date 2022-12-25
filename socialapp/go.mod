@@ -11,6 +11,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.7
 	github.com/newrelic/go-agent/v3 v3.20.2
+	github.com/newrelic/go-agent/v3/integrations/nrpq v1.1.1
 	github.com/prometheus/client_golang v1.13.1
 	github.com/rs/zerolog v1.28.0
 	github.com/slok/go-http-metrics v0.10.0

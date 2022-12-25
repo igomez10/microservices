@@ -36,6 +36,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
+	_ "github.com/newrelic/go-agent/v3/integrations/nrpq"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -69,7 +70,7 @@ func main() {
 
 	log.Info().Msgf("Starting PORT: %d", *appPort)
 
-	dbConn, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	dbConn, err := sql.Open("nrpostgres", os.Getenv("DATABASE_URL"))
 
 	if err != nil {
 		log.Fatal().Err(err)
