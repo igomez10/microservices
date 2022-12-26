@@ -221,6 +221,9 @@ func main() {
 			newrelic.ConfigAppName("socialapp"),
 			newrelic.ConfigLicense(newRelicLicense),
 			newrelic.ConfigAppLogForwardingEnabled(true),
+			newrelic.ConfigAppLogEnabled(true),
+			newrelic.ConfigDistributedTracerEnabled(true),
+			newrelic.ConfigDebugLogger(os.Stdout),
 		)
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create new relic application")
