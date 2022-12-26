@@ -10,4 +10,4 @@ receivers:
   - name: "slack-notifications"
     slack_configs:
       - channel: "#notifications"
-        text: "https://internal.myorg.net/wiki/alerts/{{ .GroupLabels.app }}/{{ .GroupLabels.alertname }}"
+        text: "http://localhost:3005/alerting/list?ruleType=alerting&alertState=firing&view=list"
