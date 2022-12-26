@@ -21,8 +21,8 @@ groups:
       summary: "Instance {{ $labels.instance }} under high load"
       description: "{{ $labels.instance }} of job {{ $labels.job }} is under high load."
 
-  - alert: high_memory
-    expr: node_memory_MemFree_bytes / node_memory_MemTotal_bytes < 0.1
+  - alert: high_memory for all nodes
+    expr: (node_memory_MemTotal_bytes{instance=~".*"} - node_memory_MemFree_bytes{instance=~".*"} - node_memory_Buffers_bytes{instance=~".*"} - node_memory_Cached_bytes{instance=~".*"} - node_memory_SReclaimable_bytes{instance=~".*"}) / node_memory_MemTotal_bytes{instance=~".*"} > 0.6
     for: 2m
     labels:
       severity: page
