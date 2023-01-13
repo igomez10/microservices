@@ -9,5 +9,5 @@ route:
 receivers:
   - name: "slack-notifications"
     slack_configs:
-      - channel: "#notifications"
+      - channel: "#alerts"
         text: "http://localhost:3005/alerting/list?ruleType=alerting&alertState=firing&view=list"
