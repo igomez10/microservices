@@ -8,7 +8,7 @@ volumes:
   prometheus_data: {}
   grafana_data: {}
   db_data: {}
-  phlare_data: {}
+  # phlare_data: {}
 
 services:
   database:
@@ -59,7 +59,7 @@ services:
       - ./prometheus/:/etc/prometheus/
       - prometheus_data:/prometheus
     command:
-      - '--storage.tsdb.retention.size=4GB'
+      - '--storage.tsdb.retention.size=6GB'
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
@@ -130,23 +130,23 @@ services:
         syslog-address: "udp://localhost:51000"
         tag: "inspector"
 
-  phlare:
-    image: grafana/phlare:latest
-    ports:
-      - 4100:4100
-    volumes:
-      - ./phlare/phlare.yml:/etc/phlare/phlare.yml
-      - phlare_data:/data
-    command:
-      - '--config.file=/etc/phlare/phlare.yml'
-    expose:
-      - 4100
-    restart: always
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "udp://localhost:51000"
-        tag: "phlare"
+  # phlare:
+  #   image: grafana/phlare:latest
+  #   ports:
+  #     - 4100:4100
+  #   volumes:
+  #     - ./phlare/phlare.yml:/etc/phlare/phlare.yml
+  #     - phlare_data:/data
+  #   command:
+  #     - '--config.file=/etc/phlare/phlare.yml'
+  #   expose:
+  #     - 4100
+  #   restart: always
+  #   logging:
+  #     driver: "syslog"
+  #     options:
+  #       syslog-address: "udp://localhost:51000"
+  #       tag: "phlare"
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.46.0

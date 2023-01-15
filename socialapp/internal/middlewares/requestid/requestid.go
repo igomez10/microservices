@@ -1,9 +1,7 @@
 package requestid
 
 import (
-	"context"
 	"net/http"
-	"runtime/pprof"
 	"socialapp/internal/contexthelper"
 
 	"github.com/google/uuid"
@@ -27,11 +25,16 @@ func Middleware(next http.Handler) http.Handler {
 
 		// ---------
 		//  HANDLE REQUEST
-		labels := pprof.Labels("path", r.URL.Path)
-		pprof.Do(r.Context(), labels, func(ctx context.Context) {
-			// Do some work...
-			next.ServeHTTP(w, r)
-		})
+
+		// WITH PPROF
+		// labels := pprof.Labels("path", r.URL.Path)
+		// pprof.Do(r.Context(), labels, func(ctx context.Context) {
+		// 	// Do some work...
+		// 	next.ServeHTTP(w, r)
+		// })
+
+		// WITHOUT PPROF
+		next.ServeHTTP(w, r)
 
 		// HANDLE RESPONSE
 		// ---------

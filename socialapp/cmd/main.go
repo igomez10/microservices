@@ -1,6 +1,8 @@
 package main
 
 import (
+	//  With pprof to enable profiling
+	// _ "net/http/pprof"
 	"context"
 	"database/sql"
 	"encoding/base64"
@@ -9,7 +11,6 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
-	_ "net/http/pprof"
 	"net/url"
 	"os"
 	"socialapp/internal/authorizationparser"
