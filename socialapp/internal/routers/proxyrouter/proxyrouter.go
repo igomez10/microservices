@@ -41,12 +41,13 @@ func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handl
 
 	router.HandleFunc("/*", func(w http.ResponseWriter, req *http.Request) {
 		// metrics for proxy
+		startTime := time.Now()
 		log.Info().Msgf("Proxying request to %s", req.Host)
 		prometheusProxyRequests.WithLabelValues(req.Host).Inc()
-		startTime := time.Now()
-		// remove auth header
 		req.Host = target.Host
 		req.URL.Host = target.Host
+
+		// remove auth header
 		req.Header.Del("Authorization")
 		proxy.ServeHTTP(w, req)
 

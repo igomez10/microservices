@@ -243,6 +243,21 @@ func main() {
 
 	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse, newrelicApp)
 
+	propertiesMiddleware := []func(http.Handler) http.Handler{
+		cors.AllowAll().Handler,
+		middleware.Heartbeat("/health"),
+		requestid.Middleware,
+		beacon.Middleware,
+		middleware.Recoverer,
+		middleware.Timeout(60 * time.Second),
+		middleware.RealIP,
+	}
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to parse properties target url")
+	}
+	propertiesSubdomain := os.Getenv("PROPERTIES_SUBDOMAIN")
+	propertiesProxy := proxyrouter.NewProxyRouter(kibanaTargetURL, propertiesMiddleware)
+
 	// 3. Main router for routing to different routers based on subdomain
 	mainRouter := chi.NewRouter()
 	mainRouter.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
@@ -268,6 +283,8 @@ func main() {
 			r.Form = url.Values{}
 			r.Form.Set("scope", "kibana:read")
 			authKibanaRouter.Router.ServeHTTP(w, r)
+		case propertiesSubdomain:
+			propertiesProxy.Router.ServeHTTP(w, r)
 		default:
 			socialappRouter.Router.ServeHTTP(w, r)
 		}
