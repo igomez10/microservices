@@ -50,6 +50,15 @@ var (
 func main() {
 	flag.Parse()
 
+	useProxy := os.Getenv("USE_PROXY")
+	if useProxy == "true" {
+		proxyUrl, err := url.Parse("http://localhost:9091")
+		if err != nil {
+			panic(err)
+		}
+		http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
+	}
+
 	// Setup logger
 	conn, err := net.Dial("udp", os.Getenv("LOGSTASH_HOST"))
 	if err != nil {

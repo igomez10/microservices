@@ -27,7 +27,7 @@ var prometheusProxyResponseTime = promauto.NewHistogramVec(prometheus.HistogramO
 	Help: "The response time of proxy requests",
 }, []string{"host"})
 
-func NewProxyRouter(host string, target *url.URL, middlewares []func(http.Handler) http.Handler) *ProxyRouter {
+func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handler) *ProxyRouter {
 	router := chi.NewRouter()
 
 	for i := range middlewares {
@@ -45,6 +45,8 @@ func NewProxyRouter(host string, target *url.URL, middlewares []func(http.Handle
 		prometheusProxyRequests.WithLabelValues(req.Host).Inc()
 		startTime := time.Now()
 		// remove auth header
+		req.Host = target.Host
+		req.URL.Host = target.Host
 		req.Header.Del("Authorization")
 		proxy.ServeHTTP(w, req)
 
@@ -57,7 +59,6 @@ func NewProxyRouter(host string, target *url.URL, middlewares []func(http.Handle
 
 	return &ProxyRouter{
 		Router: router,
-		Host:   host,
 		Target: target,
 	}
 }
