@@ -208,7 +208,7 @@ func main() {
 		middleware.RealIP,
 	}
 	kibanaSubdomain := os.Getenv("KIBANA_SUBDOMAIN")
-	authKibanaRouter := proxyrouter.NewProxyRouter(kibanaSubdomain, kibanaTargetURL, kibanaRouterMiddlewares)
+	authKibanaRouter := proxyrouter.NewProxyRouter(kibanaTargetURL, kibanaRouterMiddlewares)
 
 	// 2. SocialApp router
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
