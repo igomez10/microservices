@@ -64,6 +64,16 @@ type ScopeApiRouter interface {
 	UpdateScope(http.ResponseWriter, *http.Request)
 }
 
+// URLApiRouter defines the required methods for binding the api requests to a responses for the URLApi
+// The URLApiRouter implementation should parse necessary information from the http request,
+// pass the data to a URLApiServicer to perform the required actions, then write the service results to the http response.
+type URLApiRouter interface {
+	CreateUrl(http.ResponseWriter, *http.Request)
+	DeleteUrl(http.ResponseWriter, *http.Request)
+	GetUrl(http.ResponseWriter, *http.Request)
+	GetUrlData(http.ResponseWriter, *http.Request)
+}
+
 // UserApiRouter defines the required methods for binding the api requests to a responses for the UserApi
 // The UserApiRouter implementation should parse necessary information from the http request,
 // pass the data to a UserApiServicer to perform the required actions, then write the service results to the http response.
@@ -136,6 +146,17 @@ type ScopeApiServicer interface {
 	GetScope(context.Context, int32) (ImplResponse, error)
 	ListScopes(context.Context, int32, int32) (ImplResponse, error)
 	UpdateScope(context.Context, int32, Scope) (ImplResponse, error)
+}
+
+// URLApiServicer defines the api actions for the URLApi service
+// This interface intended to stay up to date with the openapi yaml used to generate it,
+// while the service implementation can be ignored with the .openapi-generator-ignore file
+// and updated with the logic required for the API.
+type URLApiServicer interface {
+	CreateUrl(context.Context, Url) (ImplResponse, error)
+	DeleteUrl(context.Context, string) (ImplResponse, error)
+	GetUrl(context.Context, string) (ImplResponse, error)
+	GetUrlData(context.Context, string) (ImplResponse, error)
 }
 
 // UserApiServicer defines the api actions for the UserApi service

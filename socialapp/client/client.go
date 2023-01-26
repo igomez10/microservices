@@ -60,6 +60,8 @@ type APIClient struct {
 
 	ScopeApi *ScopeApiService
 
+	URLApi *URLApiService
+
 	UserApi *UserApiService
 }
 
@@ -84,6 +86,7 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.FollowingApi = (*FollowingApiService)(&c.common)
 	c.RoleApi = (*RoleApiService)(&c.common)
 	c.ScopeApi = (*ScopeApiService)(&c.common)
+	c.URLApi = (*URLApiService)(&c.common)
 	c.UserApi = (*UserApiService)(&c.common)
 
 	return c

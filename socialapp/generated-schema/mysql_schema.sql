@@ -91,6 +91,18 @@ CREATE TABLE IF NOT EXISTS `scope` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - Scope.';
 
 --
+-- Table structure for table `url` generated from model 'URL'
+--
+
+CREATE TABLE IF NOT EXISTS `url` (
+  `url` TEXT NOT NULL,
+  `alias` TEXT NOT NULL,
+  `created_at` DATETIME DEFAULT NULL,
+  `updated_at` DATETIME DEFAULT NULL,
+  `deleted_at` DATETIME DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - URL.';
+
+--
 -- Table structure for table `user` generated from model 'User'
 --
 

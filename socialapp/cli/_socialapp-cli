@@ -310,7 +310,10 @@ case $state in
             "deleteScope[Delete a scope]" \
             "getScope[Returns a scope]" \
             "listScopes[Returns a list of scopes]" \
-            "updateScope[Update a scope]"             "changePassword[Change password]" \
+            "updateScope[Update a scope]"             "createUrl[]" \
+            "deleteUrl[]" \
+            "getUrl[]" \
+            "getUrlData[]"             "changePassword[Change password]" \
             "createUser[Create user]" \
             "deleteUser[Deletes a particular user]" \
             "followUser[Add a user as a follower]" \
@@ -464,6 +467,33 @@ case $state in
         local -a _op_arguments
         _op_arguments=(
           "id=:[PATH] id of the scope"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      createUrl)
+        local -a _op_arguments
+        _op_arguments=(
+                              )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      deleteUrl)
+        local -a _op_arguments
+        _op_arguments=(
+          "alias=:[PATH] The alias of the url"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      getUrl)
+        local -a _op_arguments
+        _op_arguments=(
+          "alias=:[PATH] The alias of the url"
+                    )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      getUrlData)
+        local -a _op_arguments
+        _op_arguments=(
+          "alias=:[PATH] The alias of the url"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;

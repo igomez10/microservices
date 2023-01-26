@@ -27,6 +27,15 @@ func FromOpenAPIToEndpointScopes(doc *openapi3.T) EndpointAuthorizations {
 						res[path][method] = requiredScopes
 					}
 				}
+			} else {
+				// if the operation has no security requirements, we add an empty array of scopes
+				if _, exist := res[path]; !exist {
+					res[path] = map[string][]string{ // "/user"
+						method: {"noauth"}, // "GET": []string{}
+					}
+				} else {
+					res[path][method] = []string{"noauth"}
+				}
 			}
 		}
 	}

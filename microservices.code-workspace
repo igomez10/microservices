@@ -23,7 +23,7 @@
 		},
 		{
 			"path": "../puttyknife"
-		},
+		}
 	],
 	"settings": {
 		"githubPullRequests.ignoredPullRequestBranches": [

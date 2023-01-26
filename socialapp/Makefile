@@ -12,6 +12,7 @@ generate-openapi:
 	--additional-properties=serverPort=8080 \
 	--additional-properties=featureCORS=true \
 	--additional-properties=hideGenerationTimestamp=true \
+	--additional-properties=addResponseHeaders=true \
 	--additional-properties=onlyInterfaces=true \
 	--additional-properties=router=chi
 	rm -rf socialappapi/openapi

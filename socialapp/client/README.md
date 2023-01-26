@@ -98,6 +98,10 @@ Class | Method | HTTP request | Description
 *ScopeApi* | [**GetScope**](docs/ScopeApi.md#getscope) | **Get** /scopes/{id} | Returns a scope
 *ScopeApi* | [**ListScopes**](docs/ScopeApi.md#listscopes) | **Get** /scopes | Returns a list of scopes
 *ScopeApi* | [**UpdateScope**](docs/ScopeApi.md#updatescope) | **Put** /scopes/{id} | Update a scope
+*URLApi* | [**CreateUrl**](docs/URLApi.md#createurl) | **Post** /urls | 
+*URLApi* | [**DeleteUrl**](docs/URLApi.md#deleteurl) | **Delete** /urls/{alias} | 
+*URLApi* | [**GetUrl**](docs/URLApi.md#geturl) | **Get** /urls/{alias} | 
+*URLApi* | [**GetUrlData**](docs/URLApi.md#geturldata) | **Get** /urls/{alias}/data | 
 *UserApi* | [**ChangePassword**](docs/UserApi.md#changepassword) | **Post** /password | Change password
 *UserApi* | [**CreateUser**](docs/UserApi.md#createuser) | **Post** /users | Create user
 *UserApi* | [**DeleteUser**](docs/UserApi.md#deleteuser) | **Delete** /users/{username} | Deletes a particular user
@@ -124,6 +128,7 @@ Class | Method | HTTP request | Description
  - [ResetPasswordRequest](docs/ResetPasswordRequest.md)
  - [Role](docs/Role.md)
  - [Scope](docs/Scope.md)
+ - [URL](docs/URL.md)
  - [User](docs/User.md)
 
 
@@ -166,6 +171,9 @@ Class | Method | HTTP request | Description
  - **socialapp.users.roles.create**: Create roles of a user
  - **socialapp.users.roles.update**: Update roles of a user
  - **socialapp.users.roles.delete**: Delete roles of a user
+ - **shortly.url.create**: Create a url
+ - **shortly.url.update**: Update a url
+ - **shortly.url.delete**: Delete a url
 
 Example
 

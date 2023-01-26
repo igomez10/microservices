@@ -27,6 +27,8 @@ tags:
     name: Role
   - description: Scope management
     name: Scope
+  - description: URL management
+    name: URL
 
 security:
   - OAuth2: []
@@ -1387,6 +1389,119 @@ paths:
       summary: Delete a scope
       tags:
         - Scope
+  /urls/{alias}:
+    get:
+      description: Returns a url
+      operationId: getUrl
+      parameters:
+        - description: The alias of the url
+          example: "abcdef"
+          explode: false
+          in: path
+          name: alias
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        "302":
+          description: Redirect to the url
+          headers:
+            Location:
+              description: The url
+              schema:
+                type: string
+              required: true
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Url not found
+      tags:
+        - URL
+    delete:
+      description: Delete a url
+      operationId: deleteUrl
+      parameters:
+        - description: The alias of the url
+          example: "abcdef"
+          explode: false
+          in: path
+          name: alias
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        "204":
+          description: Url was deleted successfully
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Url not found
+      tags:
+        - URL
+  /urls/{alias}/data:
+    get:
+      description: Returns a url
+      operationId: getUrlData
+      parameters:
+        - description: The alias of the url
+          example: "abcdef"
+          explode: false
+          in: path
+          name: alias
+          required: true
+          schema:
+            type: string
+          style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/URL"
+          description: Url is returned
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Url not found
+      tags:
+        - URL
+  /urls:
+    post:
+      description: Returns a url
+      operationId: createUrl
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/URL"
+        description: Create a new url
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/URL"
+          description: Url is returned
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unauthorized
+      security:
+        - OAuth2:
+            - shortly.url.create
+      tags:
+        - URL
 
 components:
   schemas:
@@ -1567,6 +1682,32 @@ components:
         - name
         - description
       type: object
+    URL:
+      example:
+        alias: example
+        url: https://example.com
+        creted_at: "2020-01-01T00:00:00Z"
+        updated_at: "2020-01-01T00:00:00Z"
+        deleted_at: "2020-01-01T00:00:00Z"
+      properties:
+        url:
+          type: string
+          format: uri
+        alias:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        deleted_at:
+          format: date-time
+          type: string
+      required:
+        - alias
+        - url
+      type: object
   securitySchemes:
     OAuth2:
       flows:
@@ -1600,5 +1741,8 @@ components:
             socialapp.users.roles.create: Create roles of a user
             socialapp.users.roles.update: Update roles of a user
             socialapp.users.roles.delete: Delete roles of a user
+            shortly.url.create: Create a url
+            shortly.url.update: Update a url
+            shortly.url.delete: Delete a url
           tokenUrl: /oauth/token
       type: oauth2

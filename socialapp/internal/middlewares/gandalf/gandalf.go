@@ -41,6 +41,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
+		authResult := "failure"
 		log := contexthelper.GetLoggerInContext(r.Context())
 		// get token from header
 		if m.AllowlistedPaths[r.URL.Path] != nil && m.AllowlistedPaths[r.URL.Path][r.Method] {
@@ -50,6 +51,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				Str("method", r.Method).
 				Str("middleware", "gandalf").
 				Msg("allowlisted path")
+			authResult = "allowlisted"
 		} else {
 			authHeader := r.Header.Get("Authorization")
 			if strings.HasPrefix(authHeader, "Bearer ") {
@@ -202,6 +204,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				}
 
 				r = contexthelper.SetUsernameInContext(r, username)
+				authResult = "passed_with_bearer"
 			} else if m.AllowBasicAuth || (strings.HasPrefix(authHeader, "Basic ") && r.URL.Path == "/oauth/token") {
 				// check grant type is client_credentials
 				username, password, ok := r.BasicAuth()
@@ -317,16 +320,17 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				}
 
 				r = contexthelper.SetRequestedScopesInContext(r, mapReqScopes)
+				authResult = "passed_with_basic"
 			} else {
-				log.Error().
-					Str("authHeader", authHeader).
-					Msg("Authorization header not ok")
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte(`{"code": 401, "message": "Invalid authorization header"}`))
-				return
+				mapReqScopes := map[string]bool{
+					"noauth": true,
+				}
+				r = contexthelper.SetRequestedScopesInContext(r, mapReqScopes)
+				authResult = "noauth"
 			}
 		}
-		gandalf_duration_seconds.WithLabelValues("passed").Observe(time.Since(start).Seconds())
+
+		gandalf_duration_seconds.WithLabelValues(authResult).Observe(time.Since(start).Seconds())
 		next.ServeHTTP(w, r)
 	})
 

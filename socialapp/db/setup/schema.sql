@@ -1,5 +1,5 @@
 
-CREATE DATABASE IF NOT EXISTS `socialapp`;
+CREATE DATABASE socialapp;
 
 CREATE SEQUENCE IF NOT EXISTS users_id_seq;
 CREATE TABLE IF NOT EXISTS users (
@@ -143,6 +143,18 @@ CREATE INDEX IF NOT EXISTS tokens_to_scopes_scope_id_idx ON tokens_to_scopes (sc
 CREATE INDEX IF NOT EXISTS tokens_to_scopes_token_id_scope_id_idx ON tokens_to_scopes (token_id, scope_id);
 CREATE INDEX IF NOT EXISTS tokens_to_scopes_scope_id_token_id_idx ON tokens_to_scopes (scope_id, token_id);
 
+-- SHORTLY
+CREATE SEQUENCE IF NOT EXISTS urls_id_seq;
+CREATE TABLE IF NOT EXISTS urls (
+	id BIGINT NOT NULL PRIMARY KEY DEFAULT nextval('urls_id_seq'::regclass),
+	url VARCHAR(10000) NOT NULL,
+	alias VARCHAR(10) NOT NULL,
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	deleted_at TIMESTAMP NULL
+);
+CREATE INDEX IF NOT EXISTS alias_idx ON urls (url);
+
 
 --  SEEDING DATA
 INSERT INTO users (
@@ -211,8 +223,11 @@ INSERT INTO scopes (id, name, description, created_at, deleted_at) VALUES
 (38, 'socialapp.users.roles.delete', 'socialapp.users.roles.delete', '2022-09-28 20:21:07', NULL),
 (39, 'socialapp.users.roles.update', 'socialapp.users.roles.update', '2022-09-28 20:21:07', NULL),
 (40, 'socialapp.users.roles.read', 'socialapp.users.roles.read', '2022-09-28 20:21:07', NULL),
-(41, 'socialapp.roles.list_scopes', 'socialapp.roles.list_scopes','2022-09-28 20:21:07', NULL);
-ALTER SEQUENCE scopes_id_seq RESTART WITH 42;
+(41, 'socialapp.roles.list_scopes', 'socialapp.roles.list_scopes','2022-09-28 20:21:07', NULL),
+(42, 'shortly.url.create', 'Create a url', '2022-09-28 20:21:07', NULL),
+(43, 'shortly.url.update', 'Update a url', '2022-09-28 20:21:07', NULL),
+(44, 'shortly.url.delete', 'Delete a url', '2022-09-28 20:21:07', NULL);
+ALTER SEQUENCE scopes_id_seq RESTART WITH 45;
 
 INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (1, 1, 1),
@@ -294,10 +309,16 @@ INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (77, 1, 39),
 (78, 2, 39),
 (79, 1, 40),
-(80, 2, 40);
+(80, 2, 40),
 (81, 1, 41),
 (82, 2, 41),
-ALTER SEQUENCE roles_to_scopes_id_seq RESTART WITH 81;
+(83, 1, 42),
+(84, 2, 42),
+(85, 1, 43),
+(86, 2, 43),
+(87, 1, 44),
+(88, 2, 44);
+ALTER SEQUENCE roles_to_scopes_id_seq RESTART WITH 89;
 
 INSERT INTO users_to_roles (id, role_id, user_id) VALUES
 (1, 1, 1);

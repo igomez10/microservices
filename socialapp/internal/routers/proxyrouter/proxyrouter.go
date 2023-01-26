@@ -16,6 +16,7 @@ type ProxyRouter struct {
 	Router chi.Router
 	Host   string
 	Target *url.URL
+	Proxy  *httputil.ReverseProxy
 }
 
 var prometheusProxyRequests = promauto.NewCounterVec(prometheus.CounterOpts{
@@ -61,5 +62,6 @@ func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handl
 	return &ProxyRouter{
 		Router: router,
 		Target: target,
+		Proxy:  proxy,
 	}
 }

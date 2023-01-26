@@ -51,7 +51,7 @@ func TestParseAuthorization(t *testing.T) {
 var expectedEndpointAuthorizationsForTestApi = EndpointAuthorizations{
 	"/users": {
 		"GET":  []string{"socialapp.users.list"},
-		"POST": []string{"socialapp.users.create"},
+		"POST": []string{"noauth"},
 	},
 	"/users/{username}": {
 		"GET":    []string{"socialapp.users.read"},
@@ -131,8 +131,6 @@ paths:
       operationId: createUser
       tags:
         - User
-      security:
-        - OAuth2: [socialapp.users.create]
       requestBody:
         description: Create a new user
         content:

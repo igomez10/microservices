@@ -87,6 +87,10 @@ _socialapp-cli()
     operations["getScope"]=1
     operations["listScopes"]=1
     operations["updateScope"]=1
+    operations["createUrl"]=1
+    operations["deleteUrl"]=1
+    operations["getUrl"]=1
+    operations["getUrlData"]=1
     operations["changePassword"]=1
     operations["createUser"]=1
     operations["deleteUser"]=1
@@ -124,6 +128,10 @@ _socialapp-cli()
     operation_parameters["getScope"]="id= "
     operation_parameters["listScopes"]="limit= offset= "
     operation_parameters["updateScope"]="id= "
+    operation_parameters["createUrl"]=""
+    operation_parameters["deleteUrl"]="alias= "
+    operation_parameters["getUrl"]="alias= "
+    operation_parameters["getUrlData"]="alias= "
     operation_parameters["changePassword"]=""
     operation_parameters["createUser"]=""
     operation_parameters["deleteUser"]="username= "

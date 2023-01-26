@@ -79,8 +79,7 @@ func (c *Cache) Middleware(next http.Handler) http.Handler {
 					metricRedisCahe.WithLabelValues("redis", "miss").Inc()
 					key := r.Method + "+" + r.URL.Path
 
-					err := c.Client.Set(r.Context(), key, customW.Body, time.Minute*10).Err()
-					if err != nil {
+					if err := c.Client.Set(r.Context(), key, customW.Body, time.Minute*10).Err(); err != nil {
 						log.Error().Stack().Err(err).Msg("Failed to set key in redis")
 					}
 				}

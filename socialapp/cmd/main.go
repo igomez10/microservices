@@ -25,6 +25,7 @@ import (
 	"socialapp/pkg/controller/comment"
 	"socialapp/pkg/controller/role"
 	"socialapp/pkg/controller/scope"
+	socialappurl "socialapp/pkg/controller/url"
 	"socialapp/pkg/controller/user"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
@@ -122,12 +123,16 @@ func main() {
 	ScopeAPIService := &scope.ScopeApiService{DB: queries, DBConn: dbConn}
 	ScopeAPIController := openapi.NewScopeApiController(ScopeAPIService)
 
+	URLAPIService := &socialappurl.URLApiService{DB: queries, DBConn: dbConn}
+	URLAPIController := openapi.NewURLApiController(URLAPIService)
+
 	routers := []openapi.Router{
 		CommentApiController,
 		UserApiController,
 		AuthApiController,
 		RoleAPIController,
 		ScopeAPIController,
+		URLAPIController,
 	}
 
 	redisOpts, err := redis.ParseURL(os.Getenv("REDIS_URL"))
@@ -140,9 +145,6 @@ func main() {
 	})
 
 	socialappAllowlistedPaths := map[string]map[string]bool{
-		"/users": {
-			"POST": true,
-		},
 		"/metrics": {
 			"GET": true,
 		},
