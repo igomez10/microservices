@@ -50,3 +50,14 @@ func FromDBScopeToAPIScope(dbScope db.Scope) openapi.Scope {
 
 	return apiScope
 }
+
+func FromDBUrlToAPIUrl(dbUrl db.Url) openapi.Url {
+	apiUrl := openapi.Url{
+		Alias:     dbUrl.Alias,
+		Url:       dbUrl.Url,
+		CreatedAt: dbUrl.CreatedAt,
+		UpdatedAt: dbUrl.UpdatedAt,
+	}
+
+	return apiUrl
+}

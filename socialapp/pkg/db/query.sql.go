@@ -406,8 +406,9 @@ func (q *Queries) DeleteToken(ctx context.Context, db DBTX, token string) error 
 }
 
 const DeleteURL = `-- name: DeleteURL :exec
-DELETE FROM urls
-WHERE alias = $1
+UPDATE urls
+SET DELETED_AT = NOW()
+WHERE alias = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteURL(ctx context.Context, db DBTX, alias string) error {

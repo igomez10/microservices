@@ -1404,7 +1404,7 @@ paths:
             type: string
           style: simple
       responses:
-        "302":
+        "308":
           description: Redirect to the url
           headers:
             Location:
@@ -1434,7 +1434,7 @@ paths:
             type: string
           style: simple
       responses:
-        "204":
+        "200":
           description: Url was deleted successfully
         "404":
           content:
@@ -1442,6 +1442,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Url not found
+      security:
+        - OAuth2:
+            - shortly.url.delete
       tags:
         - URL
   /urls/{alias}/data:
@@ -1497,6 +1500,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Unauthorized
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Url already exists
       security:
         - OAuth2:
             - shortly.url.create

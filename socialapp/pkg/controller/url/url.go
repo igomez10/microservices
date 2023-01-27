@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"socialapp/internal/contexthelper"
+	"socialapp/internal/converter"
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
 )
@@ -26,6 +27,7 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (open
 			Code: http.StatusConflict,
 			Body: openapi.Error{
 				Message: "url with alias already exists",
+				Code:    http.StatusConflict,
 			},
 		}, nil
 	}
@@ -39,37 +41,37 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (open
 		log.Error().Err(err).Msg("error creating url")
 		return openapi.ImplResponse{}, err
 	}
+
+	openapiURL := converter.FromDBUrlToAPIUrl(res)
 	return openapi.ImplResponse{
-		Code: http.StatusCreated,
-		Body: res,
+		Code: http.StatusOK,
+		Body: openapiURL,
 	}, nil
 
 }
 
 func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
-
-	// validate we dont have a url with the same alias
-	shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
+	// validate that the alias does exist
+	_, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
 	if err != nil {
-		log.Error().Err(err).Msg("url with alias already exists")
+		log.Error().Err(err).Msg("alias does not exist")
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
 			Body: openapi.Error{
-				Message: "url with alias already exists",
+				Message: "alias does not exist",
+				Code:    http.StatusNotFound,
 			},
 		}, nil
 	}
 
-	res := openapi.ImplResponse{
-		Code: http.StatusOK,
-		Headers: map[string][]string{
-			"Location": {shortedURL.Url},
-		},
+	if err := s.DB.DeleteURL(ctx, s.DBConn, alias); err != nil {
+		log.Error().Err(err).Msg("error deleting url")
+		return openapi.ImplResponse{}, err
 	}
-
-	// add location hedaer for redirect in the response
-	return res, nil
+	return openapi.ImplResponse{
+		Code: http.StatusOK,
+	}, nil
 }
 
 func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplResponse, error) {
@@ -83,6 +85,7 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplR
 			Code: http.StatusNotFound,
 			Body: openapi.Error{
 				Message: "alias does not exist",
+				Code:    http.StatusNotFound,
 			},
 		}, nil
 	}
@@ -113,6 +116,7 @@ func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (openapi.I
 			Code: http.StatusNotFound,
 			Body: openapi.Error{
 				Message: "alias does not exist",
+				Code:    http.StatusNotFound,
 			},
 		}, nil
 	}

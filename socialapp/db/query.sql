@@ -315,5 +315,6 @@ INSERT INTO urls (
 RETURNING *;
 
 -- name: DeleteURL :exec
-DELETE FROM urls
-WHERE alias = $1;
+UPDATE urls
+SET DELETED_AT = NOW()
+WHERE alias = $1 AND deleted_at IS NULL;
