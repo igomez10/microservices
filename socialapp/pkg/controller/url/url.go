@@ -95,10 +95,6 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplR
 		Headers: map[string][]string{
 			"Location": {shortedURL.Url},
 		},
-		Body: openapi.Url{
-			Alias: shortedURL.Alias,
-			Url:   shortedURL.Url,
-		},
 	}
 
 	// add location hedaer for redirect in the response
