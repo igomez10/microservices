@@ -8,6 +8,10 @@ volumes:
   prometheus_data: {}
   grafana_data: {}
   db_data: {}
+  zookeeper_data:
+    driver: local
+  kafka_data:
+    driver: local
   # phlare_data: {}
 
 services:
@@ -185,3 +189,54 @@ services:
       options:
         syslog-address: "udp://localhost:51000"
         tag: "nginx"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:51000"
+        tag: "zookeeper"
+
+  broker:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: broker
+    ports:
+      # To learn about configuring Kafka for access across networks see
+      # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
+      - "9092:9092"
+      - "29092:29092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092,PLAINTEXT_BROKER://broker:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_BROKER:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:51000"
+        tag: "broker"
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    ports:
+      - "8095:8080"
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=broker:9092
+    depends_on:
+      - broker
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:51000"
+        tag: "kafka-ui"
