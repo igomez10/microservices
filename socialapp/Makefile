@@ -1,5 +1,5 @@
 generate-openapi:
-	openapi-generator-cli version-manager set 6.2.0
+	# openapi-generator-cli version-manager set 6.2.0
 	#  generate server:
 	rm -rf ./socialappapi
 	openapi-generator-cli generate --input-spec openapi.yaml  \
@@ -58,6 +58,38 @@ generate-openapi:
 		--generator-name jmeter \
 		--output jmeter
 
+
+generate-protobuf:
+	# generate protobuf
+	rm -rf protobuf-schema
+	openapi-generator-cli generate --input-spec openapi.yaml \
+		--generator-name protobuf-schema \
+		--output protobuf-schema
+
+	# add at the end of every file option go_package = \"github.com/igomez10/socialapp-go-client/openapitools\";
+	
+	#  for every proto file create a package with its name and add the option go_package
+	#  to the file
+	for file in protobuf-schema/models/*.proto; do \
+		package_name=$$(basename $$file .proto); \
+		echo "package $$package_name;" | cat - $$file > temp && mv temp $$file; \
+	done
+
+	echo "option go_package = \"./models\";" | tee -a protobuf-schema/models/*.proto
+	echo "option go_package = \"./services\";" | tee -a protobuf-schema/services/*.proto
+
+	cd protobuf-schema && \
+	protoc \
+		--go_out=. \
+		--go-grpc_out=. \
+		--go-grpc_opt=paths=source_relative ./services/*.proto
+	
+	cd protobuf-schema && \
+	protoc \
+		--go_out=. \
+		--go-grpc_out=. \
+		--go-grpc_opt=paths=source_relative ./models/*.proto
+	echo "FINISHED GENERATING PROTOBUF"
 
 sqlc-generate:
 	sqlc generate --file db/sqlc.yaml
