@@ -9,16 +9,30 @@ import (
 	"socialapp/pkg/db"
 	"socialapp/socialappapi/openapi"
 
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/rs/zerolog/log"
 )
 
 // s *CommentService openapi.CommentApiServicer
 type CommentService struct {
-	DB     db.Querier
-	DBConn db.DBTX
+	DB            db.Querier
+	DBConn        db.DBTX
+	KafkaProducer *kafka.Producer
 }
 
 func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comment) (openapi.ImplResponse, error) {
+	topicName := "comments"
+	err := s.KafkaProducer.Produce(&kafka.Message{
+		TopicPartition: kafka.TopicPartition{
+			Topic:     &topicName,
+			Partition: kafka.PartitionAny,
+		},
+		Value: []byte("CreateComment-" + comment.Username + "-" + comment.Content + "-"),
+	}, nil)
+	if err != nil {
+		log.Error().Err(err).Msg("Error producing message")
+	}
+
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, comment.Username)

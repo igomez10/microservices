@@ -31,6 +31,7 @@ import (
 	"socialapp/socialappapi/openapi"
 	"time"
 
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -73,14 +74,44 @@ func main() {
 		log.Logger = zerolog.New(conn)
 	}
 
+	instanceID := uuid.NewString()
 	log.Logger = log.With().
 		Str("app", "socialapp").
-		Str("instance", uuid.NewString()).
+		Str("instance", instanceID).
 		Timestamp().
 		Logger()
 
 	log.Info().Msgf("Starting PORT: %d", *appPort)
 
+	// Connect to Kafka
+	kafkaBrokers := os.Getenv("KAFKA_HOST")
+	p, err := kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers":            kafkaBrokers,
+		"client.id":                    "go-producer-" + instanceID,
+		"acks":                         "all",
+		"retries":                      0,
+		"linger.ms":                    1,
+		"compression.type":             "snappy",
+		"batch.num.messages":           1000,
+		"queue.buffering.max.messages": 100000,
+		"queue.buffering.max.ms":       1000,
+		"message.send.max.retries":     3,
+		"retry.backoff.ms":             5,
+		"socket.keepalive.enable":      true,
+		"socket.nagle.disable":         true,
+		"socket.max.fails":             3,
+		"broker.address.ttl":           1000,
+		"broker.address.family":        "v4",
+		"api.version.request":          true,
+		"api.version.fallback.ms":      0,
+		"security.protocol":            "plaintext",
+		"ssl.key.location":             "",
+	})
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to create producer")
+	}
+
+	// Connect to database
 	dbConn, err := sql.Open("nrpostgres", os.Getenv("DATABASE_URL"))
 
 	if err != nil {
@@ -104,7 +135,7 @@ func main() {
 	queries := db.New()
 
 	// Comment service
-	CommentApiService := &comment.CommentService{DB: queries, DBConn: dbConn}
+	CommentApiService := &comment.CommentService{DB: queries, DBConn: dbConn, KafkaProducer: p}
 	CommentApiController := openapi.NewCommentApiController(CommentApiService)
 
 	// User service
