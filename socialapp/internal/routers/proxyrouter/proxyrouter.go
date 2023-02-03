@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -38,6 +39,21 @@ func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handl
 	proxy := httputil.NewSingleHostReverseProxy(&url.URL{
 		Scheme: target.Scheme,
 		Host:   target.Host,
+	})
+
+	// Expose the api spec via HTTP.
+	router.HandleFunc("/static/re-price", func(w http.ResponseWriter, r *http.Request) {
+		// send open api file
+		// open api file
+		file := "./static/re-price.html"
+		content, err := os.ReadFile(file)
+		if err != nil {
+			log.Error().Err(err).Msg("Error reading file")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html")
+		w.Write(content)
 	})
 
 	router.HandleFunc("/*", func(w http.ResponseWriter, req *http.Request) {
