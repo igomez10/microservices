@@ -46,8 +46,15 @@ func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handl
 
 	// Expose the static public folder
 	router.HandleFunc("/static/public/*", func(w http.ResponseWriter, r *http.Request) {
-		log.Info().Msgf("Serving static file %s", r.URL.Path)
+		startTime := time.Now()
+		prometheusProxyRequests.WithLabelValues(r.Host).Inc()
+
 		fs.ServeHTTP(w, r)
+
+		latency := float64(time.Since(startTime).Milliseconds())
+		prometheusProxyResponseTime.
+			WithLabelValues(r.Host, r.URL.Path).
+			Observe(latency)
 	})
 
 	router.HandleFunc("/*", func(w http.ResponseWriter, req *http.Request) {
