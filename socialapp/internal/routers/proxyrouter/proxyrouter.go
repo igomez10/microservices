@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -41,19 +40,14 @@ func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handl
 		Host:   target.Host,
 	})
 
-	// Expose the api spec via HTTP.
-	router.HandleFunc("/static/re-price", func(w http.ResponseWriter, r *http.Request) {
-		// send open api file
-		// open api file
-		file := "./static/re-price.html"
-		content, err := os.ReadFile(file)
-		if err != nil {
-			log.Error().Err(err).Msg("Error reading file")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "text/html")
-		w.Write(content)
+	// Serve static files from the static/public folder
+	fs := http.FileServer(http.Dir("static/public"))
+	fs = http.StripPrefix("/static/public/", fs)
+
+	// Expose the static public folder
+	router.HandleFunc("/static/public/*", func(w http.ResponseWriter, r *http.Request) {
+		log.Info().Msgf("Serving static file %s", r.URL.Path)
+		fs.ServeHTTP(w, r)
 	})
 
 	router.HandleFunc("/*", func(w http.ResponseWriter, req *http.Request) {
