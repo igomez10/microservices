@@ -3,10 +3,11 @@ package url
 import (
 	"context"
 	"net/http"
-	"socialapp/internal/contexthelper"
-	"socialapp/internal/converter"
-	"socialapp/pkg/db"
-	"socialapp/socialappapi/openapi"
+
+	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
+	"github.com/igomez10/microservices/socialapp/internal/converter"
+	"github.com/igomez10/microservices/socialapp/pkg/db"
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
 // implements the URLApiServicer interface

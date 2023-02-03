@@ -15,6 +15,9 @@ import (
 	"encoding/json"
 )
 
+// checks if the ResetPasswordRequest type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &ResetPasswordRequest{}
+
 // ResetPasswordRequest struct for ResetPasswordRequest
 type ResetPasswordRequest struct {
 	Email string `json:"email"`
@@ -63,11 +66,17 @@ func (o *ResetPasswordRequest) SetEmail(v string) {
 }
 
 func (o ResetPasswordRequest) MarshalJSON() ([]byte, error) {
-	toSerialize := map[string]interface{}{}
-	if true {
-		toSerialize["email"] = o.Email
+	toSerialize, err := o.ToMap()
+	if err != nil {
+		return []byte{}, err
 	}
 	return json.Marshal(toSerialize)
+}
+
+func (o ResetPasswordRequest) ToMap() (map[string]interface{}, error) {
+	toSerialize := map[string]interface{}{}
+	toSerialize["email"] = o.Email
+	return toSerialize, nil
 }
 
 type NullableResetPasswordRequest struct {

@@ -6,12 +6,12 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
-	"socialapp/internal/contexthelper"
-	"socialapp/pkg/db"
-	"socialapp/socialappapi/openapi"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
+	"github.com/igomez10/microservices/socialapp/pkg/db"
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
 // s *AuthenticationService openapi.AuthenticationApiServicer

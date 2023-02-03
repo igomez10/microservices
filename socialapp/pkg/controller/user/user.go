@@ -6,14 +6,14 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"net/http"
-	"socialapp/internal/contexthelper"
-	"socialapp/internal/converter"
-	"socialapp/pkg/db"
-	"socialapp/socialappapi/openapi"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
+	"github.com/igomez10/microservices/socialapp/internal/converter"
+	"github.com/igomez10/microservices/socialapp/pkg/db"
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
 // implements the UserServicer interface

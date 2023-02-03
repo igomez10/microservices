@@ -127,6 +127,7 @@ func (a *ScopeApiService) CreateScopeExecute(r ScopeApiCreateScopeRequest) (*Sco
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -136,6 +137,7 @@ func (a *ScopeApiService) CreateScopeExecute(r ScopeApiCreateScopeRequest) (*Sco
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -193,7 +195,7 @@ func (a *ScopeApiService) DeleteScopeExecute(r ScopeApiDeleteScopeRequest) (*htt
 	}
 
 	localVarPath := localBasePath + "/scopes/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -245,6 +247,7 @@ func (a *ScopeApiService) DeleteScopeExecute(r ScopeApiDeleteScopeRequest) (*htt
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarHTTPResponse, newErr
 		}
@@ -254,6 +257,7 @@ func (a *ScopeApiService) DeleteScopeExecute(r ScopeApiDeleteScopeRequest) (*htt
 			newErr.error = err.Error()
 			return localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarHTTPResponse, newErr
 	}
@@ -305,7 +309,7 @@ func (a *ScopeApiService) GetScopeExecute(r ScopeApiGetScopeRequest) (*Scope, *h
 	}
 
 	localVarPath := localBasePath + "/scopes/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -357,6 +361,7 @@ func (a *ScopeApiService) GetScopeExecute(r ScopeApiGetScopeRequest) (*Scope, *h
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -366,6 +371,7 @@ func (a *ScopeApiService) GetScopeExecute(r ScopeApiGetScopeRequest) (*Scope, *h
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -443,10 +449,10 @@ func (a *ScopeApiService) ListScopesExecute(r ScopeApiListScopesRequest) ([]Scop
 	localVarFormParams := url.Values{}
 
 	if r.limit != nil {
-		localVarQueryParams.Add("limit", parameterToString(*r.limit, ""))
+		parameterAddToQuery(localVarQueryParams, "limit", r.limit, "")
 	}
 	if r.offset != nil {
-		localVarQueryParams.Add("offset", parameterToString(*r.offset, ""))
+		parameterAddToQuery(localVarQueryParams, "offset", r.offset, "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -494,6 +500,7 @@ func (a *ScopeApiService) ListScopesExecute(r ScopeApiListScopesRequest) ([]Scop
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -503,6 +510,7 @@ func (a *ScopeApiService) ListScopesExecute(r ScopeApiListScopesRequest) ([]Scop
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -570,7 +578,7 @@ func (a *ScopeApiService) UpdateScopeExecute(r ScopeApiUpdateScopeRequest) (*Sco
 	}
 
 	localVarPath := localBasePath + "/scopes/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -624,6 +632,7 @@ func (a *ScopeApiService) UpdateScopeExecute(r ScopeApiUpdateScopeRequest) (*Sco
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -633,6 +642,7 @@ func (a *ScopeApiService) UpdateScopeExecute(r ScopeApiUpdateScopeRequest) (*Sco
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

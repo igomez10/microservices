@@ -67,7 +67,7 @@ func (a *FollowingApiService) GetUserFollowersExecute(r FollowingApiGetUserFollo
 	}
 
 	localVarPath := localBasePath + "/users/{username}/followers"
-	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterToString(r.username, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -119,6 +119,7 @@ func (a *FollowingApiService) GetUserFollowersExecute(r FollowingApiGetUserFollo
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -128,6 +129,7 @@ func (a *FollowingApiService) GetUserFollowersExecute(r FollowingApiGetUserFollo
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

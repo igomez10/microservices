@@ -3,7 +3,8 @@ package authorization
 import (
 	"fmt"
 	"net/http"
-	"socialapp/internal/contexthelper"
+
+	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 )
 
 type Middleware struct {

@@ -1,8 +1,8 @@
 package converter
 
 import (
-	"socialapp/pkg/db"
-	"socialapp/socialappapi/openapi"
+	"github.com/igomez10/microservices/socialapp/pkg/db"
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
 func FromDBCmtToAPICmt(comment db.Comment, user db.User) openapi.Comment {

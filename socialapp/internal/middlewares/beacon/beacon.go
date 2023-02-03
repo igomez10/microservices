@@ -2,10 +2,10 @@ package beacon
 
 import (
 	"net/http"
-	"socialapp/internal/contexthelper"
-	"socialapp/internal/responseWriter"
 	"time"
 
+	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
+	"github.com/igomez10/microservices/socialapp/internal/responseWriter"
 	"github.com/rs/zerolog"
 )
 

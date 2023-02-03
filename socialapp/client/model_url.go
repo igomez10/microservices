@@ -16,6 +16,9 @@ import (
 	"time"
 )
 
+// checks if the URL type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &URL{}
+
 // URL struct for URL
 type URL struct {
 	Url       string     `json:"url"`
@@ -94,7 +97,7 @@ func (o *URL) SetAlias(v string) {
 
 // GetCreatedAt returns the CreatedAt field value if set, zero value otherwise.
 func (o *URL) GetCreatedAt() time.Time {
-	if o == nil || o.CreatedAt == nil {
+	if o == nil || isNil(o.CreatedAt) {
 		var ret time.Time
 		return ret
 	}
@@ -104,7 +107,7 @@ func (o *URL) GetCreatedAt() time.Time {
 // GetCreatedAtOk returns a tuple with the CreatedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *URL) GetCreatedAtOk() (*time.Time, bool) {
-	if o == nil || o.CreatedAt == nil {
+	if o == nil || isNil(o.CreatedAt) {
 		return nil, false
 	}
 	return o.CreatedAt, true
@@ -112,7 +115,7 @@ func (o *URL) GetCreatedAtOk() (*time.Time, bool) {
 
 // HasCreatedAt returns a boolean if a field has been set.
 func (o *URL) HasCreatedAt() bool {
-	if o != nil && o.CreatedAt != nil {
+	if o != nil && !isNil(o.CreatedAt) {
 		return true
 	}
 
@@ -126,7 +129,7 @@ func (o *URL) SetCreatedAt(v time.Time) {
 
 // GetUpdatedAt returns the UpdatedAt field value if set, zero value otherwise.
 func (o *URL) GetUpdatedAt() time.Time {
-	if o == nil || o.UpdatedAt == nil {
+	if o == nil || isNil(o.UpdatedAt) {
 		var ret time.Time
 		return ret
 	}
@@ -136,7 +139,7 @@ func (o *URL) GetUpdatedAt() time.Time {
 // GetUpdatedAtOk returns a tuple with the UpdatedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *URL) GetUpdatedAtOk() (*time.Time, bool) {
-	if o == nil || o.UpdatedAt == nil {
+	if o == nil || isNil(o.UpdatedAt) {
 		return nil, false
 	}
 	return o.UpdatedAt, true
@@ -144,7 +147,7 @@ func (o *URL) GetUpdatedAtOk() (*time.Time, bool) {
 
 // HasUpdatedAt returns a boolean if a field has been set.
 func (o *URL) HasUpdatedAt() bool {
-	if o != nil && o.UpdatedAt != nil {
+	if o != nil && !isNil(o.UpdatedAt) {
 		return true
 	}
 
@@ -158,7 +161,7 @@ func (o *URL) SetUpdatedAt(v time.Time) {
 
 // GetDeletedAt returns the DeletedAt field value if set, zero value otherwise.
 func (o *URL) GetDeletedAt() time.Time {
-	if o == nil || o.DeletedAt == nil {
+	if o == nil || isNil(o.DeletedAt) {
 		var ret time.Time
 		return ret
 	}
@@ -168,7 +171,7 @@ func (o *URL) GetDeletedAt() time.Time {
 // GetDeletedAtOk returns a tuple with the DeletedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *URL) GetDeletedAtOk() (*time.Time, bool) {
-	if o == nil || o.DeletedAt == nil {
+	if o == nil || isNil(o.DeletedAt) {
 		return nil, false
 	}
 	return o.DeletedAt, true
@@ -176,7 +179,7 @@ func (o *URL) GetDeletedAtOk() (*time.Time, bool) {
 
 // HasDeletedAt returns a boolean if a field has been set.
 func (o *URL) HasDeletedAt() bool {
-	if o != nil && o.DeletedAt != nil {
+	if o != nil && !isNil(o.DeletedAt) {
 		return true
 	}
 
@@ -189,23 +192,27 @@ func (o *URL) SetDeletedAt(v time.Time) {
 }
 
 func (o URL) MarshalJSON() ([]byte, error) {
-	toSerialize := map[string]interface{}{}
-	if true {
-		toSerialize["url"] = o.Url
-	}
-	if true {
-		toSerialize["alias"] = o.Alias
-	}
-	if o.CreatedAt != nil {
-		toSerialize["created_at"] = o.CreatedAt
-	}
-	if o.UpdatedAt != nil {
-		toSerialize["updated_at"] = o.UpdatedAt
-	}
-	if o.DeletedAt != nil {
-		toSerialize["deleted_at"] = o.DeletedAt
+	toSerialize, err := o.ToMap()
+	if err != nil {
+		return []byte{}, err
 	}
 	return json.Marshal(toSerialize)
+}
+
+func (o URL) ToMap() (map[string]interface{}, error) {
+	toSerialize := map[string]interface{}{}
+	toSerialize["url"] = o.Url
+	toSerialize["alias"] = o.Alias
+	if !isNil(o.CreatedAt) {
+		toSerialize["created_at"] = o.CreatedAt
+	}
+	if !isNil(o.UpdatedAt) {
+		toSerialize["updated_at"] = o.UpdatedAt
+	}
+	if !isNil(o.DeletedAt) {
+		toSerialize["deleted_at"] = o.DeletedAt
+	}
+	return toSerialize, nil
 }
 
 type NullableURL struct {

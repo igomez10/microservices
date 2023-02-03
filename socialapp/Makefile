@@ -1,5 +1,5 @@
 generate-openapi:
-	openapi-generator-cli version-manager set 6.2.0
+	# openapi-generator-cli version-manager set 6.3.0
 	#  generate server:
 	rm -rf ./socialappapi
 	openapi-generator-cli generate --input-spec openapi.yaml  \
@@ -27,6 +27,7 @@ generate-openapi:
 		--additional-properties=structPrefix=true
 	rm client/go.mod
 	rm client/go.sum
+	rm client/test/* # remove tests in client sdk
 
 	# generate documentation
 	openapi-generator-cli generate -i openapi.yaml  \

@@ -2,7 +2,8 @@ package pattern
 
 import (
 	"net/http"
-	"socialapp/internal/contexthelper"
+
+	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 )
 
 type Pattern struct {

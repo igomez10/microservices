@@ -127,6 +127,7 @@ func (a *URLApiService) CreateUrlExecute(r URLApiCreateUrlRequest) (*URL, *http.
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -137,6 +138,7 @@ func (a *URLApiService) CreateUrlExecute(r URLApiCreateUrlRequest) (*URL, *http.
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr
@@ -195,7 +197,7 @@ func (a *URLApiService) DeleteUrlExecute(r URLApiDeleteUrlRequest) (*http.Respon
 	}
 
 	localVarPath := localBasePath + "/urls/{alias}"
-	localVarPath = strings.Replace(localVarPath, "{"+"alias"+"}", url.PathEscape(parameterToString(r.alias, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"alias"+"}", url.PathEscape(parameterValueToString(r.alias, "alias")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -247,6 +249,7 @@ func (a *URLApiService) DeleteUrlExecute(r URLApiDeleteUrlRequest) (*http.Respon
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
@@ -296,7 +299,7 @@ func (a *URLApiService) GetUrlExecute(r URLApiGetUrlRequest) (*http.Response, er
 	}
 
 	localVarPath := localBasePath + "/urls/{alias}"
-	localVarPath = strings.Replace(localVarPath, "{"+"alias"+"}", url.PathEscape(parameterToString(r.alias, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"alias"+"}", url.PathEscape(parameterValueToString(r.alias, "alias")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -348,6 +351,7 @@ func (a *URLApiService) GetUrlExecute(r URLApiGetUrlRequest) (*http.Response, er
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 		}
 		return localVarHTTPResponse, newErr
@@ -400,7 +404,7 @@ func (a *URLApiService) GetUrlDataExecute(r URLApiGetUrlDataRequest) (*URL, *htt
 	}
 
 	localVarPath := localBasePath + "/urls/{alias}/data"
-	localVarPath = strings.Replace(localVarPath, "{"+"alias"+"}", url.PathEscape(parameterToString(r.alias, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"alias"+"}", url.PathEscape(parameterValueToString(r.alias, "alias")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -452,6 +456,7 @@ func (a *URLApiService) GetUrlDataExecute(r URLApiGetUrlDataRequest) (*URL, *htt
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 		}
 		return localVarReturnValue, localVarHTTPResponse, newErr

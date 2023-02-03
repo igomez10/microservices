@@ -2,7 +2,8 @@ package url
 
 import (
 	"context"
-	"socialapp/socialappapi/openapi"
+
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
 // s *URLMock openapi.UserApiServicer

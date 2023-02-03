@@ -3,13 +3,13 @@ package socialapprouter
 import (
 	"net/http"
 	"os"
-	"socialapp/internal/authorizationparser"
-	"socialapp/internal/middlewares/authorization"
-	"socialapp/internal/middlewares/pattern"
-	"socialapp/socialappapi/openapi"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/igomez10/microservices/socialapp/internal/authorizationparser"
+	"github.com/igomez10/microservices/socialapp/internal/middlewares/authorization"
+	"github.com/igomez10/microservices/socialapp/internal/middlewares/pattern"
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"

@@ -3,10 +3,10 @@ package cache
 import (
 	"context"
 	"net/http"
-	"socialapp/internal/responseWriter"
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/igomez10/microservices/socialapp/internal/responseWriter"
 	newrelic "github.com/newrelic/go-agent"
 	nrredis "github.com/newrelic/go-agent/v3/integrations/nrredis-v8"
 	"github.com/prometheus/client_golang/prometheus"

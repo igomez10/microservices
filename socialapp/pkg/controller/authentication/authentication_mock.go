@@ -2,7 +2,8 @@ package authentication
 
 import (
 	"context"
-	"socialapp/socialappapi/openapi"
+
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
 // s *AuthenticationMock openapi.AuthenticationApiServicer

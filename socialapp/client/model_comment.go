@@ -16,6 +16,9 @@ import (
 	"time"
 )
 
+// checks if the Comment type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &Comment{}
+
 // Comment struct for Comment
 type Comment struct {
 	Id        *int64     `json:"id,omitempty"`
@@ -46,7 +49,7 @@ func NewCommentWithDefaults() *Comment {
 
 // GetId returns the Id field value if set, zero value otherwise.
 func (o *Comment) GetId() int64 {
-	if o == nil || o.Id == nil {
+	if o == nil || isNil(o.Id) {
 		var ret int64
 		return ret
 	}
@@ -56,7 +59,7 @@ func (o *Comment) GetId() int64 {
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Comment) GetIdOk() (*int64, bool) {
-	if o == nil || o.Id == nil {
+	if o == nil || isNil(o.Id) {
 		return nil, false
 	}
 	return o.Id, true
@@ -64,7 +67,7 @@ func (o *Comment) GetIdOk() (*int64, bool) {
 
 // HasId returns a boolean if a field has been set.
 func (o *Comment) HasId() bool {
-	if o != nil && o.Id != nil {
+	if o != nil && !isNil(o.Id) {
 		return true
 	}
 
@@ -102,7 +105,7 @@ func (o *Comment) SetContent(v string) {
 
 // GetLikeCount returns the LikeCount field value if set, zero value otherwise.
 func (o *Comment) GetLikeCount() int64 {
-	if o == nil || o.LikeCount == nil {
+	if o == nil || isNil(o.LikeCount) {
 		var ret int64
 		return ret
 	}
@@ -112,7 +115,7 @@ func (o *Comment) GetLikeCount() int64 {
 // GetLikeCountOk returns a tuple with the LikeCount field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Comment) GetLikeCountOk() (*int64, bool) {
-	if o == nil || o.LikeCount == nil {
+	if o == nil || isNil(o.LikeCount) {
 		return nil, false
 	}
 	return o.LikeCount, true
@@ -120,7 +123,7 @@ func (o *Comment) GetLikeCountOk() (*int64, bool) {
 
 // HasLikeCount returns a boolean if a field has been set.
 func (o *Comment) HasLikeCount() bool {
-	if o != nil && o.LikeCount != nil {
+	if o != nil && !isNil(o.LikeCount) {
 		return true
 	}
 
@@ -134,7 +137,7 @@ func (o *Comment) SetLikeCount(v int64) {
 
 // GetCreatedAt returns the CreatedAt field value if set, zero value otherwise.
 func (o *Comment) GetCreatedAt() time.Time {
-	if o == nil || o.CreatedAt == nil {
+	if o == nil || isNil(o.CreatedAt) {
 		var ret time.Time
 		return ret
 	}
@@ -144,7 +147,7 @@ func (o *Comment) GetCreatedAt() time.Time {
 // GetCreatedAtOk returns a tuple with the CreatedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Comment) GetCreatedAtOk() (*time.Time, bool) {
-	if o == nil || o.CreatedAt == nil {
+	if o == nil || isNil(o.CreatedAt) {
 		return nil, false
 	}
 	return o.CreatedAt, true
@@ -152,7 +155,7 @@ func (o *Comment) GetCreatedAtOk() (*time.Time, bool) {
 
 // HasCreatedAt returns a boolean if a field has been set.
 func (o *Comment) HasCreatedAt() bool {
-	if o != nil && o.CreatedAt != nil {
+	if o != nil && !isNil(o.CreatedAt) {
 		return true
 	}
 
@@ -189,23 +192,27 @@ func (o *Comment) SetUsername(v string) {
 }
 
 func (o Comment) MarshalJSON() ([]byte, error) {
-	toSerialize := map[string]interface{}{}
-	if o.Id != nil {
-		toSerialize["id"] = o.Id
-	}
-	if true {
-		toSerialize["content"] = o.Content
-	}
-	if o.LikeCount != nil {
-		toSerialize["like_count"] = o.LikeCount
-	}
-	if o.CreatedAt != nil {
-		toSerialize["created_at"] = o.CreatedAt
-	}
-	if true {
-		toSerialize["username"] = o.Username
+	toSerialize, err := o.ToMap()
+	if err != nil {
+		return []byte{}, err
 	}
 	return json.Marshal(toSerialize)
+}
+
+func (o Comment) ToMap() (map[string]interface{}, error) {
+	toSerialize := map[string]interface{}{}
+	if !isNil(o.Id) {
+		toSerialize["id"] = o.Id
+	}
+	toSerialize["content"] = o.Content
+	if !isNil(o.LikeCount) {
+		toSerialize["like_count"] = o.LikeCount
+	}
+	if !isNil(o.CreatedAt) {
+		toSerialize["created_at"] = o.CreatedAt
+	}
+	toSerialize["username"] = o.Username
+	return toSerialize, nil
 }
 
 type NullableComment struct {

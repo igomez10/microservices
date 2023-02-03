@@ -2,9 +2,9 @@ package requestid
 
 import (
 	"net/http"
-	"socialapp/internal/contexthelper"
 
 	"github.com/google/uuid"
+	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 )
 
 func Middleware(next http.Handler) http.Handler {

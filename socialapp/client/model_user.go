@@ -16,6 +16,9 @@ import (
 	"time"
 )
 
+// checks if the User type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &User{}
+
 // User struct for User
 type User struct {
 	Id        *int64     `json:"id,omitempty"`
@@ -49,7 +52,7 @@ func NewUserWithDefaults() *User {
 
 // GetId returns the Id field value if set, zero value otherwise.
 func (o *User) GetId() int64 {
-	if o == nil || o.Id == nil {
+	if o == nil || isNil(o.Id) {
 		var ret int64
 		return ret
 	}
@@ -59,7 +62,7 @@ func (o *User) GetId() int64 {
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *User) GetIdOk() (*int64, bool) {
-	if o == nil || o.Id == nil {
+	if o == nil || isNil(o.Id) {
 		return nil, false
 	}
 	return o.Id, true
@@ -67,7 +70,7 @@ func (o *User) GetIdOk() (*int64, bool) {
 
 // HasId returns a boolean if a field has been set.
 func (o *User) HasId() bool {
-	if o != nil && o.Id != nil {
+	if o != nil && !isNil(o.Id) {
 		return true
 	}
 
@@ -177,7 +180,7 @@ func (o *User) SetEmail(v string) {
 
 // GetCreatedAt returns the CreatedAt field value if set, zero value otherwise.
 func (o *User) GetCreatedAt() time.Time {
-	if o == nil || o.CreatedAt == nil {
+	if o == nil || isNil(o.CreatedAt) {
 		var ret time.Time
 		return ret
 	}
@@ -187,7 +190,7 @@ func (o *User) GetCreatedAt() time.Time {
 // GetCreatedAtOk returns a tuple with the CreatedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *User) GetCreatedAtOk() (*time.Time, bool) {
-	if o == nil || o.CreatedAt == nil {
+	if o == nil || isNil(o.CreatedAt) {
 		return nil, false
 	}
 	return o.CreatedAt, true
@@ -195,7 +198,7 @@ func (o *User) GetCreatedAtOk() (*time.Time, bool) {
 
 // HasCreatedAt returns a boolean if a field has been set.
 func (o *User) HasCreatedAt() bool {
-	if o != nil && o.CreatedAt != nil {
+	if o != nil && !isNil(o.CreatedAt) {
 		return true
 	}
 
@@ -208,26 +211,26 @@ func (o *User) SetCreatedAt(v time.Time) {
 }
 
 func (o User) MarshalJSON() ([]byte, error) {
-	toSerialize := map[string]interface{}{}
-	if o.Id != nil {
-		toSerialize["id"] = o.Id
-	}
-	if true {
-		toSerialize["username"] = o.Username
-	}
-	if true {
-		toSerialize["first_name"] = o.FirstName
-	}
-	if true {
-		toSerialize["last_name"] = o.LastName
-	}
-	if true {
-		toSerialize["email"] = o.Email
-	}
-	if o.CreatedAt != nil {
-		toSerialize["created_at"] = o.CreatedAt
+	toSerialize, err := o.ToMap()
+	if err != nil {
+		return []byte{}, err
 	}
 	return json.Marshal(toSerialize)
+}
+
+func (o User) ToMap() (map[string]interface{}, error) {
+	toSerialize := map[string]interface{}{}
+	if !isNil(o.Id) {
+		toSerialize["id"] = o.Id
+	}
+	toSerialize["username"] = o.Username
+	toSerialize["first_name"] = o.FirstName
+	toSerialize["last_name"] = o.LastName
+	toSerialize["email"] = o.Email
+	if !isNil(o.CreatedAt) {
+		toSerialize["created_at"] = o.CreatedAt
+	}
+	return toSerialize, nil
 }
 
 type NullableUser struct {

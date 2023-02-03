@@ -6,11 +6,11 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"socialapp/client"
 	"testing"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/igomez10/microservices/socialapp/client"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 )

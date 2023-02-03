@@ -2,7 +2,8 @@ package user
 
 import (
 	"context"
-	"socialapp/socialappapi/openapi"
+
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
 // s *UserMock openapi.UserApiServicer

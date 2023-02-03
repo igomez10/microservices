@@ -2,7 +2,8 @@ package scope
 
 import (
 	"context"
-	"socialapp/socialappapi/openapi"
+
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
 // s *ScopeMock openapi.ScopeApiServicer

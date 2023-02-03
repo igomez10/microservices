@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"database/sql"
-	"socialapp/pkg/db"
 	"testing"
 
+	"github.com/igomez10/microservices/socialapp/pkg/db"
 	_ "github.com/lib/pq"
 )
 

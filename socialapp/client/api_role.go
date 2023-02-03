@@ -71,7 +71,7 @@ func (a *RoleApiService) AddScopeToRoleExecute(r RoleApiAddScopeToRoleRequest) (
 	}
 
 	localVarPath := localBasePath + "/roles/{id}/scopes"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -128,6 +128,7 @@ func (a *RoleApiService) AddScopeToRoleExecute(r RoleApiAddScopeToRoleRequest) (
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarHTTPResponse, newErr
 		}
@@ -138,6 +139,7 @@ func (a *RoleApiService) AddScopeToRoleExecute(r RoleApiAddScopeToRoleRequest) (
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarHTTPResponse, newErr
 		}
@@ -148,6 +150,7 @@ func (a *RoleApiService) AddScopeToRoleExecute(r RoleApiAddScopeToRoleRequest) (
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarHTTPResponse, newErr
 		}
@@ -157,6 +160,7 @@ func (a *RoleApiService) AddScopeToRoleExecute(r RoleApiAddScopeToRoleRequest) (
 			newErr.error = err.Error()
 			return localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarHTTPResponse, newErr
 	}
@@ -268,6 +272,7 @@ func (a *RoleApiService) CreateRoleExecute(r RoleApiCreateRoleRequest) (*Role, *
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -277,6 +282,7 @@ func (a *RoleApiService) CreateRoleExecute(r RoleApiCreateRoleRequest) (*Role, *
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -334,7 +340,7 @@ func (a *RoleApiService) DeleteRoleExecute(r RoleApiDeleteRoleRequest) (*http.Re
 	}
 
 	localVarPath := localBasePath + "/roles/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -386,6 +392,7 @@ func (a *RoleApiService) DeleteRoleExecute(r RoleApiDeleteRoleRequest) (*http.Re
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarHTTPResponse, newErr
 		}
@@ -395,6 +402,7 @@ func (a *RoleApiService) DeleteRoleExecute(r RoleApiDeleteRoleRequest) (*http.Re
 			newErr.error = err.Error()
 			return localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarHTTPResponse, newErr
 	}
@@ -446,7 +454,7 @@ func (a *RoleApiService) GetRoleExecute(r RoleApiGetRoleRequest) (*Role, *http.R
 	}
 
 	localVarPath := localBasePath + "/roles/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -498,6 +506,7 @@ func (a *RoleApiService) GetRoleExecute(r RoleApiGetRoleRequest) (*Role, *http.R
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -507,6 +516,7 @@ func (a *RoleApiService) GetRoleExecute(r RoleApiGetRoleRequest) (*Role, *http.R
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -584,10 +594,10 @@ func (a *RoleApiService) ListRolesExecute(r RoleApiListRolesRequest) ([]Role, *h
 	localVarFormParams := url.Values{}
 
 	if r.limit != nil {
-		localVarQueryParams.Add("limit", parameterToString(*r.limit, ""))
+		parameterAddToQuery(localVarQueryParams, "limit", r.limit, "")
 	}
 	if r.offset != nil {
-		localVarQueryParams.Add("offset", parameterToString(*r.offset, ""))
+		parameterAddToQuery(localVarQueryParams, "offset", r.offset, "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -635,6 +645,7 @@ func (a *RoleApiService) ListRolesExecute(r RoleApiListRolesRequest) ([]Role, *h
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -644,6 +655,7 @@ func (a *RoleApiService) ListRolesExecute(r RoleApiListRolesRequest) ([]Role, *h
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -718,17 +730,17 @@ func (a *RoleApiService) ListScopesForRoleExecute(r RoleApiListScopesForRoleRequ
 	}
 
 	localVarPath := localBasePath + "/roles/{id}/scopes"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	if r.limit != nil {
-		localVarQueryParams.Add("limit", parameterToString(*r.limit, ""))
+		parameterAddToQuery(localVarQueryParams, "limit", r.limit, "")
 	}
 	if r.offset != nil {
-		localVarQueryParams.Add("offset", parameterToString(*r.offset, ""))
+		parameterAddToQuery(localVarQueryParams, "offset", r.offset, "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -776,6 +788,7 @@ func (a *RoleApiService) ListScopesForRoleExecute(r RoleApiListScopesForRoleRequ
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -785,6 +798,7 @@ func (a *RoleApiService) ListScopesForRoleExecute(r RoleApiListScopesForRoleRequ
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -845,8 +859,8 @@ func (a *RoleApiService) RemoveScopeFromRoleExecute(r RoleApiRemoveScopeFromRole
 	}
 
 	localVarPath := localBasePath + "/roles/{role_id}/scopes/{scope_id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"role_id"+"}", url.PathEscape(parameterToString(r.roleId, "")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"scope_id"+"}", url.PathEscape(parameterToString(r.scopeId, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"role_id"+"}", url.PathEscape(parameterValueToString(r.roleId, "roleId")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"scope_id"+"}", url.PathEscape(parameterValueToString(r.scopeId, "scopeId")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -898,6 +912,7 @@ func (a *RoleApiService) RemoveScopeFromRoleExecute(r RoleApiRemoveScopeFromRole
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarHTTPResponse, newErr
 		}
@@ -908,6 +923,7 @@ func (a *RoleApiService) RemoveScopeFromRoleExecute(r RoleApiRemoveScopeFromRole
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarHTTPResponse, newErr
 		}
@@ -918,6 +934,7 @@ func (a *RoleApiService) RemoveScopeFromRoleExecute(r RoleApiRemoveScopeFromRole
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarHTTPResponse, newErr
 		}
@@ -927,6 +944,7 @@ func (a *RoleApiService) RemoveScopeFromRoleExecute(r RoleApiRemoveScopeFromRole
 			newErr.error = err.Error()
 			return localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarHTTPResponse, newErr
 	}
@@ -985,7 +1003,7 @@ func (a *RoleApiService) UpdateRoleExecute(r RoleApiUpdateRoleRequest) (*Role, *
 	}
 
 	localVarPath := localBasePath + "/roles/{id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterToString(r.id, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1039,6 +1057,7 @@ func (a *RoleApiService) UpdateRoleExecute(r RoleApiUpdateRoleRequest) (*Role, *
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -1048,6 +1067,7 @@ func (a *RoleApiService) UpdateRoleExecute(r RoleApiUpdateRoleRequest) (*Role, *
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

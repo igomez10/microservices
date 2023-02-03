@@ -15,6 +15,9 @@ import (
 	"encoding/json"
 )
 
+// checks if the AccessToken type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &AccessToken{}
+
 // AccessToken struct for AccessToken
 type AccessToken struct {
 	AccessToken string   `json:"access_token"`
@@ -93,7 +96,7 @@ func (o *AccessToken) SetTokenType(v string) {
 
 // GetScopes returns the Scopes field value if set, zero value otherwise.
 func (o *AccessToken) GetScopes() []string {
-	if o == nil || o.Scopes == nil {
+	if o == nil || isNil(o.Scopes) {
 		var ret []string
 		return ret
 	}
@@ -103,7 +106,7 @@ func (o *AccessToken) GetScopes() []string {
 // GetScopesOk returns a tuple with the Scopes field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *AccessToken) GetScopesOk() ([]string, bool) {
-	if o == nil || o.Scopes == nil {
+	if o == nil || isNil(o.Scopes) {
 		return nil, false
 	}
 	return o.Scopes, true
@@ -111,7 +114,7 @@ func (o *AccessToken) GetScopesOk() ([]string, bool) {
 
 // HasScopes returns a boolean if a field has been set.
 func (o *AccessToken) HasScopes() bool {
-	if o != nil && o.Scopes != nil {
+	if o != nil && !isNil(o.Scopes) {
 		return true
 	}
 
@@ -148,20 +151,22 @@ func (o *AccessToken) SetExpiresIn(v int32) {
 }
 
 func (o AccessToken) MarshalJSON() ([]byte, error) {
-	toSerialize := map[string]interface{}{}
-	if true {
-		toSerialize["access_token"] = o.AccessToken
-	}
-	if true {
-		toSerialize["token_type"] = o.TokenType
-	}
-	if o.Scopes != nil {
-		toSerialize["scopes"] = o.Scopes
-	}
-	if true {
-		toSerialize["expires_in"] = o.ExpiresIn
+	toSerialize, err := o.ToMap()
+	if err != nil {
+		return []byte{}, err
 	}
 	return json.Marshal(toSerialize)
+}
+
+func (o AccessToken) ToMap() (map[string]interface{}, error) {
+	toSerialize := map[string]interface{}{}
+	toSerialize["access_token"] = o.AccessToken
+	toSerialize["token_type"] = o.TokenType
+	if !isNil(o.Scopes) {
+		toSerialize["scopes"] = o.Scopes
+	}
+	toSerialize["expires_in"] = o.ExpiresIn
+	return toSerialize, nil
 }
 
 type NullableAccessToken struct {

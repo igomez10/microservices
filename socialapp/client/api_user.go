@@ -127,6 +127,7 @@ func (a *UserApiService) ChangePasswordExecute(r UserApiChangePasswordRequest) (
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -136,6 +137,7 @@ func (a *UserApiService) ChangePasswordExecute(r UserApiChangePasswordRequest) (
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -256,6 +258,7 @@ func (a *UserApiService) CreateUserExecute(r UserApiCreateUserRequest) (*User, *
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -265,6 +268,7 @@ func (a *UserApiService) CreateUserExecute(r UserApiCreateUserRequest) (*User, *
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -325,7 +329,7 @@ func (a *UserApiService) DeleteUserExecute(r UserApiDeleteUserRequest) (*User, *
 	}
 
 	localVarPath := localBasePath + "/users/{username}"
-	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterToString(r.username, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -377,6 +381,7 @@ func (a *UserApiService) DeleteUserExecute(r UserApiDeleteUserRequest) (*User, *
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -386,6 +391,7 @@ func (a *UserApiService) DeleteUserExecute(r UserApiDeleteUserRequest) (*User, *
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -446,8 +452,8 @@ func (a *UserApiService) FollowUserExecute(r UserApiFollowUserRequest) (*http.Re
 	}
 
 	localVarPath := localBasePath + "/users/{followedUsername}/followers/{followerUsername}"
-	localVarPath = strings.Replace(localVarPath, "{"+"followedUsername"+"}", url.PathEscape(parameterToString(r.followedUsername, "")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"followerUsername"+"}", url.PathEscape(parameterToString(r.followerUsername, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"followedUsername"+"}", url.PathEscape(parameterValueToString(r.followedUsername, "followedUsername")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"followerUsername"+"}", url.PathEscape(parameterValueToString(r.followerUsername, "followerUsername")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -499,6 +505,7 @@ func (a *UserApiService) FollowUserExecute(r UserApiFollowUserRequest) (*http.Re
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarHTTPResponse, newErr
 		}
@@ -508,6 +515,7 @@ func (a *UserApiService) FollowUserExecute(r UserApiFollowUserRequest) (*http.Re
 			newErr.error = err.Error()
 			return localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarHTTPResponse, newErr
 	}
@@ -559,7 +567,7 @@ func (a *UserApiService) GetFollowingUsersExecute(r UserApiGetFollowingUsersRequ
 	}
 
 	localVarPath := localBasePath + "/users/{username}/following"
-	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterToString(r.username, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -611,6 +619,7 @@ func (a *UserApiService) GetFollowingUsersExecute(r UserApiGetFollowingUsersRequ
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -620,6 +629,7 @@ func (a *UserApiService) GetFollowingUsersExecute(r UserApiGetFollowingUsersRequ
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -680,7 +690,7 @@ func (a *UserApiService) GetRolesForUserExecute(r UserApiGetRolesForUserRequest)
 	}
 
 	localVarPath := localBasePath + "/users/{username}/roles"
-	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterToString(r.username, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -732,6 +742,7 @@ func (a *UserApiService) GetRolesForUserExecute(r UserApiGetRolesForUserRequest)
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -741,6 +752,7 @@ func (a *UserApiService) GetRolesForUserExecute(r UserApiGetRolesForUserRequest)
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -801,7 +813,7 @@ func (a *UserApiService) GetUserByUsernameExecute(r UserApiGetUserByUsernameRequ
 	}
 
 	localVarPath := localBasePath + "/users/{username}"
-	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterToString(r.username, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -853,6 +865,7 @@ func (a *UserApiService) GetUserByUsernameExecute(r UserApiGetUserByUsernameRequ
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -862,6 +875,7 @@ func (a *UserApiService) GetUserByUsernameExecute(r UserApiGetUserByUsernameRequ
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -936,17 +950,17 @@ func (a *UserApiService) GetUserCommentsExecute(r UserApiGetUserCommentsRequest)
 	}
 
 	localVarPath := localBasePath + "/users/{username}/comments"
-	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterToString(r.username, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 
 	if r.limit != nil {
-		localVarQueryParams.Add("limit", parameterToString(*r.limit, ""))
+		parameterAddToQuery(localVarQueryParams, "limit", r.limit, "")
 	}
 	if r.offset != nil {
-		localVarQueryParams.Add("offset", parameterToString(*r.offset, ""))
+		parameterAddToQuery(localVarQueryParams, "offset", r.offset, "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -994,6 +1008,7 @@ func (a *UserApiService) GetUserCommentsExecute(r UserApiGetUserCommentsRequest)
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -1003,6 +1018,7 @@ func (a *UserApiService) GetUserCommentsExecute(r UserApiGetUserCommentsRequest)
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1063,7 +1079,7 @@ func (a *UserApiService) GetUserFollowersExecute(r UserApiGetUserFollowersReques
 	}
 
 	localVarPath := localBasePath + "/users/{username}/followers"
-	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterToString(r.username, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1115,6 +1131,7 @@ func (a *UserApiService) GetUserFollowersExecute(r UserApiGetUserFollowersReques
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -1124,6 +1141,7 @@ func (a *UserApiService) GetUserFollowersExecute(r UserApiGetUserFollowersReques
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1201,10 +1219,10 @@ func (a *UserApiService) ListUsersExecute(r UserApiListUsersRequest) ([]User, *h
 	localVarFormParams := url.Values{}
 
 	if r.limit != nil {
-		localVarQueryParams.Add("limit", parameterToString(*r.limit, ""))
+		parameterAddToQuery(localVarQueryParams, "limit", r.limit, "")
 	}
 	if r.offset != nil {
-		localVarQueryParams.Add("offset", parameterToString(*r.offset, ""))
+		parameterAddToQuery(localVarQueryParams, "offset", r.offset, "")
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
@@ -1252,6 +1270,7 @@ func (a *UserApiService) ListUsersExecute(r UserApiListUsersRequest) ([]User, *h
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -1261,6 +1280,7 @@ func (a *UserApiService) ListUsersExecute(r UserApiListUsersRequest) ([]User, *h
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1381,6 +1401,7 @@ func (a *UserApiService) ResetPasswordExecute(r UserApiResetPasswordRequest) (*U
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -1390,6 +1411,7 @@ func (a *UserApiService) ResetPasswordExecute(r UserApiResetPasswordRequest) (*U
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1450,8 +1472,8 @@ func (a *UserApiService) UnfollowUserExecute(r UserApiUnfollowUserRequest) (*htt
 	}
 
 	localVarPath := localBasePath + "/users/{followedUsername}/followers/{followerUsername}"
-	localVarPath = strings.Replace(localVarPath, "{"+"followedUsername"+"}", url.PathEscape(parameterToString(r.followedUsername, "")), -1)
-	localVarPath = strings.Replace(localVarPath, "{"+"followerUsername"+"}", url.PathEscape(parameterToString(r.followerUsername, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"followedUsername"+"}", url.PathEscape(parameterValueToString(r.followedUsername, "followedUsername")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"followerUsername"+"}", url.PathEscape(parameterValueToString(r.followerUsername, "followerUsername")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1503,6 +1525,7 @@ func (a *UserApiService) UnfollowUserExecute(r UserApiUnfollowUserRequest) (*htt
 				newErr.error = err.Error()
 				return localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarHTTPResponse, newErr
 		}
@@ -1512,6 +1535,7 @@ func (a *UserApiService) UnfollowUserExecute(r UserApiUnfollowUserRequest) (*htt
 			newErr.error = err.Error()
 			return localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarHTTPResponse, newErr
 	}
@@ -1570,7 +1594,7 @@ func (a *UserApiService) UpdateRolesForUserExecute(r UserApiUpdateRolesForUserRe
 	}
 
 	localVarPath := localBasePath + "/users/{username}/roles"
-	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterToString(r.username, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1624,6 +1648,7 @@ func (a *UserApiService) UpdateRolesForUserExecute(r UserApiUpdateRolesForUserRe
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -1633,6 +1658,7 @@ func (a *UserApiService) UpdateRolesForUserExecute(r UserApiUpdateRolesForUserRe
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}
@@ -1700,7 +1726,7 @@ func (a *UserApiService) UpdateUserExecute(r UserApiUpdateUserRequest) (*User, *
 	}
 
 	localVarPath := localBasePath + "/users/{username}"
-	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterToString(r.username, "")), -1)
+	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1754,6 +1780,7 @@ func (a *UserApiService) UpdateUserExecute(r UserApiUpdateUserRequest) (*User, *
 				newErr.error = err.Error()
 				return localVarReturnValue, localVarHTTPResponse, newErr
 			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
@@ -1763,6 +1790,7 @@ func (a *UserApiService) UpdateUserExecute(r UserApiUpdateUserRequest) (*User, *
 			newErr.error = err.Error()
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
 		newErr.model = v
 		return localVarReturnValue, localVarHTTPResponse, newErr
 	}

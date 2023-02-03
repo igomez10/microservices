@@ -2,7 +2,8 @@ package comment
 
 import (
 	"context"
-	"socialapp/socialappapi/openapi"
+
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
 // s *CommentMock openapi.CommentApiServicer

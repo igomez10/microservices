@@ -2,7 +2,8 @@ package role
 
 import (
 	"context"
-	"socialapp/socialappapi/openapi"
+
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
 // s *RoleMock openapi.RoleApiServicer
