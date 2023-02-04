@@ -34,7 +34,7 @@ scrape_configs:
 
     static_configs:
       - targets:
-          - microservices.onrender.com
+          - socialapp.gomezignacio.com
 
   - job_name: "cadvisor"
 
