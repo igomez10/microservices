@@ -122,10 +122,10 @@ Class | Method | HTTP request | Description
 *ScopeApi* | [**getScope**](docs/ScopeApi.md#getscope) | **GET** /scopes/{id} | Returns a scope
 *ScopeApi* | [**listScopes**](docs/ScopeApi.md#listscopes) | **GET** /scopes | Returns a list of scopes
 *ScopeApi* | [**updateScope**](docs/ScopeApi.md#updatescope) | **PUT** /scopes/{id} | Update a scope
-*URLApi* | [**createUrl**](docs/URLApi.md#createurl) | **POST** /urls | 
-*URLApi* | [**deleteUrl**](docs/URLApi.md#deleteurl) | **DELETE** /urls/{alias} | 
-*URLApi* | [**getUrl**](docs/URLApi.md#geturl) | **GET** /urls/{alias} | 
-*URLApi* | [**getUrlData**](docs/URLApi.md#geturldata) | **GET** /urls/{alias}/data | 
+*URLApi* | [**createUrl**](docs/URLApi.md#createurl) | **POST** /urls | Create a new url
+*URLApi* | [**deleteUrl**](docs/URLApi.md#deleteurl) | **DELETE** /urls/{alias} | Delete a url
+*URLApi* | [**getUrl**](docs/URLApi.md#geturl) | **GET** /urls/{alias} | Get a url
+*URLApi* | [**getUrlData**](docs/URLApi.md#geturldata) | **GET** /urls/{alias}/data | Returns a url metadata
 *UserApi* | [**changePassword**](docs/UserApi.md#changepassword) | **POST** /password | Change password
 *UserApi* | [**createUser**](docs/UserApi.md#createuser) | **POST** /users | Create user
 *UserApi* | [**deleteUser**](docs/UserApi.md#deleteuser) | **DELETE** /users/{username} | Deletes a particular user

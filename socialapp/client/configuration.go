@@ -94,7 +94,7 @@ func NewConfiguration() *Configuration {
 		Debug:         false,
 		Servers: ServerConfigurations{
 			{
-				URL:         "https://microservices.onrender.com",
+				URL:         "https://socialapp.gomezignacio.com",
 				Description: "No description provided",
 			},
 			{

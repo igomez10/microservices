@@ -1,20 +1,20 @@
 # URLApi
 
-All URIs are relative to *https://microservices.onrender.com*
+All URIs are relative to *https://socialapp.gomezignacio.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**createUrl**](URLApi.md#createUrl) | **POST** /urls |  |
-| [**deleteUrl**](URLApi.md#deleteUrl) | **DELETE** /urls/{alias} |  |
-| [**getUrl**](URLApi.md#getUrl) | **GET** /urls/{alias} |  |
-| [**getUrlData**](URLApi.md#getUrlData) | **GET** /urls/{alias}/data |  |
+| [**createUrl**](URLApi.md#createUrl) | **POST** /urls | Create a new url |
+| [**deleteUrl**](URLApi.md#deleteUrl) | **DELETE** /urls/{alias} | Delete a url |
+| [**getUrl**](URLApi.md#getUrl) | **GET** /urls/{alias} | Get a url |
+| [**getUrlData**](URLApi.md#getUrlData) | **GET** /urls/{alias}/data | Returns a url metadata |
 
 
 <a name="createUrl"></a>
 # **createUrl**
 > URL createUrl(URL)
 
-
+Create a new url
 
     Returns a url
 
@@ -41,7 +41,7 @@ All URIs are relative to *https://microservices.onrender.com*
 # **deleteUrl**
 > deleteUrl(alias)
 
-
+Delete a url
 
     Delete a url
 
@@ -68,7 +68,7 @@ null (empty response body)
 # **getUrl**
 > getUrl(alias)
 
-
+Get a url
 
     Returns a url
 
@@ -95,7 +95,7 @@ null (empty response body)
 # **getUrlData**
 > URL getUrlData(alias)
 
-
+Returns a url metadata
 
     Returns a url
 

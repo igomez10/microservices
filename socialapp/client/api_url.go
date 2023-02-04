@@ -40,7 +40,7 @@ func (r URLApiCreateUrlRequest) Execute() (*URL, *http.Response, error) {
 }
 
 /*
-CreateUrl Method for CreateUrl
+CreateUrl Create a new url
 
 Returns a url
 
@@ -167,7 +167,7 @@ func (r URLApiDeleteUrlRequest) Execute() (*http.Response, error) {
 }
 
 /*
-DeleteUrl Method for DeleteUrl
+DeleteUrl Delete a url
 
 Delete a url
 
@@ -269,7 +269,7 @@ func (r URLApiGetUrlRequest) Execute() (*http.Response, error) {
 }
 
 /*
-GetUrl Method for GetUrl
+GetUrl Get a url
 
 Returns a url
 
@@ -371,7 +371,7 @@ func (r URLApiGetUrlDataRequest) Execute() (*URL, *http.Response, error) {
 }
 
 /*
-GetUrlData Method for GetUrlData
+GetUrlData Returns a url metadata
 
 Returns a url
 

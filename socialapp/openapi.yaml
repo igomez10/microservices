@@ -3,7 +3,7 @@ info:
   contact:
     email: ignacio.gomez.arboleda@gmail.com
     name: Socialapp
-    url: https://microservices.onrender.com
+    url: https://socialapp.gomezignacio.com
   description: Socialapp is a generic social network.
   license:
     name: MIT
@@ -11,7 +11,7 @@ info:
   title: Socialapp
   version: 1.0.0
 servers:
-  - url: https://microservices.onrender.com
+  - url: https://socialapp.gomezignacio.com
   - url: http://localhost:8080
   - url: http://localhost:8085
 tags:
@@ -1391,6 +1391,7 @@ paths:
         - Scope
   /urls/{alias}:
     get:
+      summary: Get a url
       description: Returns a url
       operationId: getUrl
       parameters:
@@ -1421,6 +1422,7 @@ paths:
       tags:
         - URL
     delete:
+      summary: Delete a url
       description: Delete a url
       operationId: deleteUrl
       parameters:
@@ -1449,6 +1451,7 @@ paths:
         - URL
   /urls/{alias}/data:
     get:
+      summary: Returns a url metadata
       description: Returns a url
       operationId: getUrlData
       parameters:
@@ -1478,6 +1481,7 @@ paths:
         - URL
   /urls:
     post:
+      summary: Create a new url
       description: Returns a url
       operationId: createUrl
       requestBody:

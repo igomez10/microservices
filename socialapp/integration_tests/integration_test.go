@@ -16,16 +16,16 @@ import (
 )
 
 var apiClient *client.APIClient
-var ENDPOINT_OAUTH_TOKEN string = "http://localhost:8085/oauth/token"
+var ENDPOINT_OAUTH_TOKEN string = "https://socialapp.gomezignacio.com/oauth/token"
 
-// "https://microservices.onrender.com/oauth/token"
+// "http://localhost:8085/oauth/token"
 
 var (
 	RENDER_SERVER_URL          = 0
 	LOCALHOST_SERVER_URL       = 1
 	LOCALHOST_DEBUG_SERVER_URL = 2
 
-	CONTEXT_SERVER = LOCALHOST_DEBUG_SERVER_URL
+	CONTEXT_SERVER = RENDER_SERVER_URL
 )
 
 func getHTTPClient() *http.Client {

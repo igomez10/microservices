@@ -78,7 +78,7 @@ func (c *URLApiController) Routes() Routes {
 	}
 }
 
-// CreateUrl -
+// CreateUrl - Create a new url
 func (c *URLApiController) CreateUrl(w http.ResponseWriter, r *http.Request) {
 	urlParam := Url{}
 	d := json.NewDecoder(r.Body)
@@ -102,7 +102,7 @@ func (c *URLApiController) CreateUrl(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// DeleteUrl -
+// DeleteUrl - Delete a url
 func (c *URLApiController) DeleteUrl(w http.ResponseWriter, r *http.Request) {
 	aliasParam := chi.URLParam(r, "alias")
 
@@ -117,7 +117,7 @@ func (c *URLApiController) DeleteUrl(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// GetUrl -
+// GetUrl - Get a url
 func (c *URLApiController) GetUrl(w http.ResponseWriter, r *http.Request) {
 	aliasParam := chi.URLParam(r, "alias")
 
@@ -132,7 +132,7 @@ func (c *URLApiController) GetUrl(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// GetUrlData -
+// GetUrlData - Returns a url metadata
 func (c *URLApiController) GetUrlData(w http.ResponseWriter, r *http.Request) {
 	aliasParam := chi.URLParam(r, "alias")
 

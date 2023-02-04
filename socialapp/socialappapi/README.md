@@ -13,7 +13,7 @@ To see how to make this your own, look here:
 [README](https://openapi-generator.tech)
 
 - API version: 1.0.0
-For more information, please visit [https://microservices.onrender.com](https://microservices.onrender.com)
+For more information, please visit [https://socialapp.gomezignacio.com](https://socialapp.gomezignacio.com)
 
 
 ### Running the server

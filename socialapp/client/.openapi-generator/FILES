@@ -42,4 +42,11 @@ model_scope.go
 model_url.go
 model_user.go
 response.go
+test/api_authentication_test.go
+test/api_comment_test.go
+test/api_following_test.go
+test/api_role_test.go
+test/api_scope_test.go
+test/api_url_test.go
+test/api_user_test.go
 utils.go

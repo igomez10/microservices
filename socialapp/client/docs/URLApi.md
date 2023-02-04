@@ -1,13 +1,13 @@
 # \URLApi
 
-All URIs are relative to *https://microservices.onrender.com*
+All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**CreateUrl**](URLApi.md#CreateUrl) | **Post** /urls | 
-[**DeleteUrl**](URLApi.md#DeleteUrl) | **Delete** /urls/{alias} | 
-[**GetUrl**](URLApi.md#GetUrl) | **Get** /urls/{alias} | 
-[**GetUrlData**](URLApi.md#GetUrlData) | **Get** /urls/{alias}/data | 
+[**CreateUrl**](URLApi.md#CreateUrl) | **Post** /urls | Create a new url
+[**DeleteUrl**](URLApi.md#DeleteUrl) | **Delete** /urls/{alias} | Delete a url
+[**GetUrl**](URLApi.md#GetUrl) | **Get** /urls/{alias} | Get a url
+[**GetUrlData**](URLApi.md#GetUrlData) | **Get** /urls/{alias}/data | Returns a url metadata
 
 
 
@@ -15,7 +15,7 @@ Method | HTTP request | Description
 
 > URL CreateUrl(ctx).URL(uRL).Execute()
 
-
+Create a new url
 
 
 
@@ -81,7 +81,7 @@ Name | Type | Description  | Notes
 
 > DeleteUrl(ctx, alias).Execute()
 
-
+Delete a url
 
 
 
@@ -149,7 +149,7 @@ Name | Type | Description  | Notes
 
 > GetUrl(ctx, alias).Execute()
 
-
+Get a url
 
 
 
@@ -217,7 +217,7 @@ Name | Type | Description  | Notes
 
 > URL GetUrlData(ctx, alias).Execute()
 
-
+Returns a url metadata
 
 
 

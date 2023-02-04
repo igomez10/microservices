@@ -3,7 +3,7 @@
 <a name="documentation-for-api-endpoints"></a>
 ## Documentation for API Endpoints
 
-All URIs are relative to *https://microservices.onrender.com*
+All URIs are relative to *https://socialapp.gomezignacio.com*
 
 | Class | Method | HTTP request | Description |
 |------------ | ------------- | ------------- | -------------|
@@ -26,10 +26,10 @@ All URIs are relative to *https://microservices.onrender.com*
 *ScopeApi* | [**getScope**](Apis/ScopeApi.md#getscope) | **GET** /scopes/{id} | Returns a scope |
 *ScopeApi* | [**listScopes**](Apis/ScopeApi.md#listscopes) | **GET** /scopes | Returns a list of scopes |
 *ScopeApi* | [**updateScope**](Apis/ScopeApi.md#updatescope) | **PUT** /scopes/{id} | Update a scope |
-| *URLApi* | [**createUrl**](Apis/URLApi.md#createurl) | **POST** /urls | Returns a url |
+| *URLApi* | [**createUrl**](Apis/URLApi.md#createurl) | **POST** /urls | Create a new url |
 *URLApi* | [**deleteUrl**](Apis/URLApi.md#deleteurl) | **DELETE** /urls/{alias} | Delete a url |
-*URLApi* | [**getUrl**](Apis/URLApi.md#geturl) | **GET** /urls/{alias} | Returns a url |
-*URLApi* | [**getUrlData**](Apis/URLApi.md#geturldata) | **GET** /urls/{alias}/data | Returns a url |
+*URLApi* | [**getUrl**](Apis/URLApi.md#geturl) | **GET** /urls/{alias} | Get a url |
+*URLApi* | [**getUrlData**](Apis/URLApi.md#geturldata) | **GET** /urls/{alias}/data | Returns a url metadata |
 | *UserApi* | [**changePassword**](Apis/UserApi.md#changepassword) | **POST** /password | Change password |
 *UserApi* | [**createUser**](Apis/UserApi.md#createuser) | **POST** /users | Create user |
 *UserApi* | [**deleteUser**](Apis/UserApi.md#deleteuser) | **DELETE** /users/{username} | Deletes a particular user |

@@ -310,10 +310,10 @@ case $state in
             "deleteScope[Delete a scope]" \
             "getScope[Returns a scope]" \
             "listScopes[Returns a list of scopes]" \
-            "updateScope[Update a scope]"             "createUrl[]" \
-            "deleteUrl[]" \
-            "getUrl[]" \
-            "getUrlData[]"             "changePassword[Change password]" \
+            "updateScope[Update a scope]"             "createUrl[Create a new url]" \
+            "deleteUrl[Delete a url]" \
+            "getUrl[Get a url]" \
+            "getUrlData[Returns a url metadata]"             "changePassword[Change password]" \
             "createUser[Create user]" \
             "deleteUser[Deletes a particular user]" \
             "followUser[Add a user as a follower]" \

@@ -1,6 +1,6 @@
 # FollowingApi
 
-All URIs are relative to *https://microservices.onrender.com*
+All URIs are relative to *https://socialapp.gomezignacio.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|

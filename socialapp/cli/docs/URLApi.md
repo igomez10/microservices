@@ -4,16 +4,16 @@ All URIs are relative to **
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**createUrl**](URLApi.md#createUrl) | **POST** /urls | 
-[**deleteUrl**](URLApi.md#deleteUrl) | **DELETE** /urls/{alias} | 
-[**getUrl**](URLApi.md#getUrl) | **GET** /urls/{alias} | 
-[**getUrlData**](URLApi.md#getUrlData) | **GET** /urls/{alias}/data | 
+[**createUrl**](URLApi.md#createUrl) | **POST** /urls | Create a new url
+[**deleteUrl**](URLApi.md#deleteUrl) | **DELETE** /urls/{alias} | Delete a url
+[**getUrl**](URLApi.md#getUrl) | **GET** /urls/{alias} | Get a url
+[**getUrlData**](URLApi.md#getUrlData) | **GET** /urls/{alias}/data | Returns a url metadata
 
 
 
 ## createUrl
 
-
+Create a new url
 
 Returns a url
 
@@ -48,7 +48,7 @@ Name | Type | Description  | Notes
 
 ## deleteUrl
 
-
+Delete a url
 
 Delete a url
 
@@ -83,7 +83,7 @@ Name | Type | Description  | Notes
 
 ## getUrl
 
-
+Get a url
 
 Returns a url
 
@@ -118,7 +118,7 @@ Name | Type | Description  | Notes
 
 ## getUrlData
 
-
+Returns a url metadata
 
 Returns a url
 

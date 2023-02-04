@@ -733,10 +733,10 @@ echo "  $ops" | column -t -s ';'
     echo ""
     echo -e "${BOLD}${WHITE}[uRL]${OFF}"
 read -r -d '' ops <<EOF
-  ${CYAN}createUrl${OFF}; (AUTH)
-  ${CYAN}deleteUrl${OFF}; (AUTH)
-  ${CYAN}getUrl${OFF}; (AUTH)
-  ${CYAN}getUrlData${OFF}; (AUTH)
+  ${CYAN}createUrl${OFF};Create a new url (AUTH)
+  ${CYAN}deleteUrl${OFF};Delete a url (AUTH)
+  ${CYAN}getUrl${OFF};Get a url (AUTH)
+  ${CYAN}getUrlData${OFF};Returns a url metadata (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
@@ -764,7 +764,7 @@ echo "  $ops" | column -t -s ';'
     echo -e "  -V,--version\\t\\t\\t\\tPrint API version"
     echo -e "  --about\\t\\t\\t\\tPrint the information about service"
     echo -e "  --host ${CYAN}<url>${OFF}\\t\\t\\t\\tSpecify the host URL "
-echo -e "              \\t\\t\\t\\t(e.g. 'https://microservices.onrender.com')"
+echo -e "              \\t\\t\\t\\t(e.g. 'https://socialapp.gomezignacio.com')"
 
     echo -e "  --force\\t\\t\\t\\tForce command invocation in spite of missing"
     echo -e "         \\t\\t\\t\\trequired parameters or wrong content type"
@@ -1266,7 +1266,7 @@ print_updateScope_help() {
 ##############################################################################
 print_createUrl_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}createUrl - ${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}createUrl - Create a new url${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Returns a url" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -1289,7 +1289,7 @@ print_createUrl_help() {
 ##############################################################################
 print_deleteUrl_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}deleteUrl - ${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}deleteUrl - Delete a url${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Delete a url" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -1309,7 +1309,7 @@ print_deleteUrl_help() {
 ##############################################################################
 print_getUrl_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUrl - ${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUrl - Get a url${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Returns a url" | paste -sd' ' | fold -sw 80
     echo -e ""
@@ -1331,7 +1331,7 @@ print_getUrl_help() {
 ##############################################################################
 print_getUrlData_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUrlData - ${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUrlData - Returns a url metadata${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Returns a url" | paste -sd' ' | fold -sw 80
     echo -e ""
