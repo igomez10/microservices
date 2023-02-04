@@ -244,6 +244,7 @@ func main() {
 	authKibanaRouter := proxyrouter.NewProxyRouter(kibanaTargetURL, kibanaRouterMiddlewares)
 
 	// 2. SocialApp router
+	socialappSubdomain := os.Getenv("SOCIALAPP_SUBDOMAIN")
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
 	socialappMiddlewares := []func(http.Handler) http.Handler{
 		cors.AllowAll().Handler,
@@ -318,8 +319,11 @@ func main() {
 			authKibanaRouter.Router.ServeHTTP(w, r)
 		case propertiesSubdomain:
 			propertiesProxy.Router.ServeHTTP(w, r)
-		default:
+		case socialappSubdomain:
 			socialappRouter.Router.ServeHTTP(w, r)
+		default:
+			w.Write([]byte("Host Not found"))
+			w.WriteHeader(404)
 		}
 	})
 
