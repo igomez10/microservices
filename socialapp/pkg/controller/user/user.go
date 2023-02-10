@@ -261,8 +261,19 @@ func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32) (op
 
 func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string, newUserData openapi.User) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
+	// begin transaction
+	tx, err := s.DBConn.BeginTx(ctx, nil)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Error starting transaction")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+		}, nil
+	}
+
 	// get the user to update
-	existingUser, err := s.DB.GetUserByUsername(ctx, s.DBConn, existingUsername)
+	existingUser, err := s.DB.GetUserByUsername(ctx, tx, existingUsername)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -271,7 +282,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 			Code: http.StatusNotFound,
 			Body: openapi.Error{
 				Code:    http.StatusNotFound,
-				Message: "Error getting user",
+				Message: "User not found",
 			},
 		}, nil
 	}
@@ -279,7 +290,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	if newUserData.Username != "" && newUserData.Username != existingUser.Username {
 		// validate we dont have a user with the same username that is not deleted
 		noCaseUsername := strings.ToLower(newUserData.Username)
-		if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, noCaseUsername); err == nil {
+		if _, err := s.DB.GetUserByUsername(ctx, tx, noCaseUsername); err == nil {
 			log.Error().
 				Err(err).
 				Msg("Username already exists")
@@ -298,7 +309,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	if newUserData.Email != "" && newUserData.Email != existingUser.Email {
 		// validate we dont have a user with the same email that is not deleted
 		noCaseEmail := strings.ToLower(newUserData.Email)
-		if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, noCaseEmail); err == nil {
+		if _, err := s.DB.GetUserByEmail(ctx, tx, noCaseEmail); err == nil {
 			log.Error().
 				Err(err).
 				Msg("Email already exists")
@@ -329,7 +340,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	}
 
 	log.Debug().Msgf("UpdateUserByUsernameParams: \n%+v\n", params)
-	if err := s.DB.UpdateUserByUsername(ctx, s.DBConn, params); err != nil {
+	if err := s.DB.UpdateUserByUsername(ctx, tx, params); err != nil {
 		log.Error().
 			Err(err).
 			Msg("Error updating user")
@@ -344,7 +355,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	}
 
 	// get the updated user
-	updatedUser, err := s.DB.GetUserByUsername(ctx, s.DBConn, existingUser.Username)
+	updatedUser, err := s.DB.GetUserByUsername(ctx, tx, existingUser.Username)
 	if err != nil {
 		log.Error().
 			Err(err).
