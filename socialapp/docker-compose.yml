@@ -163,8 +163,13 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
+    command:
+      - '--docker_only=true'
+      - '--housekeeping_interval=10s'
     expose:
       - 8080
+    ports:
+      - 8080:8080
     logging:
       driver: "syslog"
       options:
@@ -201,6 +206,7 @@ services:
       options:
         syslog-address: "udp://localhost:51000"
         tag: "zookeeper"
+    restart: always
 
   broker:
     image: confluentinc/cp-kafka:7.3.0
@@ -210,20 +216,22 @@ services:
       # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
       - "9092:9092"
       - "29092:29092"
+      - "29093:29093"
     depends_on:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092,PLAINTEXT_BROKER://broker:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_BROKER:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092,PLAINTEXT_BROKER://broker:9092,PLAINTEXT_EXTERNAL://${EXTERNAL_IP}:29093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_BROKER:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-
     logging:
       driver: "syslog"
       options:
         syslog-address: "udp://localhost:51000"
         tag: "broker"
+    restart: always
+
   kafka-ui:
     image: provectuslabs/kafka-ui
     container_name: kafka-ui
@@ -240,3 +248,14 @@ services:
       options:
         syslog-address: "udp://localhost:51000"
         tag: "kafka-ui"
+
+  integration-tests:
+    image: igomeza/socialapptests
+    container_name: integration-tests
+    pull_policy: always
+    restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:51000"
+        tag: "integration-tests"
