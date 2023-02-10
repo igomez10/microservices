@@ -377,8 +377,20 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 
 func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string, followerUsername string) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
+
+	tx, err := s.DBConn.Begin()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Error starting transaction")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+		}, nil
+	}
+	defer tx.Rollback()
+
 	// validate the user exists
-	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, s.DBConn, followedUsername)
+	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, tx, followedUsername)
 	if errGetFollowed != nil {
 		log.Error().
 			Err(errGetFollowed).
@@ -392,7 +404,7 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 		}, nil
 	}
 
-	followerUser, errGetFollower := s.DB.GetUserByUsername(ctx, s.DBConn, followerUsername)
+	followerUser, errGetFollower := s.DB.GetUserByUsername(ctx, tx, followerUsername)
 	if errGetFollower != nil {
 		log.Error().
 			Err(errGetFollower).
@@ -407,11 +419,10 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 	}
 
 	//  add follow connection
-	err := s.DB.FollowUser(ctx, s.DBConn, db.FollowUserParams{
+	if err := s.DB.FollowUser(ctx, tx, db.FollowUserParams{
 		FollowerID: followerUser.ID,
 		FollowedID: followedUser.ID,
-	})
-	if err != nil {
+	}); err != nil {
 		log.Error().
 			Err(errGetFollower).
 			Msg("Error following user")
@@ -421,6 +432,15 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 				Code:    http.StatusInternalServerError,
 				Message: "Error following user",
 			},
+		}, nil
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Error().
+			Err(err).
+			Msg("Error committing transaction")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
 		}, nil
 	}
 
@@ -560,6 +580,18 @@ func (s *UserApiService) GetFollowingUsers(ctx context.Context, username string)
 
 func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangePasswordRequest) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
+
+	tx, err := s.DBConn.Begin()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Error starting transaction")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+		}, err
+	}
+	defer tx.Rollback()
+
 	// get user from request context
 	username, ok := ctx.Value("username").(string)
 	if !ok {
@@ -575,7 +607,7 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 	}
 
 	// validate the user exists
-	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
+	user, errGetUser := s.DB.GetUserByUsername(ctx, tx, username)
 	if errGetUser != nil {
 		log.Error().
 			Err(errGetUser).
@@ -621,7 +653,7 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 		EmailVerifiedAt:         user.EmailVerifiedAt,
 	}
 
-	if err := s.DB.UpdateUser(ctx, s.DBConn, params); err != nil {
+	if err := s.DB.UpdateUser(ctx, tx, params); err != nil {
 		log.Error().
 			Err(err).
 			Msg("Error updating password")
@@ -635,7 +667,7 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 	}
 
 	// invalidate existing tokens
-	if err := s.DB.DeleteAllTokensForUser(ctx, s.DBConn, user.ID); err != nil {
+	if err := s.DB.DeleteAllTokensForUser(ctx, tx, user.ID); err != nil {
 		log.Error().
 			Err(err).
 			Msg("Error deleting existing tokens")
@@ -646,6 +678,15 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 				Message: "Error deleting existing tokens",
 			},
 		}, nil
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Error().
+			Err(err).
+			Msg("Error committing transaction")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+		}, err
 	}
 
 	apiUser := converter.FromDBUserToAPIUser(user)
@@ -700,8 +741,19 @@ func (s *UserApiService) GetRolesForUser(ctx context.Context, username string) (
 
 func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string, roles []string) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
+	tx, err := s.DBConn.Begin()
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Error starting transaction")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+		}, err
+	}
+	defer tx.Rollback()
+
 	// verify the user exists
-	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
+	user, errGetUser := s.DB.GetUserByUsername(ctx, tx, username)
 	if errGetUser != nil {
 		log.Error().
 			Err(errGetUser).
@@ -718,7 +770,7 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 	// verify all the roles exist
 	dbRoles := make([]db.Role, len(roles))
 	for i := range roles {
-		dbRole, err := s.DB.GetRoleByName(ctx, s.DBConn, roles[i])
+		dbRole, err := s.DB.GetRoleByName(ctx, tx, roles[i])
 		if err != nil {
 			log.Error().
 				Err(err).
@@ -735,7 +787,7 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 	}
 
 	// get all existing roles
-	existingRoles, err := s.DB.GetUserRoles(ctx, s.DBConn, user.ID)
+	existingRoles, err := s.DB.GetUserRoles(ctx, tx, user.ID)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -779,7 +831,7 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 	// add new roles
 	for _, roleNameToAdd := range rolesToAdd {
 		roleID := newRoles[roleNameToAdd].ID
-		_, err := s.DB.CreateUserToRole(ctx, s.DBConn, db.CreateUserToRoleParams{
+		_, err := s.DB.CreateUserToRole(ctx, tx, db.CreateUserToRoleParams{
 			UserID: user.ID,
 			RoleID: roleID,
 		})
@@ -801,7 +853,7 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 	// remove old roles
 	for _, roleNameToRemove := range rolesToRemove {
 		roleID := oldRoles[roleNameToRemove].ID
-		err := s.DB.DeleteUserToRole(ctx, s.DBConn, db.DeleteUserToRoleParams{
+		err := s.DB.DeleteUserToRole(ctx, tx, db.DeleteUserToRoleParams{
 			UserID: user.ID,
 			RoleID: roleID,
 		})
@@ -818,6 +870,15 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 				},
 			}, nil
 		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		log.Error().
+			Err(err).
+			Msg("Error committing transaction")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+		}, err
 	}
 
 	return openapi.Response(http.StatusOK, nil), nil
