@@ -500,7 +500,7 @@ socialapp-cli updateUser username=value
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **username** | **string** | username of the user | [default to null]
- **user** | [**User**](User.md) | Update a user | [optional]
+ **user** | [**User**](User.md) | Update a user |
 
 ### Return type
 

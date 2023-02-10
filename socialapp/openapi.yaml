@@ -572,6 +572,7 @@ paths:
             schema:
               $ref: "#/components/schemas/User"
         description: Update a user
+        required: true
       responses:
         "200":
           content:

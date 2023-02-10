@@ -147,7 +147,7 @@ operation_parameters_minimum_occurrences["unfollowUser:::followerUsername"]=1
 operation_parameters_minimum_occurrences["updateRolesForUser:::username"]=1
 operation_parameters_minimum_occurrences["updateRolesForUser:::request_body"]=0
 operation_parameters_minimum_occurrences["updateUser:::username"]=1
-operation_parameters_minimum_occurrences["updateUser:::User"]=0
+operation_parameters_minimum_occurrences["updateUser:::User"]=1
 
 ##
 # This array stores the maximum number of allowed occurrences for parameter
@@ -1659,7 +1659,7 @@ print_updateUser_help() {
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
-    echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF}${OFF} - Update a user" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Update a user" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
