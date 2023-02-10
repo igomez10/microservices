@@ -1142,8 +1142,13 @@ func TestCacheRequestSameUser(t *testing.T) {
 	conf := clientcredentials.Config{
 		ClientID:     username1,
 		ClientSecret: password,
-		Scopes:       []string{"socialapp.users.list", "socialapp.users.read"},
-		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+		Scopes: []string{
+			"socialapp.users.list",
+			"socialapp.users.read",
+			"socialapp.feed.read",
+			"socialapp.comments.read",
+		},
+		TokenURL: ENDPOINT_OAUTH_TOKEN,
 	}
 	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 	if err != nil {
