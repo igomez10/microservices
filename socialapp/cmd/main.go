@@ -112,49 +112,32 @@ func main() {
 	}
 
 	// Connect to database
-	dbConn, err := sql.Open("nrpostgres", os.Getenv("DATABASE_URL"))
-
-	if err != nil {
-		log.Fatal().Err(err)
-	}
-	defer dbConn.Close()
-
-	if dbConn == nil {
-		log.Fatal().Msg("db is nil")
-	}
-
-	// try to ping database with 5 seconds timeout
-	pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := dbConn.PingContext(pingCtx); err != nil {
-		log.Fatal().Err(err).Msg("failed to ping database, shutting down")
-	}
-
-	defer dbConn.Close()
-
+	// force creation of 8 connections, one per service
+	connections := CreateDBPools(os.Getenv("DATABASE_URL"), 8)
+	defer connections.Close()
 	queries := db.New()
 
 	// Comment service
-	CommentApiService := &comment.CommentService{DB: queries, DBConn: dbConn, KafkaProducer: p}
+	CommentApiService := &comment.CommentService{DB: queries, DBConn: connections.GetPool(), KafkaProducer: p}
 	CommentApiController := openapi.NewCommentApiController(CommentApiService)
 
 	// User service
-	UserApiService := &user.UserApiService{DB: queries, DBConn: dbConn, KafkaProducer: p}
+	UserApiService := &user.UserApiService{DB: queries, DBConn: connections.GetPool(), KafkaProducer: p}
 	UserApiController := openapi.NewUserApiController(UserApiService)
 
 	// Auth service
-	AuthApiService := &authentication.AuthenticationService{DB: queries, DBConn: dbConn}
+	AuthApiService := &authentication.AuthenticationService{DB: queries, DBConn: connections.GetPool()}
 	AuthApiController := openapi.NewAuthenticationApiController(AuthApiService)
 
 	// Role service
-	RoleAPIService := &role.RoleApiService{DB: queries, DBConn: dbConn}
+	RoleAPIService := &role.RoleApiService{DB: queries, DBConn: connections.GetPool()}
 	RoleAPIController := openapi.NewRoleApiController(RoleAPIService)
 
 	// Scope service
-	ScopeAPIService := &scope.ScopeApiService{DB: queries, DBConn: dbConn}
+	ScopeAPIService := &scope.ScopeApiService{DB: queries, DBConn: connections.GetPool()}
 	ScopeAPIController := openapi.NewScopeApiController(ScopeAPIService)
 
-	URLAPIService := &socialappurl.URLApiService{DB: queries, DBConn: dbConn}
+	URLAPIService := &socialappurl.URLApiService{DB: queries, DBConn: connections.GetPool()}
 	URLAPIController := openapi.NewURLApiController(URLAPIService)
 
 	routers := []openapi.Router{
@@ -188,7 +171,7 @@ func main() {
 	}
 	socialappAuthenticationMiddleware := gandalf.Middleware{
 		DB:               queries,
-		DBConn:           dbConn,
+		DBConn:           connections.GetPool(),
 		Cache:            cache,
 		AllowlistedPaths: socialappAllowlistedPaths,
 		AllowBasicAuth:   false,
@@ -224,7 +207,7 @@ func main() {
 	// 1. Kibana router (proxy)
 	kibanaAuthMiddleware := gandalf.Middleware{
 		DB:               queries,
-		DBConn:           dbConn,
+		DBConn:           connections.GetPool(),
 		Cache:            cache,
 		AllowlistedPaths: map[string]map[string]bool{},
 		AllowBasicAuth:   true,
@@ -343,4 +326,62 @@ func main() {
 		log.Fatal().Err(err).Msgf("Shutting down")
 	}
 
+}
+
+// CreateDBPools creates a pool of connections to the database, in go's implementation of sql, the sql.DB is a connection pool
+// but we want to manually control the minimum number of connections to the database
+func CreateDBPools(databaseURL string, numPools int) ForcedConnectionPool {
+	pools := make([]*sql.DB, 0, numPools)
+	for i := 0; i < numPools; i++ {
+		dbConn, err := sql.Open("nrpostgres", databaseURL)
+		if err != nil {
+			log.Fatal().Err(err)
+		}
+		// defer close connections will be executed calling ForcedConnectionPool.Close()
+
+		if dbConn == nil {
+			log.Fatal().Msg("db is nil")
+		}
+
+		dbConn.SetMaxOpenConns(10)
+		dbConn.SetMaxIdleConns(10)
+
+		pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := dbConn.PingContext(pingCtx); err != nil {
+			log.Fatal().Err(err).Msg("failed to ping database, shutting down")
+		}
+
+		pools = append(pools, dbConn)
+	}
+
+	f := ForcedConnectionPool{
+		numPools:          numPools,
+		connections:       pools,
+		currentRoundRobin: 0,
+	}
+
+	return f
+}
+
+// ForcedConnectionPool is a wrapper around native Go sql.DB, this allows us to force the minium number of connections
+type ForcedConnectionPool struct {
+	connections       []*sql.DB
+	numPools          int
+	currentRoundRobin int
+}
+
+func (f *ForcedConnectionPool) GetPool() *sql.DB {
+	// round robin
+	pool := f.connections[f.currentRoundRobin]
+	f.currentRoundRobin += 1
+	f.currentRoundRobin = f.currentRoundRobin % f.numPools
+
+	return pool
+}
+
+func (f *ForcedConnectionPool) Close() {
+	for _, conn := range f.connections {
+		conn.Close()
+	}
 }
