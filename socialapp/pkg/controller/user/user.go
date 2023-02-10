@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/google/uuid"
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
@@ -19,8 +20,9 @@ import (
 // implements the UserServicer interface
 // s *UserApiService openapi.UserApiServicer
 type UserApiService struct {
-	DB     db.Querier
-	DBConn db.DBTX
+	DB            db.Querier
+	DBConn        *sql.DB
+	KafkaProducer *kafka.Producer
 }
 
 const DEFAULT_ROLE_NAME = "administrator"
@@ -28,7 +30,18 @@ const DEFAULT_ROLE_NAME = "administrator"
 func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUserRequest) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate we dont have a user with the same username that is not deleted
-	if _, err := s.DB.GetUserByUsername(ctx, s.DBConn, user.Username); err == nil {
+	// start transaction
+	tx, err := s.DBConn.BeginTx(ctx, nil)
+	defer tx.Rollback()
+
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Error starting transaction")
+		return openapi.Response(http.StatusInternalServerError, nil), nil
+	}
+
+	if _, err := s.DB.GetUserByUsername(ctx, tx, user.Username); err == nil {
 		log.Error().
 			Err(err).
 			Msg("Username already exists")
@@ -36,7 +49,7 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 	}
 
 	// validate we dont have a user with the same email that is not deleted
-	if _, err := s.DB.GetUserByEmail(ctx, s.DBConn, user.Email); err == nil {
+	if _, err := s.DB.GetUserByEmail(ctx, tx, user.Email); err == nil {
 		log.Error().
 			Err(err).
 			Msg("Email already exists")
@@ -80,18 +93,8 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 		},
 	}
 
-	createdUser, err := s.DB.CreateUser(ctx, s.DBConn, params)
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Error creating user")
-		return openapi.Response(http.StatusInternalServerError, nil), nil
-	}
-
-	// attach "user" role to new user
-
 	// get the role id for "user"
-	role, err := s.DB.GetRoleByName(ctx, s.DBConn, DEFAULT_ROLE_NAME)
+	role, err := s.DB.GetRoleByName(ctx, tx, DEFAULT_ROLE_NAME)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -103,15 +106,22 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 				Message: "Error getting role id for user",
 			},
 		}, nil
-
 	}
 
-	// attach the role to the user
+	createdUser, err := s.DB.CreateUser(ctx, tx, params)
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Error creating user")
+		return openapi.Response(http.StatusInternalServerError, nil), nil
+	}
+
+	// attach the default role to the user
 	params2 := db.CreateUserToRoleParams{
 		UserID: createdUser.ID,
 		RoleID: role.ID,
 	}
-	if _, err := s.DB.CreateUserToRole(ctx, s.DBConn, params2); err != nil {
+	if _, err := s.DB.CreateUserToRole(ctx, tx, params2); err != nil {
 		log.Error().
 			Err(err).
 			Str("username", user.Username).
@@ -126,13 +136,16 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 		}, nil
 	}
 
-	// get user from db
-	dbUser, err := s.DB.GetUserByID(ctx, s.DBConn, createdUser.ID)
-	if err != nil {
-		log.Error()
+	// commit transaction
+	if err := tx.Commit(); err != nil {
+		log.Error().
+			Err(err).
+			Msg("Error committing transaction")
+
+		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
-	apiUser := converter.FromDBUserToAPIUser(dbUser)
+	apiUser := converter.FromDBUserToAPIUser(createdUser)
 
 	return openapi.Response(http.StatusOK, apiUser), nil
 }

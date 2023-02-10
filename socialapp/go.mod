@@ -3,7 +3,7 @@ module github.com/igomez10/microservices/socialapp
 go 1.20
 
 require (
-	github.com/confluentinc/confluent-kafka-go v1.9.2
+	github.com/confluentinc/confluent-kafka-go/v2 v2.0.2
 	github.com/getkin/kin-openapi v0.114.0
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-chi/cors v1.2.1

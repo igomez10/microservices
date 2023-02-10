@@ -15,7 +15,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -139,7 +139,7 @@ func main() {
 	CommentApiController := openapi.NewCommentApiController(CommentApiService)
 
 	// User service
-	UserApiService := &user.UserApiService{DB: queries, DBConn: dbConn}
+	UserApiService := &user.UserApiService{DB: queries, DBConn: dbConn, KafkaProducer: p}
 	UserApiController := openapi.NewUserApiController(UserApiService)
 
 	// Auth service
@@ -292,6 +292,12 @@ func main() {
 	propertiesSubdomain := os.Getenv("PROPERTIES_SUBDOMAIN")
 	propertiesProxy := proxyrouter.NewProxyRouter(kibanaTargetURL, propertiesMiddleware)
 
+	localSubdomain := os.Getenv("LOCAL_SUBDOMAIN")
+	if localSubdomain == "" {
+		// default to google.com
+		localSubdomain = "google.com"
+	}
+
 	// 3. Main router for routing to different routers based on subdomain
 	mainRouter := chi.NewRouter()
 	mainRouter.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
@@ -320,6 +326,8 @@ func main() {
 		case propertiesSubdomain:
 			propertiesProxy.Router.ServeHTTP(w, r)
 		case socialappSubdomain:
+			socialappRouter.Router.ServeHTTP(w, r)
+		case localSubdomain:
 			socialappRouter.Router.ServeHTTP(w, r)
 		default:
 			w.Write([]byte("Host Not found"))
