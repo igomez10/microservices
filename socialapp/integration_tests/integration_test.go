@@ -1178,6 +1178,27 @@ func TestCacheRequestSameUser(t *testing.T) {
 			if r.StatusCode != http.StatusOK {
 				t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
 			}
+
+			// get user comments
+			_, r, err = apiClient.CommentApi.GetUserComments(openAPICtx, currentUser.Username).Execute()
+			if err != nil {
+				t.Errorf("Error when calling `CommentApi.GetUserComments`: %v\n", err)
+				t.Errorf("Full HTTP response: %v", r)
+			}
+			if r.StatusCode != http.StatusOK {
+				t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+			}
+
+			// get feed
+			_, r, err = apiClient.CommentApi.GetUserFeed(openAPICtx, currentUser.Username).Execute()
+			if err != nil {
+				t.Errorf("Error when calling `CommentApi.GetUserFeed`: %v\n", err)
+				t.Errorf("Full HTTP response: %v", r)
+			}
+			if r.StatusCode != http.StatusOK {
+				t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+			}
+
 			// t.Logf("%q: %d/100\n", currentUser.Username, i)
 		}
 	}
