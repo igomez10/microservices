@@ -3,9 +3,9 @@ package integration_tests
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"testing"
 	"time"
 
@@ -15,36 +15,60 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
-var apiClient *client.APIClient
-var ENDPOINT_OAUTH_TOKEN string = "https://socialapp.gomezignacio.com/oauth/token"
-
-// "http://localhost:8085/oauth/token"
-
 var (
 	RENDER_SERVER_URL          = 0
 	LOCALHOST_SERVER_URL       = 1
 	LOCALHOST_DEBUG_SERVER_URL = 2
 
-	CONTEXT_SERVER = RENDER_SERVER_URL
+	CONTEXT_SERVER       int
+	apiClient            *client.APIClient
+	ENDPOINT_OAUTH_TOKEN string
 )
 
+// add setup function
+func Setup() {
+	//  set the endpoint for the oauth token
+	testSetup := os.Getenv("TEST_SETUP")
+
+	switch testSetup {
+	case "LOCALHOST":
+		CONTEXT_SERVER = LOCALHOST_SERVER_URL
+		ENDPOINT_OAUTH_TOKEN = "http://localhost:8085/oauth/token"
+	case "LOCALHOST_DEBUG":
+		CONTEXT_SERVER = LOCALHOST_DEBUG_SERVER_URL
+		ENDPOINT_OAUTH_TOKEN = "http://localhost:8085/oauth/token"
+	default:
+		CONTEXT_SERVER = RENDER_SERVER_URL
+		ENDPOINT_OAUTH_TOKEN = "https://socialapp.gomezignacio.com/oauth/token"
+	}
+}
+
+func TestMain(m *testing.M) {
+	// run tests
+	Setup()
+	code := m.Run()
+	os.Exit(code)
+}
+
 func getHTTPClient() *http.Client {
-	proxyStr := "http://localhost:9091"
-	proxyURL, err := url.Parse(proxyStr)
-	if err != nil {
-		log.Println(err)
-		panic(err)
+	if os.Getenv("USE_PROXY") == "true" {
+		proxyStr := "http://localhost:9091"
+		proxyURL, err := url.Parse(proxyStr)
+		if err != nil {
+			return http.DefaultClient
+		}
+		// Setup http client with proxy to capture traffic
+		httpClient := &http.Client{
+			Timeout: time.Second * 10,
+			Transport: &http.Transport{
+				Proxy: http.ProxyURL(proxyURL),
+			},
+		}
+
+		return httpClient
 	}
 
-	// Setup http client with proxy to capture traffic
-	httpClient := &http.Client{
-		Timeout: time.Second * 10,
-		Transport: &http.Transport{
-			Proxy: http.ProxyURL(proxyURL),
-		},
-	}
-
-	return httpClient
+	return http.DefaultClient
 }
 
 func getOuath2Context(initialContext context.Context, config clientcredentials.Config) (context.Context, error) {
@@ -55,6 +79,7 @@ func getOuath2Context(initialContext context.Context, config clientcredentials.C
 }
 
 func TestListUsers(t *testing.T) {
+	Setup()
 	configuration := client.NewConfiguration()
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
@@ -99,6 +124,7 @@ func TestListUsers(t *testing.T) {
 }
 
 func TestCreateUser(t *testing.T) {
+	Setup()
 	configuration := client.NewConfiguration()
 	//skip cache for tests
 	configuration.DefaultHeader["Cache-Control"] = "no-store"
@@ -161,6 +187,7 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestFollowCycle(t *testing.T) {
+	Setup()
 	// create two users
 	configuration := client.NewConfiguration()
 	//skip cache for tests
@@ -259,6 +286,7 @@ func TestFollowCycle(t *testing.T) {
 }
 
 func TestGetExpectedFeed(t *testing.T) {
+	Setup()
 	// create two users
 	configuration := client.NewConfiguration()
 	//skip cache for tests
@@ -358,6 +386,7 @@ func TestGetExpectedFeed(t *testing.T) {
 }
 
 func TestGetAccessToken(t *testing.T) {
+	Setup()
 	// create two users
 	configuration := client.NewConfiguration()
 	//skip cache for tests
@@ -413,6 +442,7 @@ func TestGetAccessToken(t *testing.T) {
 }
 
 func TestRegisterUserFlow(t *testing.T) {
+	Setup()
 	configuration := client.NewConfiguration()
 	//skip cache for tests
 	configuration.DefaultHeader["Cache-Control"] = "no-store"
@@ -481,6 +511,7 @@ func TestRegisterUserFlow(t *testing.T) {
 }
 
 func TestChangePassword(t *testing.T) {
+	Setup()
 	configuration := client.NewConfiguration()
 	//skip cache for tests
 	configuration.DefaultHeader["Cache-Control"] = "no-store"
@@ -572,6 +603,7 @@ func TestChangePassword(t *testing.T) {
 }
 
 func TestRoleLifecycle(t *testing.T) {
+	Setup()
 	configuration := client.NewConfiguration()
 	//skip cache for tests
 	configuration.DefaultHeader["Cache-Control"] = "no-store"
@@ -790,6 +822,7 @@ func TestRoleLifecycle(t *testing.T) {
 }
 
 func TestScopeLifeCycle(t *testing.T) {
+	Setup()
 	configuration := client.NewConfiguration()
 	//skip cache for tests
 	configuration.DefaultHeader["Cache-Control"] = "no-store"
@@ -921,6 +954,7 @@ func TestScopeLifeCycle(t *testing.T) {
 }
 
 func TestUserRoleLifeCycle(t *testing.T) {
+	Setup()
 	configuration := client.NewConfiguration()
 	//skip cache for tests
 	configuration.DefaultHeader["Cache-Control"] = "no-store"
@@ -1037,6 +1071,7 @@ func TestUserRoleLifeCycle(t *testing.T) {
 }
 
 func TestCacheRequestSameUser(t *testing.T) {
+	Setup()
 	configuration := client.NewConfiguration()
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
@@ -1100,6 +1135,7 @@ func TestCacheRequestSameUser(t *testing.T) {
 }
 
 func TestURLLifeCycle(t *testing.T) {
+	Setup()
 	configuration := client.NewConfiguration()
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient

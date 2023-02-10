@@ -4,5 +4,6 @@ COPY go.mod .
 COPY go.sum .
 RUN go get -d -v ./...
 RUN go install -v ./...
-COPY . .
-CMD ["go", "test", "-v", "./integration_tests/..."]
+COPY ./integration_tests ./integration_tests
+COPY ./client ./client
+CMD ["go", "test" , "-count", "1",  "-v", "./integration_tests/..."]
