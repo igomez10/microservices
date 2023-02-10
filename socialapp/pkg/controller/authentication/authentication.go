@@ -3,6 +3,7 @@ package authentication
 import (
 	"context"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"net/http"
@@ -17,11 +18,12 @@ import (
 // s *AuthenticationService openapi.AuthenticationApiServicer
 type AuthenticationService struct {
 	DB     db.Querier
-	DBConn db.DBTX
+	DBConn *sql.DB
 }
 
 func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
+
 	username, ok := contexthelper.GetUsernameInContext(ctx)
 	if !ok {
 		log.Error().Str("username", username).Msg("username not found in context")
@@ -46,7 +48,17 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 		}, nil
 	}
 
-	usr, err := s.DB.GetUserByUsername(ctx, s.DBConn, username)
+	// begin transaction
+	tx, err := s.DBConn.BeginTx(ctx, nil)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to begin transaction")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+		}, nil
+	}
+	defer tx.Rollback()
+
+	usr, err := s.DB.GetUserByUsername(ctx, tx, username)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get user")
 		return openapi.ImplResponse{
@@ -74,7 +86,7 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 	tokenString := base64.URLEncoding.EncodeToString(token[:])
 	validUntil := time.Now().UTC().Add(30 * 24 * time.Hour)
 
-	createdToken, err := s.DB.CreateToken(ctx, s.DBConn, db.CreateTokenParams{
+	createdToken, err := s.DB.CreateToken(ctx, tx, db.CreateTokenParams{
 		Token:      tokenString,
 		UserID:     usr.ID,
 		ValidUntil: validUntil,
@@ -92,7 +104,7 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 
 	for scopeName := range requestedScopes {
 		// get id of the scope
-		scope, err := s.DB.GetScopeByName(ctx, s.DBConn, scopeName)
+		scope, err := s.DB.GetScopeByName(ctx, tx, scopeName)
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to get scope")
 			return openapi.ImplResponse{
@@ -105,7 +117,7 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 		}
 
 		// create token scope
-		_, err = s.DB.CreateTokenToScope(ctx, s.DBConn, db.CreateTokenToScopeParams{
+		_, err = s.DB.CreateTokenToScope(ctx, tx, db.CreateTokenToScopeParams{
 			TokenID: createdToken.ID,
 			ScopeID: scope.ID,
 		})
@@ -121,14 +133,13 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 		}
 	}
 
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to create token")
+	// commit transaction
+	if err := tx.Commit(); err != nil {
+		log.Error().
+			Err(err).
+			Msg("Failed to commit transaction")
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
-			Body: openapi.Error{
-				Code:    http.StatusInternalServerError,
-				Message: fmt.Errorf("failed to create token").Error(),
-			},
 		}, nil
 	}
 
