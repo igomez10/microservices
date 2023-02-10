@@ -171,6 +171,9 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to parse redis url")
 	}
 
+	redisOpts.PoolSize = 10
+	redisOpts.MinIdleConns = 10
+
 	cache := cache.NewCache(cache.CacheConfig{
 		RedisOpts: redisOpts,
 	})
