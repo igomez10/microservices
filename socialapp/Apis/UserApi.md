@@ -390,7 +390,7 @@ Update a user
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **username** | **String**| username of the user | [default to null] |
-| **User** | [**User**](../Models/User.md)| Update a user | [optional] |
+| **User** | [**User**](../Models/User.md)| Update a user | |
 
 ### Return type
 
