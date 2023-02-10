@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/uuid"
 	"github.com/igomez10/microservices/socialapp/client"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -184,6 +185,52 @@ func TestCreateUser(t *testing.T) {
 			t.Errorf("Expected last name %q, got %q", user.LastName, resp.LastName)
 		}
 	}()
+
+	// update user
+	func() {
+		conf := clientcredentials.Config{
+			ClientID:     username,
+			ClientSecret: password,
+			Scopes:       []string{"socialapp.users.update"},
+			TokenURL:     ENDPOINT_OAUTH_TOKEN,
+		}
+		oauth2Ctx, err := getOuath2Context(noAuthCtx, conf)
+		if err != nil {
+			t.Fatalf("Error getting oauth2 context: %v", err)
+		}
+
+		updatedFirstName := "UpdatedFirstName" + uuid.NewString()
+		updatedLastName := "UpdatedLastName" + uuid.NewString()
+		updatedEmail := "UpdatedEmail" + uuid.NewString() + "@social.com"
+		updatedUser := client.User{
+			Username:  username,
+			FirstName: updatedFirstName,
+			LastName:  updatedLastName,
+			Email:     updatedEmail,
+		}
+
+		updateUserReq := apiClient.UserApi.
+			UpdateUser(oauth2Ctx, username).
+			User(updatedUser)
+
+		uUser, res, err := updateUserReq.Execute()
+		if err != nil {
+			t.Fatalf("Error when calling `UserApi.UpdateUser`: %v\n %+v\n", err, res)
+		}
+		if res.StatusCode != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, res.StatusCode)
+		}
+		if uUser.FirstName != updatedFirstName {
+			t.Errorf("Expected first name %q, got %q", updatedFirstName, uUser.FirstName)
+		}
+		if uUser.LastName != updatedLastName {
+			t.Errorf("Expected last name %q, got %q", updatedLastName, uUser.LastName)
+		}
+		if uUser.Email != updatedEmail {
+			t.Errorf("Expected email %q, got %q", updatedEmail, uUser.Email)
+		}
+	}()
+
 }
 
 func TestFollowCycle(t *testing.T) {
@@ -200,12 +247,14 @@ func TestFollowCycle(t *testing.T) {
 	apiClient = client.NewAPIClient(configuration)
 
 	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
+	password1 := fmt.Sprintf("TestPassword-%d1", time.Now().UnixNano())
 	email1 := fmt.Sprintf("Test-%d-1@social.com", time.Now().UnixNano())
-	user1 := *client.NewCreateUserRequest(username1, "password", "FirstName_example", "LastName_example", email1) // User | Create a new user
+	user1 := *client.NewCreateUserRequest(username1, password1, "FirstName_example", "LastName_example", email1) // User | Create a new user
 
 	username2 := fmt.Sprintf("Test-%d2", time.Now().UnixNano())
+	password2 := fmt.Sprintf("TestPassword-%d2", time.Now().UnixNano())
 	email2 := fmt.Sprintf("Test-%d-2@social.com", time.Now().UnixNano())
-	user2 := *client.NewCreateUserRequest(username2, "secretPassword", "FirstName_example", "LastName_example", email2) // User | Create a new user
+	user2 := *client.NewCreateUserRequest(username2, password2, "FirstName_example", "LastName_example", email2) // User | Create a new user
 
 	// create users
 	func() {
@@ -226,7 +275,7 @@ func TestFollowCycle(t *testing.T) {
 
 	conf := clientcredentials.Config{
 		ClientID:     username1,
-		ClientSecret: "password",
+		ClientSecret: password1,
 		Scopes: []string{
 			"socialapp.users.read",
 			"socialapp.follower.create",
