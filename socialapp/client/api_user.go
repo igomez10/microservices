@@ -70,7 +70,7 @@ func (a *UserApiService) ChangePasswordExecute(r UserApiChangePasswordRequest) (
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/password"
+	localVarPath := localBasePath + "/v1/password"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -201,7 +201,7 @@ func (a *UserApiService) CreateUserExecute(r UserApiCreateUserRequest) (*User, *
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users"
+	localVarPath := localBasePath + "/v1/users"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -328,7 +328,7 @@ func (a *UserApiService) DeleteUserExecute(r UserApiDeleteUserRequest) (*User, *
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users/{username}"
+	localVarPath := localBasePath + "/v1/users/{username}"
 	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -451,7 +451,7 @@ func (a *UserApiService) FollowUserExecute(r UserApiFollowUserRequest) (*http.Re
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users/{followedUsername}/followers/{followerUsername}"
+	localVarPath := localBasePath + "/v1/users/{followedUsername}/followers/{followerUsername}"
 	localVarPath = strings.Replace(localVarPath, "{"+"followedUsername"+"}", url.PathEscape(parameterValueToString(r.followedUsername, "followedUsername")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"followerUsername"+"}", url.PathEscape(parameterValueToString(r.followerUsername, "followerUsername")), -1)
 
@@ -566,7 +566,7 @@ func (a *UserApiService) GetFollowingUsersExecute(r UserApiGetFollowingUsersRequ
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users/{username}/following"
+	localVarPath := localBasePath + "/v1/users/{username}/following"
 	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -689,7 +689,7 @@ func (a *UserApiService) GetRolesForUserExecute(r UserApiGetRolesForUserRequest)
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users/{username}/roles"
+	localVarPath := localBasePath + "/v1/users/{username}/roles"
 	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -812,7 +812,7 @@ func (a *UserApiService) GetUserByUsernameExecute(r UserApiGetUserByUsernameRequ
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users/{username}"
+	localVarPath := localBasePath + "/v1/users/{username}"
 	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -949,7 +949,7 @@ func (a *UserApiService) GetUserCommentsExecute(r UserApiGetUserCommentsRequest)
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users/{username}/comments"
+	localVarPath := localBasePath + "/v1/users/{username}/comments"
 	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1078,7 +1078,7 @@ func (a *UserApiService) GetUserFollowersExecute(r UserApiGetUserFollowersReques
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users/{username}/followers"
+	localVarPath := localBasePath + "/v1/users/{username}/followers"
 	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1212,7 +1212,7 @@ func (a *UserApiService) ListUsersExecute(r UserApiListUsersRequest) ([]User, *h
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users"
+	localVarPath := localBasePath + "/v1/users"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1344,7 +1344,7 @@ func (a *UserApiService) ResetPasswordExecute(r UserApiResetPasswordRequest) (*U
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/password"
+	localVarPath := localBasePath + "/v1/password"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -1471,7 +1471,7 @@ func (a *UserApiService) UnfollowUserExecute(r UserApiUnfollowUserRequest) (*htt
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users/{followedUsername}/followers/{followerUsername}"
+	localVarPath := localBasePath + "/v1/users/{followedUsername}/followers/{followerUsername}"
 	localVarPath = strings.Replace(localVarPath, "{"+"followedUsername"+"}", url.PathEscape(parameterValueToString(r.followedUsername, "followedUsername")), -1)
 	localVarPath = strings.Replace(localVarPath, "{"+"followerUsername"+"}", url.PathEscape(parameterValueToString(r.followerUsername, "followerUsername")), -1)
 
@@ -1593,7 +1593,7 @@ func (a *UserApiService) UpdateRolesForUserExecute(r UserApiUpdateRolesForUserRe
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users/{username}/roles"
+	localVarPath := localBasePath + "/v1/users/{username}/roles"
 	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -1725,7 +1725,7 @@ func (a *UserApiService) UpdateUserExecute(r UserApiUpdateUserRequest) (*User, *
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users/{username}"
+	localVarPath := localBasePath + "/v1/users/{username}"
 	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)

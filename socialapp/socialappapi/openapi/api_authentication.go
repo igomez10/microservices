@@ -51,7 +51,7 @@ func (c *AuthenticationApiController) Routes() Routes {
 		{
 			"GetAccessToken",
 			strings.ToUpper("Post"),
-			"/oauth/token",
+			"/v1/oauth/token",
 			c.GetAccessToken,
 		},
 	}

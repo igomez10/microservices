@@ -30,14 +30,17 @@ var (
 func Setup() {
 	//  set the endpoint for the oauth token
 	testSetup := os.Getenv("TEST_SETUP")
+	if testSetup == "" {
+		testSetup = "LOCALHOST_DEBUG"
+	}
 
 	switch testSetup {
 	case "LOCALHOST":
 		CONTEXT_SERVER = LOCALHOST_SERVER_URL
-		ENDPOINT_OAUTH_TOKEN = "http://localhost:8085/oauth/token"
+		ENDPOINT_OAUTH_TOKEN = "http://localhost:8085/v1/oauth/token"
 	case "LOCALHOST_DEBUG":
 		CONTEXT_SERVER = LOCALHOST_DEBUG_SERVER_URL
-		ENDPOINT_OAUTH_TOKEN = "http://localhost:8085/oauth/token"
+		ENDPOINT_OAUTH_TOKEN = "http://localhost:8085/v1/oauth/token"
 	default:
 		CONTEXT_SERVER = RENDER_SERVER_URL
 		ENDPOINT_OAUTH_TOKEN = "https://socialapp.gomezignacio.com/oauth/token"
@@ -46,13 +49,19 @@ func Setup() {
 
 func TestMain(m *testing.M) {
 	// run tests
+	// add jitter
+	if os.Getenv("ADD_TEST_JITTER") != "" {
+		jitterInSeconds := uuid.New().ID() % 60
+		time.Sleep(time.Duration(jitterInSeconds))
+	}
+
 	Setup()
 	code := m.Run()
 	os.Exit(code)
 }
 
 func getHTTPClient() *http.Client {
-	if os.Getenv("USE_PROXY") == "true" {
+	if os.Getenv("USE_PROXY") == "true" || true {
 		proxyStr := "http://localhost:9091"
 		proxyURL, err := url.Parse(proxyStr)
 		if err != nil {

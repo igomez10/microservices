@@ -4,14 +4,14 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**addScopeToRole**](RoleApi.md#addScopeToRole) | **POST** /roles/{id}/scopes | Add a scope to a role |
-| [**createRole**](RoleApi.md#createRole) | **POST** /roles | Create a new role |
-| [**deleteRole**](RoleApi.md#deleteRole) | **DELETE** /roles/{id} | Delete a role |
-| [**getRole**](RoleApi.md#getRole) | **GET** /roles/{id} | Returns a role |
-| [**listRoles**](RoleApi.md#listRoles) | **GET** /roles | Returns a list of roles |
-| [**listScopesForRole**](RoleApi.md#listScopesForRole) | **GET** /roles/{id}/scopes | Returns a list of scopes for a role |
-| [**removeScopeFromRole**](RoleApi.md#removeScopeFromRole) | **DELETE** /roles/{role_id}/scopes/{scope_id} | Remove a scope from a role |
-| [**updateRole**](RoleApi.md#updateRole) | **PUT** /roles/{id} | Update a role |
+| [**addScopeToRole**](RoleApi.md#addScopeToRole) | **POST** /v1/roles/{id}/scopes | Add a scope to a role |
+| [**createRole**](RoleApi.md#createRole) | **POST** /v1/roles | Create a new role |
+| [**deleteRole**](RoleApi.md#deleteRole) | **DELETE** /v1/roles/{id} | Delete a role |
+| [**getRole**](RoleApi.md#getRole) | **GET** /v1/roles/{id} | Returns a role |
+| [**listRoles**](RoleApi.md#listRoles) | **GET** /v1/roles | Returns a list of roles |
+| [**listScopesForRole**](RoleApi.md#listScopesForRole) | **GET** /v1/roles/{id}/scopes | Returns a list of scopes for a role |
+| [**removeScopeFromRole**](RoleApi.md#removeScopeFromRole) | **DELETE** /v1/roles/{role_id}/scopes/{scope_id} | Remove a scope from a role |
+| [**updateRole**](RoleApi.md#updateRole) | **PUT** /v1/roles/{id} | Update a role |
 
 
 <a name="addScopeToRole"></a>

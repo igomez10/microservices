@@ -53,7 +53,7 @@ func (c *FollowingApiController) Routes() Routes {
 		{
 			"GetUserFollowers",
 			strings.ToUpper("Get"),
-			"/users/{username}/followers",
+			"/v1/users/{username}/followers",
 			c.GetUserFollowers,
 		},
 	}

@@ -70,7 +70,7 @@ func (a *URLApiService) CreateUrlExecute(r URLApiCreateUrlRequest) (*URL, *http.
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/urls"
+	localVarPath := localBasePath + "/v1/urls"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -196,7 +196,7 @@ func (a *URLApiService) DeleteUrlExecute(r URLApiDeleteUrlRequest) (*http.Respon
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/urls/{alias}"
+	localVarPath := localBasePath + "/v1/urls/{alias}"
 	localVarPath = strings.Replace(localVarPath, "{"+"alias"+"}", url.PathEscape(parameterValueToString(r.alias, "alias")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -298,7 +298,7 @@ func (a *URLApiService) GetUrlExecute(r URLApiGetUrlRequest) (*http.Response, er
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/urls/{alias}"
+	localVarPath := localBasePath + "/v1/urls/{alias}"
 	localVarPath = strings.Replace(localVarPath, "{"+"alias"+"}", url.PathEscape(parameterValueToString(r.alias, "alias")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -403,7 +403,7 @@ func (a *URLApiService) GetUrlDataExecute(r URLApiGetUrlDataRequest) (*URL, *htt
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/urls/{alias}/data"
+	localVarPath := localBasePath + "/v1/urls/{alias}/data"
 	localVarPath = strings.Replace(localVarPath, "{"+"alias"+"}", url.PathEscape(parameterValueToString(r.alias, "alias")), -1)
 
 	localVarHeaderParams := make(map[string]string)

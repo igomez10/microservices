@@ -54,31 +54,31 @@ func (c *ScopeApiController) Routes() Routes {
 		{
 			"CreateScope",
 			strings.ToUpper("Post"),
-			"/scopes",
+			"/v1/scopes",
 			c.CreateScope,
 		},
 		{
 			"DeleteScope",
 			strings.ToUpper("Delete"),
-			"/scopes/{id}",
+			"/v1/scopes/{id}",
 			c.DeleteScope,
 		},
 		{
 			"GetScope",
 			strings.ToUpper("Get"),
-			"/scopes/{id}",
+			"/v1/scopes/{id}",
 			c.GetScope,
 		},
 		{
 			"ListScopes",
 			strings.ToUpper("Get"),
-			"/scopes",
+			"/v1/scopes",
 			c.ListScopes,
 		},
 		{
 			"UpdateScope",
 			strings.ToUpper("Put"),
-			"/scopes/{id}",
+			"/v1/scopes/{id}",
 			c.UpdateScope,
 		},
 	}

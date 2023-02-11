@@ -4,20 +4,20 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**changePassword**](UserApi.md#changePassword) | **POST** /password | Change password |
-| [**createUser**](UserApi.md#createUser) | **POST** /users | Create user |
-| [**deleteUser**](UserApi.md#deleteUser) | **DELETE** /users/{username} | Deletes a particular user |
-| [**followUser**](UserApi.md#followUser) | **POST** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower |
-| [**getFollowingUsers**](UserApi.md#getFollowingUsers) | **GET** /users/{username}/following | Get all followed users for a user |
-| [**getRolesForUser**](UserApi.md#getRolesForUser) | **GET** /users/{username}/roles | Get all roles for a user |
-| [**getUserByUsername**](UserApi.md#getUserByUsername) | **GET** /users/{username} | Get a particular user by username |
-| [**getUserComments**](UserApi.md#getUserComments) | **GET** /users/{username}/comments | Gets all comments for a user |
-| [**getUserFollowers**](UserApi.md#getUserFollowers) | **GET** /users/{username}/followers | Get all followers for a user |
-| [**listUsers**](UserApi.md#listUsers) | **GET** /users | List users |
-| [**resetPassword**](UserApi.md#resetPassword) | **PUT** /password | Reset password |
-| [**unfollowUser**](UserApi.md#unfollowUser) | **DELETE** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower |
-| [**updateRolesForUser**](UserApi.md#updateRolesForUser) | **PUT** /users/{username}/roles | Update all roles for a user |
-| [**updateUser**](UserApi.md#updateUser) | **PUT** /users/{username} | Update a user |
+| [**changePassword**](UserApi.md#changePassword) | **POST** /v1/password | Change password |
+| [**createUser**](UserApi.md#createUser) | **POST** /v1/users | Create user |
+| [**deleteUser**](UserApi.md#deleteUser) | **DELETE** /v1/users/{username} | Deletes a particular user |
+| [**followUser**](UserApi.md#followUser) | **POST** /v1/users/{followedUsername}/followers/{followerUsername} | Add a user as a follower |
+| [**getFollowingUsers**](UserApi.md#getFollowingUsers) | **GET** /v1/users/{username}/following | Get all followed users for a user |
+| [**getRolesForUser**](UserApi.md#getRolesForUser) | **GET** /v1/users/{username}/roles | Get all roles for a user |
+| [**getUserByUsername**](UserApi.md#getUserByUsername) | **GET** /v1/users/{username} | Get a particular user by username |
+| [**getUserComments**](UserApi.md#getUserComments) | **GET** /v1/users/{username}/comments | Gets all comments for a user |
+| [**getUserFollowers**](UserApi.md#getUserFollowers) | **GET** /v1/users/{username}/followers | Get all followers for a user |
+| [**listUsers**](UserApi.md#listUsers) | **GET** /v1/users | List users |
+| [**resetPassword**](UserApi.md#resetPassword) | **PUT** /v1/password | Reset password |
+| [**unfollowUser**](UserApi.md#unfollowUser) | **DELETE** /v1/users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower |
+| [**updateRolesForUser**](UserApi.md#updateRolesForUser) | **PUT** /v1/users/{username}/roles | Update all roles for a user |
+| [**updateUser**](UserApi.md#updateUser) | **PUT** /v1/users/{username} | Update a user |
 
 
 <a name="changePassword"></a>

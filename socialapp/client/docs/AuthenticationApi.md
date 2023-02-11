@@ -4,7 +4,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**GetAccessToken**](AuthenticationApi.md#GetAccessToken) | **Post** /oauth/token | Get an access token
+[**GetAccessToken**](AuthenticationApi.md#GetAccessToken) | **Post** /v1/oauth/token | Get an access token
 
 
 

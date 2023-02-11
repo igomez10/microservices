@@ -4,14 +4,14 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**AddScopeToRole**](RoleApi.md#AddScopeToRole) | **Post** /roles/{id}/scopes | Add a scope to a role
-[**CreateRole**](RoleApi.md#CreateRole) | **Post** /roles | Create a new role
-[**DeleteRole**](RoleApi.md#DeleteRole) | **Delete** /roles/{id} | Delete a role
-[**GetRole**](RoleApi.md#GetRole) | **Get** /roles/{id} | Returns a role
-[**ListRoles**](RoleApi.md#ListRoles) | **Get** /roles | Returns a list of roles
-[**ListScopesForRole**](RoleApi.md#ListScopesForRole) | **Get** /roles/{id}/scopes | Returns a list of scopes for a role
-[**RemoveScopeFromRole**](RoleApi.md#RemoveScopeFromRole) | **Delete** /roles/{role_id}/scopes/{scope_id} | Remove a scope from a role
-[**UpdateRole**](RoleApi.md#UpdateRole) | **Put** /roles/{id} | Update a role
+[**AddScopeToRole**](RoleApi.md#AddScopeToRole) | **Post** /v1/roles/{id}/scopes | Add a scope to a role
+[**CreateRole**](RoleApi.md#CreateRole) | **Post** /v1/roles | Create a new role
+[**DeleteRole**](RoleApi.md#DeleteRole) | **Delete** /v1/roles/{id} | Delete a role
+[**GetRole**](RoleApi.md#GetRole) | **Get** /v1/roles/{id} | Returns a role
+[**ListRoles**](RoleApi.md#ListRoles) | **Get** /v1/roles | Returns a list of roles
+[**ListScopesForRole**](RoleApi.md#ListScopesForRole) | **Get** /v1/roles/{id}/scopes | Returns a list of scopes for a role
+[**RemoveScopeFromRole**](RoleApi.md#RemoveScopeFromRole) | **Delete** /v1/roles/{role_id}/scopes/{scope_id} | Remove a scope from a role
+[**UpdateRole**](RoleApi.md#UpdateRole) | **Put** /v1/roles/{id} | Update a role
 
 
 

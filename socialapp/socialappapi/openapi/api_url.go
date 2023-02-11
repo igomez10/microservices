@@ -54,25 +54,25 @@ func (c *URLApiController) Routes() Routes {
 		{
 			"CreateUrl",
 			strings.ToUpper("Post"),
-			"/urls",
+			"/v1/urls",
 			c.CreateUrl,
 		},
 		{
 			"DeleteUrl",
 			strings.ToUpper("Delete"),
-			"/urls/{alias}",
+			"/v1/urls/{alias}",
 			c.DeleteUrl,
 		},
 		{
 			"GetUrl",
 			strings.ToUpper("Get"),
-			"/urls/{alias}",
+			"/v1/urls/{alias}",
 			c.GetUrl,
 		},
 		{
 			"GetUrlData",
 			strings.ToUpper("Get"),
-			"/urls/{alias}/data",
+			"/v1/urls/{alias}/data",
 			c.GetUrlData,
 		},
 	}

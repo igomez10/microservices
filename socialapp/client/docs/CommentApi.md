@@ -4,10 +4,10 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**CreateComment**](CommentApi.md#CreateComment) | **Post** /comments | Create a new comment
-[**GetComment**](CommentApi.md#GetComment) | **Get** /comments/{id} | Returns details about a particular comment
-[**GetUserComments**](CommentApi.md#GetUserComments) | **Get** /users/{username}/comments | Gets all comments for a user
-[**GetUserFeed**](CommentApi.md#GetUserFeed) | **Get** /users/{username}/feed | Returns a users feed
+[**CreateComment**](CommentApi.md#CreateComment) | **Post** /v1/comments | Create a new comment
+[**GetComment**](CommentApi.md#GetComment) | **Get** /v1/comments/{id} | Returns details about a particular comment
+[**GetUserComments**](CommentApi.md#GetUserComments) | **Get** /v1/users/{username}/comments | Gets all comments for a user
+[**GetUserFeed**](CommentApi.md#GetUserFeed) | **Get** /v1/users/{username}/feed | Returns a users feed
 
 
 

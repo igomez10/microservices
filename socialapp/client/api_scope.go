@@ -70,7 +70,7 @@ func (a *ScopeApiService) CreateScopeExecute(r ScopeApiCreateScopeRequest) (*Sco
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/scopes"
+	localVarPath := localBasePath + "/v1/scopes"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -194,7 +194,7 @@ func (a *ScopeApiService) DeleteScopeExecute(r ScopeApiDeleteScopeRequest) (*htt
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/scopes/{id}"
+	localVarPath := localBasePath + "/v1/scopes/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -308,7 +308,7 @@ func (a *ScopeApiService) GetScopeExecute(r ScopeApiGetScopeRequest) (*Scope, *h
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/scopes/{id}"
+	localVarPath := localBasePath + "/v1/scopes/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)
@@ -442,7 +442,7 @@ func (a *ScopeApiService) ListScopesExecute(r ScopeApiListScopesRequest) ([]Scop
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/scopes"
+	localVarPath := localBasePath + "/v1/scopes"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -577,7 +577,7 @@ func (a *ScopeApiService) UpdateScopeExecute(r ScopeApiUpdateScopeRequest) (*Sco
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/scopes/{id}"
+	localVarPath := localBasePath + "/v1/scopes/{id}"
 	localVarPath = strings.Replace(localVarPath, "{"+"id"+"}", url.PathEscape(parameterValueToString(r.id, "id")), -1)
 
 	localVarHeaderParams := make(map[string]string)

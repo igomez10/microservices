@@ -35,6 +35,7 @@ type Middleware struct {
 	Cache            *cache.Cache
 	AllowlistedPaths map[string]map[string]bool
 	AllowBasicAuth   bool
+	AuthEndpoint     string
 }
 
 func (m *Middleware) Authenticate(next http.Handler) http.Handler {
@@ -205,7 +206,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 
 				r = contexthelper.SetUsernameInContext(r, username)
 				authResult = "passed_with_bearer"
-			} else if m.AllowBasicAuth || (strings.HasPrefix(authHeader, "Basic ") && r.URL.Path == "/oauth/token") {
+			} else if m.AllowBasicAuth || (strings.HasPrefix(authHeader, "Basic ") && r.URL.Path == m.AuthEndpoint) {
 				// check grant type is client_credentials
 				username, password, ok := r.BasicAuth()
 				if !ok {

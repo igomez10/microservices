@@ -4,7 +4,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**getUserFollowers**](FollowingApi.md#getUserFollowers) | **GET** /users/{username}/followers | Get all followers for a user |
+| [**getUserFollowers**](FollowingApi.md#getUserFollowers) | **GET** /v1/users/{username}/followers | Get all followers for a user |
 
 
 <a name="getUserFollowers"></a>

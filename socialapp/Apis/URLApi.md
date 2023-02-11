@@ -4,10 +4,10 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**createUrl**](URLApi.md#createUrl) | **POST** /urls | Create a new url |
-| [**deleteUrl**](URLApi.md#deleteUrl) | **DELETE** /urls/{alias} | Delete a url |
-| [**getUrl**](URLApi.md#getUrl) | **GET** /urls/{alias} | Get a url |
-| [**getUrlData**](URLApi.md#getUrlData) | **GET** /urls/{alias}/data | Returns a url metadata |
+| [**createUrl**](URLApi.md#createUrl) | **POST** /v1/urls | Create a new url |
+| [**deleteUrl**](URLApi.md#deleteUrl) | **DELETE** /v1/urls/{alias} | Delete a url |
+| [**getUrl**](URLApi.md#getUrl) | **GET** /v1/urls/{alias} | Get a url |
+| [**getUrlData**](URLApi.md#getUrlData) | **GET** /v1/urls/{alias}/data | Returns a url metadata |
 
 
 <a name="createUrl"></a>

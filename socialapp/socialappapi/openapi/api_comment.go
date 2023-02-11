@@ -54,25 +54,25 @@ func (c *CommentApiController) Routes() Routes {
 		{
 			"CreateComment",
 			strings.ToUpper("Post"),
-			"/comments",
+			"/v1/comments",
 			c.CreateComment,
 		},
 		{
 			"GetComment",
 			strings.ToUpper("Get"),
-			"/comments/{id}",
+			"/v1/comments/{id}",
 			c.GetComment,
 		},
 		{
 			"GetUserComments",
 			strings.ToUpper("Get"),
-			"/users/{username}/comments",
+			"/v1/users/{username}/comments",
 			c.GetUserComments,
 		},
 		{
 			"GetUserFeed",
 			strings.ToUpper("Get"),
-			"/users/{username}/feed",
+			"/v1/users/{username}/feed",
 			c.GetUserFeed,
 		},
 	}

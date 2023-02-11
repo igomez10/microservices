@@ -66,7 +66,7 @@ func (a *FollowingApiService) GetUserFollowersExecute(r FollowingApiGetUserFollo
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/users/{username}/followers"
+	localVarPath := localBasePath + "/v1/users/{username}/followers"
 	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
 
 	localVarHeaderParams := make(map[string]string)

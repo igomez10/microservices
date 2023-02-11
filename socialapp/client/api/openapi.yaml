@@ -32,7 +32,7 @@ tags:
 - description: URL management
   name: URL
 paths:
-  /users:
+  /v1/users:
     get:
       description: List all users in the system (paginated)
       operationId: listUsers
@@ -118,7 +118,7 @@ paths:
       summary: Create user
       tags:
       - User
-  /password:
+  /v1/password:
     post:
       description: Change the password of the current user
       operationId: changePassword
@@ -189,7 +189,7 @@ paths:
       summary: Reset password
       tags:
       - User
-  /users/{username}/feed:
+  /v1/users/{username}/feed:
     get:
       description: Returns a users feed
       operationId: getUserFeed
@@ -230,7 +230,7 @@ paths:
       summary: Returns a users feed
       tags:
       - Comment
-  /users/{username}/comments:
+  /v1/users/{username}/comments:
     get:
       description: Gets all comments for a user
       operationId: getUserComments
@@ -296,7 +296,7 @@ paths:
       tags:
       - User
       - Comment
-  /users/{username}/followers:
+  /v1/users/{username}/followers:
     get:
       description: Get all followers for a user
       operationId: getUserFollowers
@@ -338,7 +338,7 @@ paths:
       tags:
       - User
       - Following
-  /users/{username}/following:
+  /v1/users/{username}/following:
     get:
       description: Get all followed users for a user (users that the user is following)
       operationId: getFollowingUsers
@@ -379,7 +379,7 @@ paths:
       summary: Get all followed users for a user
       tags:
       - User
-  /users/{followedUsername}/followers/{followerUsername}:
+  /v1/users/{followedUsername}/followers/{followerUsername}:
     delete:
       description: Remove a user as a follower of another user
       operationId: unfollowUser
@@ -466,7 +466,7 @@ paths:
       summary: Add a user as a follower
       tags:
       - User
-  /users/{username}:
+  /v1/users/{username}:
     delete:
       description: Deletes a particular user by username
       operationId: deleteUser
@@ -595,7 +595,7 @@ paths:
       summary: Update a user
       tags:
       - User
-  /users/{username}/roles:
+  /v1/users/{username}/roles:
     get:
       description: Get all roles for a user
       operationId: getRolesForUser
@@ -689,7 +689,7 @@ paths:
       summary: Update all roles for a user
       tags:
       - User
-  /comments/{id}:
+  /v1/comments/{id}:
     get:
       description: Returns details about a particular comment
       operationId: getComment
@@ -736,7 +736,7 @@ paths:
       summary: Returns details about a particular comment
       tags:
       - Comment
-  /comments:
+  /v1/comments:
     post:
       description: Create a new comment
       operationId: createComment
@@ -772,7 +772,7 @@ paths:
       summary: Create a new comment
       tags:
       - Comment
-  /oauth/token:
+  /v1/oauth/token:
     post:
       description: Get an access token
       operationId: getAccessToken
@@ -800,7 +800,7 @@ paths:
       summary: Get an access token
       tags:
       - Authentication
-  /roles:
+  /v1/roles:
     get:
       description: Returns a list of roles
       operationId: listRoles
@@ -888,7 +888,7 @@ paths:
       summary: Create a new role
       tags:
       - Role
-  /roles/{id}:
+  /v1/roles/{id}:
     delete:
       description: Delete a role
       operationId: deleteRole
@@ -1005,7 +1005,7 @@ paths:
       summary: Update a role
       tags:
       - Role
-  /roles/{id}/scopes:
+  /v1/roles/{id}/scopes:
     get:
       description: Returns a list of scopes for a role
       operationId: listScopesForRole
@@ -1125,7 +1125,7 @@ paths:
       summary: Add a scope to a role
       tags:
       - Role
-  /roles/{role_id}/scopes/{scope_id}:
+  /v1/roles/{role_id}/scopes/{scope_id}:
     delete:
       description: Remove a scope from a role
       operationId: removeScopeFromRole
@@ -1181,7 +1181,7 @@ paths:
       summary: Remove a scope from a role
       tags:
       - Role
-  /scopes:
+  /v1/scopes:
     get:
       description: Returns a list of scopes
       operationId: listScopes
@@ -1269,7 +1269,7 @@ paths:
       summary: Create a new scope
       tags:
       - Scope
-  /scopes/{id}:
+  /v1/scopes/{id}:
     delete:
       description: Delete a scope
       operationId: deleteScope
@@ -1386,7 +1386,7 @@ paths:
       summary: Update a scope
       tags:
       - Scope
-  /urls/{alias}:
+  /v1/urls/{alias}:
     delete:
       description: Delete a url
       operationId: deleteUrl
@@ -1448,7 +1448,7 @@ paths:
       summary: Get a url
       tags:
       - URL
-  /urls/{alias}/data:
+  /v1/urls/{alias}/data:
     get:
       description: Returns a url
       operationId: getUrlData
@@ -1478,7 +1478,7 @@ paths:
       summary: Returns a url metadata
       tags:
       - URL
-  /urls:
+  /v1/urls:
     post:
       description: Returns a url
       operationId: createUrl
@@ -1754,5 +1754,5 @@ components:
             shortly.url.create: Create a url
             shortly.url.update: Update a url
             shortly.url.delete: Delete a url
-          tokenUrl: /oauth/token
+          tokenUrl: /v1/oauth/token
       type: oauth2

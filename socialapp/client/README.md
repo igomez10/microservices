@@ -79,43 +79,43 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*AuthenticationApi* | [**GetAccessToken**](docs/AuthenticationApi.md#getaccesstoken) | **Post** /oauth/token | Get an access token
-*CommentApi* | [**CreateComment**](docs/CommentApi.md#createcomment) | **Post** /comments | Create a new comment
-*CommentApi* | [**GetComment**](docs/CommentApi.md#getcomment) | **Get** /comments/{id} | Returns details about a particular comment
-*CommentApi* | [**GetUserComments**](docs/CommentApi.md#getusercomments) | **Get** /users/{username}/comments | Gets all comments for a user
-*CommentApi* | [**GetUserFeed**](docs/CommentApi.md#getuserfeed) | **Get** /users/{username}/feed | Returns a users feed
-*FollowingApi* | [**GetUserFollowers**](docs/FollowingApi.md#getuserfollowers) | **Get** /users/{username}/followers | Get all followers for a user
-*RoleApi* | [**AddScopeToRole**](docs/RoleApi.md#addscopetorole) | **Post** /roles/{id}/scopes | Add a scope to a role
-*RoleApi* | [**CreateRole**](docs/RoleApi.md#createrole) | **Post** /roles | Create a new role
-*RoleApi* | [**DeleteRole**](docs/RoleApi.md#deleterole) | **Delete** /roles/{id} | Delete a role
-*RoleApi* | [**GetRole**](docs/RoleApi.md#getrole) | **Get** /roles/{id} | Returns a role
-*RoleApi* | [**ListRoles**](docs/RoleApi.md#listroles) | **Get** /roles | Returns a list of roles
-*RoleApi* | [**ListScopesForRole**](docs/RoleApi.md#listscopesforrole) | **Get** /roles/{id}/scopes | Returns a list of scopes for a role
-*RoleApi* | [**RemoveScopeFromRole**](docs/RoleApi.md#removescopefromrole) | **Delete** /roles/{role_id}/scopes/{scope_id} | Remove a scope from a role
-*RoleApi* | [**UpdateRole**](docs/RoleApi.md#updaterole) | **Put** /roles/{id} | Update a role
-*ScopeApi* | [**CreateScope**](docs/ScopeApi.md#createscope) | **Post** /scopes | Create a new scope
-*ScopeApi* | [**DeleteScope**](docs/ScopeApi.md#deletescope) | **Delete** /scopes/{id} | Delete a scope
-*ScopeApi* | [**GetScope**](docs/ScopeApi.md#getscope) | **Get** /scopes/{id} | Returns a scope
-*ScopeApi* | [**ListScopes**](docs/ScopeApi.md#listscopes) | **Get** /scopes | Returns a list of scopes
-*ScopeApi* | [**UpdateScope**](docs/ScopeApi.md#updatescope) | **Put** /scopes/{id} | Update a scope
-*URLApi* | [**CreateUrl**](docs/URLApi.md#createurl) | **Post** /urls | Create a new url
-*URLApi* | [**DeleteUrl**](docs/URLApi.md#deleteurl) | **Delete** /urls/{alias} | Delete a url
-*URLApi* | [**GetUrl**](docs/URLApi.md#geturl) | **Get** /urls/{alias} | Get a url
-*URLApi* | [**GetUrlData**](docs/URLApi.md#geturldata) | **Get** /urls/{alias}/data | Returns a url metadata
-*UserApi* | [**ChangePassword**](docs/UserApi.md#changepassword) | **Post** /password | Change password
-*UserApi* | [**CreateUser**](docs/UserApi.md#createuser) | **Post** /users | Create user
-*UserApi* | [**DeleteUser**](docs/UserApi.md#deleteuser) | **Delete** /users/{username} | Deletes a particular user
-*UserApi* | [**FollowUser**](docs/UserApi.md#followuser) | **Post** /users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
-*UserApi* | [**GetFollowingUsers**](docs/UserApi.md#getfollowingusers) | **Get** /users/{username}/following | Get all followed users for a user
-*UserApi* | [**GetRolesForUser**](docs/UserApi.md#getrolesforuser) | **Get** /users/{username}/roles | Get all roles for a user
-*UserApi* | [**GetUserByUsername**](docs/UserApi.md#getuserbyusername) | **Get** /users/{username} | Get a particular user by username
-*UserApi* | [**GetUserComments**](docs/UserApi.md#getusercomments) | **Get** /users/{username}/comments | Gets all comments for a user
-*UserApi* | [**GetUserFollowers**](docs/UserApi.md#getuserfollowers) | **Get** /users/{username}/followers | Get all followers for a user
-*UserApi* | [**ListUsers**](docs/UserApi.md#listusers) | **Get** /users | List users
-*UserApi* | [**ResetPassword**](docs/UserApi.md#resetpassword) | **Put** /password | Reset password
-*UserApi* | [**UnfollowUser**](docs/UserApi.md#unfollowuser) | **Delete** /users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
-*UserApi* | [**UpdateRolesForUser**](docs/UserApi.md#updaterolesforuser) | **Put** /users/{username}/roles | Update all roles for a user
-*UserApi* | [**UpdateUser**](docs/UserApi.md#updateuser) | **Put** /users/{username} | Update a user
+*AuthenticationApi* | [**GetAccessToken**](docs/AuthenticationApi.md#getaccesstoken) | **Post** /v1/oauth/token | Get an access token
+*CommentApi* | [**CreateComment**](docs/CommentApi.md#createcomment) | **Post** /v1/comments | Create a new comment
+*CommentApi* | [**GetComment**](docs/CommentApi.md#getcomment) | **Get** /v1/comments/{id} | Returns details about a particular comment
+*CommentApi* | [**GetUserComments**](docs/CommentApi.md#getusercomments) | **Get** /v1/users/{username}/comments | Gets all comments for a user
+*CommentApi* | [**GetUserFeed**](docs/CommentApi.md#getuserfeed) | **Get** /v1/users/{username}/feed | Returns a users feed
+*FollowingApi* | [**GetUserFollowers**](docs/FollowingApi.md#getuserfollowers) | **Get** /v1/users/{username}/followers | Get all followers for a user
+*RoleApi* | [**AddScopeToRole**](docs/RoleApi.md#addscopetorole) | **Post** /v1/roles/{id}/scopes | Add a scope to a role
+*RoleApi* | [**CreateRole**](docs/RoleApi.md#createrole) | **Post** /v1/roles | Create a new role
+*RoleApi* | [**DeleteRole**](docs/RoleApi.md#deleterole) | **Delete** /v1/roles/{id} | Delete a role
+*RoleApi* | [**GetRole**](docs/RoleApi.md#getrole) | **Get** /v1/roles/{id} | Returns a role
+*RoleApi* | [**ListRoles**](docs/RoleApi.md#listroles) | **Get** /v1/roles | Returns a list of roles
+*RoleApi* | [**ListScopesForRole**](docs/RoleApi.md#listscopesforrole) | **Get** /v1/roles/{id}/scopes | Returns a list of scopes for a role
+*RoleApi* | [**RemoveScopeFromRole**](docs/RoleApi.md#removescopefromrole) | **Delete** /v1/roles/{role_id}/scopes/{scope_id} | Remove a scope from a role
+*RoleApi* | [**UpdateRole**](docs/RoleApi.md#updaterole) | **Put** /v1/roles/{id} | Update a role
+*ScopeApi* | [**CreateScope**](docs/ScopeApi.md#createscope) | **Post** /v1/scopes | Create a new scope
+*ScopeApi* | [**DeleteScope**](docs/ScopeApi.md#deletescope) | **Delete** /v1/scopes/{id} | Delete a scope
+*ScopeApi* | [**GetScope**](docs/ScopeApi.md#getscope) | **Get** /v1/scopes/{id} | Returns a scope
+*ScopeApi* | [**ListScopes**](docs/ScopeApi.md#listscopes) | **Get** /v1/scopes | Returns a list of scopes
+*ScopeApi* | [**UpdateScope**](docs/ScopeApi.md#updatescope) | **Put** /v1/scopes/{id} | Update a scope
+*URLApi* | [**CreateUrl**](docs/URLApi.md#createurl) | **Post** /v1/urls | Create a new url
+*URLApi* | [**DeleteUrl**](docs/URLApi.md#deleteurl) | **Delete** /v1/urls/{alias} | Delete a url
+*URLApi* | [**GetUrl**](docs/URLApi.md#geturl) | **Get** /v1/urls/{alias} | Get a url
+*URLApi* | [**GetUrlData**](docs/URLApi.md#geturldata) | **Get** /v1/urls/{alias}/data | Returns a url metadata
+*UserApi* | [**ChangePassword**](docs/UserApi.md#changepassword) | **Post** /v1/password | Change password
+*UserApi* | [**CreateUser**](docs/UserApi.md#createuser) | **Post** /v1/users | Create user
+*UserApi* | [**DeleteUser**](docs/UserApi.md#deleteuser) | **Delete** /v1/users/{username} | Deletes a particular user
+*UserApi* | [**FollowUser**](docs/UserApi.md#followuser) | **Post** /v1/users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
+*UserApi* | [**GetFollowingUsers**](docs/UserApi.md#getfollowingusers) | **Get** /v1/users/{username}/following | Get all followed users for a user
+*UserApi* | [**GetRolesForUser**](docs/UserApi.md#getrolesforuser) | **Get** /v1/users/{username}/roles | Get all roles for a user
+*UserApi* | [**GetUserByUsername**](docs/UserApi.md#getuserbyusername) | **Get** /v1/users/{username} | Get a particular user by username
+*UserApi* | [**GetUserComments**](docs/UserApi.md#getusercomments) | **Get** /v1/users/{username}/comments | Gets all comments for a user
+*UserApi* | [**GetUserFollowers**](docs/UserApi.md#getuserfollowers) | **Get** /v1/users/{username}/followers | Get all followers for a user
+*UserApi* | [**ListUsers**](docs/UserApi.md#listusers) | **Get** /v1/users | List users
+*UserApi* | [**ResetPassword**](docs/UserApi.md#resetpassword) | **Put** /v1/password | Reset password
+*UserApi* | [**UnfollowUser**](docs/UserApi.md#unfollowuser) | **Delete** /v1/users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
+*UserApi* | [**UpdateRolesForUser**](docs/UserApi.md#updaterolesforuser) | **Put** /v1/users/{username}/roles | Update all roles for a user
+*UserApi* | [**UpdateUser**](docs/UserApi.md#updateuser) | **Put** /v1/users/{username} | Update a user
 
 
 ## Documentation For Models

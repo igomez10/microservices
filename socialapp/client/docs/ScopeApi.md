@@ -4,11 +4,11 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**CreateScope**](ScopeApi.md#CreateScope) | **Post** /scopes | Create a new scope
-[**DeleteScope**](ScopeApi.md#DeleteScope) | **Delete** /scopes/{id} | Delete a scope
-[**GetScope**](ScopeApi.md#GetScope) | **Get** /scopes/{id} | Returns a scope
-[**ListScopes**](ScopeApi.md#ListScopes) | **Get** /scopes | Returns a list of scopes
-[**UpdateScope**](ScopeApi.md#UpdateScope) | **Put** /scopes/{id} | Update a scope
+[**CreateScope**](ScopeApi.md#CreateScope) | **Post** /v1/scopes | Create a new scope
+[**DeleteScope**](ScopeApi.md#DeleteScope) | **Delete** /v1/scopes/{id} | Delete a scope
+[**GetScope**](ScopeApi.md#GetScope) | **Get** /v1/scopes/{id} | Returns a scope
+[**ListScopes**](ScopeApi.md#ListScopes) | **Get** /v1/scopes | Returns a list of scopes
+[**UpdateScope**](ScopeApi.md#UpdateScope) | **Put** /v1/scopes/{id} | Update a scope
 
 
 

@@ -175,6 +175,7 @@ func main() {
 		Cache:            cache,
 		AllowlistedPaths: socialappAllowlistedPaths,
 		AllowBasicAuth:   false,
+		AuthEndpoint:     "/v1/oauth/token",
 	}
 
 	beacon := beacon.Beacon{Logger: log.Logger}
@@ -211,6 +212,7 @@ func main() {
 		Cache:            cache,
 		AllowlistedPaths: map[string]map[string]bool{},
 		AllowBasicAuth:   true,
+		AuthEndpoint:     "/v1/oauth/token",
 	}
 	authorizationRuler := authorization.Middleware{
 		RequiredScopes: map[string]bool{"kibana:read": true},
