@@ -3,6 +3,7 @@ package integration_tests
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -52,6 +53,7 @@ func TestMain(m *testing.M) {
 	// add jitter
 	if os.Getenv("ADD_TEST_JITTER") != "" {
 		jitterInSeconds := uuid.New().ID() % 60
+		log.Printf("Adding test jitter of %d seconds", jitterInSeconds)
 		time.Sleep(time.Duration(jitterInSeconds))
 	}
 
