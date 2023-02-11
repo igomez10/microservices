@@ -43,7 +43,7 @@ func Setup() {
 		ENDPOINT_OAUTH_TOKEN = "http://localhost:8085/v1/oauth/token"
 	default:
 		CONTEXT_SERVER = RENDER_SERVER_URL
-		ENDPOINT_OAUTH_TOKEN = "https://socialapp.gomezignacio.com/oauth/token"
+		ENDPOINT_OAUTH_TOKEN = "https://socialapp.gomezignacio.com/v1/oauth/token"
 	}
 }
 
