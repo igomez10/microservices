@@ -30,9 +30,9 @@ var (
 func Setup() {
 	//  set the endpoint for the oauth token
 	testSetup := os.Getenv("TEST_SETUP")
-	if testSetup == "" {
-		testSetup = "LOCALHOST_DEBUG"
-	}
+	// if testSetup == "" {
+	// 	testSetup = "LOCALHOST_DEBUG"
+	// }
 
 	switch testSetup {
 	case "LOCALHOST":
@@ -61,7 +61,7 @@ func TestMain(m *testing.M) {
 }
 
 func getHTTPClient() *http.Client {
-	if os.Getenv("USE_PROXY") == "true" || true {
+	if os.Getenv("USE_PROXY") == "true" {
 		proxyStr := "http://localhost:9091"
 		proxyURL, err := url.Parse(proxyStr)
 		if err != nil {
