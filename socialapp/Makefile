@@ -76,6 +76,9 @@ build:
 test:
 	go test ./...
 
+start:
+	docker compose up -d
+
 start-cady:
 	caddy reverse-proxy --from localhost:4545  --to localhost:8080
 
