@@ -524,7 +524,7 @@
               }
             ]
           },
-          "unit": "s"
+          "unit": "ms"
         },
         "overrides": []
       },
@@ -556,7 +556,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "rate(gandalf_duration_seconds_sum[$min_interval])",
+          "expr": "avg by(auth_result) (rate(gandalf_duration_milliseconds_bucket[$min_interval]))",
           "instant": true,
           "key": "Q-6f571b36-c301-4dc7-b37a-69511648a416-0",
           "legendFormat": "{{status}}",
@@ -968,6 +968,6 @@
   "timezone": "",
   "title": "Socialapp dashboard",
   "uid": "l1YgmnvVk",
-  "version": 4,
+  "version": 5,
   "weekStart": ""
 }
