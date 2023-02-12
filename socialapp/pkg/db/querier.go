@@ -13,6 +13,7 @@ type Querier interface {
 	CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (Comment, error)
 	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (Comment, error)
 	CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (Credential, error)
+	CreateEvent(ctx context.Context, db DBTX, arg CreateEventParams) error
 	CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams) (Role, error)
 	CreateRoleScope(ctx context.Context, db DBTX, arg CreateRoleScopeParams) (RolesToScope, error)
 	CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (Scope, error)

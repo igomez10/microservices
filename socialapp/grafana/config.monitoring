@@ -1,2 +1,7 @@
 GF_SECURITY_ADMIN_PASSWORD=admin
 GF_USERS_ALLOW_SIGN_UP=false
+allow_embedding = true
+auth.anonymous
+enabled = true
+org_name = <<org name>>
+org_role = Viewer

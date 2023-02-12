@@ -8,6 +8,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"time"
 )
 
@@ -103,6 +104,33 @@ func (q *Queries) CreateCredential(ctx context.Context, db DBTX, arg CreateCrede
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const CreateEvent = `-- name: CreateEvent :exec
+INSERT INTO events (
+  aggregate_id, aggregate_type, version, event_type, payload)
+VALUES (
+	  $1, $2, $3, $4, $5
+)
+`
+
+type CreateEventParams struct {
+	AggregateID   int64           `json:"aggregate_id"`
+	AggregateType string          `json:"aggregate_type"`
+	Version       int64           `json:"version"`
+	EventType     string          `json:"event_type"`
+	Payload       json.RawMessage `json:"payload"`
+}
+
+func (q *Queries) CreateEvent(ctx context.Context, db DBTX, arg CreateEventParams) error {
+	_, err := db.ExecContext(ctx, CreateEvent,
+		arg.AggregateID,
+		arg.AggregateType,
+		arg.Version,
+		arg.EventType,
+		arg.Payload,
+	)
+	return err
 }
 
 const CreateRole = `-- name: CreateRole :one

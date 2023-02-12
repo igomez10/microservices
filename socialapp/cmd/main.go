@@ -23,6 +23,7 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/igomez10/microservices/socialapp/internal/authorizationparser"
+	"github.com/igomez10/microservices/socialapp/internal/eventRecorder"
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/authorization"
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/beacon"
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/cache"
@@ -117,27 +118,53 @@ func main() {
 	defer connections.Close()
 	queries := db.New()
 
+	// EventRecorder for event sourcing
+	eventRecorder := eventRecorder.EventRecorder{
+		Query: db.New(),
+	}
+
 	// Comment service
-	CommentApiService := &comment.CommentService{DB: queries, DBConn: connections.GetPool(), KafkaProducer: p}
+	CommentApiService := &comment.CommentService{
+		DB:            queries,
+		DBConn:        connections.GetPool(),
+		KafkaProducer: p,
+	}
 	CommentApiController := openapi.NewCommentApiController(CommentApiService)
 
 	// User service
-	UserApiService := &user.UserApiService{DB: queries, DBConn: connections.GetPool(), KafkaProducer: p}
+	UserApiService := &user.UserApiService{
+		DB:            queries,
+		DBConn:        connections.GetPool(),
+		KafkaProducer: p,
+		EventRecorder: eventRecorder,
+	}
 	UserApiController := openapi.NewUserApiController(UserApiService)
 
 	// Auth service
-	AuthApiService := &authentication.AuthenticationService{DB: queries, DBConn: connections.GetPool()}
+	AuthApiService := &authentication.AuthenticationService{
+		DB:     queries,
+		DBConn: connections.GetPool(),
+	}
 	AuthApiController := openapi.NewAuthenticationApiController(AuthApiService)
 
 	// Role service
-	RoleAPIService := &role.RoleApiService{DB: queries, DBConn: connections.GetPool()}
+	RoleAPIService := &role.RoleApiService{
+		DB:     queries,
+		DBConn: connections.GetPool(),
+	}
 	RoleAPIController := openapi.NewRoleApiController(RoleAPIService)
 
 	// Scope service
-	ScopeAPIService := &scope.ScopeApiService{DB: queries, DBConn: connections.GetPool()}
+	ScopeAPIService := &scope.ScopeApiService{
+		DB:     queries,
+		DBConn: connections.GetPool(),
+	}
 	ScopeAPIController := openapi.NewScopeApiController(ScopeAPIService)
 
-	URLAPIService := &socialappurl.URLApiService{DB: queries, DBConn: connections.GetPool()}
+	URLAPIService := &socialappurl.URLApiService{
+		DB:     queries,
+		DBConn: connections.GetPool(),
+	}
 	URLAPIController := openapi.NewURLApiController(URLAPIService)
 
 	routers := []openapi.Router{

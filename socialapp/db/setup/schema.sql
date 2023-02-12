@@ -143,6 +143,25 @@ CREATE INDEX IF NOT EXISTS tokens_to_scopes_scope_id_idx ON tokens_to_scopes (sc
 CREATE INDEX IF NOT EXISTS tokens_to_scopes_token_id_scope_id_idx ON tokens_to_scopes (token_id, scope_id);
 CREATE INDEX IF NOT EXISTS tokens_to_scopes_scope_id_token_id_idx ON tokens_to_scopes (scope_id, token_id);
 
+-- Events table for event sourcing
+CREATE SEQUENCE IF NOT EXISTS events_id_seq;
+CREATE TABLE IF NOT EXISTS events (
+    id BIGINT NOT NULL DEFAULT nextval('events_id_seq'::regclass) PRIMARY KEY,
+    aggregate_id BIGINT NOT NULL,
+    aggregate_type VARCHAR(255) NOT NULL,
+    version BIGINT NOT NULL,
+    event_type VARCHAR(255) NOT NULL,
+    payload JSONB NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL
+);
+CREATE INDEX IF NOT EXISTS events_aggregate_id_idx ON events (aggregate_id);
+CREATE INDEX IF NOT EXISTS events_aggregate_type_idx ON events (aggregate_type);
+CREATE INDEX IF NOT EXISTS events_version_idx ON events (version);
+CREATE INDEX IF NOT EXISTS events_event_type_idx ON events (event_type);
+CREATE INDEX IF NOT EXISTS events_created_at_idx ON events (created_at);
+
+
 -- SHORTLY
 CREATE SEQUENCE IF NOT EXISTS urls_id_seq;
 CREATE TABLE IF NOT EXISTS urls (

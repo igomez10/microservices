@@ -58,3 +58,9 @@ datasources:
       tlsCACert: $PROMETHEUS_TLSCACERT
       tlsClientCert: $PROMETHEUS_TLSCLIENTCERT
       tlsClientKey: $PROMETHEUS_TLSCLIENTKEY
+
+allow_embedding: true
+auth.anonymous:
+  enabled: true
+  org_role: Viewer
+  org_name: Anonymous

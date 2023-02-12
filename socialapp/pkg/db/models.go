@@ -6,6 +6,7 @@ package db
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 )
 
@@ -27,6 +28,17 @@ type Credential struct {
 	Name        string       `json:"name"`
 	CreatedAt   time.Time    `json:"created_at"`
 	DeletedAt   sql.NullTime `json:"deleted_at"`
+}
+
+type Event struct {
+	ID            int64           `json:"id"`
+	AggregateID   int64           `json:"aggregate_id"`
+	AggregateType string          `json:"aggregate_type"`
+	Version       int64           `json:"version"`
+	EventType     string          `json:"event_type"`
+	Payload       json.RawMessage `json:"payload"`
+	CreatedAt     time.Time       `json:"created_at"`
+	DeletedAt     sql.NullTime    `json:"deleted_at"`
 }
 
 type Follower struct {
