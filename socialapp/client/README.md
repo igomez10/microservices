@@ -124,6 +124,7 @@ Class | Method | HTTP request | Description
  - [ChangePasswordRequest](docs/ChangePasswordRequest.md)
  - [Comment](docs/Comment.md)
  - [CreateUserRequest](docs/CreateUserRequest.md)
+ - [CreateUserResponse](docs/CreateUserResponse.md)
  - [Error](docs/Error.md)
  - [ResetPasswordRequest](docs/ResetPasswordRequest.md)
  - [Role](docs/Role.md)

@@ -10,13 +10,7 @@
 
 package openapi
 
-import (
-	"time"
-)
-
 type CreateUserRequest struct {
-	Id int64 `json:"id,omitempty"`
-
 	Username string `json:"username"`
 
 	Password string `json:"password"`
@@ -26,8 +20,6 @@ type CreateUserRequest struct {
 	LastName string `json:"last_name"`
 
 	Email string `json:"email"`
-
-	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
 // AssertCreateUserRequestRequired checks if the required fields are not zero-ed

@@ -8,6 +8,7 @@ docs/ChangePasswordRequest.md
 docs/Comment.md
 docs/CommentApi.md
 docs/CreateUserRequest.md
+docs/CreateUserResponse.md
 docs/Error.md
 docs/FollowingApi.md
 docs/ResetPasswordRequest.md

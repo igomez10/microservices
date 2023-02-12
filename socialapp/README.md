@@ -53,6 +53,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
  - [ChangePasswordRequest](./Models/ChangePasswordRequest.md)
  - [Comment](./Models/Comment.md)
  - [CreateUserRequest](./Models/CreateUserRequest.md)
+ - [CreateUserResponse](./Models/CreateUserResponse.md)
  - [Error](./Models/Error.md)
  - [ResetPasswordRequest](./Models/ResetPasswordRequest.md)
  - [Role](./Models/Role.md)

@@ -15,42 +15,40 @@ import (
 	"encoding/json"
 )
 
-// checks if the CreateUserRequest type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &CreateUserRequest{}
+// checks if the BasicUser type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &BasicUser{}
 
-// CreateUserRequest struct for CreateUserRequest
-type CreateUserRequest struct {
+// BasicUser struct for BasicUser
+type BasicUser struct {
 	Username  string `json:"username"`
-	Password  string `json:"password"`
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
 }
 
-// NewCreateUserRequest instantiates a new CreateUserRequest object
+// NewBasicUser instantiates a new BasicUser object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateUserRequest(username string, password string, firstName string, lastName string, email string) *CreateUserRequest {
-	this := CreateUserRequest{}
+func NewBasicUser(username string, firstName string, lastName string, email string) *BasicUser {
+	this := BasicUser{}
 	this.Username = username
-	this.Password = password
 	this.FirstName = firstName
 	this.LastName = lastName
 	this.Email = email
 	return &this
 }
 
-// NewCreateUserRequestWithDefaults instantiates a new CreateUserRequest object
+// NewBasicUserWithDefaults instantiates a new BasicUser object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewCreateUserRequestWithDefaults() *CreateUserRequest {
-	this := CreateUserRequest{}
+func NewBasicUserWithDefaults() *BasicUser {
+	this := BasicUser{}
 	return &this
 }
 
 // GetUsername returns the Username field value
-func (o *CreateUserRequest) GetUsername() string {
+func (o *BasicUser) GetUsername() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -61,7 +59,7 @@ func (o *CreateUserRequest) GetUsername() string {
 
 // GetUsernameOk returns a tuple with the Username field value
 // and a boolean to check if the value has been set.
-func (o *CreateUserRequest) GetUsernameOk() (*string, bool) {
+func (o *BasicUser) GetUsernameOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -69,36 +67,12 @@ func (o *CreateUserRequest) GetUsernameOk() (*string, bool) {
 }
 
 // SetUsername sets field value
-func (o *CreateUserRequest) SetUsername(v string) {
+func (o *BasicUser) SetUsername(v string) {
 	o.Username = v
 }
 
-// GetPassword returns the Password field value
-func (o *CreateUserRequest) GetPassword() string {
-	if o == nil {
-		var ret string
-		return ret
-	}
-
-	return o.Password
-}
-
-// GetPasswordOk returns a tuple with the Password field value
-// and a boolean to check if the value has been set.
-func (o *CreateUserRequest) GetPasswordOk() (*string, bool) {
-	if o == nil {
-		return nil, false
-	}
-	return &o.Password, true
-}
-
-// SetPassword sets field value
-func (o *CreateUserRequest) SetPassword(v string) {
-	o.Password = v
-}
-
 // GetFirstName returns the FirstName field value
-func (o *CreateUserRequest) GetFirstName() string {
+func (o *BasicUser) GetFirstName() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -109,7 +83,7 @@ func (o *CreateUserRequest) GetFirstName() string {
 
 // GetFirstNameOk returns a tuple with the FirstName field value
 // and a boolean to check if the value has been set.
-func (o *CreateUserRequest) GetFirstNameOk() (*string, bool) {
+func (o *BasicUser) GetFirstNameOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -117,12 +91,12 @@ func (o *CreateUserRequest) GetFirstNameOk() (*string, bool) {
 }
 
 // SetFirstName sets field value
-func (o *CreateUserRequest) SetFirstName(v string) {
+func (o *BasicUser) SetFirstName(v string) {
 	o.FirstName = v
 }
 
 // GetLastName returns the LastName field value
-func (o *CreateUserRequest) GetLastName() string {
+func (o *BasicUser) GetLastName() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -133,7 +107,7 @@ func (o *CreateUserRequest) GetLastName() string {
 
 // GetLastNameOk returns a tuple with the LastName field value
 // and a boolean to check if the value has been set.
-func (o *CreateUserRequest) GetLastNameOk() (*string, bool) {
+func (o *BasicUser) GetLastNameOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -141,12 +115,12 @@ func (o *CreateUserRequest) GetLastNameOk() (*string, bool) {
 }
 
 // SetLastName sets field value
-func (o *CreateUserRequest) SetLastName(v string) {
+func (o *BasicUser) SetLastName(v string) {
 	o.LastName = v
 }
 
 // GetEmail returns the Email field value
-func (o *CreateUserRequest) GetEmail() string {
+func (o *BasicUser) GetEmail() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -157,7 +131,7 @@ func (o *CreateUserRequest) GetEmail() string {
 
 // GetEmailOk returns a tuple with the Email field value
 // and a boolean to check if the value has been set.
-func (o *CreateUserRequest) GetEmailOk() (*string, bool) {
+func (o *BasicUser) GetEmailOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -165,11 +139,11 @@ func (o *CreateUserRequest) GetEmailOk() (*string, bool) {
 }
 
 // SetEmail sets field value
-func (o *CreateUserRequest) SetEmail(v string) {
+func (o *BasicUser) SetEmail(v string) {
 	o.Email = v
 }
 
-func (o CreateUserRequest) MarshalJSON() ([]byte, error) {
+func (o BasicUser) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -177,48 +151,47 @@ func (o CreateUserRequest) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o CreateUserRequest) ToMap() (map[string]interface{}, error) {
+func (o BasicUser) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["username"] = o.Username
-	toSerialize["password"] = o.Password
 	toSerialize["first_name"] = o.FirstName
 	toSerialize["last_name"] = o.LastName
 	toSerialize["email"] = o.Email
 	return toSerialize, nil
 }
 
-type NullableCreateUserRequest struct {
-	value *CreateUserRequest
+type NullableBasicUser struct {
+	value *BasicUser
 	isSet bool
 }
 
-func (v NullableCreateUserRequest) Get() *CreateUserRequest {
+func (v NullableBasicUser) Get() *BasicUser {
 	return v.value
 }
 
-func (v *NullableCreateUserRequest) Set(val *CreateUserRequest) {
+func (v *NullableBasicUser) Set(val *BasicUser) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableCreateUserRequest) IsSet() bool {
+func (v NullableBasicUser) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableCreateUserRequest) Unset() {
+func (v *NullableBasicUser) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableCreateUserRequest(val *CreateUserRequest) *NullableCreateUserRequest {
-	return &NullableCreateUserRequest{value: val, isSet: true}
+func NewNullableBasicUser(val *BasicUser) *NullableBasicUser {
+	return &NullableBasicUser{value: val, isSet: true}
 }
 
-func (v NullableCreateUserRequest) MarshalJSON() ([]byte, error) {
+func (v NullableBasicUser) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableCreateUserRequest) UnmarshalJSON(src []byte) error {
+func (v *NullableBasicUser) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

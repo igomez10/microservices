@@ -42,14 +42,25 @@ CREATE TABLE IF NOT EXISTS `comment` (
 --
 
 CREATE TABLE IF NOT EXISTS `create_user_request` (
-  `id` BIGINT DEFAULT NULL,
   `username` TEXT NOT NULL,
   `password` TEXT NOT NULL,
   `first_name` TEXT NOT NULL,
   `last_name` TEXT NOT NULL,
-  `email` TEXT NOT NULL,
-  `created_at` DATETIME DEFAULT NULL
+  `email` TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - CreateUserRequest.';
+
+--
+-- Table structure for table `create_user_response` generated from model 'CreateUserResponse'
+--
+
+CREATE TABLE IF NOT EXISTS `create_user_response` (
+  `id` BIGINT NOT NULL,
+  `username` TEXT NOT NULL,
+  `first_name` TEXT NOT NULL,
+  `last_name` TEXT NOT NULL,
+  `email` TEXT NOT NULL,
+  `created_at` DATETIME NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Original model name - CreateUserResponse.';
 
 --
 -- Table structure for table `error` generated from model 'Error'

@@ -89,7 +89,7 @@ Name | Type | Description  | Notes
 
 ## CreateUser
 
-> User CreateUser(ctx).CreateUserRequest(createUserRequest).Execute()
+> CreateUserResponse CreateUser(ctx).CreateUserRequest(createUserRequest).Execute()
 
 Create user
 
@@ -117,7 +117,7 @@ func main() {
         fmt.Fprintf(os.Stderr, "Error when calling `UserApi.CreateUser``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
-    // response from `CreateUser`: User
+    // response from `CreateUser`: CreateUserResponse
     fmt.Fprintf(os.Stdout, "Response from `UserApi.CreateUser`: %v\n", resp)
 }
 ```
@@ -137,7 +137,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**User**](User.md)
+[**CreateUserResponse**](CreateUserResponse.md)
 
 ### Authorization
 

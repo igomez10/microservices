@@ -49,7 +49,7 @@ Change password
 
 <a name="createUser"></a>
 # **createUser**
-> User createUser(CreateUserRequest)
+> CreateUserResponse createUser(CreateUserRequest)
 
 Create user
 
@@ -63,7 +63,7 @@ Create user
 
 ### Return type
 
-[**User**](../Models/User.md)
+[**CreateUserResponse**](../Models/CreateUserResponse.md)
 
 ### Authorization
 

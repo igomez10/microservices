@@ -77,7 +77,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**User**](User.md)
+[**CreateUserResponse**](CreateUserResponse.md)
 
 ### Authorization
 

@@ -7,17 +7,17 @@
 --
 -- SELECT template for table `create_user_request`
 --
-SELECT `id`, `username`, `password`, `first_name`, `last_name`, `email`, `created_at` FROM `create_user_request` WHERE 1;
+SELECT `username`, `password`, `first_name`, `last_name`, `email` FROM `create_user_request` WHERE 1;
 
 --
 -- INSERT template for table `create_user_request`
 --
-INSERT INTO `create_user_request`(`id`, `username`, `password`, `first_name`, `last_name`, `email`, `created_at`) VALUES (:id, :username, :password, :first_name, :last_name, :email, :created_at);
+INSERT INTO `create_user_request`(`username`, `password`, `first_name`, `last_name`, `email`) VALUES (:username, :password, :first_name, :last_name, :email);
 
 --
 -- UPDATE template for table `create_user_request`
 --
-UPDATE `create_user_request` SET `id` = :id, `username` = :username, `password` = :password, `first_name` = :first_name, `last_name` = :last_name, `email` = :email, `created_at` = :created_at WHERE 1;
+UPDATE `create_user_request` SET `username` = :username, `password` = :password, `first_name` = :first_name, `last_name` = :last_name, `email` = :email WHERE 1;
 
 --
 -- DELETE template for table `create_user_request`

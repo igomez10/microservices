@@ -145,9 +145,16 @@ func (s *UserApiService) CreateUser(ctx context.Context, user openapi.CreateUser
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
-	apiUser := converter.FromDBUserToAPIUser(createdUser)
+	res := openapi.CreateUserResponse{
+		Id:        createdUser.ID,
+		Username:  createdUser.Username,
+		FirstName: createdUser.FirstName,
+		LastName:  createdUser.LastName,
+		Email:     createdUser.Email,
+		CreatedAt: createdUser.CreatedAt,
+	}
 
-	return openapi.Response(http.StatusOK, apiUser), nil
+	return openapi.Response(http.StatusOK, res), nil
 }
 
 func EncryptPassword(plaintextPassword string, salt string) string {

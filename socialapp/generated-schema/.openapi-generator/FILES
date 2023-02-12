@@ -2,6 +2,7 @@ Model/AccessToken.sql
 Model/ChangePasswordRequest.sql
 Model/Comment.sql
 Model/CreateUserRequest.sql
+Model/CreateUserResponse.sql
 Model/Error.sql
 Model/ResetPasswordRequest.sql
 Model/Role.sql

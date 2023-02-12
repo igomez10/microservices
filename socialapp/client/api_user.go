@@ -166,7 +166,7 @@ func (r UserApiCreateUserRequest) CreateUserRequest(createUserRequest CreateUser
 	return r
 }
 
-func (r UserApiCreateUserRequest) Execute() (*User, *http.Response, error) {
+func (r UserApiCreateUserRequest) Execute() (*CreateUserResponse, *http.Response, error) {
 	return r.ApiService.CreateUserExecute(r)
 }
 
@@ -187,13 +187,13 @@ func (a *UserApiService) CreateUser(ctx context.Context) UserApiCreateUserReques
 
 // Execute executes the request
 //
-//	@return User
-func (a *UserApiService) CreateUserExecute(r UserApiCreateUserRequest) (*User, *http.Response, error) {
+//	@return CreateUserResponse
+func (a *UserApiService) CreateUserExecute(r UserApiCreateUserRequest) (*CreateUserResponse, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
 		formFiles           []formFile
-		localVarReturnValue *User
+		localVarReturnValue *CreateUserResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "UserApiService.CreateUser")
