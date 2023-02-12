@@ -42,6 +42,8 @@ services:
       - POSTGRESQL_PROPERTIES_PASSWORD=${POSTGRESQL_PROPERTIES_PASSWORD}
       - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
       - GITHUB_ACCESSTOKEN=${GITHUB_ACCESSTOKEN}
+      - GF_INSTALL_PLUGINS=redis-app
+      - GF_INSTALL_PLUGINS=redis-explorer-app
     expose:
       - 3000
     volumes:
@@ -251,8 +253,11 @@ services:
 
   integration-tests:
     image: igomeza/socialapptests
-    container_name: integration-tests
+    deploy:
+      replicas: 6
     pull_policy: always
+    environment:
+      "ADD_TEST_JITTER": 1,
     restart: always
     logging:
       driver: "syslog"
