@@ -271,3 +271,23 @@ services:
       options:
         syslog-address: "udp://localhost:51000"
         tag: "integration-tests"
+
+  newrelic:
+    build:
+      context: ./newrelic
+    container_name: newrelic
+    volumes:
+      - "/:/host:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    cap_add:
+      - SYS_PTRACE
+    network_mode: host
+    pid: host
+    privileged: true
+    environment:
+      # set host name
+      - NRIA_DISPLAY_NAME=ocivm
+      - NRIA_OVERRIDE_HOSTNAME_SHORT=true
+      - NRIA_LICENSE_KEY=${NEW_RELIC_LICENSE}
+      - NEW_RELIC_LOG=stdout
+      - NEW_RELIC_LOG_LEVEL=info

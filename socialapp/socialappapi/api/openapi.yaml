@@ -1429,6 +1429,8 @@ paths:
           type: string
         style: simple
       responses:
+        "200":
+          description: Redirect to the url
         "308":
           description: Redirect to the url
           headers:

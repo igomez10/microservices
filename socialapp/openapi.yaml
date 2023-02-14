@@ -1752,8 +1752,10 @@ components:
       type: object
   securitySchemes:
     OAuth2:
+      type: oauth2
       flows:
         clientCredentials:
+          tokenUrl: /v1/oauth/token
           scopes:
             socialapp.users.list: List users
             socialapp.users.create: Create users
@@ -1786,5 +1788,3 @@ components:
             shortly.url.create: Create a url
             shortly.url.update: Update a url
             shortly.url.delete: Delete a url
-          tokenUrl: /v1/oauth/token
-      type: oauth2
