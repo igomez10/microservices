@@ -34,9 +34,10 @@ services:
 
   postgres-exporter:
     image: quay.io/prometheuscommunity/postgres-exporter
-    network_mode: host
     environment:
       DATA_SOURCE_NAME: "postgresql://postgres:password@database:5432/postgres?sslmode=disable"
+    ports:
+      - 9187:9187
 
   grafana:
     image: grafana/grafana
