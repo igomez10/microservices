@@ -18,13 +18,34 @@
                     "type": "dashboard"
                 },
                 "type": "dashboard"
+            },
+            {
+                "annotation": {
+                    "datasource": "GitHub",
+                    "field": "id",
+                    "options": {
+                        "gitRef": "mainline"
+                    },
+                    "owner": "igomez10",
+                    "queryType": "Commits",
+                    "refId": "",
+                    "repository": "microservices",
+                    "timeField": "pushed_at"
+                },
+                "datasource": {
+                    "type": "grafana-github-datasource",
+                    "uid": "v98TGevVk"
+                },
+                "datasourceId": 10,
+                "enable": true,
+                "iconColor": "red",
+                "name": "Github commits"
             }
         ]
     },
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 21,
     "links": [],
     "liveNow": false,
     "panels": [
@@ -762,6 +783,8 @@
                         "mode": "palette-classic"
                     },
                     "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
                         "axisLabel": "",
                         "axisPlacement": "auto",
                         "barAlignment": 0,
@@ -796,7 +819,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             },
                             {
                                 "color": "red",
@@ -824,7 +848,8 @@
                     "showLegend": false
                 },
                 "tooltip": {
-                    "mode": "single"
+                    "mode": "single",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "7.5.7",
@@ -856,6 +881,8 @@
                         "mode": "palette-classic"
                     },
                     "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
                         "axisLabel": "",
                         "axisPlacement": "auto",
                         "barAlignment": 0,
@@ -892,7 +919,8 @@
                         "mode": "absolute",
                         "steps": [
                             {
-                                "color": "green"
+                                "color": "green",
+                                "value": null
                             },
                             {
                                 "color": "red",
@@ -923,7 +951,8 @@
                     "showLegend": true
                 },
                 "tooltip": {
-                    "mode": "multi"
+                    "mode": "multi",
+                    "sort": "none"
                 }
             },
             "pluginVersion": "7.5.7",
@@ -1013,6 +1042,6 @@
     "timezone": "",
     "title": "Redis Streaming",
     "uid": "E_yGWieGz",
-    "version": 1,
+    "version": 2,
     "weekStart": ""
 }

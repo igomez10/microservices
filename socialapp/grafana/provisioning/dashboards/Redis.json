@@ -18,6 +18,28 @@
                     "type": "dashboard"
                 },
                 "type": "dashboard"
+            },
+            {
+                "annotation": {
+                    "datasource": "GitHub",
+                    "field": "id",
+                    "options": {
+                        "gitRef": "mainline"
+                    },
+                    "owner": "igomez10",
+                    "queryType": "Commits",
+                    "refId": "",
+                    "repository": "microservices",
+                    "timeField": "pushed_at"
+                },
+                "datasource": {
+                    "type": "grafana-github-datasource",
+                    "uid": "v98TGevVk"
+                },
+                "datasourceId": 10,
+                "enable": true,
+                "iconColor": "red",
+                "name": "Github commits"
             }
         ]
     },
@@ -25,7 +47,6 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 20,
     "links": [
         {
             "icon": "external link",
@@ -933,6 +954,7 @@
             "fieldConfig": {
                 "defaults": {
                     "custom": {
+                        "align": "auto",
                         "displayMode": "color-text",
                         "filterable": false,
                         "inspect": false
@@ -1077,6 +1099,7 @@
             "fieldConfig": {
                 "defaults": {
                     "custom": {
+                        "align": "auto",
                         "displayMode": "color-text",
                         "filterable": false,
                         "inspect": false
@@ -1232,6 +1255,7 @@
             "fieldConfig": {
                 "defaults": {
                     "custom": {
+                        "align": "auto",
                         "displayMode": "color-text",
                         "filterable": false,
                         "inspect": false
@@ -1798,6 +1822,6 @@
     "timezone": "",
     "title": "Redis",
     "uid": "RpSjVqWMz",
-    "version": 1,
+    "version": 2,
     "weekStart": ""
 }

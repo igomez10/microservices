@@ -18,6 +18,28 @@
                     "type": "dashboard"
                 },
                 "type": "dashboard"
+            },
+            {
+                "annotation": {
+                    "datasource": "GitHub",
+                    "field": "id",
+                    "options": {
+                        "gitRef": "mainline"
+                    },
+                    "owner": "igomez10",
+                    "queryType": "Commits",
+                    "refId": "",
+                    "repository": "microservices",
+                    "timeField": "pushed_at"
+                },
+                "datasource": {
+                    "type": "grafana-github-datasource",
+                    "uid": "v98TGevVk"
+                },
+                "datasourceId": 10,
+                "enable": true,
+                "iconColor": "red",
+                "name": "Github commits"
             }
         ]
     },
@@ -26,7 +48,6 @@
     "fiscalYearStartMonth": 0,
     "gnetId": 455,
     "graphTooltip": 0,
-    "id": 23,
     "links": [],
     "liveNow": false,
     "panels": [
@@ -1405,6 +1426,6 @@
     "timezone": "browser",
     "title": "Postgres Overview",
     "uid": "wGgaPlciz",
-    "version": 1,
+    "version": 2,
     "weekStart": ""
 }

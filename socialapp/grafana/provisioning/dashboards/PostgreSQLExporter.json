@@ -11,7 +11,36 @@
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
+      },
+      {
+        "annotation": {
+          "datasource": "GitHub",
+          "field": "id",
+          "options": {
+            "gitRef": "mainline"
+          },
+          "owner": "igomez10",
+          "queryType": "Commits",
+          "refId": "",
+          "repository": "microservices",
+          "timeField": "pushed_at"
+        },
+        "datasource": {
+          "type": "grafana-github-datasource",
+          "uid": "v98TGevVk"
+        },
+        "datasourceId": 10,
+        "enable": true,
+        "expr": "",
+        "iconColor": "red",
+        "name": "Github commits"
       }
     ]
   },
@@ -20,7 +49,6 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 12485,
   "graphTooltip": 0,
-  "id": 26,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -291,7 +319,6 @@
       "description": "Shared buffer hits vs reads from disc",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "decimals": 2,
           "mappings": [
             {
@@ -304,12 +331,14 @@
               "type": "special"
             }
           ],
-          "nullValueMode": "connected",
+          "max": 100,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "semi-dark-red"
+                "color": "semi-dark-red",
+                "value": null
               },
               {
                 "color": "semi-dark-yellow",
@@ -345,7 +374,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "7.0.3",
+      "pluginVersion": "9.3.6",
       "targets": [
         {
           "datasource": {
@@ -367,7 +396,6 @@
       "description": "Percentage of max_connections used",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "decimals": 0,
           "mappings": [
             {
@@ -380,12 +408,14 @@
               "type": "special"
             }
           ],
-          "nullValueMode": "connected",
+          "max": 1,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "semi-dark-green"
+                "color": "semi-dark-green",
+                "value": null
               },
               {
                 "color": "semi-dark-yellow",
@@ -421,7 +451,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "7.0.3",
+      "pluginVersion": "9.3.6",
       "targets": [
         {
           "datasource": {
@@ -443,7 +473,6 @@
       "description": "Transaction committed vs rollbacked",
       "fieldConfig": {
         "defaults": {
-          "custom": {},
           "decimals": 2,
           "mappings": [
             {
@@ -456,12 +485,14 @@
               "type": "special"
             }
           ],
-          "nullValueMode": "connected",
+          "max": 1,
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "semi-dark-red"
+                "color": "semi-dark-red",
+                "value": null
               },
               {
                 "color": "#EAB839",
@@ -497,7 +528,7 @@
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
-      "pluginVersion": "7.0.3",
+      "pluginVersion": "9.3.6",
       "targets": [
         {
           "datasource": {
@@ -1071,7 +1102,7 @@
       "description": "View: pg_stat_activity",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "links": []
         },
         "overrides": []
       },
@@ -1110,9 +1141,10 @@
       ],
       "nullPointMode": "null as zero",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.3.6",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1176,7 +1208,7 @@
       "description": "View: pg_stat_activity",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "links": []
         },
         "overrides": []
       },
@@ -1215,9 +1247,10 @@
       ],
       "nullPointMode": "null as zero",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.3.6",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1281,7 +1314,7 @@
       "description": "1 Minute rate of transactions committed or rollback.",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "links": []
         },
         "overrides": []
       },
@@ -1313,9 +1346,10 @@
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.3.6",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1388,7 +1422,7 @@
       "description": "Source: pg_stat_database",
       "fieldConfig": {
         "defaults": {
-          "custom": {}
+          "links": []
         },
         "overrides": []
       },
@@ -1417,9 +1451,10 @@
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "9.3.6",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -2138,8 +2173,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -2215,8 +2249,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -2444,8 +2477,7 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green",
-                    "value": null
+                    "color": "green"
                   },
                   {
                     "color": "red",
@@ -3395,6 +3427,6 @@
   "timezone": "",
   "title": "PostgreSQL Exporter",
   "uid": "v5ciIbUZz",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
