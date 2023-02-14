@@ -1,0 +1,38 @@
+integrations:
+  - name: nri-kafka
+    env:
+      CLUSTER_NAME: clustername
+      KAFKA_VERSION: "1.0.0"
+      AUTODISCOVER_STRATEGY: bootstrap
+      BOOTSTRAP_BROKER_HOST: broker
+      BOOTSTRAP_BROKER_KAFKA_PORT: 9092
+      BOOTSTRAP_BROKER_KAFKA_PROTOCOL: PLAINTEXT
+      BOOTSTRAP_BROKER_JMX_PORT: 9999 # This same port will be used to connect to all discover broker JMX
+      BOOTSTRAP_BROKER_JMX_PROTOCOL: PLAINTEXT
+      BOOTSTRAP_BROKER_JMX_AUTH: false
+
+      LOCAL_ONLY_COLLECTION: false
+
+      COLLECT_BROKER_TOPIC_DATA: true
+      TOPIC_MODE: "all"
+      COLLECT_TOPIC_SIZE: false
+    interval: 15s
+    labels:
+      env: production
+      role: kafka
+    inventory_source: config/kafka
+
+  - name: nri-postgresql
+    env:
+      HOSTNAME: database
+      PORT: 5432
+      USERNAME: postgres
+      PASSWORD: postgres
+      DATABASE: postgres
+      SSLMODE: disable
+      COLLECTION_LIST: "ALL"
+    interval: 15s
+    labels:
+      env: production
+      role: postgres
+    inventory_source: config/postgresql
