@@ -32,6 +32,12 @@ services:
         syslog-address: "udp://localhost:51000"
         tag: "database"
 
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter
+    network_mode: host
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:password@database:5432/postgres?sslmode=disable"
+
   grafana:
     image: grafana/grafana
     user: "472"
