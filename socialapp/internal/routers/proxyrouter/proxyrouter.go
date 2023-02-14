@@ -22,11 +22,11 @@ type ProxyRouter struct {
 var prometheusProxyRequests = promauto.NewCounterVec(prometheus.CounterOpts{
 	Name: "proxy_requests_total",
 	Help: "The total number of proxy requests",
-}, []string{"host"})
+}, []string{"host", "path"})
 var prometheusProxyResponseTime = promauto.NewHistogramVec(prometheus.HistogramOpts{
 	Name: "proxy_response_time_milliseconds",
 	Help: "The response time of proxy requests",
-}, []string{"host"})
+}, []string{"host", "path"})
 
 func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handler) *ProxyRouter {
 	router := chi.NewRouter()
@@ -47,7 +47,9 @@ func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handl
 	// Expose the static public folder
 	router.HandleFunc("/static/public/*", func(w http.ResponseWriter, r *http.Request) {
 		startTime := time.Now()
-		prometheusProxyRequests.WithLabelValues(r.Host).Inc()
+		prometheusProxyRequests.
+			WithLabelValues(r.Host, r.URL.Path).
+			Inc()
 
 		fs.ServeHTTP(w, r)
 
@@ -61,7 +63,9 @@ func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handl
 		// metrics for proxy
 		startTime := time.Now()
 		log.Info().Msgf("Proxying request to %s", req.Host)
-		prometheusProxyRequests.WithLabelValues(req.Host).Inc()
+		prometheusProxyRequests.
+			WithLabelValues(req.Host, req.URL.Path).
+			Inc()
 		req.Host = target.Host
 		req.URL.Host = target.Host
 
@@ -71,7 +75,7 @@ func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handl
 
 		latency := float64(time.Since(startTime).Milliseconds())
 		prometheusProxyResponseTime.
-			WithLabelValues(req.Host).
+			WithLabelValues(req.Host, req.URL.Path).
 			Observe(latency)
 		return
 	})
