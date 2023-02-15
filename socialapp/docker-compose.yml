@@ -291,3 +291,19 @@ services:
       - NRIA_LICENSE_KEY=${NEW_RELIC_LICENSE}
       - NEW_RELIC_LOG=stdout
       - NEW_RELIC_LOG_LEVEL=info
+
+  elasticsearch-exporter:
+    image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
+    environment:
+      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
+      ELASTICSEARCH_USERNAME: ${ELASTICSEARCH_USERNAME}
+    command:
+      - '--es.uri=http://${ELASTICSEARCH_USERNAME}:${ELASTICSEARCH_PASSWORD}@elasticsearch:9200'
+    restart: always
+    networks:
+      - elk
+      - default
+    depends_on:
+      - prometheus
+    ports:
+      - "9114:9114"
