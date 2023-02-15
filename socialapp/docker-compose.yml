@@ -185,25 +185,6 @@ services:
         syslog-address: "udp://localhost:51000"
         tag: "cadvisor"
 
-  nginx:
-    image: nginx:latest
-    ports:
-      - 80:80
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    expose:
-      - 80
-    restart: unless-stopped
-    networks:
-      - elk
-      - default
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "udp://localhost:51000"
-        tag: "nginx"
-
   zookeeper:
     image: confluentinc/cp-zookeeper:7.3.0
     container_name: zookeeper
