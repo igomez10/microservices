@@ -59,6 +59,18 @@ scrape_configs:
     static_configs:
       - targets:
           - elasticsearch-exporter:9114
+
+  - job_name: "alertmanager"
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - alertmanager:9093
+
+  - job_name: "prometheus"
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - prometheus:9090
 #  - job_name: 'pushgateway'
 #    scrape_interval: 10s
 #    dns_sd_configs:

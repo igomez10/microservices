@@ -23,6 +23,9 @@
 		},
 		{
 			"path": "../puttyknife"
+		},
+		{
+			"path": "."
 		}
 	],
 	"settings": {
