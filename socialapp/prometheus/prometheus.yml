@@ -1,7 +1,7 @@
 # my global config
 global:
   scrape_interval: 15s # By default, scrape targets every 15 seconds.
-  evaluation_interval: 15s # By default, scrape targets every 15 seconds.
+  evaluation_interval: 20s # By default, scrape targets every 15 seconds.
   # scrape_timeout is set to the global default (10s).
 
   # Attach these labels to any time series or alerts when communicating with
@@ -11,7 +11,8 @@ global:
 
 # Load and evaluate rules in this file every 'evaluation_interval' seconds.
 rule_files:
-  - "alert.rules"
+  # - "alert.rules"
+  - "alerts/*.yml"
   # - "first.rules"
   # - "second.rules"
 

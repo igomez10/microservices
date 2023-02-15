@@ -2,14 +2,45 @@ global:
   # Also possible to place this URL in a file.
   # Ex: `slack_api_url_file: '/etc/alertmanager/slack_url'`
   slack_api_url_file: "/etc/alertmanager/slack_url"
+
 route:
-  receiver: "slack-notifications"
-  group_by: [alertname, datacenter, app]
+  # When a new group of alerts is created by an incoming alert, wait at
+  # least 'group_wait' to send the initial notification.
+  # This way ensures that you get multiple alerts for the same group that start
+  # firing shortly after another are batched together on the first
+  # notification.
+  group_wait: 10s
+
+  # When the first notification was sent, wait 'group_interval' to send a batch
+  # of new alerts that started firing for that group.
+  group_interval: 30s
+
+  # If an alert has successfully been sent, wait 'repeat_interval' to
+  # resend them.
+  repeat_interval: 30m
+
+  # A default receiver
+  receiver:
+    "slack-notifications"
+    # All the above attributes are inherited by all child routes and can
+  # overwritten on each.
+  routes:
+    - receiver: "slack"
+      group_wait: 10s
+      match_re:
+        severity: critical|warning
+      continue: true
+
+    # - receiver: "pager"
+    #   group_wait: 10s
+    #   match_re:
+    #     severity: critical
+    #   continue: true
 
 receivers:
   - name: "slack-notifications"
     slack_configs:
       - channel: "#alerts"
-        text: "Grafana: http://localhost:3005/alerting/list?ruleType=alerting&alertState=firing&view=list \n\n{{ range .Alerts }}{{ .Annotations.description }}\n{{ end }} \n\n{{ range .Alerts }}{{ .Annotations.summary }}\n{{ end }} \n\n{{ range .Alerts }}{{ .Annotations.runbook }}\n{{ end }}"
         title: "{{ .Status | toUpper }}: {{ .CommonLabels.alertname }} ({{ .CommonLabels.datacenter }})"
+        text: "Grafana: http://localhost:3005/alerting/list?ruleType=alerting&alertState=firing&view=list \n\n{{ range .Alerts }}<!channel> {{ .Annotations.summary }}\n{{ .Annotations.description }}\n{{ end }}"
         send_resolved: true
