@@ -194,14 +194,50 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092,PLAINTEXT_BROKER://broker:9092,PLAINTEXT_EXTERNAL://${EXTERNAL_IP}:29093
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_BROKER:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
     logging:
       driver: "syslog"
       options:
         syslog-address: "udp://localhost:51000"
         tag: "broker"
+    restart: always
+
+  broker2:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: broker2
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092,
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:51000"
+        tag: "broker2"
+    restart: always
+
+  broker3:
+    image: confluentinc/cp-kafka:7.3.0
+    container_name: broker3
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:51000"
+        tag: "broker3"
     restart: always
 
   kafka-ui:
@@ -215,6 +251,8 @@ services:
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=broker:9092
     depends_on:
       - broker
+      - broker2
+      - broker3
     logging:
       driver: "syslog"
       options:
@@ -271,3 +309,41 @@ services:
       - prometheus
     ports:
       - "9114:9114"
+
+  debezium:
+    image: quay.io/debezium/connect:2.2
+    ports:
+      - 8083:8083
+    environment:
+      - BOOTSTRAP_SERVERS=broker:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_connect_statuses
+      - REPLICATION_FACTOR=1
+    volumes:
+      - ./debezium/plugins:/kafka/connect/plugins
+    depends_on:
+      - broker
+    restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:51000"
+        tag: "debezium"
+
+  debezium-ui:
+    image: debezium/debezium-ui:latest
+    container_name: debezium-ui
+    ports:
+      - "8084:8080"
+    environment:
+      - KAFKA_CONNECT_URIS=http://debezium:8083
+    depends_on:
+      - debezium
+    restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:51000"
+        tag: "debezium-ui"
