@@ -25,7 +25,7 @@ route:
     # All the above attributes are inherited by all child routes and can
   # overwritten on each.
   routes:
-    - receiver: "slack"
+    - receiver: "slack-notifications"
       group_wait: 10s
       match_re:
         severity: critical|warning
