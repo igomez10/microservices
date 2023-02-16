@@ -215,6 +215,8 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092,
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    volumes:
+      - ${BROKER2_DATA_DIR}:/var/lib/kafka/data
     logging:
       driver: "syslog"
       options:
@@ -233,6 +235,8 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+    volumes:
+      - ${BROKER3_DATA_DIR}:/var/lib/kafka/data
     logging:
       driver: "syslog"
       options:
