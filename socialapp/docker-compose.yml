@@ -228,6 +228,7 @@ services:
     pull_policy: always
     environment:
       "ADD_TEST_JITTER": 1,
+      "TEST_SETUP": ${TEST_SETUP},
     restart: always
     logging:
       driver: "syslog"
