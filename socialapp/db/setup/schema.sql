@@ -246,7 +246,7 @@ INSERT INTO scopes (id, name, description, created_at, deleted_at) VALUES
 (42, 'shortly.url.create', 'Create a url', '2022-09-28 20:21:07', NULL),
 (43, 'shortly.url.update', 'Update a url', '2022-09-28 20:21:07', NULL),
 (44, 'shortly.url.delete', 'Delete a url', '2022-09-28 20:21:07', NULL),
-(44, 'socialapp.comments.read', 'socialapp.comments.read', '2022-09-28 20:21:07', NULL);
+(45, 'socialapp.comments.read', 'socialapp.comments.read', '2022-09-28 20:21:07', NULL);
 ALTER SEQUENCE scopes_id_seq RESTART WITH 46;
 
 INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
