@@ -16,13 +16,17 @@ volumes:
 
 services:
   database:
-    image: postgres:15
+    image: debezium/postgres:15-alpine
     environment:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: socialapp
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
     volumes:
       - ./db/setup:/docker-entrypoint-initdb.d
-      - db_data:/var/lib/postgresql/data
+      - ${DATABASE_DATA_DIR:-db_data}:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: always
@@ -189,6 +193,9 @@ services:
       - "9092:9092"
       - "29092:29092"
       - "29093:29093"
+    user: root
+    volumes:
+      - ${BROKER_DATA_DIR}:/var/lib/kafka/data
     depends_on:
       - zookeeper
     environment:
@@ -209,6 +216,7 @@ services:
     container_name: broker2
     depends_on:
       - zookeeper
+    user: root
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -227,6 +235,7 @@ services:
   broker3:
     image: confluentinc/cp-kafka:7.3.0
     container_name: broker3
+    user: root
     depends_on:
       - zookeeper
     environment:
@@ -321,12 +330,12 @@ services:
     environment:
       - BOOTSTRAP_SERVERS=broker:9092
       - GROUP_ID=1
-      - CONFIG_STORAGE_TOPIC=my_connect_configs
-      - OFFSET_STORAGE_TOPIC=my_connect_offsets
-      - STATUS_STORAGE_TOPIC=my_connect_statuses
-      - REPLICATION_FACTOR=1
+      - CONFIG_STORAGE_TOPIC=debezium_storage_config
+      - OFFSET_STORAGE_TOPIC=debezium_storage_offsets
+      - STATUS_STORAGE_TOPIC=debezium_storage_status
     volumes:
       - ./debezium/plugins:/kafka/connect/plugins
+      - ./debezium/config:/kafka/connect/config
     depends_on:
       - broker
     restart: always

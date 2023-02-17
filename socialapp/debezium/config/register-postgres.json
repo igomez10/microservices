@@ -1,5 +1,5 @@
 {
-    "name": "socialapp-users-postgres-connector",
+    "name": "socialapp-postgres-connector",
     "config": {
         "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
         "tasks.max": "1",
@@ -8,6 +8,6 @@
         "database.user": "postgres",
         "database.password": "password",
         "database.dbname": "socialapp",
-        "topic.prefix": "dbserver1"
+        "topic.prefix": "socialapp"
     }
 }
