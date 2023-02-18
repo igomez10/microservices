@@ -345,6 +345,7 @@ services:
       - ./debezium/config:/kafka/connect/config
     depends_on:
       - broker
+      - database
     restart: always
     logging:
       driver: "syslog"

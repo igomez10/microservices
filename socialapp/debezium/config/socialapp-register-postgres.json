@@ -8,6 +8,7 @@
         "database.user": "postgres",
         "database.password": "password",
         "database.dbname": "socialapp",
-        "topic.prefix": "socialapp"
+        "topic.prefix": "socialapp",
+        "table.include.list": "public.users,public.scopes,public.roles,public.roles_to_scopes,public.events,public.users_to_roles"
     }
 }
