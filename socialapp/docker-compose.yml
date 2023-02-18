@@ -201,8 +201,9 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
     logging:
       driver: "syslog"
@@ -217,11 +218,14 @@ services:
     depends_on:
       - zookeeper
     user: root
+    ports:
+      - 39092:39092
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092,
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092,PLAINTEXT_HOST://localhost:39092
+      KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:39092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
     volumes:
       - ${BROKER2_DATA_DIR}:/var/lib/kafka/data
@@ -236,13 +240,16 @@ services:
     image: confluentinc/cp-kafka:7.3.0
     container_name: broker3
     user: root
+    ports:
+      - 49092:49092
     depends_on:
       - zookeeper
     environment:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092,PLAINTEXT_HOST://localhost:49092
+      KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:49092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
     volumes:
       - ${BROKER3_DATA_DIR}:/var/lib/kafka/data
@@ -261,7 +268,7 @@ services:
     restart: always
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=broker:9092
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=broker:9092,broker2:9092,broker3:9092
     depends_on:
       - broker
       - broker2
@@ -328,7 +335,7 @@ services:
     ports:
       - 8083:8083
     environment:
-      - BOOTSTRAP_SERVERS=broker:9092
+      - BOOTSTRAP_SERVERS=broker:9092,broker2:9092,broker3:9092
       - GROUP_ID=1
       - CONFIG_STORAGE_TOPIC=debezium_storage_config
       - OFFSET_STORAGE_TOPIC=debezium_storage_offsets
