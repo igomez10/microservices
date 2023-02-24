@@ -289,7 +289,7 @@ services:
   integration-tests:
     image: igomeza/socialapptests
     deploy:
-      replicas: 6
+      replicas: 2
     pull_policy: always
     environment:
       "ADD_TEST_JITTER": 1,
