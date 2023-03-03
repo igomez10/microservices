@@ -423,7 +423,6 @@ func (a *CommentApiService) GetUserCommentsExecute(r CommentApiGetUserCommentsRe
 type CommentApiGetUserFeedRequest struct {
 	ctx        context.Context
 	ApiService *CommentApiService
-	username   string
 }
 
 func (r CommentApiGetUserFeedRequest) Execute() ([]Comment, *http.Response, error) {
@@ -436,14 +435,12 @@ GetUserFeed Returns a users feed
 Returns a users feed
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param username The username of the user
 	@return CommentApiGetUserFeedRequest
 */
-func (a *CommentApiService) GetUserFeed(ctx context.Context, username string) CommentApiGetUserFeedRequest {
+func (a *CommentApiService) GetUserFeed(ctx context.Context) CommentApiGetUserFeedRequest {
 	return CommentApiGetUserFeedRequest{
 		ApiService: a,
 		ctx:        ctx,
-		username:   username,
 	}
 }
 
@@ -463,8 +460,7 @@ func (a *CommentApiService) GetUserFeedExecute(r CommentApiGetUserFeedRequest) (
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/v1/users/{username}/feed"
-	localVarPath = strings.Replace(localVarPath, "{"+"username"+"}", url.PathEscape(parameterValueToString(r.username, "username")), -1)
+	localVarPath := localBasePath + "/v1/feed"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}

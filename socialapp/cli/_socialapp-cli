@@ -365,8 +365,7 @@ case $state in
       getUserFeed)
         local -a _op_arguments
         _op_arguments=(
-          "username=:[PATH] The username of the user"
-                    )
+                              )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       getUserFollowers)

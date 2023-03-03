@@ -359,12 +359,14 @@ func TestGetExpectedFeed(t *testing.T) {
 	apiClient = client.NewAPIClient(configuration)
 
 	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
+	password1 := "password"
 	email1 := fmt.Sprintf("Test-%d-1@social.com", time.Now().UnixNano())
-	user1 := *client.NewCreateUserRequest(username1, "password", "FirstName_example", "LastName_example", email1) // User | Create a new user
+	user1 := *client.NewCreateUserRequest(username1, password1, "FirstName_example", "LastName_example", email1) // User | Create a new user
 
 	username2 := fmt.Sprintf("Test-%d2", time.Now().UnixNano())
+	password2 := "secretPassword"
 	email2 := fmt.Sprintf("Test-%d-2@social.com", time.Now().UnixNano())
-	user2 := *client.NewCreateUserRequest(username2, "secretPassword", "FirstName_example", "LastName_example", email2) // User | Create a new user
+	user2 := *client.NewCreateUserRequest(username2, password2, "FirstName_example", "LastName_example", email2) // User | Create a new user
 
 	// create users
 	func() {
@@ -385,9 +387,10 @@ func TestGetExpectedFeed(t *testing.T) {
 		}
 	}()
 
-	conf := clientcredentials.Config{
+	// user 1 follows user 2
+	conf1 := clientcredentials.Config{
 		ClientID:     username1,
-		ClientSecret: "password",
+		ClientSecret: password1,
 		Scopes: []string{
 			"socialapp.users.read",
 			"socialapp.follower.create",
@@ -399,14 +402,14 @@ func TestGetExpectedFeed(t *testing.T) {
 		TokenURL: ENDPOINT_OAUTH_TOKEN,
 	}
 
-	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	oauth2Ctx1, err := getOuath2Context(proxyCtx, conf1)
 	if err != nil {
 		t.Fatalf("Error getting oauth2 context: %v", err)
 	}
 
 	func() {
 		r, err := apiClient.UserApi.FollowUser(
-			oauth2Ctx,
+			oauth2Ctx1,
 			username2,
 			username1).
 			Execute()
@@ -416,10 +419,24 @@ func TestGetExpectedFeed(t *testing.T) {
 	}()
 
 	// user 2 posts a comment
+	conf2 := clientcredentials.Config{
+		ClientID:     username2,
+		ClientSecret: password2,
+		Scopes: []string{
+			"socialapp.comments.create",
+			"socialapp.feed.read",
+		},
+		TokenURL: ENDPOINT_OAUTH_TOKEN,
+	}
+
+	oauth2Ctx2, err := getOuath2Context(proxyCtx, conf2)
+	if err != nil {
+		t.Fatalf("Error getting oauth2 context: %v", err)
+	}
 	func() {
 		comment := *client.NewComment("Test comment", username2)
 		_, r, err := apiClient.CommentApi.
-			CreateComment(oauth2Ctx).
+			CreateComment(oauth2Ctx2).
 			Comment(comment).
 			Execute()
 		if err != nil {
@@ -427,10 +444,10 @@ func TestGetExpectedFeed(t *testing.T) {
 		}
 	}()
 
-	// validate feed in user 1's feed
+	// validate that comment from user 2 is in feed of user 1
 	func() {
 		feed, r, err := apiClient.CommentApi.
-			GetUserFeed(oauth2Ctx, username1).
+			GetUserFeed(oauth2Ctx1).
 			Execute()
 		if err != nil {
 			t.Errorf("Error when calling `UserApi.GetUserFeed`: %v\n %+v\n", err, r)
@@ -443,6 +460,18 @@ func TestGetExpectedFeed(t *testing.T) {
 		}
 	}()
 
+	// validate that feed from user 2 is empty
+	func() {
+		feed, r, err := apiClient.CommentApi.
+			GetUserFeed(oauth2Ctx2).
+			Execute()
+		if err != nil {
+			t.Errorf("Error when calling `UserApi.GetUserFeed`: %v\n %+v\n", err, r)
+		}
+		if len(feed) != 0 {
+			t.Errorf("Expected 0 post in feed, got %d: \n %+v", len(feed), feed)
+		}
+	}()
 }
 
 func TestGetAccessToken(t *testing.T) {
@@ -1206,7 +1235,7 @@ func TestCacheRequestSameUser(t *testing.T) {
 			}
 
 			// get feed
-			_, r, err = apiClient.CommentApi.GetUserFeed(openAPICtx, currentUser.Username).Execute()
+			_, r, err = apiClient.CommentApi.GetUserFeed(openAPICtx).Execute()
 			if err != nil {
 				t.Errorf("Error when calling `CommentApi.GetUserFeed`: %v\n", err)
 				t.Errorf("Full HTTP response: %v", r)

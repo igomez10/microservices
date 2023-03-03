@@ -11,7 +11,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 | *CommentApi* | [**createComment**](Apis/CommentApi.md#createcomment) | **POST** /v1/comments | Create a new comment |
 *CommentApi* | [**getComment**](Apis/CommentApi.md#getcomment) | **GET** /v1/comments/{id} | Returns details about a particular comment |
 *CommentApi* | [**getUserComments**](Apis/CommentApi.md#getusercomments) | **GET** /v1/users/{username}/comments | Gets all comments for a user |
-*CommentApi* | [**getUserFeed**](Apis/CommentApi.md#getuserfeed) | **GET** /v1/users/{username}/feed | Returns a users feed |
+*CommentApi* | [**getUserFeed**](Apis/CommentApi.md#getuserfeed) | **GET** /v1/feed | Returns a users feed |
 | *FollowingApi* | [**getUserFollowers**](Apis/FollowingApi.md#getuserfollowers) | **GET** /v1/users/{username}/followers | Get all followers for a user |
 | *RoleApi* | [**addScopeToRole**](Apis/RoleApi.md#addscopetorole) | **POST** /v1/roles/{id}/scopes | Add a scope to a role |
 *RoleApi* | [**createRole**](Apis/RoleApi.md#createrole) | **POST** /v1/roles | Create a new role |

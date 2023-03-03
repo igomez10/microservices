@@ -7,7 +7,7 @@ Method | HTTP request | Description
 [**CreateComment**](CommentApi.md#CreateComment) | **Post** /v1/comments | Create a new comment
 [**GetComment**](CommentApi.md#GetComment) | **Get** /v1/comments/{id} | Returns details about a particular comment
 [**GetUserComments**](CommentApi.md#GetUserComments) | **Get** /v1/users/{username}/comments | Gets all comments for a user
-[**GetUserFeed**](CommentApi.md#GetUserFeed) | **Get** /v1/users/{username}/feed | Returns a users feed
+[**GetUserFeed**](CommentApi.md#GetUserFeed) | **Get** /v1/feed | Returns a users feed
 
 
 
@@ -223,7 +223,7 @@ Name | Type | Description  | Notes
 
 ## GetUserFeed
 
-> []Comment GetUserFeed(ctx, username).Execute()
+> []Comment GetUserFeed(ctx).Execute()
 
 Returns a users feed
 
@@ -242,11 +242,10 @@ import (
 )
 
 func main() {
-    username := "johndoe" // string | The username of the user
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.CommentApi.GetUserFeed(context.Background(), username).Execute()
+    resp, r, err := apiClient.CommentApi.GetUserFeed(context.Background()).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `CommentApi.GetUserFeed``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -258,19 +257,11 @@ func main() {
 
 ### Path Parameters
 
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
-**ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**username** | **string** | The username of the user | 
+This endpoint does not need any parameter.
 
 ### Other Parameters
 
 Other parameters are passed through a pointer to a apiGetUserFeedRequest struct via the builder pattern
-
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
 
 
 ### Return type

@@ -7,7 +7,7 @@ Method | HTTP request | Description
 [**createComment**](CommentApi.md#createComment) | **POST** /v1/comments | Create a new comment
 [**getComment**](CommentApi.md#getComment) | **GET** /v1/comments/{id} | Returns details about a particular comment
 [**getUserComments**](CommentApi.md#getUserComments) | **GET** /v1/users/{username}/comments | Gets all comments for a user
-[**getUserFeed**](CommentApi.md#getUserFeed) | **GET** /v1/users/{username}/feed | Returns a users feed
+[**getUserFeed**](CommentApi.md#getUserFeed) | **GET** /v1/feed | Returns a users feed
 
 
 
@@ -127,15 +127,12 @@ Returns a users feed
 ### Example
 
 ```bash
-socialapp-cli getUserFeed username=value
+socialapp-cli getUserFeed
 ```
 
 ### Parameters
 
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **username** | **string** | The username of the user | [default to null]
+This endpoint does not need any parameter.
 
 ### Return type
 

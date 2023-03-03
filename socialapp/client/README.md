@@ -83,7 +83,7 @@ Class | Method | HTTP request | Description
 *CommentApi* | [**CreateComment**](docs/CommentApi.md#createcomment) | **Post** /v1/comments | Create a new comment
 *CommentApi* | [**GetComment**](docs/CommentApi.md#getcomment) | **Get** /v1/comments/{id} | Returns details about a particular comment
 *CommentApi* | [**GetUserComments**](docs/CommentApi.md#getusercomments) | **Get** /v1/users/{username}/comments | Gets all comments for a user
-*CommentApi* | [**GetUserFeed**](docs/CommentApi.md#getuserfeed) | **Get** /v1/users/{username}/feed | Returns a users feed
+*CommentApi* | [**GetUserFeed**](docs/CommentApi.md#getuserfeed) | **Get** /v1/feed | Returns a users feed
 *FollowingApi* | [**GetUserFollowers**](docs/FollowingApi.md#getuserfollowers) | **Get** /v1/users/{username}/followers | Get all followers for a user
 *RoleApi* | [**AddScopeToRole**](docs/RoleApi.md#addscopetorole) | **Post** /v1/roles/{id}/scopes | Add a scope to a role
 *RoleApi* | [**CreateRole**](docs/RoleApi.md#createrole) | **Post** /v1/roles | Create a new role
