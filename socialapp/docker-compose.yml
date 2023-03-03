@@ -287,10 +287,11 @@ services:
         tag: "kafka-ui"
 
   integration-tests:
-    image: igomeza/socialapptests
+    build:
+      context: .
+      dockerfile: Integration.Dockerfile
     deploy:
       replicas: 2
-    pull_policy: always
     environment:
       "ADD_TEST_JITTER": 1,
       "TEST_SETUP": ${TEST_SETUP},
