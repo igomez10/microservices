@@ -1,0 +1,11 @@
+groups:
+  - name: example
+    rules:
+      - alert: HighHTTPErrorRate
+        expr: sum(rate(http_client_status_codes{status_code=~"4.*|5.*"}[5m])) by (host) > 5
+        for: 10m
+        labels:
+          severity: page
+        annotations:
+          summary: High HTTP error rate
+          description: The HTTP error rate (4xx/5xx responses) is too high on {{ $labels.host }} ({{ $value }} errors/second over the last 5 minutes)
