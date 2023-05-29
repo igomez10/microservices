@@ -1,5 +1,5 @@
 groups:
-  - name: example
+  - name: HTTPRequests
     rules:
       - alert: HighHTTPErrorRate
         expr: sum(rate(http_client_status_codes{status_code=~"4.*|5.*"}[5m])) by (host) > 5
