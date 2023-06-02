@@ -1,0 +1,11 @@
+groups:
+  - name: Puttyknife
+    rules:
+      - alert: HighErrorRate
+        expr: rate(error_processing_property[5m]) > 100
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: High error rate in processing property
+          description: "{{ $labels.application_name }} has a high error rate ({{ $value }} errors/second) over the last 10 minutes."
