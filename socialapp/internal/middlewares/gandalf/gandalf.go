@@ -27,7 +27,7 @@ var gandalf_token_cache = promauto.NewCounterVec(prometheus.CounterOpts{
 var gandalf_duration_milliseconds = promauto.NewHistogramVec(prometheus.HistogramOpts{
 	Name:    "gandalf_duration_milliseconds",
 	Help:    "The duration of gandalf middleware in milliseconds",
-	Buckets: prometheus.LinearBuckets(0, 10, 100),
+	Buckets: prometheus.LinearBuckets(0, 1, 50),
 }, []string{"auth_result"})
 
 type Middleware struct {
