@@ -109,7 +109,6 @@ func (c *RoleApiController) AddScopeToRole(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-
 	requestBodyParam := []string{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
@@ -159,7 +158,6 @@ func (c *RoleApiController) DeleteRole(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-
 	result, err := c.service.DeleteRole(r.Context(), idParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -178,7 +176,6 @@ func (c *RoleApiController) GetRole(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-
 	result, err := c.service.GetRole(r.Context(), idParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -222,7 +219,6 @@ func (c *RoleApiController) ListScopesForRole(w http.ResponseWriter, r *http.Req
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-
 	limitParam, err := parseInt32Parameter(query.Get("limit"), false)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
@@ -251,13 +247,11 @@ func (c *RoleApiController) RemoveScopeFromRole(w http.ResponseWriter, r *http.R
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-
 	scopeIdParam, err := parseInt32Parameter(chi.URLParam(r, "scope_id"), true)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-
 	result, err := c.service.RemoveScopeFromRole(r.Context(), roleIdParam, scopeIdParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -276,7 +270,6 @@ func (c *RoleApiController) UpdateRole(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-
 	roleParam := Role{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()

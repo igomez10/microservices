@@ -115,7 +115,6 @@ func (c *ScopeApiController) DeleteScope(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-
 	result, err := c.service.DeleteScope(r.Context(), idParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -134,7 +133,6 @@ func (c *ScopeApiController) GetScope(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-
 	result, err := c.service.GetScope(r.Context(), idParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -177,7 +175,6 @@ func (c *ScopeApiController) UpdateScope(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-
 	scopeParam := Scope{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()

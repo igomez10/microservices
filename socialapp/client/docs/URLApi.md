@@ -28,7 +28,7 @@ import (
     "context"
     "fmt"
     "os"
-    openapiclient "./openapi"
+    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
 )
 
 func main() {
@@ -94,7 +94,7 @@ import (
     "context"
     "fmt"
     "os"
-    openapiclient "./openapi"
+    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
 )
 
 func main() {
@@ -102,7 +102,7 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.URLApi.DeleteUrl(context.Background(), alias).Execute()
+    r, err := apiClient.URLApi.DeleteUrl(context.Background(), alias).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `URLApi.DeleteUrl``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -162,7 +162,7 @@ import (
     "context"
     "fmt"
     "os"
-    openapiclient "./openapi"
+    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
 )
 
 func main() {
@@ -170,7 +170,7 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.URLApi.GetUrl(context.Background(), alias).Execute()
+    r, err := apiClient.URLApi.GetUrl(context.Background(), alias).Execute()
     if err != nil {
         fmt.Fprintf(os.Stderr, "Error when calling `URLApi.GetUrl``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -230,7 +230,7 @@ import (
     "context"
     "fmt"
     "os"
-    openapiclient "./openapi"
+    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
 )
 
 func main() {

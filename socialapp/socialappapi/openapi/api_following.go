@@ -62,7 +62,6 @@ func (c *FollowingApiController) Routes() Routes {
 // GetUserFollowers - Get all followers for a user
 func (c *FollowingApiController) GetUserFollowers(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
-
 	result, err := c.service.GetUserFollowers(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {

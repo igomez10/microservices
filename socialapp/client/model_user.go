@@ -52,7 +52,7 @@ func NewUserWithDefaults() *User {
 
 // GetId returns the Id field value if set, zero value otherwise.
 func (o *User) GetId() int64 {
-	if o == nil || isNil(o.Id) {
+	if o == nil || IsNil(o.Id) {
 		var ret int64
 		return ret
 	}
@@ -62,7 +62,7 @@ func (o *User) GetId() int64 {
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *User) GetIdOk() (*int64, bool) {
-	if o == nil || isNil(o.Id) {
+	if o == nil || IsNil(o.Id) {
 		return nil, false
 	}
 	return o.Id, true
@@ -70,7 +70,7 @@ func (o *User) GetIdOk() (*int64, bool) {
 
 // HasId returns a boolean if a field has been set.
 func (o *User) HasId() bool {
-	if o != nil && !isNil(o.Id) {
+	if o != nil && !IsNil(o.Id) {
 		return true
 	}
 
@@ -180,7 +180,7 @@ func (o *User) SetEmail(v string) {
 
 // GetCreatedAt returns the CreatedAt field value if set, zero value otherwise.
 func (o *User) GetCreatedAt() time.Time {
-	if o == nil || isNil(o.CreatedAt) {
+	if o == nil || IsNil(o.CreatedAt) {
 		var ret time.Time
 		return ret
 	}
@@ -190,7 +190,7 @@ func (o *User) GetCreatedAt() time.Time {
 // GetCreatedAtOk returns a tuple with the CreatedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *User) GetCreatedAtOk() (*time.Time, bool) {
-	if o == nil || isNil(o.CreatedAt) {
+	if o == nil || IsNil(o.CreatedAt) {
 		return nil, false
 	}
 	return o.CreatedAt, true
@@ -198,7 +198,7 @@ func (o *User) GetCreatedAtOk() (*time.Time, bool) {
 
 // HasCreatedAt returns a boolean if a field has been set.
 func (o *User) HasCreatedAt() bool {
-	if o != nil && !isNil(o.CreatedAt) {
+	if o != nil && !IsNil(o.CreatedAt) {
 		return true
 	}
 
@@ -220,14 +220,14 @@ func (o User) MarshalJSON() ([]byte, error) {
 
 func (o User) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !isNil(o.Id) {
+	if !IsNil(o.Id) {
 		toSerialize["id"] = o.Id
 	}
 	toSerialize["username"] = o.Username
 	toSerialize["first_name"] = o.FirstName
 	toSerialize["last_name"] = o.LastName
 	toSerialize["email"] = o.Email
-	if !isNil(o.CreatedAt) {
+	if !IsNil(o.CreatedAt) {
 		toSerialize["created_at"] = o.CreatedAt
 	}
 	return toSerialize, nil

@@ -49,7 +49,7 @@ func NewCommentWithDefaults() *Comment {
 
 // GetId returns the Id field value if set, zero value otherwise.
 func (o *Comment) GetId() int64 {
-	if o == nil || isNil(o.Id) {
+	if o == nil || IsNil(o.Id) {
 		var ret int64
 		return ret
 	}
@@ -59,7 +59,7 @@ func (o *Comment) GetId() int64 {
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Comment) GetIdOk() (*int64, bool) {
-	if o == nil || isNil(o.Id) {
+	if o == nil || IsNil(o.Id) {
 		return nil, false
 	}
 	return o.Id, true
@@ -67,7 +67,7 @@ func (o *Comment) GetIdOk() (*int64, bool) {
 
 // HasId returns a boolean if a field has been set.
 func (o *Comment) HasId() bool {
-	if o != nil && !isNil(o.Id) {
+	if o != nil && !IsNil(o.Id) {
 		return true
 	}
 
@@ -105,7 +105,7 @@ func (o *Comment) SetContent(v string) {
 
 // GetLikeCount returns the LikeCount field value if set, zero value otherwise.
 func (o *Comment) GetLikeCount() int64 {
-	if o == nil || isNil(o.LikeCount) {
+	if o == nil || IsNil(o.LikeCount) {
 		var ret int64
 		return ret
 	}
@@ -115,7 +115,7 @@ func (o *Comment) GetLikeCount() int64 {
 // GetLikeCountOk returns a tuple with the LikeCount field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Comment) GetLikeCountOk() (*int64, bool) {
-	if o == nil || isNil(o.LikeCount) {
+	if o == nil || IsNil(o.LikeCount) {
 		return nil, false
 	}
 	return o.LikeCount, true
@@ -123,7 +123,7 @@ func (o *Comment) GetLikeCountOk() (*int64, bool) {
 
 // HasLikeCount returns a boolean if a field has been set.
 func (o *Comment) HasLikeCount() bool {
-	if o != nil && !isNil(o.LikeCount) {
+	if o != nil && !IsNil(o.LikeCount) {
 		return true
 	}
 
@@ -137,7 +137,7 @@ func (o *Comment) SetLikeCount(v int64) {
 
 // GetCreatedAt returns the CreatedAt field value if set, zero value otherwise.
 func (o *Comment) GetCreatedAt() time.Time {
-	if o == nil || isNil(o.CreatedAt) {
+	if o == nil || IsNil(o.CreatedAt) {
 		var ret time.Time
 		return ret
 	}
@@ -147,7 +147,7 @@ func (o *Comment) GetCreatedAt() time.Time {
 // GetCreatedAtOk returns a tuple with the CreatedAt field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *Comment) GetCreatedAtOk() (*time.Time, bool) {
-	if o == nil || isNil(o.CreatedAt) {
+	if o == nil || IsNil(o.CreatedAt) {
 		return nil, false
 	}
 	return o.CreatedAt, true
@@ -155,7 +155,7 @@ func (o *Comment) GetCreatedAtOk() (*time.Time, bool) {
 
 // HasCreatedAt returns a boolean if a field has been set.
 func (o *Comment) HasCreatedAt() bool {
-	if o != nil && !isNil(o.CreatedAt) {
+	if o != nil && !IsNil(o.CreatedAt) {
 		return true
 	}
 
@@ -201,14 +201,14 @@ func (o Comment) MarshalJSON() ([]byte, error) {
 
 func (o Comment) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !isNil(o.Id) {
+	if !IsNil(o.Id) {
 		toSerialize["id"] = o.Id
 	}
 	toSerialize["content"] = o.Content
-	if !isNil(o.LikeCount) {
+	if !IsNil(o.LikeCount) {
 		toSerialize["like_count"] = o.LikeCount
 	}
-	if !isNil(o.CreatedAt) {
+	if !IsNil(o.CreatedAt) {
 		toSerialize["created_at"] = o.CreatedAt
 	}
 	toSerialize["username"] = o.Username
