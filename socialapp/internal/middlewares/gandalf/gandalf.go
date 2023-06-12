@@ -23,11 +23,11 @@ var gandalf_token_cache = promauto.NewCounterVec(prometheus.CounterOpts{
 	Help: "The total number of gandalf token cache",
 }, []string{"cache", "status"})
 
-// gandalf_duration_microseconds The duration of gandalf middleware in microseconds
-var gandalf_duration_microseconds = promauto.NewHistogramVec(prometheus.HistogramOpts{
-	Name:    "gandalf_duration_microseconds",
-	Help:    "The duration of gandalf middleware in microseconds",
-	Buckets: prometheus.LinearBuckets(0, 250, 50),
+// gandalf_duration_microseconds_quantile is a histogram to track the duration of the gandalf.
+var gandalf_duration_microseconds = promauto.NewSummaryVec(prometheus.SummaryOpts{
+	Name:       "gandalf_duration_microseconds",
+	Help:       "Summary for the runtime of the gandalf.",
+	Objectives: map[float64]float64{0.25: 0.05, 0.50: 0.05, 0.75: 0.05, 1: 0.01}, // These are the default settings
 }, []string{"auth_result"})
 
 type Middleware struct {
