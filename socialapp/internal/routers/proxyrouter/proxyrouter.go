@@ -23,9 +23,17 @@ var prometheusProxyRequests = promauto.NewCounterVec(prometheus.CounterOpts{
 	Name: "proxy_requests_total",
 	Help: "The total number of proxy requests",
 }, []string{"host", "path"})
-var prometheusProxyResponseTime = promauto.NewHistogramVec(prometheus.HistogramOpts{
+var prometheusProxyResponseTime = promauto.NewSummaryVec(prometheus.SummaryOpts{
 	Name: "proxy_response_time_milliseconds",
 	Help: "The response time of proxy requests",
+	Objectives: map[float64]float64{
+		0.5:  0.05,
+		0.80: 0.01,
+		0.85: 0.01,
+		0.90: 0.01,
+		0.95: 0.01,
+		0.99: 0.001,
+	},
 }, []string{"host", "path"})
 
 func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handler) *ProxyRouter {
