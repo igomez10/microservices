@@ -53,18 +53,6 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (open
 
 func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
-	// validate that the alias does exist
-	_, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
-	if err != nil {
-		log.Error().Err(err).Msg("alias does not exist")
-		return openapi.ImplResponse{
-			Code: http.StatusNotFound,
-			Body: openapi.Error{
-				Message: "alias does not exist",
-				Code:    http.StatusNotFound,
-			},
-		}, nil
-	}
 
 	if err := s.DB.DeleteURL(ctx, s.DBConn, alias); err != nil {
 		log.Error().Err(err).Msg("error deleting url")
