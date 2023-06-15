@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/google/uuid"
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
@@ -23,7 +22,6 @@ import (
 type UserApiService struct {
 	DB            db.Querier
 	DBConn        *sql.DB
-	KafkaProducer *kafka.Producer
 	EventRecorder eventRecorder.EventRecorder
 }
 

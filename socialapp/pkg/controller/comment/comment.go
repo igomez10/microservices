@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
@@ -15,24 +14,11 @@ import (
 
 // s *CommentService openapi.CommentApiServicer
 type CommentService struct {
-	DB            db.Querier
-	DBConn        db.DBTX
-	KafkaProducer *kafka.Producer
+	DB     db.Querier
+	DBConn db.DBTX
 }
 
 func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comment) (openapi.ImplResponse, error) {
-	topicName := "comments"
-	err := s.KafkaProducer.Produce(&kafka.Message{
-		TopicPartition: kafka.TopicPartition{
-			Topic:     &topicName,
-			Partition: kafka.PartitionAny,
-		},
-		Value: []byte("CreateComment-" + comment.Username + "-" + comment.Content + "-"),
-	}, nil)
-	if err != nil {
-		log.Error().Err(err).Msg("Error producing message")
-	}
-
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, comment.Username)
