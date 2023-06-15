@@ -99,6 +99,13 @@ tf-apply:
 	cd infrastructure && terraform apply -auto-approve
 
 build-push-integration-tests:
-	docker build . -f Integration.Dockerfile --platform=linux/arm64 -t igomeza/socialapptests 
-	
+	docker build . -f Integration.Dockerfile --platform=linux/arm64 -t igomeza/socialapptests 	
 	docker push igomeza/socialapptests
+
+deploy:
+	# ssh into the server and run the deploy script
+	 ssh -o StrictHostKeyChecking=no \
+            -p $(SSH_PORT) \
+            $(SSH_USERNAME)@$(SSH_HOST) \
+			-i $(SSH_PRIVATE_KEY) \
+			'bash -s' < ./deploy.sh
