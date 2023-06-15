@@ -8,8 +8,6 @@ volumes:
   prometheus_data: {}
   grafana_data: {}
   db_data: {}
-  zookeeper_data:
-    driver: local
   kafka_data:
     driver: local
   # phlare_data: {}
@@ -177,8 +175,9 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    user: root
     volumes:
-      - zookeeper_data:/var/lib/zookeeper/data
+      - ${ZOOKEEPER_DATA_DIR}:/var/lib/zookeeper/data
     logging:
       driver: "syslog"
       options:
