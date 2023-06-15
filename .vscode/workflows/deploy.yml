@@ -21,4 +21,5 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
         run: |
+          cd socialapp
           make deploy
