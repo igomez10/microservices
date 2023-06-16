@@ -107,5 +107,4 @@ deploy:
 	 ssh -o StrictHostKeyChecking=no \
             -p $(SSH_PORT) \
             $(SSH_USERNAME)@$(SSH_HOST) \
-			-i $(SSH_PRIVATE_KEY) \
 			'bash -s' < ./deploy.sh
