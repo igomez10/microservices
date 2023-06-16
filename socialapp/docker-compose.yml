@@ -177,7 +177,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     user: root
     volumes:
-      - ${ZOOKEEPER_DATA_DIR}:/var/lib/zookeeper/data
+      - ${ZOOKEEPER_DATA_DIR}/data:/var/lib/zookeeper/data
+      - ${ZOOKEEPER_DATA_DIR}/log:/var/lib/zookeeper/log
     logging:
       driver: "syslog"
       options:
@@ -208,6 +209,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_LOG_CLEANER_MAX_COMPACTION_LAG_MS: 21600000
       KAFKA_NUM_PARTITIONS: 3
+      KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
 
     logging:
       driver: "syslog"
@@ -233,6 +235,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_LOG_CLEANER_MAX_COMPACTION_LAG_MS: 21600000
       KAFKA_NUM_PARTITIONS: 3
+      KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
     volumes:
       - ${BROKER2_DATA_DIR}:/var/lib/kafka/data
     logging:
@@ -259,6 +262,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_LOG_CLEANER_MAX_COMPACTION_LAG_MS: 21600000
       KAFKA_NUM_PARTITIONS: 3
+      KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
     volumes:
       - ${BROKER3_DATA_DIR}:/var/lib/kafka/data
     logging:
@@ -303,25 +307,25 @@ services:
         syslog-address: "udp://localhost:51000"
         tag: "integration-tests"
 
-  newrelic:
-    build:
-      context: ./newrelic
-    container_name: newrelic
-    volumes:
-      - "/:/host:ro"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    cap_add:
-      - SYS_PTRACE
-    network_mode: host
-    pid: host
-    privileged: true
-    environment:
-      # set host name
-      - NRIA_DISPLAY_NAME=ocivm
-      - NRIA_OVERRIDE_HOSTNAME_SHORT=true
-      - NRIA_LICENSE_KEY=${NEW_RELIC_LICENSE}
-      - NEW_RELIC_LOG=stdout
-      - NEW_RELIC_LOG_LEVEL=info
+  # newrelic:
+  #   build:
+  #     context: ./newrelic
+  #   container_name: newrelic
+  #   volumes:
+  #     - "/:/host:ro"
+  #     - "/var/run/docker.sock:/var/run/docker.sock"
+  #   cap_add:
+  #     - SYS_PTRACE
+  #   network_mode: host
+  #   pid: host
+  #   privileged: true
+  #   environment:
+  #     # set host name
+  #     - NRIA_DISPLAY_NAME=ocivm
+  #     - NRIA_OVERRIDE_HOSTNAME_SHORT=true
+  #     - NRIA_LICENSE_KEY=${NEW_RELIC_LICENSE}
+  #     - NEW_RELIC_LOG=stdout
+  #     - NEW_RELIC_LOG_LEVEL=info
 
   elasticsearch-exporter:
     image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
@@ -354,6 +358,9 @@ services:
       - ./debezium/config:/kafka/connect/config
     depends_on:
       - broker
+      - broker2
+      - broker3
+      - zookeeper
       - database
     restart: always
     logging:
