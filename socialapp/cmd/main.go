@@ -73,6 +73,17 @@ func main() {
 		fmt.Printf("Writing logs to logstash: %q \n", conn.RemoteAddr())
 		log.Logger = zerolog.New(conn)
 	}
+	// Set global log level
+	logLevel := os.Getenv("LOG_LEVEL")
+	if logLevel == "" {
+		logLevel = "info"
+	}
+	lvl, err := zerolog.ParseLevel(logLevel)
+	if err != nil {
+		log.Warn().Err(err).Msg("Error parsing log level, default to info")
+		lvl = zerolog.InfoLevel
+	}
+	zerolog.SetGlobalLevel(lvl)
 
 	instanceID := uuid.NewString()
 	log.Logger = log.With().
