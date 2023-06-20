@@ -8,8 +8,6 @@ volumes:
   prometheus_data: {}
   grafana_data: {}
   db_data: {}
-  zookeeper_data:
-    driver: local
   kafka_data:
     driver: local
   # phlare_data: {}
@@ -30,6 +28,11 @@ services:
     ports:
       - "5432:5432"
     restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     logging:
       driver: "syslog"
       options:
@@ -63,6 +66,11 @@ services:
     env_file:
       - ./grafana/config.monitoring
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     # send logs to syslog
     logging:
       driver: "syslog"
@@ -177,12 +185,18 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    user: root
+    volumes:
+      - ${ZOOKEEPER_DATA_DIR}/data:/var/lib/zookeeper/data
+      - ${ZOOKEEPER_DATA_DIR}/log:/var/lib/zookeeper/log
+      - ${ZOOKEEPER_DATA_DIR}:/var/lib/zookeeper/data
+    restart: always
     logging:
       driver: "syslog"
       options:
         syslog-address: "udp://localhost:51000"
         tag: "zookeeper"
-    restart: always
+    
 
   broker:
     image: confluentinc/cp-kafka:7.3.0
@@ -207,13 +221,14 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_LOG_CLEANER_MAX_COMPACTION_LAG_MS: 21600000
       KAFKA_NUM_PARTITIONS: 3
-
+      KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
+    restart: always
     logging:
       driver: "syslog"
       options:
         syslog-address: "udp://localhost:51000"
         tag: "broker"
-    restart: always
+    
 
   broker2:
     image: confluentinc/cp-kafka:7.3.0
@@ -232,14 +247,16 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_LOG_CLEANER_MAX_COMPACTION_LAG_MS: 21600000
       KAFKA_NUM_PARTITIONS: 3
+      KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
     volumes:
       - ${BROKER2_DATA_DIR}:/var/lib/kafka/data
+    restart: always
     logging:
       driver: "syslog"
       options:
         syslog-address: "udp://localhost:51000"
         tag: "broker2"
-    restart: always
+
 
   broker3:
     image: confluentinc/cp-kafka:7.3.0
@@ -258,14 +275,16 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_LOG_CLEANER_MAX_COMPACTION_LAG_MS: 21600000
       KAFKA_NUM_PARTITIONS: 3
+      KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
     volumes:
       - ${BROKER3_DATA_DIR}:/var/lib/kafka/data
+    restart: always
     logging:
       driver: "syslog"
       options:
         syslog-address: "udp://localhost:51000"
         tag: "broker3"
-    restart: always
+
 
   kafka-ui:
     image: provectuslabs/kafka-ui
@@ -287,10 +306,11 @@ services:
         tag: "kafka-ui"
 
   integration-tests:
-    image: igomeza/socialapptests
+    build:
+      context: .
+      dockerfile: Integration.Dockerfile
     deploy:
       replicas: 2
-    pull_policy: always
     environment:
       "ADD_TEST_JITTER": 1,
       "TEST_SETUP": ${TEST_SETUP},
@@ -301,25 +321,25 @@ services:
         syslog-address: "udp://localhost:51000"
         tag: "integration-tests"
 
-  newrelic:
-    build:
-      context: ./newrelic
-    container_name: newrelic
-    volumes:
-      - "/:/host:ro"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    cap_add:
-      - SYS_PTRACE
-    network_mode: host
-    pid: host
-    privileged: true
-    environment:
-      # set host name
-      - NRIA_DISPLAY_NAME=ocivm
-      - NRIA_OVERRIDE_HOSTNAME_SHORT=true
-      - NRIA_LICENSE_KEY=${NEW_RELIC_LICENSE}
-      - NEW_RELIC_LOG=stdout
-      - NEW_RELIC_LOG_LEVEL=info
+  # newrelic:
+  #   build:
+  #     context: ./newrelic
+  #   container_name: newrelic
+  #   volumes:
+  #     - "/:/host:ro"
+  #     - "/var/run/docker.sock:/var/run/docker.sock"
+  #   cap_add:
+  #     - SYS_PTRACE
+  #   network_mode: host
+  #   pid: host
+  #   privileged: true
+  #   environment:
+  #     # set host name
+  #     - NRIA_DISPLAY_NAME=ocivm
+  #     - NRIA_OVERRIDE_HOSTNAME_SHORT=true
+  #     - NRIA_LICENSE_KEY=${NEW_RELIC_LICENSE}
+  #     - NEW_RELIC_LOG=stdout
+  #     - NEW_RELIC_LOG_LEVEL=info
 
   elasticsearch-exporter:
     image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
@@ -338,7 +358,7 @@ services:
       - "9114:9114"
 
   debezium:
-    image: quay.io/debezium/connect:2.2
+    image: quay.io/debezium/connect:2.3
     ports:
       - 8083:8083
     environment:
@@ -352,8 +372,16 @@ services:
       - ./debezium/config:/kafka/connect/config
     depends_on:
       - broker
+      - broker2
+      - broker3
+      - zookeeper
       - database
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     logging:
       driver: "syslog"
       options:
@@ -370,6 +398,11 @@ services:
     depends_on:
       - debezium
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     logging:
       driver: "syslog"
       options:

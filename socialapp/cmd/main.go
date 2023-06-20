@@ -15,7 +15,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -74,6 +73,17 @@ func main() {
 		fmt.Printf("Writing logs to logstash: %q \n", conn.RemoteAddr())
 		log.Logger = zerolog.New(conn)
 	}
+	// Set global log level
+	logLevel := os.Getenv("LOG_LEVEL")
+	if logLevel == "" {
+		logLevel = "info"
+	}
+	lvl, err := zerolog.ParseLevel(logLevel)
+	if err != nil {
+		log.Warn().Err(err).Msg("Error parsing log level, default to info")
+		lvl = zerolog.InfoLevel
+	}
+	zerolog.SetGlobalLevel(lvl)
 
 	instanceID := uuid.NewString()
 	log.Logger = log.With().
@@ -83,34 +93,6 @@ func main() {
 		Logger()
 
 	log.Info().Msgf("Starting PORT: %d", *appPort)
-
-	// Connect to Kafka
-	kafkaBrokers := os.Getenv("KAFKA_HOST")
-	p, err := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers":            kafkaBrokers,
-		"client.id":                    "go-producer-" + instanceID,
-		"acks":                         "all",
-		"retries":                      0,
-		"linger.ms":                    1,
-		"compression.type":             "snappy",
-		"batch.num.messages":           1000,
-		"queue.buffering.max.messages": 100000,
-		"queue.buffering.max.ms":       1000,
-		"message.send.max.retries":     3,
-		"retry.backoff.ms":             5,
-		"socket.keepalive.enable":      true,
-		"socket.nagle.disable":         true,
-		"socket.max.fails":             3,
-		"broker.address.ttl":           1000,
-		"broker.address.family":        "v4",
-		"api.version.request":          true,
-		"api.version.fallback.ms":      0,
-		"security.protocol":            "plaintext",
-		"ssl.key.location":             "",
-	})
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to create producer")
-	}
 
 	// Connect to database
 	// force creation of 8 connections, one per service
@@ -125,9 +107,8 @@ func main() {
 
 	// Comment service
 	CommentApiService := &comment.CommentService{
-		DB:            queries,
-		DBConn:        connections.GetPool(),
-		KafkaProducer: p,
+		DB:     queries,
+		DBConn: connections.GetPool(),
 	}
 	CommentApiController := openapi.NewCommentApiController(CommentApiService)
 
@@ -135,7 +116,6 @@ func main() {
 	UserApiService := &user.UserApiService{
 		DB:            queries,
 		DBConn:        connections.GetPool(),
-		KafkaProducer: p,
 		EventRecorder: eventRecorder,
 	}
 	UserApiController := openapi.NewUserApiController(UserApiService)

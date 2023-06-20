@@ -189,7 +189,6 @@ func (c *UserApiController) CreateUser(w http.ResponseWriter, r *http.Request) {
 // DeleteUser - Deletes a particular user
 func (c *UserApiController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
-
 	result, err := c.service.DeleteUser(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -204,9 +203,7 @@ func (c *UserApiController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 // FollowUser - Add a user as a follower
 func (c *UserApiController) FollowUser(w http.ResponseWriter, r *http.Request) {
 	followedUsernameParam := chi.URLParam(r, "followedUsername")
-
 	followerUsernameParam := chi.URLParam(r, "followerUsername")
-
 	result, err := c.service.FollowUser(r.Context(), followedUsernameParam, followerUsernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -221,7 +218,6 @@ func (c *UserApiController) FollowUser(w http.ResponseWriter, r *http.Request) {
 // GetFollowingUsers - Get all followed users for a user
 func (c *UserApiController) GetFollowingUsers(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
-
 	result, err := c.service.GetFollowingUsers(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -236,7 +232,6 @@ func (c *UserApiController) GetFollowingUsers(w http.ResponseWriter, r *http.Req
 // GetRolesForUser - Get all roles for a user
 func (c *UserApiController) GetRolesForUser(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
-
 	result, err := c.service.GetRolesForUser(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -251,7 +246,6 @@ func (c *UserApiController) GetRolesForUser(w http.ResponseWriter, r *http.Reque
 // GetUserByUsername - Get a particular user by username
 func (c *UserApiController) GetUserByUsername(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
-
 	result, err := c.service.GetUserByUsername(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -267,7 +261,6 @@ func (c *UserApiController) GetUserByUsername(w http.ResponseWriter, r *http.Req
 func (c *UserApiController) GetUserComments(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	usernameParam := chi.URLParam(r, "username")
-
 	limitParam, err := parseInt32Parameter(query.Get("limit"), false)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
@@ -292,7 +285,6 @@ func (c *UserApiController) GetUserComments(w http.ResponseWriter, r *http.Reque
 // GetUserFollowers - Get all followers for a user
 func (c *UserApiController) GetUserFollowers(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
-
 	result, err := c.service.GetUserFollowers(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -355,9 +347,7 @@ func (c *UserApiController) ResetPassword(w http.ResponseWriter, r *http.Request
 // UnfollowUser - Remove a user as a follower
 func (c *UserApiController) UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	followedUsernameParam := chi.URLParam(r, "followedUsername")
-
 	followerUsernameParam := chi.URLParam(r, "followerUsername")
-
 	result, err := c.service.UnfollowUser(r.Context(), followedUsernameParam, followerUsernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -372,7 +362,6 @@ func (c *UserApiController) UnfollowUser(w http.ResponseWriter, r *http.Request)
 // UpdateRolesForUser - Update all roles for a user
 func (c *UserApiController) UpdateRolesForUser(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
-
 	requestBodyParam := []string{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
@@ -394,7 +383,6 @@ func (c *UserApiController) UpdateRolesForUser(w http.ResponseWriter, r *http.Re
 // UpdateUser - Update a user
 func (c *UserApiController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
-
 	userParam := User{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()

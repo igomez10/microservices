@@ -524,7 +524,7 @@
               }
             ]
           },
-          "unit": "ms"
+          "unit": "µs"
         },
         "overrides": []
       },
@@ -534,7 +534,7 @@
         "x": 12,
         "y": 25
       },
-      "id": 14,
+      "id": 15,
       "options": {
         "legend": {
           "calcs": [
@@ -555,11 +555,13 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
-          "expr": "avg by(auth_result) (rate(gandalf_duration_milliseconds_bucket[$min_interval]))",
-          "instant": true,
-          "key": "Q-6f571b36-c301-4dc7-b37a-69511648a416-0",
-          "legendFormat": "{{status}}",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "gandalf_duration_microseconds{quantile=\"0.75\"}",
+          "format": "time_series",
+          "instant": false,
+          "key": "Q-b015277c-2e61-46f2-95bf-9d187a66be34-0",
+          "legendFormat": "{{auth_result}} -  quantile:{{quantile}}",
           "range": true,
           "refId": "A"
         }
@@ -854,7 +856,7 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 37,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -909,8 +911,8 @@
       {
         "current": {
           "selected": true,
-          "text": "0.90",
-          "value": "0.90"
+          "text": "0.50",
+          "value": "0.50"
         },
         "hide": 0,
         "includeAll": false,
@@ -918,7 +920,7 @@
         "name": "quantile",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "0.50",
             "value": "0.50"
           },
@@ -938,7 +940,7 @@
             "value": "0.85"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "0.90",
             "value": "0.90"
           },
@@ -961,13 +963,13 @@
     ]
   },
   "time": {
-    "from": "now-6h",
-    "to": "now"
+    "from": "2023-06-12T15:00:52.470Z",
+    "to": "2023-06-12T19:19:27.705Z"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Socialapp dashboard",
   "uid": "l1YgmnvVk",
-  "version": 5,
+  "version": 6,
   "weekStart": ""
 }

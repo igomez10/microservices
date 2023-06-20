@@ -113,7 +113,7 @@ _socialapp-cli()
     operation_parameters["createComment"]=""
     operation_parameters["getComment"]="id= "
     operation_parameters["getUserComments"]="username= limit= offset= "
-    operation_parameters["getUserFeed"]="username= "
+    operation_parameters["getUserFeed"]=""
     operation_parameters["getUserFollowers"]="username= "
     operation_parameters["addScopeToRole"]="id= "
     operation_parameters["createRole"]=""

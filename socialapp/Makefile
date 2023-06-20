@@ -1,5 +1,5 @@
 generate-openapi:
-	# openapi-generator-cli version-manager set 6.3.0
+	# openapi-generator-cli version-manager set 6.6.0
 	#  generate server:
 	rm -rf ./socialappapi
 	openapi-generator-cli generate --input-spec openapi.yaml  \
@@ -99,6 +99,12 @@ tf-apply:
 	cd infrastructure && terraform apply -auto-approve
 
 build-push-integration-tests:
-	docker build . -f Integration.Dockerfile --platform=linux/arm64 -t igomeza/socialapptests 
-	
+	docker build . -f Integration.Dockerfile --platform=linux/arm64 -t igomeza/socialapptests 	
 	docker push igomeza/socialapptests
+
+deploy:
+	# ssh into the server and run the deploy script
+	 ssh -o StrictHostKeyChecking=no \
+            -p $(SSH_PORT) \
+            $(SSH_USERNAME)@$(SSH_HOST) \
+			'bash -s' < ./deploy.sh

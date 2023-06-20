@@ -100,7 +100,6 @@ operation_parameters_minimum_occurrences["getComment:::id"]=1
 operation_parameters_minimum_occurrences["getUserComments:::username"]=1
 operation_parameters_minimum_occurrences["getUserComments:::limit"]=0
 operation_parameters_minimum_occurrences["getUserComments:::offset"]=0
-operation_parameters_minimum_occurrences["getUserFeed:::username"]=1
 operation_parameters_minimum_occurrences["getUserFollowers:::username"]=1
 operation_parameters_minimum_occurrences["addScopeToRole:::id"]=1
 operation_parameters_minimum_occurrences["addScopeToRole:::request_body"]=1
@@ -161,7 +160,6 @@ operation_parameters_maximum_occurrences["getComment:::id"]=0
 operation_parameters_maximum_occurrences["getUserComments:::username"]=0
 operation_parameters_maximum_occurrences["getUserComments:::limit"]=0
 operation_parameters_maximum_occurrences["getUserComments:::offset"]=0
-operation_parameters_maximum_occurrences["getUserFeed:::username"]=0
 operation_parameters_maximum_occurrences["getUserFollowers:::username"]=0
 operation_parameters_maximum_occurrences["addScopeToRole:::id"]=0
 operation_parameters_maximum_occurrences["addScopeToRole:::request_body"]=0
@@ -219,7 +217,6 @@ operation_parameters_collection_type["getComment:::id"]=""
 operation_parameters_collection_type["getUserComments:::username"]=""
 operation_parameters_collection_type["getUserComments:::limit"]=""
 operation_parameters_collection_type["getUserComments:::offset"]=""
-operation_parameters_collection_type["getUserFeed:::username"]=""
 operation_parameters_collection_type["getUserFollowers:::username"]=""
 operation_parameters_collection_type["addScopeToRole:::id"]=""
 operation_parameters_collection_type["addScopeToRole:::request_body"]=
@@ -913,8 +910,6 @@ print_getUserFeed_help() {
     echo -e ""
     echo -e "Returns a users feed" | paste -sd' ' | fold -sw 80
     echo -e ""
-    echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
@@ -1868,13 +1863,13 @@ call_getUserComments() {
 call_getUserFeed() {
     # ignore error about 'path_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local path_parameter_names=(username)
+    local path_parameter_names=()
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/users/{username}/feed" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/v1/feed" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi

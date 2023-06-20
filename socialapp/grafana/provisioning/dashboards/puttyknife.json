@@ -29,6 +29,97 @@
     "panels": [
         {
             "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 3,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": "Prometheus",
+                    "editorMode": "code",
+                    "expr": "rate(error_processing_property[$__rate_interval])",
+                    "instant": true,
+                    "key": "Q-80865866-cc84-468b-aa9f-b57806e1ff3d-0",
+                    "legendFormat": "{{application_name}} {{error}}",
+                    "range": true,
+                    "refId": "A"
+                }
+            ],
+            "title": "Errors Processing Properties",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
                 "type": "postgres",
                 "uid": "9pTey45Vz"
             },
@@ -88,7 +179,7 @@
                 "h": 9,
                 "w": 24,
                 "x": 0,
-                "y": 0
+                "y": 7
             },
             "id": 1,
             "options": {
@@ -198,7 +289,7 @@
                 "h": 9,
                 "w": 24,
                 "x": 0,
-                "y": 9
+                "y": 16
             },
             "id": 2,
             "options": {
@@ -249,7 +340,7 @@
         }
     ],
     "refresh": false,
-    "schemaVersion": 37,
+    "schemaVersion": 38,
     "style": "dark",
     "tags": [],
     "templating": {
@@ -263,6 +354,6 @@
     "timezone": "",
     "title": "Puttyknife",
     "uid": "f8WWU45Vz",
-    "version": 5,
+    "version": 6,
     "weekStart": ""
 }

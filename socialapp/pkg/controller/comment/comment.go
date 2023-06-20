@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
@@ -15,24 +14,11 @@ import (
 
 // s *CommentService openapi.CommentApiServicer
 type CommentService struct {
-	DB            db.Querier
-	DBConn        db.DBTX
-	KafkaProducer *kafka.Producer
+	DB     db.Querier
+	DBConn db.DBTX
 }
 
 func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comment) (openapi.ImplResponse, error) {
-	topicName := "comments"
-	err := s.KafkaProducer.Produce(&kafka.Message{
-		TopicPartition: kafka.TopicPartition{
-			Topic:     &topicName,
-			Partition: kafka.PartitionAny,
-		},
-		Value: []byte("CreateComment-" + comment.Username + "-" + comment.Content + "-"),
-	}, nil)
-	if err != nil {
-		log.Error().Err(err).Msg("Error producing message")
-	}
-
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, comment.Username)
@@ -131,15 +117,30 @@ func (s *CommentService) GetUserComments(ctx context.Context, username string, l
 	return openapi.Response(http.StatusOK, comments), nil
 }
 
-func (s *CommentService) GetUserFeed(ctx context.Context, username string) (openapi.ImplResponse, error) {
+func (s *CommentService) GetUserFeed(ctx context.Context) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate the user exists
+	// get username from context
+	username, exists := contexthelper.GetUsernameInContext(ctx)
+	if !exists {
+		log.Error().
+			Msg("Error getting user from context")
+
+		return openapi.Response(http.StatusInternalServerError, openapi.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}), nil
+	}
+
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
 		log.Error().
 			Err(errGetUser).
 			Msg("Error getting user")
-		return openapi.Response(http.StatusNotFound, nil), nil
+		return openapi.Response(http.StatusInternalServerError, openapi.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}), nil
 	}
 
 	// get followed users
@@ -150,8 +151,6 @@ func (s *CommentService) GetUserFeed(ctx context.Context, username string) (open
 			Msg("Error getting followed users")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
-
-	log.Info().Msgf("followed users: %v", followedUsers)
 
 	// get comments for each followed user
 	comments := make([]openapi.Comment, 0, len(followedUsers)*20)

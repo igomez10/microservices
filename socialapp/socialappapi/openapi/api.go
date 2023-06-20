@@ -110,7 +110,7 @@ type CommentApiServicer interface {
 	CreateComment(context.Context, Comment) (ImplResponse, error)
 	GetComment(context.Context, int32) (ImplResponse, error)
 	GetUserComments(context.Context, string, int32, int32) (ImplResponse, error)
-	GetUserFeed(context.Context, string) (ImplResponse, error)
+	GetUserFeed(context.Context) (ImplResponse, error)
 }
 
 // FollowingApiServicer defines the api actions for the FollowingApi service

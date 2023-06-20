@@ -72,7 +72,7 @@ func (c *CommentApiController) Routes() Routes {
 		{
 			"GetUserFeed",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}/feed",
+			"/v1/feed",
 			c.GetUserFeed,
 		},
 	}
@@ -109,7 +109,6 @@ func (c *CommentApiController) GetComment(w http.ResponseWriter, r *http.Request
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-
 	result, err := c.service.GetComment(r.Context(), idParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -125,7 +124,6 @@ func (c *CommentApiController) GetComment(w http.ResponseWriter, r *http.Request
 func (c *CommentApiController) GetUserComments(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	usernameParam := chi.URLParam(r, "username")
-
 	limitParam, err := parseInt32Parameter(query.Get("limit"), false)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
@@ -149,9 +147,7 @@ func (c *CommentApiController) GetUserComments(w http.ResponseWriter, r *http.Re
 
 // GetUserFeed - Returns a users feed
 func (c *CommentApiController) GetUserFeed(w http.ResponseWriter, r *http.Request) {
-	usernameParam := chi.URLParam(r, "username")
-
-	result, err := c.service.GetUserFeed(r.Context(), usernameParam)
+	result, err := c.service.GetUserFeed(r.Context())
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

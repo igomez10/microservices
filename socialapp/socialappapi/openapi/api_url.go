@@ -105,7 +105,6 @@ func (c *URLApiController) CreateUrl(w http.ResponseWriter, r *http.Request) {
 // DeleteUrl - Delete a url
 func (c *URLApiController) DeleteUrl(w http.ResponseWriter, r *http.Request) {
 	aliasParam := chi.URLParam(r, "alias")
-
 	result, err := c.service.DeleteUrl(r.Context(), aliasParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -120,7 +119,6 @@ func (c *URLApiController) DeleteUrl(w http.ResponseWriter, r *http.Request) {
 // GetUrl - Get a url
 func (c *URLApiController) GetUrl(w http.ResponseWriter, r *http.Request) {
 	aliasParam := chi.URLParam(r, "alias")
-
 	result, err := c.service.GetUrl(r.Context(), aliasParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -135,7 +133,6 @@ func (c *URLApiController) GetUrl(w http.ResponseWriter, r *http.Request) {
 // GetUrlData - Returns a url metadata
 func (c *URLApiController) GetUrlData(w http.ResponseWriter, r *http.Request) {
 	aliasParam := chi.URLParam(r, "alias")
-
 	result, err := c.service.GetUrlData(r.Context(), aliasParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {

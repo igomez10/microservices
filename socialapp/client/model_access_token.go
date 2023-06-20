@@ -96,7 +96,7 @@ func (o *AccessToken) SetTokenType(v string) {
 
 // GetScopes returns the Scopes field value if set, zero value otherwise.
 func (o *AccessToken) GetScopes() []string {
-	if o == nil || isNil(o.Scopes) {
+	if o == nil || IsNil(o.Scopes) {
 		var ret []string
 		return ret
 	}
@@ -106,7 +106,7 @@ func (o *AccessToken) GetScopes() []string {
 // GetScopesOk returns a tuple with the Scopes field value if set, nil otherwise
 // and a boolean to check if the value has been set.
 func (o *AccessToken) GetScopesOk() ([]string, bool) {
-	if o == nil || isNil(o.Scopes) {
+	if o == nil || IsNil(o.Scopes) {
 		return nil, false
 	}
 	return o.Scopes, true
@@ -114,7 +114,7 @@ func (o *AccessToken) GetScopesOk() ([]string, bool) {
 
 // HasScopes returns a boolean if a field has been set.
 func (o *AccessToken) HasScopes() bool {
-	if o != nil && !isNil(o.Scopes) {
+	if o != nil && !IsNil(o.Scopes) {
 		return true
 	}
 
@@ -162,7 +162,7 @@ func (o AccessToken) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["access_token"] = o.AccessToken
 	toSerialize["token_type"] = o.TokenType
-	if !isNil(o.Scopes) {
+	if !IsNil(o.Scopes) {
 		toSerialize["scopes"] = o.Scopes
 	}
 	toSerialize["expires_in"] = o.ExpiresIn
