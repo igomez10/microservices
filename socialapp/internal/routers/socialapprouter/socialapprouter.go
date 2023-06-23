@@ -90,8 +90,11 @@ func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers [
 					}
 
 					r.Use(authorizationRuler.Authorize)
-					_, wrappedHandler := newrelic.WrapHandle(newrelicApp, route.Pattern, handler)
-					r.Method(route.Method, route.Pattern, wrappedHandler)
+					if newrelicApp != nil {
+						_, handler = newrelic.WrapHandle(newrelicApp, route.Pattern, handler)
+					}
+
+					r.Method(route.Method, route.Pattern, handler)
 				})
 			}
 		}
