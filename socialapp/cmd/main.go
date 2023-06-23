@@ -254,21 +254,21 @@ func main() {
 	}
 
 	var newrelicApp *newrelic.Application
-	// newRelicLicense := os.Getenv("NEW_RELIC_LICENSE")
-	// if newRelicLicense != "" {
-	// 	app, err := newrelic.NewApplication(
-	// 		newrelic.ConfigAppName("socialapp"),
-	// 		newrelic.ConfigLicense(newRelicLicense),
-	// 		newrelic.ConfigAppLogForwardingEnabled(false),
-	// 		newrelic.ConfigAppLogEnabled(false),
-	// 		newrelic.ConfigDistributedTracerEnabled(false),
-	// 	)
-	// 	if err != nil {
-	// 		log.Fatal().Err(err).Msg("failed to create new relic application")
-	// 	} else {
-	// 		newrelicApp = app
-	// 	}
-	// }
+	newRelicLicense := os.Getenv("NEW_RELIC_LICENSE")
+	if newRelicLicense != "" {
+		app, err := newrelic.NewApplication(
+			newrelic.ConfigAppName("socialapp"),
+			newrelic.ConfigLicense(newRelicLicense),
+			newrelic.ConfigAppLogForwardingEnabled(false),
+			newrelic.ConfigAppLogEnabled(false),
+			newrelic.ConfigDistributedTracerEnabled(false),
+		)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to create new relic application")
+		} else {
+			newrelicApp = app
+		}
+	}
 
 	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse, newrelicApp)
 
