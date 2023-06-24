@@ -96,7 +96,7 @@ func main() {
 
 	// Connect to database
 	// force creation of 8 connections, one per service
-	connections := CreateDBPools(os.Getenv("DATABASE_URL"), 8)
+	connections := CreateDBPools(os.Getenv("DATABASE_URL"), 1)
 	defer connections.Close()
 	queries := db.New()
 
