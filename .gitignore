@@ -33,3 +33,5 @@ socialapp/jmeter.log
 socialapp/.env
 socialapp/integration_tests/__debug_bin
 socialapp/alertmanager/slack_url
+socialapp/kubernetes/ingress/server.key
+socialapp/kubernetes/ingress/server.crt
