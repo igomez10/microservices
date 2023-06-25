@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          # resources:
+          #   requests:
+          #     memory: "400Mi"
+          #     cpu: "100m"
+          #   limits:
+          #     memory: "800Mi"
+          #     cpu: "200m"
+          image: prom/prometheus:latest
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+            - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+            - "--web.console.templates=/usr/share/prometheus/consoles"
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: prometheus-config-prometheus
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
+
+            - name: prometheus-data
+              mountPath: /prometheus
+
+            - name: prometheus-config-alert-rules
+              mountPath: /etc/prometheus/alert.rules
+
+            - name: prometheus-config-alerts-embedded-exporter
+              mountPath: /etc/prometheus/alerts/
+
+            - name: prometheus-config-alerts-google-cadvisor
+              mountPath: /etc/prometheus/alerts/
+
+            - name: prometheus-config-alerts-http-requests
+              mountPath: /etc/prometheus/alerts/
+
+            - name: prometheus-config-alerts-node-exporter
+              mountPath: /etc/prometheus/alerts/
+
+            - name: prometheus-config-alerts-postgres-exporter
+              mountPath: /etc/prometheus/alerts/
+
+            - name: prometheus-config-alerts-puttyknife
+              mountPath: /etc/prometheus/alerts/
+
+      volumes:
+        - name: prometheus-config-prometheus
+          configMap:
+            name: prometheus-config-prometheus.yml
+
+        - name: prometheus-config-alert-rules
+          configMap:
+            name: prometheus-config-alert.rules
+
+        - name: prometheus-config-alerts-embedded-exporter
+          configMap:
+            name: prometheus-config-alerts-embedded-exporter.yml
+
+        - name: prometheus-config-alerts-google-cadvisor
+          configMap:
+            name: prometheus-config-alerts-google-cadvisor.yml
+
+        - name: prometheus-config-alerts-http-requests
+          configMap:
+            name: prometheus-config-alerts-http-requests.yml
+
+        - name: prometheus-config-alerts-node-exporter
+          configMap:
+            name: prometheus-config-alerts-node-exporter.yml
+
+        - name: prometheus-config-alerts-postgres-exporter
+          configMap:
+            name: prometheus-config-alerts-postgres-exporter.yml
+
+        - name: prometheus-config-alerts-puttyknife
+          configMap:
+            name: prometheus-config-alerts-puttyknife.yml
+
+        - name: prometheus-data
+          persistentVolumeClaim:
+            claimName: prometheus-data-claim
