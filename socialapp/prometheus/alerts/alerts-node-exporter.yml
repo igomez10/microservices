@@ -66,13 +66,13 @@ groups:
           description: "Disk is probably writing too much data (> 50 MB/s)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: HostOutOfDiskSpace
-        expr: "(node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) node_filesystem_readonly == 0"
+        expr: "(node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 5 and ON (instance, device, mountpoint) node_filesystem_readonly == 0" ## TODO revert to 10%
         for: 2m
         labels:
           severity: warning
         annotations:
           summary: Host out of disk space (instance {{ $labels.instance }})
-          description: "Disk is almost full (< 10% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+          description: "Disk is almost full (< 5% left)\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}" ## TODO revert to 10%
 
       - alert: HostDiskWillFillIn24Hours
         expr: '(node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes < 10 and ON (instance, device, mountpoint) predict_linear(node_filesystem_avail_bytes{fstype!~"tmpfs"}[1h], 24 * 3600) < 0 and ON (instance, device, mountpoint) node_filesystem_readonly == 0'
