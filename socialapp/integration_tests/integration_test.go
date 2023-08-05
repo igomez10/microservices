@@ -1200,7 +1200,7 @@ func TestCacheRequestSameUser(t *testing.T) {
 	offset := time.Now().UnixNano() % 5000
 	listedUsers, r, err := apiClient.UserApi.
 		ListUsers(openAPICtx).
-		Limit(10).
+		Limit(5).
 		Offset(int32(offset)).
 		Execute()
 
@@ -1214,7 +1214,7 @@ func TestCacheRequestSameUser(t *testing.T) {
 
 	// get user info 5 times
 	for _, currentUser := range listedUsers {
-		for i := 0; i < 5; i++ {
+		for i := 0; i < 50; i++ {
 			_, r, err = apiClient.UserApi.GetUserByUsername(openAPICtx, currentUser.Username).Execute()
 			if err != nil {
 				t.Errorf("Error when calling `UserApi.GetUser`: %v\n", err)
