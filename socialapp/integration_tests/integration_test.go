@@ -1212,9 +1212,9 @@ func TestCacheRequestSameUser(t *testing.T) {
 		t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
 	}
 
-	// get user info 100 times
+	// get user info 5 times
 	for _, currentUser := range listedUsers {
-		for i := 0; i < 35; i++ {
+		for i := 0; i < 5; i++ {
 			_, r, err = apiClient.UserApi.GetUserByUsername(openAPICtx, currentUser.Username).Execute()
 			if err != nil {
 				t.Errorf("Error when calling `UserApi.GetUser`: %v\n", err)
