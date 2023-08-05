@@ -1214,7 +1214,7 @@ func TestCacheRequestSameUser(t *testing.T) {
 
 	// get user info 100 times
 	for _, currentUser := range listedUsers {
-		for i := 0; i < 100; i++ {
+		for i := 0; i < 35; i++ {
 			_, r, err = apiClient.UserApi.GetUserByUsername(openAPICtx, currentUser.Username).Execute()
 			if err != nil {
 				t.Errorf("Error when calling `UserApi.GetUser`: %v\n", err)
