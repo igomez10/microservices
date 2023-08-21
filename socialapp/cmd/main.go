@@ -243,7 +243,7 @@ func main() {
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
 
 	// compress responses with gzip to save bandwidth
-	compressor := middleware.NewCompressor(5)
+	compressor := middleware.NewCompressor(9)
 
 	socialappMiddlewares := []func(http.Handler) http.Handler{
 		cors.AllowAll().Handler,
