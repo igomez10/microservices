@@ -241,9 +241,14 @@ func main() {
 	// 2. SocialApp router
 	socialappSubdomain := os.Getenv("SOCIALAPP_SUBDOMAIN")
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
+
+	// compress responses with gzip to save bandwidth
+	compressor := middleware.NewCompressor(5)
+
 	socialappMiddlewares := []func(http.Handler) http.Handler{
 		cors.AllowAll().Handler,
 		middleware.Heartbeat("/health"),
+		compressor.Handler,
 		requestid.Middleware,
 		beacon.Middleware,
 		middleware.Recoverer,
