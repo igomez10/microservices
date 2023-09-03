@@ -368,14 +368,15 @@ func run(config Configuration) {
 			r.Form = url.Values{}
 			r.Form.Set("scope", "kibana:read")
 			authKibanaRouter.Router.ServeHTTP(w, r)
-		case config.propertiesSubdomain.Hostname():
+		case config.propertiesSubdomain.Host:
 			propertiesProxy.Router.ServeHTTP(w, r)
 		case socialappSubdomain:
 			socialappRouter.Router.ServeHTTP(w, r)
 		case localSubdomain:
 			socialappRouter.Router.ServeHTTP(w, r)
 		default:
-			w.Write([]byte("Host Not found"))
+			message := fmt.Sprintf("Host %q Not found", r.Host)
+			w.Write([]byte(message))
 			w.WriteHeader(404)
 		}
 	})
