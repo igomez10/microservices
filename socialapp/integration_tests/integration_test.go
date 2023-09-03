@@ -476,7 +476,6 @@ func TestGetExpectedFeed(t *testing.T) {
 
 func TestGetAccessToken(t *testing.T) {
 	Setup()
-	// create two users
 	configuration := client.NewConfiguration()
 	//skip cache for tests
 	configuration.DefaultHeader["Cache-Control"] = "no-store"
@@ -487,9 +486,11 @@ func TestGetAccessToken(t *testing.T) {
 
 	apiClient = client.NewAPIClient(configuration)
 
-	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
+	username := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
 	password := fmt.Sprintf("Password-%d1", time.Now().UnixNano())
-	createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
+	email := fmt.Sprintf("%s@example.com", username)
+	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", email)
+	// create user
 	func() {
 		_, _, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 		if err != nil {
@@ -504,17 +505,18 @@ func TestGetAccessToken(t *testing.T) {
 		"socialapp.comments.create",
 		"socialapp.feed.read",
 	}
-	conf := clientcredentials.Config{
-		ClientID:     username1,
+	credConf := clientcredentials.Config{
+		ClientID:     username,
 		ClientSecret: password,
 		Scopes:       scopes,
 		TokenURL:     ENDPOINT_OAUTH_TOKEN,
 	}
-	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	oauth2Ctx, err := getOuath2Context(proxyCtx, credConf)
 	if err != nil {
 		t.Fatalf("Error getting oauth2 context: %v", err)
 	}
 
+	// get token
 	token, res, err := apiClient.AuthenticationApi.GetAccessToken(oauth2Ctx).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)

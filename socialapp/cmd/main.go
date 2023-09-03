@@ -3,11 +3,13 @@ package main
 import (
 	//  With pprof to enable profiling
 	// _ "net/http/pprof"
+
 	"context"
 	"database/sql"
 	"encoding/base64"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -45,116 +47,66 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var (
-	appPort *int = flag.Int("port", 8080, "main port for application")
-)
+type Configuration struct {
+	appName             string
+	appPort             int
+	proxyURL            string
+	logLevel            zerolog.Level
+	logDestination      io.Writer
+	dbConnections       *ForcedConnectionPool
+	queries             *db.Queries
+	cache               *cache.Cache
+	propertiesSubdomain *url.URL
+	newRelicApp         *newrelic.Application
+}
 
 func main() {
+	appPort := flag.Int("port", 8080, "main port for application")
+	proxyURL := flag.String("proxy", "", "proxy url, \"http://localhost:9091\"")
+	logHost := flag.String("logHost", os.Getenv("LOGSTASH_HOST"), "log host url \"tcp://localhost:5000\"")
+	logLevel := flag.String("logLevel", "info", "log level info/error/warning")
+	appName := flag.String("appName", "socialapp", "name of the app for logs")
+	propertiesSubdomain := flag.String("propertiesSubdomain", os.Getenv("PROPERTIES_SUBDOMAIN"), "Properties subdomain")
+	newRelicLicense := flag.String("newRelicLicense", os.Getenv("NEW_RELIC_LICENSE"), "New relic license API Key")
+
 	flag.Parse()
 
-	useProxy := os.Getenv("USE_PROXY")
-	if useProxy == "true" {
-		proxyUrl, err := url.Parse("http://localhost:9091")
-		if err != nil {
-			panic(err)
+	// Set proxy
+	if *proxyURL != "" {
+		if u, err := url.Parse(*proxyURL); err != nil {
+			http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(u)}
+		} else {
+			log.Err(err).Msgf("Failed to parse proxy URL")
 		}
-		http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
 	}
 
-	// Setup logger
-	conn, err := net.Dial("udp", os.Getenv("LOGSTASH_HOST"))
+	// parse log level
+	parsedLogLevel, err := zerolog.ParseLevel(*logLevel)
 	if err != nil {
-		log.Warn().Err(err).Msg("Error connecting to logstash, default to stdout")
+		log.Fatal().Err(err).Msgf("Invalid log level, %s", *logLevel)
 	}
 
-	if conn == nil {
-		log.Logger = zerolog.New(os.Stdout)
-	} else {
-		fmt.Printf("Writing logs to logstash: %q \n", conn.RemoteAddr())
-		log.Logger = zerolog.New(conn)
-	}
-	// Set global log level
-	logLevel := os.Getenv("LOG_LEVEL")
-	if logLevel == "" {
-		logLevel = "info"
-	}
-	lvl, err := zerolog.ParseLevel(logLevel)
-	if err != nil {
-		log.Warn().Err(err).Msg("Error parsing log level, default to info")
-		lvl = zerolog.InfoLevel
-	}
-	zerolog.SetGlobalLevel(lvl)
+	var logDestination io.Writer = os.Stdout
+	// Validate logHost is a url
+	if *logHost != "" && len(*logHost) != 0 {
+		u, err := url.Parse(*logHost)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("failed to parse log host url")
+		}
 
-	instanceID := uuid.NewString()
-	log.Logger = log.With().
-		Str("app", "socialapp").
-		Str("instance", instanceID).
-		Timestamp().
-		Logger()
+		conn, err := net.Dial(u.Scheme, u.Host)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("failed to establish connection with log host")
+		}
 
-	log.Info().Msgf("Starting PORT: %d", *appPort)
+		logDestination = conn
+	}
 
 	// Connect to database
 	// force creation of 8 connections, one per service
 	connections := CreateDBPools(os.Getenv("DATABASE_URL"), 1)
-	defer connections.Close()
+
 	queries := db.New()
-
-	// EventRecorder for event sourcing
-	eventRecorder := eventRecorder.EventRecorder{
-		Query: db.New(),
-	}
-
-	// Comment service
-	CommentApiService := &comment.CommentService{
-		DB:     queries,
-		DBConn: connections.GetPool(),
-	}
-	CommentApiController := openapi.NewCommentApiController(CommentApiService)
-
-	// User service
-	UserApiService := &user.UserApiService{
-		DB:            queries,
-		DBConn:        connections.GetPool(),
-		EventRecorder: eventRecorder,
-	}
-	UserApiController := openapi.NewUserApiController(UserApiService)
-
-	// Auth service
-	AuthApiService := &authentication.AuthenticationService{
-		DB:     queries,
-		DBConn: connections.GetPool(),
-	}
-	AuthApiController := openapi.NewAuthenticationApiController(AuthApiService)
-
-	// Role service
-	RoleAPIService := &role.RoleApiService{
-		DB:     queries,
-		DBConn: connections.GetPool(),
-	}
-	RoleAPIController := openapi.NewRoleApiController(RoleAPIService)
-
-	// Scope service
-	ScopeAPIService := &scope.ScopeApiService{
-		DB:     queries,
-		DBConn: connections.GetPool(),
-	}
-	ScopeAPIController := openapi.NewScopeApiController(ScopeAPIService)
-
-	URLAPIService := &socialappurl.URLApiService{
-		DB:     queries,
-		DBConn: connections.GetPool(),
-	}
-	URLAPIController := openapi.NewURLApiController(URLAPIService)
-
-	routers := []openapi.Router{
-		CommentApiController,
-		UserApiController,
-		AuthApiController,
-		RoleAPIController,
-		ScopeAPIController,
-		URLAPIController,
-	}
 
 	redisOpts, err := redis.ParseURL(os.Getenv("REDIS_URL"))
 	if err != nil {
@@ -168,6 +120,117 @@ func main() {
 		RedisOpts: redisOpts,
 	})
 
+	// parse properties subdomain
+	var propertiesSubdomainURL *url.URL
+	if len(*propertiesSubdomain) != 0 && *propertiesSubdomain != "" {
+		u, err := url.Parse(*propertiesSubdomain)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("failed to parse properties subdomain url %s", *propertiesSubdomain)
+		}
+		propertiesSubdomainURL = u
+	}
+
+	var newrelicApp *newrelic.Application
+	if *newRelicLicense != "" {
+		app, err := newrelic.NewApplication(
+			newrelic.ConfigAppName("socialapp"),
+			newrelic.ConfigLicense(*newRelicLicense),
+			newrelic.ConfigAppLogForwardingEnabled(false),
+			newrelic.ConfigAppLogEnabled(false),
+			newrelic.ConfigDistributedTracerEnabled(false),
+		)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to create new relic application")
+		} else {
+			newrelicApp = app
+		}
+	}
+
+	c := Configuration{
+		appPort:             *appPort,
+		proxyURL:            *proxyURL,
+		logLevel:            parsedLogLevel,
+		logDestination:      logDestination,
+		appName:             *appName,
+		dbConnections:       connections,
+		queries:             queries,
+		cache:               cache,
+		propertiesSubdomain: propertiesSubdomainURL,
+		newRelicApp:         newrelicApp,
+	}
+
+	defer connections.Close()
+	run(c)
+}
+
+func run(config Configuration) {
+	// Setup logger
+	zerolog.SetGlobalLevel(config.logLevel)
+	log.Logger = zerolog.New(config.logDestination)
+
+	instanceID := uuid.NewString()
+	log.Logger = log.With().
+		Str("app", config.appName).
+		Str("instance", instanceID).
+		Timestamp().
+		Logger()
+
+	// EventRecorder for event sourcing
+	eventRecorder := eventRecorder.EventRecorder{
+		DB: config.queries,
+	}
+
+	// Comment service
+	CommentApiService := &comment.CommentService{
+		DB:     config.queries,
+		DBConn: config.dbConnections.GetPool(),
+	}
+	CommentApiController := openapi.NewCommentApiController(CommentApiService)
+
+	// User service
+	UserApiService := &user.UserApiService{
+		DB:            config.queries,
+		DBConn:        config.dbConnections.GetPool(),
+		EventRecorder: eventRecorder,
+	}
+	UserApiController := openapi.NewUserApiController(UserApiService)
+
+	// Auth service
+	AuthApiService := &authentication.AuthenticationService{
+		DB:     config.queries,
+		DBConn: config.dbConnections.GetPool(),
+	}
+	AuthApiController := openapi.NewAuthenticationApiController(AuthApiService)
+
+	// Role service
+	RoleAPIService := &role.RoleApiService{
+		DB:     config.queries,
+		DBConn: config.dbConnections.GetPool(),
+	}
+	RoleAPIController := openapi.NewRoleApiController(RoleAPIService)
+
+	// Scope service
+	ScopeAPIService := &scope.ScopeApiService{
+		DB:     config.queries,
+		DBConn: config.dbConnections.GetPool(),
+	}
+	ScopeAPIController := openapi.NewScopeApiController(ScopeAPIService)
+
+	URLAPIService := &socialappurl.URLApiService{
+		DB:     config.queries,
+		DBConn: config.dbConnections.GetPool(),
+	}
+	URLAPIController := openapi.NewURLApiController(URLAPIService)
+
+	routers := []openapi.Router{
+		CommentApiController,
+		UserApiController,
+		AuthApiController,
+		RoleAPIController,
+		ScopeAPIController,
+		URLAPIController,
+	}
+
 	socialappAllowlistedPaths := map[string]map[string]bool{
 		"/metrics": {
 			"GET": true,
@@ -177,9 +240,9 @@ func main() {
 		},
 	}
 	socialappAuthenticationMiddleware := gandalf.Middleware{
-		DB:               queries,
-		DBConn:           connections.GetPool(),
-		Cache:            cache,
+		DB:               config.queries,
+		DBConn:           config.dbConnections.GetPool(),
+		Cache:            config.cache,
 		AllowlistedPaths: socialappAllowlistedPaths,
 		AllowBasicAuth:   false,
 		AuthEndpoint:     "/v1/oauth/token",
@@ -194,19 +257,6 @@ func main() {
 		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to open openapi file")
 	}
 
-	// read api spec
-	content, err := ioutil.ReadAll(openapiFile)
-	if err != nil {
-		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to read openapi file")
-	}
-	openapiFile.Close()
-
-	// parse api spec
-	doc, err := openapi3.NewLoader().LoadFromData(content)
-	if err != nil {
-		log.Fatal().Err(err)
-	}
-
 	kibanaTargetURL, err := url.Parse(os.Getenv("KIBANA_URL"))
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse target url")
@@ -214,9 +264,9 @@ func main() {
 
 	// 1. Kibana router (proxy)
 	kibanaAuthMiddleware := gandalf.Middleware{
-		DB:               queries,
-		DBConn:           connections.GetPool(),
-		Cache:            cache,
+		DB:               config.queries,
+		DBConn:           config.dbConnections.GetPool(),
+		Cache:            config.cache,
 		AllowlistedPaths: map[string]map[string]bool{},
 		AllowBasicAuth:   true,
 		AuthEndpoint:     "/v1/oauth/token",
@@ -239,43 +289,38 @@ func main() {
 	authKibanaRouter := proxyrouter.NewProxyRouter(kibanaTargetURL, kibanaRouterMiddlewares)
 
 	// 2. SocialApp router
+	// read api spec
+	content, err := ioutil.ReadAll(openapiFile)
+	if err != nil {
+		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to read openapi file")
+	}
+	openapiFile.Close()
+
+	// parse api spec
+	doc, err := openapi3.NewLoader().LoadFromData(content)
+	if err != nil {
+		log.Fatal().Err(err)
+	}
 	socialappSubdomain := os.Getenv("SOCIALAPP_SUBDOMAIN")
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
 
 	// compress responses with gzip to save bandwidth
-	compressor := middleware.NewCompressor(9)
+	compressor := middleware.NewCompressor(5, "application/json", "application/x-yaml", "gzip", "application/json; charset=UTF-8")
 
 	socialappMiddlewares := []func(http.Handler) http.Handler{
+		compressor.Handler,
 		cors.AllowAll().Handler,
 		middleware.Heartbeat("/health"),
-		compressor.Handler,
 		requestid.Middleware,
 		beacon.Middleware,
 		middleware.Recoverer,
 		middleware.Timeout(60 * time.Second),
 		socialappAuthenticationMiddleware.Authenticate,
 		middleware.RealIP,
-		cache.Middleware,
+		config.cache.Middleware,
 	}
 
-	var newrelicApp *newrelic.Application
-	newRelicLicense := os.Getenv("NEW_RELIC_LICENSE")
-	if newRelicLicense != "" {
-		app, err := newrelic.NewApplication(
-			newrelic.ConfigAppName("socialapp"),
-			newrelic.ConfigLicense(newRelicLicense),
-			newrelic.ConfigAppLogForwardingEnabled(false),
-			newrelic.ConfigAppLogEnabled(false),
-			newrelic.ConfigDistributedTracerEnabled(false),
-		)
-		if err != nil {
-			log.Fatal().Err(err).Msg("failed to create new relic application")
-		} else {
-			newrelicApp = app
-		}
-	}
-
-	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse, newrelicApp)
+	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse, config.newRelicApp)
 
 	propertiesMiddleware := []func(http.Handler) http.Handler{
 		cors.AllowAll().Handler,
@@ -289,7 +334,7 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse properties target url")
 	}
-	propertiesSubdomain := os.Getenv("PROPERTIES_SUBDOMAIN")
+
 	propertiesProxy := proxyrouter.NewProxyRouter(kibanaTargetURL, propertiesMiddleware)
 
 	localSubdomain := os.Getenv("LOCAL_SUBDOMAIN")
@@ -323,7 +368,7 @@ func main() {
 			r.Form = url.Values{}
 			r.Form.Set("scope", "kibana:read")
 			authKibanaRouter.Router.ServeHTTP(w, r)
-		case propertiesSubdomain:
+		case config.propertiesSubdomain.Hostname():
 			propertiesProxy.Router.ServeHTTP(w, r)
 		case socialappSubdomain:
 			socialappRouter.Router.ServeHTTP(w, r)
@@ -335,16 +380,15 @@ func main() {
 		}
 	})
 
-	log.Info().Msgf("Listening on port %d", *appPort)
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", *appPort), mainRouter); err != nil {
+	log.Info().Msgf("Listening on port %d", config.appPort)
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.appPort), mainRouter); err != nil {
 		log.Fatal().Err(err).Msgf("Shutting down")
 	}
-
 }
 
 // CreateDBPools creates a pool of connections to the database, in go's implementation of sql, the sql.DB is a connection pool
 // but we want to manually control the minimum number of connections to the database
-func CreateDBPools(databaseURL string, numPools int) ForcedConnectionPool {
+func CreateDBPools(databaseURL string, numPools int) *ForcedConnectionPool {
 	pools := make([]*sql.DB, 0, numPools)
 	for i := 0; i < numPools; i++ {
 		dbConn, err := sql.Open("nrpostgres", databaseURL)
@@ -357,8 +401,8 @@ func CreateDBPools(databaseURL string, numPools int) ForcedConnectionPool {
 			log.Fatal().Msg("db is nil")
 		}
 
-		dbConn.SetMaxOpenConns(10)
-		dbConn.SetMaxIdleConns(10)
+		// dbConn.SetMaxOpenConns(10)
+		// dbConn.SetMaxIdleConns(10)
 
 		pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -369,7 +413,7 @@ func CreateDBPools(databaseURL string, numPools int) ForcedConnectionPool {
 		pools = append(pools, dbConn)
 	}
 
-	f := ForcedConnectionPool{
+	f := &ForcedConnectionPool{
 		numPools:          numPools,
 		connections:       pools,
 		currentRoundRobin: 0,

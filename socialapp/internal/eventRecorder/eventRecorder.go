@@ -10,7 +10,7 @@ import (
 )
 
 type EventRecorder struct {
-	Query db.Querier
+	DB db.Querier
 }
 
 func (e *EventRecorder) RecordEvent(ctx context.Context, dbConn *sql.Tx, rawEvent interface{}, id int64) error {
@@ -27,7 +27,7 @@ func (e *EventRecorder) RecordEvent(ctx context.Context, dbConn *sql.Tx, rawEven
 		Version:       1,
 	}
 
-	if err := e.Query.CreateEvent(ctx, dbConn, createEventParams); err != nil {
+	if err := e.DB.CreateEvent(ctx, dbConn, createEventParams); err != nil {
 		return fmt.Errorf("Error creating event: %v", err)
 	}
 	return nil
