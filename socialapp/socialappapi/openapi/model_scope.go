@@ -39,14 +39,7 @@ func AssertScopeRequired(obj Scope) error {
 	return nil
 }
 
-// AssertRecurseScopeRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of Scope (e.g. [][]Scope), otherwise ErrTypeAssertionError is thrown.
-func AssertRecurseScopeRequired(objSlice interface{}) error {
-	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aScope, ok := obj.(Scope)
-		if !ok {
-			return ErrTypeAssertionError
-		}
-		return AssertScopeRequired(aScope)
-	})
+// AssertScopeConstraints checks if the values respects the defined constraints
+func AssertScopeConstraints(obj Scope) error {
+	return nil
 }

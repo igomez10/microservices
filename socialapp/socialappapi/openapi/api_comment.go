@@ -18,25 +18,25 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// CommentApiController binds http requests to an api service and writes the service results to the http response
-type CommentApiController struct {
-	service      CommentApiServicer
+// CommentAPIController binds http requests to an api service and writes the service results to the http response
+type CommentAPIController struct {
+	service      CommentAPIServicer
 	errorHandler ErrorHandler
 }
 
-// CommentApiOption for how the controller is set up.
-type CommentApiOption func(*CommentApiController)
+// CommentAPIOption for how the controller is set up.
+type CommentAPIOption func(*CommentAPIController)
 
-// WithCommentApiErrorHandler inject ErrorHandler into controller
-func WithCommentApiErrorHandler(h ErrorHandler) CommentApiOption {
-	return func(c *CommentApiController) {
+// WithCommentAPIErrorHandler inject ErrorHandler into controller
+func WithCommentAPIErrorHandler(h ErrorHandler) CommentAPIOption {
+	return func(c *CommentAPIController) {
 		c.errorHandler = h
 	}
 }
 
-// NewCommentApiController creates a default api controller
-func NewCommentApiController(s CommentApiServicer, opts ...CommentApiOption) Router {
-	controller := &CommentApiController{
+// NewCommentAPIController creates a default api controller
+func NewCommentAPIController(s CommentAPIServicer, opts ...CommentAPIOption) Router {
+	controller := &CommentAPIController{
 		service:      s,
 		errorHandler: DefaultErrorHandler,
 	}
@@ -48,29 +48,25 @@ func NewCommentApiController(s CommentApiServicer, opts ...CommentApiOption) Rou
 	return controller
 }
 
-// Routes returns all the api routes for the CommentApiController
-func (c *CommentApiController) Routes() Routes {
+// Routes returns all the api routes for the CommentAPIController
+func (c *CommentAPIController) Routes() Routes {
 	return Routes{
-		{
-			"CreateComment",
+		"CreateComment": Route{
 			strings.ToUpper("Post"),
 			"/v1/comments",
 			c.CreateComment,
 		},
-		{
-			"GetComment",
+		"GetComment": Route{
 			strings.ToUpper("Get"),
 			"/v1/comments/{id}",
 			c.GetComment,
 		},
-		{
-			"GetUserComments",
+		"GetUserComments": Route{
 			strings.ToUpper("Get"),
 			"/v1/users/{username}/comments",
 			c.GetUserComments,
 		},
-		{
-			"GetUserFeed",
+		"GetUserFeed": Route{
 			strings.ToUpper("Get"),
 			"/v1/feed",
 			c.GetUserFeed,
@@ -79,7 +75,7 @@ func (c *CommentApiController) Routes() Routes {
 }
 
 // CreateComment - Create a new comment
-func (c *CommentApiController) CreateComment(w http.ResponseWriter, r *http.Request) {
+func (c *CommentAPIController) CreateComment(w http.ResponseWriter, r *http.Request) {
 	commentParam := Comment{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
@@ -91,6 +87,10 @@ func (c *CommentApiController) CreateComment(w http.ResponseWriter, r *http.Requ
 		c.errorHandler(w, r, err, nil)
 		return
 	}
+	if err := AssertCommentConstraints(commentParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
 	result, err := c.service.CreateComment(r.Context(), commentParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -99,12 +99,14 @@ func (c *CommentApiController) CreateComment(w http.ResponseWriter, r *http.Requ
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }
 
 // GetComment - Returns details about a particular comment
-func (c *CommentApiController) GetComment(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseInt32Parameter(chi.URLParam(r, "id"), true)
+func (c *CommentAPIController) GetComment(w http.ResponseWriter, r *http.Request) {
+	idParam, err := parseNumericParameter[int32](
+		chi.URLParam(r, "id"),
+		WithRequire[int32](parseInt32),
+	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
@@ -117,19 +119,26 @@ func (c *CommentApiController) GetComment(w http.ResponseWriter, r *http.Request
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }
 
 // GetUserComments - Gets all comments for a user
-func (c *CommentApiController) GetUserComments(w http.ResponseWriter, r *http.Request) {
+func (c *CommentAPIController) GetUserComments(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	usernameParam := chi.URLParam(r, "username")
-	limitParam, err := parseInt32Parameter(query.Get("limit"), false)
+	limitParam, err := parseNumericParameter[int32](
+		query.Get("limit"),
+		WithDefaultOrParse[int32](20, parseInt32),
+		WithMinimum[int32](1),
+		WithMaximum[int32](100),
+	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	offsetParam, err := parseInt32Parameter(query.Get("offset"), false)
+	offsetParam, err := parseNumericParameter[int32](
+		query.Get("offset"),
+		WithParse[int32](parseInt32),
+	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
@@ -142,11 +151,10 @@ func (c *CommentApiController) GetUserComments(w http.ResponseWriter, r *http.Re
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }
 
 // GetUserFeed - Returns a users feed
-func (c *CommentApiController) GetUserFeed(w http.ResponseWriter, r *http.Request) {
+func (c *CommentAPIController) GetUserFeed(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.GetUserFeed(r.Context())
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -155,5 +163,4 @@ func (c *CommentApiController) GetUserFeed(w http.ResponseWriter, r *http.Reques
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }

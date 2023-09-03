@@ -17,25 +17,25 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// FollowingApiController binds http requests to an api service and writes the service results to the http response
-type FollowingApiController struct {
-	service      FollowingApiServicer
+// FollowingAPIController binds http requests to an api service and writes the service results to the http response
+type FollowingAPIController struct {
+	service      FollowingAPIServicer
 	errorHandler ErrorHandler
 }
 
-// FollowingApiOption for how the controller is set up.
-type FollowingApiOption func(*FollowingApiController)
+// FollowingAPIOption for how the controller is set up.
+type FollowingAPIOption func(*FollowingAPIController)
 
-// WithFollowingApiErrorHandler inject ErrorHandler into controller
-func WithFollowingApiErrorHandler(h ErrorHandler) FollowingApiOption {
-	return func(c *FollowingApiController) {
+// WithFollowingAPIErrorHandler inject ErrorHandler into controller
+func WithFollowingAPIErrorHandler(h ErrorHandler) FollowingAPIOption {
+	return func(c *FollowingAPIController) {
 		c.errorHandler = h
 	}
 }
 
-// NewFollowingApiController creates a default api controller
-func NewFollowingApiController(s FollowingApiServicer, opts ...FollowingApiOption) Router {
-	controller := &FollowingApiController{
+// NewFollowingAPIController creates a default api controller
+func NewFollowingAPIController(s FollowingAPIServicer, opts ...FollowingAPIOption) Router {
+	controller := &FollowingAPIController{
 		service:      s,
 		errorHandler: DefaultErrorHandler,
 	}
@@ -47,11 +47,10 @@ func NewFollowingApiController(s FollowingApiServicer, opts ...FollowingApiOptio
 	return controller
 }
 
-// Routes returns all the api routes for the FollowingApiController
-func (c *FollowingApiController) Routes() Routes {
+// Routes returns all the api routes for the FollowingAPIController
+func (c *FollowingAPIController) Routes() Routes {
 	return Routes{
-		{
-			"GetUserFollowers",
+		"GetUserFollowers": Route{
 			strings.ToUpper("Get"),
 			"/v1/users/{username}/followers",
 			c.GetUserFollowers,
@@ -60,7 +59,7 @@ func (c *FollowingApiController) Routes() Routes {
 }
 
 // GetUserFollowers - Get all followers for a user
-func (c *FollowingApiController) GetUserFollowers(w http.ResponseWriter, r *http.Request) {
+func (c *FollowingAPIController) GetUserFollowers(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
 	result, err := c.service.GetUserFollowers(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
@@ -70,5 +69,4 @@ func (c *FollowingApiController) GetUserFollowers(w http.ResponseWriter, r *http
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }

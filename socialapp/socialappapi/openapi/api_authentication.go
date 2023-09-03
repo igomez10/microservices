@@ -15,25 +15,25 @@ import (
 	"strings"
 )
 
-// AuthenticationApiController binds http requests to an api service and writes the service results to the http response
-type AuthenticationApiController struct {
-	service      AuthenticationApiServicer
+// AuthenticationAPIController binds http requests to an api service and writes the service results to the http response
+type AuthenticationAPIController struct {
+	service      AuthenticationAPIServicer
 	errorHandler ErrorHandler
 }
 
-// AuthenticationApiOption for how the controller is set up.
-type AuthenticationApiOption func(*AuthenticationApiController)
+// AuthenticationAPIOption for how the controller is set up.
+type AuthenticationAPIOption func(*AuthenticationAPIController)
 
-// WithAuthenticationApiErrorHandler inject ErrorHandler into controller
-func WithAuthenticationApiErrorHandler(h ErrorHandler) AuthenticationApiOption {
-	return func(c *AuthenticationApiController) {
+// WithAuthenticationAPIErrorHandler inject ErrorHandler into controller
+func WithAuthenticationAPIErrorHandler(h ErrorHandler) AuthenticationAPIOption {
+	return func(c *AuthenticationAPIController) {
 		c.errorHandler = h
 	}
 }
 
-// NewAuthenticationApiController creates a default api controller
-func NewAuthenticationApiController(s AuthenticationApiServicer, opts ...AuthenticationApiOption) Router {
-	controller := &AuthenticationApiController{
+// NewAuthenticationAPIController creates a default api controller
+func NewAuthenticationAPIController(s AuthenticationAPIServicer, opts ...AuthenticationAPIOption) Router {
+	controller := &AuthenticationAPIController{
 		service:      s,
 		errorHandler: DefaultErrorHandler,
 	}
@@ -45,11 +45,10 @@ func NewAuthenticationApiController(s AuthenticationApiServicer, opts ...Authent
 	return controller
 }
 
-// Routes returns all the api routes for the AuthenticationApiController
-func (c *AuthenticationApiController) Routes() Routes {
+// Routes returns all the api routes for the AuthenticationAPIController
+func (c *AuthenticationAPIController) Routes() Routes {
 	return Routes{
-		{
-			"GetAccessToken",
+		"GetAccessToken": Route{
 			strings.ToUpper("Post"),
 			"/v1/oauth/token",
 			c.GetAccessToken,
@@ -58,7 +57,7 @@ func (c *AuthenticationApiController) Routes() Routes {
 }
 
 // GetAccessToken - Get an access token
-func (c *AuthenticationApiController) GetAccessToken(w http.ResponseWriter, r *http.Request) {
+func (c *AuthenticationAPIController) GetAccessToken(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.GetAccessToken(r.Context())
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -67,5 +66,4 @@ func (c *AuthenticationApiController) GetAccessToken(w http.ResponseWriter, r *h
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }

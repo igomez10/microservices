@@ -45,14 +45,7 @@ func AssertUserRequired(obj User) error {
 	return nil
 }
 
-// AssertRecurseUserRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of User (e.g. [][]User), otherwise ErrTypeAssertionError is thrown.
-func AssertRecurseUserRequired(objSlice interface{}) error {
-	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aUser, ok := obj.(User)
-		if !ok {
-			return ErrTypeAssertionError
-		}
-		return AssertUserRequired(aUser)
-	})
+// AssertUserConstraints checks if the values respects the defined constraints
+func AssertUserConstraints(obj User) error {
+	return nil
 }

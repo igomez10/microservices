@@ -1,17 +1,17 @@
-# \RoleApi
+# \RoleAPI
 
 All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**AddScopeToRole**](RoleApi.md#AddScopeToRole) | **Post** /v1/roles/{id}/scopes | Add a scope to a role
-[**CreateRole**](RoleApi.md#CreateRole) | **Post** /v1/roles | Create a new role
-[**DeleteRole**](RoleApi.md#DeleteRole) | **Delete** /v1/roles/{id} | Delete a role
-[**GetRole**](RoleApi.md#GetRole) | **Get** /v1/roles/{id} | Returns a role
-[**ListRoles**](RoleApi.md#ListRoles) | **Get** /v1/roles | Returns a list of roles
-[**ListScopesForRole**](RoleApi.md#ListScopesForRole) | **Get** /v1/roles/{id}/scopes | Returns a list of scopes for a role
-[**RemoveScopeFromRole**](RoleApi.md#RemoveScopeFromRole) | **Delete** /v1/roles/{role_id}/scopes/{scope_id} | Remove a scope from a role
-[**UpdateRole**](RoleApi.md#UpdateRole) | **Put** /v1/roles/{id} | Update a role
+[**AddScopeToRole**](RoleAPI.md#AddScopeToRole) | **Post** /v1/roles/{id}/scopes | Add a scope to a role
+[**CreateRole**](RoleAPI.md#CreateRole) | **Post** /v1/roles | Create a new role
+[**DeleteRole**](RoleAPI.md#DeleteRole) | **Delete** /v1/roles/{id} | Delete a role
+[**GetRole**](RoleAPI.md#GetRole) | **Get** /v1/roles/{id} | Returns a role
+[**ListRoles**](RoleAPI.md#ListRoles) | **Get** /v1/roles | Returns a list of roles
+[**ListScopesForRole**](RoleAPI.md#ListScopesForRole) | **Get** /v1/roles/{id}/scopes | Returns a list of scopes for a role
+[**RemoveScopeFromRole**](RoleAPI.md#RemoveScopeFromRole) | **Delete** /v1/roles/{role_id}/scopes/{scope_id} | Remove a scope from a role
+[**UpdateRole**](RoleAPI.md#UpdateRole) | **Put** /v1/roles/{id} | Update a role
 
 
 
@@ -41,9 +41,9 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.RoleApi.AddScopeToRole(context.Background(), id).RequestBody(requestBody).Execute()
+    r, err := apiClient.RoleAPI.AddScopeToRole(context.Background(), id).RequestBody(requestBody).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleApi.AddScopeToRole``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.AddScopeToRole``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
 }
@@ -110,13 +110,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.RoleApi.CreateRole(context.Background()).Role(role).Execute()
+    resp, r, err := apiClient.RoleAPI.CreateRole(context.Background()).Role(role).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleApi.CreateRole``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.CreateRole``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `CreateRole`: Role
-    fmt.Fprintf(os.Stdout, "Response from `RoleApi.CreateRole`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `RoleAPI.CreateRole`: %v\n", resp)
 }
 ```
 
@@ -176,9 +176,9 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.RoleApi.DeleteRole(context.Background(), id).Execute()
+    r, err := apiClient.RoleAPI.DeleteRole(context.Background(), id).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleApi.DeleteRole``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.DeleteRole``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
 }
@@ -244,13 +244,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.RoleApi.GetRole(context.Background(), id).Execute()
+    resp, r, err := apiClient.RoleAPI.GetRole(context.Background(), id).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleApi.GetRole``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.GetRole``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `GetRole`: Role
-    fmt.Fprintf(os.Stdout, "Response from `RoleApi.GetRole`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `RoleAPI.GetRole`: %v\n", resp)
 }
 ```
 
@@ -315,13 +315,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.RoleApi.ListRoles(context.Background()).Limit(limit).Offset(offset).Execute()
+    resp, r, err := apiClient.RoleAPI.ListRoles(context.Background()).Limit(limit).Offset(offset).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleApi.ListRoles``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.ListRoles``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `ListRoles`: []Role
-    fmt.Fprintf(os.Stdout, "Response from `RoleApi.ListRoles`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `RoleAPI.ListRoles`: %v\n", resp)
 }
 ```
 
@@ -384,13 +384,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.RoleApi.ListScopesForRole(context.Background(), id).Limit(limit).Offset(offset).Execute()
+    resp, r, err := apiClient.RoleAPI.ListScopesForRole(context.Background(), id).Limit(limit).Offset(offset).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleApi.ListScopesForRole``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.ListScopesForRole``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `ListScopesForRole`: []Scope
-    fmt.Fprintf(os.Stdout, "Response from `RoleApi.ListScopesForRole`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `RoleAPI.ListScopesForRole`: %v\n", resp)
 }
 ```
 
@@ -457,9 +457,9 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.RoleApi.RemoveScopeFromRole(context.Background(), roleId, scopeId).Execute()
+    r, err := apiClient.RoleAPI.RemoveScopeFromRole(context.Background(), roleId, scopeId).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleApi.RemoveScopeFromRole``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.RemoveScopeFromRole``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
 }
@@ -528,13 +528,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.RoleApi.UpdateRole(context.Background(), id).Role(role).Execute()
+    resp, r, err := apiClient.RoleAPI.UpdateRole(context.Background(), id).Role(role).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleApi.UpdateRole``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.UpdateRole``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `UpdateRole`: Role
-    fmt.Fprintf(os.Stdout, "Response from `RoleApi.UpdateRole`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `RoleAPI.UpdateRole`: %v\n", resp)
 }
 ```
 

@@ -1,14 +1,14 @@
-# \ScopeApi
+# \ScopeAPI
 
 All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**CreateScope**](ScopeApi.md#CreateScope) | **Post** /v1/scopes | Create a new scope
-[**DeleteScope**](ScopeApi.md#DeleteScope) | **Delete** /v1/scopes/{id} | Delete a scope
-[**GetScope**](ScopeApi.md#GetScope) | **Get** /v1/scopes/{id} | Returns a scope
-[**ListScopes**](ScopeApi.md#ListScopes) | **Get** /v1/scopes | Returns a list of scopes
-[**UpdateScope**](ScopeApi.md#UpdateScope) | **Put** /v1/scopes/{id} | Update a scope
+[**CreateScope**](ScopeAPI.md#CreateScope) | **Post** /v1/scopes | Create a new scope
+[**DeleteScope**](ScopeAPI.md#DeleteScope) | **Delete** /v1/scopes/{id} | Delete a scope
+[**GetScope**](ScopeAPI.md#GetScope) | **Get** /v1/scopes/{id} | Returns a scope
+[**ListScopes**](ScopeAPI.md#ListScopes) | **Get** /v1/scopes | Returns a list of scopes
+[**UpdateScope**](ScopeAPI.md#UpdateScope) | **Put** /v1/scopes/{id} | Update a scope
 
 
 
@@ -37,13 +37,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.ScopeApi.CreateScope(context.Background()).Scope(scope).Execute()
+    resp, r, err := apiClient.ScopeAPI.CreateScope(context.Background()).Scope(scope).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `ScopeApi.CreateScope``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.CreateScope``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `CreateScope`: Scope
-    fmt.Fprintf(os.Stdout, "Response from `ScopeApi.CreateScope`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `ScopeAPI.CreateScope`: %v\n", resp)
 }
 ```
 
@@ -103,9 +103,9 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.ScopeApi.DeleteScope(context.Background(), id).Execute()
+    r, err := apiClient.ScopeAPI.DeleteScope(context.Background(), id).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `ScopeApi.DeleteScope``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.DeleteScope``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
 }
@@ -171,13 +171,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.ScopeApi.GetScope(context.Background(), id).Execute()
+    resp, r, err := apiClient.ScopeAPI.GetScope(context.Background(), id).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `ScopeApi.GetScope``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.GetScope``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `GetScope`: Scope
-    fmt.Fprintf(os.Stdout, "Response from `ScopeApi.GetScope`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `ScopeAPI.GetScope`: %v\n", resp)
 }
 ```
 
@@ -242,13 +242,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.ScopeApi.ListScopes(context.Background()).Limit(limit).Offset(offset).Execute()
+    resp, r, err := apiClient.ScopeAPI.ListScopes(context.Background()).Limit(limit).Offset(offset).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `ScopeApi.ListScopes``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.ListScopes``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `ListScopes`: []Scope
-    fmt.Fprintf(os.Stdout, "Response from `ScopeApi.ListScopes`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `ScopeAPI.ListScopes`: %v\n", resp)
 }
 ```
 
@@ -310,13 +310,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.ScopeApi.UpdateScope(context.Background(), id).Scope(scope).Execute()
+    resp, r, err := apiClient.ScopeAPI.UpdateScope(context.Background(), id).Scope(scope).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `ScopeApi.UpdateScope``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.UpdateScope``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `UpdateScope`: Scope
-    fmt.Fprintf(os.Stdout, "Response from `ScopeApi.UpdateScope`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `ScopeAPI.UpdateScope`: %v\n", resp)
 }
 ```
 

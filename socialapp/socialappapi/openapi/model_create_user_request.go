@@ -40,14 +40,7 @@ func AssertCreateUserRequestRequired(obj CreateUserRequest) error {
 	return nil
 }
 
-// AssertRecurseCreateUserRequestRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of CreateUserRequest (e.g. [][]CreateUserRequest), otherwise ErrTypeAssertionError is thrown.
-func AssertRecurseCreateUserRequestRequired(objSlice interface{}) error {
-	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aCreateUserRequest, ok := obj.(CreateUserRequest)
-		if !ok {
-			return ErrTypeAssertionError
-		}
-		return AssertCreateUserRequestRequired(aCreateUserRequest)
-	})
+// AssertCreateUserRequestConstraints checks if the values respects the defined constraints
+func AssertCreateUserRequestConstraints(obj CreateUserRequest) error {
+	return nil
 }

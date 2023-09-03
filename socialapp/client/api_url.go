@@ -20,22 +20,22 @@ import (
 	"strings"
 )
 
-// URLApiService URLApi service
-type URLApiService service
+// URLAPIService URLAPI service
+type URLAPIService service
 
-type URLApiCreateUrlRequest struct {
+type URLAPICreateUrlRequest struct {
 	ctx        context.Context
-	ApiService *URLApiService
+	ApiService *URLAPIService
 	uRL        *URL
 }
 
 // Create a new url
-func (r URLApiCreateUrlRequest) URL(uRL URL) URLApiCreateUrlRequest {
+func (r URLAPICreateUrlRequest) URL(uRL URL) URLAPICreateUrlRequest {
 	r.uRL = &uRL
 	return r
 }
 
-func (r URLApiCreateUrlRequest) Execute() (*URL, *http.Response, error) {
+func (r URLAPICreateUrlRequest) Execute() (*URL, *http.Response, error) {
 	return r.ApiService.CreateUrlExecute(r)
 }
 
@@ -45,10 +45,10 @@ CreateUrl Create a new url
 Returns a url
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return URLApiCreateUrlRequest
+	@return URLAPICreateUrlRequest
 */
-func (a *URLApiService) CreateUrl(ctx context.Context) URLApiCreateUrlRequest {
-	return URLApiCreateUrlRequest{
+func (a *URLAPIService) CreateUrl(ctx context.Context) URLAPICreateUrlRequest {
+	return URLAPICreateUrlRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -57,7 +57,7 @@ func (a *URLApiService) CreateUrl(ctx context.Context) URLApiCreateUrlRequest {
 // Execute executes the request
 //
 //	@return URL
-func (a *URLApiService) CreateUrlExecute(r URLApiCreateUrlRequest) (*URL, *http.Response, error) {
+func (a *URLAPIService) CreateUrlExecute(r URLAPICreateUrlRequest) (*URL, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
@@ -65,7 +65,7 @@ func (a *URLApiService) CreateUrlExecute(r URLApiCreateUrlRequest) (*URL, *http.
 		localVarReturnValue *URL
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "URLApiService.CreateUrl")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "URLAPIService.CreateUrl")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -156,13 +156,13 @@ func (a *URLApiService) CreateUrlExecute(r URLApiCreateUrlRequest) (*URL, *http.
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type URLApiDeleteUrlRequest struct {
+type URLAPIDeleteUrlRequest struct {
 	ctx        context.Context
-	ApiService *URLApiService
+	ApiService *URLAPIService
 	alias      string
 }
 
-func (r URLApiDeleteUrlRequest) Execute() (*http.Response, error) {
+func (r URLAPIDeleteUrlRequest) Execute() (*http.Response, error) {
 	return r.ApiService.DeleteUrlExecute(r)
 }
 
@@ -173,10 +173,10 @@ Delete a url
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param alias The alias of the url
-	@return URLApiDeleteUrlRequest
+	@return URLAPIDeleteUrlRequest
 */
-func (a *URLApiService) DeleteUrl(ctx context.Context, alias string) URLApiDeleteUrlRequest {
-	return URLApiDeleteUrlRequest{
+func (a *URLAPIService) DeleteUrl(ctx context.Context, alias string) URLAPIDeleteUrlRequest {
+	return URLAPIDeleteUrlRequest{
 		ApiService: a,
 		ctx:        ctx,
 		alias:      alias,
@@ -184,14 +184,14 @@ func (a *URLApiService) DeleteUrl(ctx context.Context, alias string) URLApiDelet
 }
 
 // Execute executes the request
-func (a *URLApiService) DeleteUrlExecute(r URLApiDeleteUrlRequest) (*http.Response, error) {
+func (a *URLAPIService) DeleteUrlExecute(r URLAPIDeleteUrlRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodDelete
 		localVarPostBody   interface{}
 		formFiles          []formFile
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "URLApiService.DeleteUrl")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "URLAPIService.DeleteUrl")
 	if err != nil {
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -258,13 +258,13 @@ func (a *URLApiService) DeleteUrlExecute(r URLApiDeleteUrlRequest) (*http.Respon
 	return localVarHTTPResponse, nil
 }
 
-type URLApiGetUrlRequest struct {
+type URLAPIGetUrlRequest struct {
 	ctx        context.Context
-	ApiService *URLApiService
+	ApiService *URLAPIService
 	alias      string
 }
 
-func (r URLApiGetUrlRequest) Execute() (*http.Response, error) {
+func (r URLAPIGetUrlRequest) Execute() (*http.Response, error) {
 	return r.ApiService.GetUrlExecute(r)
 }
 
@@ -275,10 +275,10 @@ Returns a url
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param alias The alias of the url
-	@return URLApiGetUrlRequest
+	@return URLAPIGetUrlRequest
 */
-func (a *URLApiService) GetUrl(ctx context.Context, alias string) URLApiGetUrlRequest {
-	return URLApiGetUrlRequest{
+func (a *URLAPIService) GetUrl(ctx context.Context, alias string) URLAPIGetUrlRequest {
+	return URLAPIGetUrlRequest{
 		ApiService: a,
 		ctx:        ctx,
 		alias:      alias,
@@ -286,14 +286,14 @@ func (a *URLApiService) GetUrl(ctx context.Context, alias string) URLApiGetUrlRe
 }
 
 // Execute executes the request
-func (a *URLApiService) GetUrlExecute(r URLApiGetUrlRequest) (*http.Response, error) {
+func (a *URLAPIService) GetUrlExecute(r URLAPIGetUrlRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodGet
 		localVarPostBody   interface{}
 		formFiles          []formFile
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "URLApiService.GetUrl")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "URLAPIService.GetUrl")
 	if err != nil {
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -360,13 +360,13 @@ func (a *URLApiService) GetUrlExecute(r URLApiGetUrlRequest) (*http.Response, er
 	return localVarHTTPResponse, nil
 }
 
-type URLApiGetUrlDataRequest struct {
+type URLAPIGetUrlDataRequest struct {
 	ctx        context.Context
-	ApiService *URLApiService
+	ApiService *URLAPIService
 	alias      string
 }
 
-func (r URLApiGetUrlDataRequest) Execute() (*URL, *http.Response, error) {
+func (r URLAPIGetUrlDataRequest) Execute() (*URL, *http.Response, error) {
 	return r.ApiService.GetUrlDataExecute(r)
 }
 
@@ -377,10 +377,10 @@ Returns a url
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param alias The alias of the url
-	@return URLApiGetUrlDataRequest
+	@return URLAPIGetUrlDataRequest
 */
-func (a *URLApiService) GetUrlData(ctx context.Context, alias string) URLApiGetUrlDataRequest {
-	return URLApiGetUrlDataRequest{
+func (a *URLAPIService) GetUrlData(ctx context.Context, alias string) URLAPIGetUrlDataRequest {
+	return URLAPIGetUrlDataRequest{
 		ApiService: a,
 		ctx:        ctx,
 		alias:      alias,
@@ -390,7 +390,7 @@ func (a *URLApiService) GetUrlData(ctx context.Context, alias string) URLApiGetU
 // Execute executes the request
 //
 //	@return URL
-func (a *URLApiService) GetUrlDataExecute(r URLApiGetUrlDataRequest) (*URL, *http.Response, error) {
+func (a *URLAPIService) GetUrlDataExecute(r URLAPIGetUrlDataRequest) (*URL, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -398,7 +398,7 @@ func (a *URLApiService) GetUrlDataExecute(r URLApiGetUrlDataRequest) (*URL, *htt
 		localVarReturnValue *URL
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "URLApiService.GetUrlData")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "URLAPIService.GetUrlData")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}

@@ -41,14 +41,7 @@ func AssertUrlRequired(obj Url) error {
 	return nil
 }
 
-// AssertRecurseUrlRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of Url (e.g. [][]Url), otherwise ErrTypeAssertionError is thrown.
-func AssertRecurseUrlRequired(objSlice interface{}) error {
-	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aUrl, ok := obj.(Url)
-		if !ok {
-			return ErrTypeAssertionError
-		}
-		return AssertUrlRequired(aUrl)
-	})
+// AssertUrlConstraints checks if the values respects the defined constraints
+func AssertUrlConstraints(obj Url) error {
+	return nil
 }

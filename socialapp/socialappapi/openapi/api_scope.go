@@ -18,25 +18,25 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// ScopeApiController binds http requests to an api service and writes the service results to the http response
-type ScopeApiController struct {
-	service      ScopeApiServicer
+// ScopeAPIController binds http requests to an api service and writes the service results to the http response
+type ScopeAPIController struct {
+	service      ScopeAPIServicer
 	errorHandler ErrorHandler
 }
 
-// ScopeApiOption for how the controller is set up.
-type ScopeApiOption func(*ScopeApiController)
+// ScopeAPIOption for how the controller is set up.
+type ScopeAPIOption func(*ScopeAPIController)
 
-// WithScopeApiErrorHandler inject ErrorHandler into controller
-func WithScopeApiErrorHandler(h ErrorHandler) ScopeApiOption {
-	return func(c *ScopeApiController) {
+// WithScopeAPIErrorHandler inject ErrorHandler into controller
+func WithScopeAPIErrorHandler(h ErrorHandler) ScopeAPIOption {
+	return func(c *ScopeAPIController) {
 		c.errorHandler = h
 	}
 }
 
-// NewScopeApiController creates a default api controller
-func NewScopeApiController(s ScopeApiServicer, opts ...ScopeApiOption) Router {
-	controller := &ScopeApiController{
+// NewScopeAPIController creates a default api controller
+func NewScopeAPIController(s ScopeAPIServicer, opts ...ScopeAPIOption) Router {
+	controller := &ScopeAPIController{
 		service:      s,
 		errorHandler: DefaultErrorHandler,
 	}
@@ -48,35 +48,30 @@ func NewScopeApiController(s ScopeApiServicer, opts ...ScopeApiOption) Router {
 	return controller
 }
 
-// Routes returns all the api routes for the ScopeApiController
-func (c *ScopeApiController) Routes() Routes {
+// Routes returns all the api routes for the ScopeAPIController
+func (c *ScopeAPIController) Routes() Routes {
 	return Routes{
-		{
-			"CreateScope",
+		"CreateScope": Route{
 			strings.ToUpper("Post"),
 			"/v1/scopes",
 			c.CreateScope,
 		},
-		{
-			"DeleteScope",
+		"DeleteScope": Route{
 			strings.ToUpper("Delete"),
 			"/v1/scopes/{id}",
 			c.DeleteScope,
 		},
-		{
-			"GetScope",
+		"GetScope": Route{
 			strings.ToUpper("Get"),
 			"/v1/scopes/{id}",
 			c.GetScope,
 		},
-		{
-			"ListScopes",
+		"ListScopes": Route{
 			strings.ToUpper("Get"),
 			"/v1/scopes",
 			c.ListScopes,
 		},
-		{
-			"UpdateScope",
+		"UpdateScope": Route{
 			strings.ToUpper("Put"),
 			"/v1/scopes/{id}",
 			c.UpdateScope,
@@ -85,7 +80,7 @@ func (c *ScopeApiController) Routes() Routes {
 }
 
 // CreateScope - Create a new scope
-func (c *ScopeApiController) CreateScope(w http.ResponseWriter, r *http.Request) {
+func (c *ScopeAPIController) CreateScope(w http.ResponseWriter, r *http.Request) {
 	scopeParam := Scope{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
@@ -97,6 +92,10 @@ func (c *ScopeApiController) CreateScope(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, err, nil)
 		return
 	}
+	if err := AssertScopeConstraints(scopeParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
 	result, err := c.service.CreateScope(r.Context(), scopeParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -105,12 +104,14 @@ func (c *ScopeApiController) CreateScope(w http.ResponseWriter, r *http.Request)
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }
 
 // DeleteScope - Delete a scope
-func (c *ScopeApiController) DeleteScope(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseInt32Parameter(chi.URLParam(r, "id"), true)
+func (c *ScopeAPIController) DeleteScope(w http.ResponseWriter, r *http.Request) {
+	idParam, err := parseNumericParameter[int32](
+		chi.URLParam(r, "id"),
+		WithRequire[int32](parseInt32),
+	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
@@ -123,12 +124,14 @@ func (c *ScopeApiController) DeleteScope(w http.ResponseWriter, r *http.Request)
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }
 
 // GetScope - Returns a scope
-func (c *ScopeApiController) GetScope(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseInt32Parameter(chi.URLParam(r, "id"), true)
+func (c *ScopeAPIController) GetScope(w http.ResponseWriter, r *http.Request) {
+	idParam, err := parseNumericParameter[int32](
+		chi.URLParam(r, "id"),
+		WithRequire[int32](parseInt32),
+	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
@@ -141,18 +144,25 @@ func (c *ScopeApiController) GetScope(w http.ResponseWriter, r *http.Request) {
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }
 
 // ListScopes - Returns a list of scopes
-func (c *ScopeApiController) ListScopes(w http.ResponseWriter, r *http.Request) {
+func (c *ScopeAPIController) ListScopes(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	limitParam, err := parseInt32Parameter(query.Get("limit"), false)
+	limitParam, err := parseNumericParameter[int32](
+		query.Get("limit"),
+		WithDefaultOrParse[int32](20, parseInt32),
+		WithMinimum[int32](1),
+		WithMaximum[int32](100),
+	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	offsetParam, err := parseInt32Parameter(query.Get("offset"), false)
+	offsetParam, err := parseNumericParameter[int32](
+		query.Get("offset"),
+		WithParse[int32](parseInt32),
+	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
@@ -165,12 +175,14 @@ func (c *ScopeApiController) ListScopes(w http.ResponseWriter, r *http.Request) 
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }
 
 // UpdateScope - Update a scope
-func (c *ScopeApiController) UpdateScope(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseInt32Parameter(chi.URLParam(r, "id"), true)
+func (c *ScopeAPIController) UpdateScope(w http.ResponseWriter, r *http.Request) {
+	idParam, err := parseNumericParameter[int32](
+		chi.URLParam(r, "id"),
+		WithRequire[int32](parseInt32),
+	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
@@ -186,6 +198,10 @@ func (c *ScopeApiController) UpdateScope(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, err, nil)
 		return
 	}
+	if err := AssertScopeConstraints(scopeParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
 	result, err := c.service.UpdateScope(r.Context(), idParam, scopeParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -194,5 +210,4 @@ func (c *ScopeApiController) UpdateScope(w http.ResponseWriter, r *http.Request)
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }

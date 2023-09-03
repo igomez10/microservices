@@ -20,16 +20,16 @@ import (
 	"strings"
 )
 
-// FollowingApiService FollowingApi service
-type FollowingApiService service
+// FollowingAPIService FollowingAPI service
+type FollowingAPIService service
 
-type FollowingApiGetUserFollowersRequest struct {
+type FollowingAPIGetUserFollowersRequest struct {
 	ctx        context.Context
-	ApiService *FollowingApiService
+	ApiService *FollowingAPIService
 	username   string
 }
 
-func (r FollowingApiGetUserFollowersRequest) Execute() ([]User, *http.Response, error) {
+func (r FollowingAPIGetUserFollowersRequest) Execute() ([]User, *http.Response, error) {
 	return r.ApiService.GetUserFollowersExecute(r)
 }
 
@@ -40,10 +40,10 @@ Get all followers for a user
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param username username of the user
-	@return FollowingApiGetUserFollowersRequest
+	@return FollowingAPIGetUserFollowersRequest
 */
-func (a *FollowingApiService) GetUserFollowers(ctx context.Context, username string) FollowingApiGetUserFollowersRequest {
-	return FollowingApiGetUserFollowersRequest{
+func (a *FollowingAPIService) GetUserFollowers(ctx context.Context, username string) FollowingAPIGetUserFollowersRequest {
+	return FollowingAPIGetUserFollowersRequest{
 		ApiService: a,
 		ctx:        ctx,
 		username:   username,
@@ -53,7 +53,7 @@ func (a *FollowingApiService) GetUserFollowers(ctx context.Context, username str
 // Execute executes the request
 //
 //	@return []User
-func (a *FollowingApiService) GetUserFollowersExecute(r FollowingApiGetUserFollowersRequest) ([]User, *http.Response, error) {
+func (a *FollowingAPIService) GetUserFollowersExecute(r FollowingAPIGetUserFollowersRequest) ([]User, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -61,7 +61,7 @@ func (a *FollowingApiService) GetUserFollowersExecute(r FollowingApiGetUserFollo
 		localVarReturnValue []User
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FollowingApiService.GetUserFollowers")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "FollowingAPIService.GetUserFollowers")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}

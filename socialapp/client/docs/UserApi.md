@@ -1,23 +1,23 @@
-# \UserApi
+# \UserAPI
 
 All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**ChangePassword**](UserApi.md#ChangePassword) | **Post** /v1/password | Change password
-[**CreateUser**](UserApi.md#CreateUser) | **Post** /v1/users | Create user
-[**DeleteUser**](UserApi.md#DeleteUser) | **Delete** /v1/users/{username} | Deletes a particular user
-[**FollowUser**](UserApi.md#FollowUser) | **Post** /v1/users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
-[**GetFollowingUsers**](UserApi.md#GetFollowingUsers) | **Get** /v1/users/{username}/following | Get all followed users for a user
-[**GetRolesForUser**](UserApi.md#GetRolesForUser) | **Get** /v1/users/{username}/roles | Get all roles for a user
-[**GetUserByUsername**](UserApi.md#GetUserByUsername) | **Get** /v1/users/{username} | Get a particular user by username
-[**GetUserComments**](UserApi.md#GetUserComments) | **Get** /v1/users/{username}/comments | Gets all comments for a user
-[**GetUserFollowers**](UserApi.md#GetUserFollowers) | **Get** /v1/users/{username}/followers | Get all followers for a user
-[**ListUsers**](UserApi.md#ListUsers) | **Get** /v1/users | List users
-[**ResetPassword**](UserApi.md#ResetPassword) | **Put** /v1/password | Reset password
-[**UnfollowUser**](UserApi.md#UnfollowUser) | **Delete** /v1/users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
-[**UpdateRolesForUser**](UserApi.md#UpdateRolesForUser) | **Put** /v1/users/{username}/roles | Update all roles for a user
-[**UpdateUser**](UserApi.md#UpdateUser) | **Put** /v1/users/{username} | Update a user
+[**ChangePassword**](UserAPI.md#ChangePassword) | **Post** /v1/password | Change password
+[**CreateUser**](UserAPI.md#CreateUser) | **Post** /v1/users | Create user
+[**DeleteUser**](UserAPI.md#DeleteUser) | **Delete** /v1/users/{username} | Deletes a particular user
+[**FollowUser**](UserAPI.md#FollowUser) | **Post** /v1/users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
+[**GetFollowingUsers**](UserAPI.md#GetFollowingUsers) | **Get** /v1/users/{username}/following | Get all followed users for a user
+[**GetRolesForUser**](UserAPI.md#GetRolesForUser) | **Get** /v1/users/{username}/roles | Get all roles for a user
+[**GetUserByUsername**](UserAPI.md#GetUserByUsername) | **Get** /v1/users/{username} | Get a particular user by username
+[**GetUserComments**](UserAPI.md#GetUserComments) | **Get** /v1/users/{username}/comments | Gets all comments for a user
+[**GetUserFollowers**](UserAPI.md#GetUserFollowers) | **Get** /v1/users/{username}/followers | Get all followers for a user
+[**ListUsers**](UserAPI.md#ListUsers) | **Get** /v1/users | List users
+[**ResetPassword**](UserAPI.md#ResetPassword) | **Put** /v1/password | Reset password
+[**UnfollowUser**](UserAPI.md#UnfollowUser) | **Delete** /v1/users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
+[**UpdateRolesForUser**](UserAPI.md#UpdateRolesForUser) | **Put** /v1/users/{username}/roles | Update all roles for a user
+[**UpdateUser**](UserAPI.md#UpdateUser) | **Put** /v1/users/{username} | Update a user
 
 
 
@@ -46,13 +46,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.ChangePassword(context.Background()).ChangePasswordRequest(changePasswordRequest).Execute()
+    resp, r, err := apiClient.UserAPI.ChangePassword(context.Background()).ChangePasswordRequest(changePasswordRequest).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.ChangePassword``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.ChangePassword``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `ChangePassword`: User
-    fmt.Fprintf(os.Stdout, "Response from `UserApi.ChangePassword`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `UserAPI.ChangePassword`: %v\n", resp)
 }
 ```
 
@@ -112,13 +112,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.CreateUser(context.Background()).CreateUserRequest(createUserRequest).Execute()
+    resp, r, err := apiClient.UserAPI.CreateUser(context.Background()).CreateUserRequest(createUserRequest).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.CreateUser``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.CreateUser``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `CreateUser`: CreateUserResponse
-    fmt.Fprintf(os.Stdout, "Response from `UserApi.CreateUser`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `UserAPI.CreateUser`: %v\n", resp)
 }
 ```
 
@@ -178,13 +178,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.DeleteUser(context.Background(), username).Execute()
+    resp, r, err := apiClient.UserAPI.DeleteUser(context.Background(), username).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.DeleteUser``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.DeleteUser``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `DeleteUser`: User
-    fmt.Fprintf(os.Stdout, "Response from `UserApi.DeleteUser`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `UserAPI.DeleteUser`: %v\n", resp)
 }
 ```
 
@@ -249,9 +249,9 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.UserApi.FollowUser(context.Background(), followedUsername, followerUsername).Execute()
+    r, err := apiClient.UserAPI.FollowUser(context.Background(), followedUsername, followerUsername).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.FollowUser``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.FollowUser``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
 }
@@ -319,13 +319,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.GetFollowingUsers(context.Background(), username).Execute()
+    resp, r, err := apiClient.UserAPI.GetFollowingUsers(context.Background(), username).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.GetFollowingUsers``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.GetFollowingUsers``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `GetFollowingUsers`: []User
-    fmt.Fprintf(os.Stdout, "Response from `UserApi.GetFollowingUsers`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `UserAPI.GetFollowingUsers`: %v\n", resp)
 }
 ```
 
@@ -389,13 +389,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.GetRolesForUser(context.Background(), username).Execute()
+    resp, r, err := apiClient.UserAPI.GetRolesForUser(context.Background(), username).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.GetRolesForUser``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.GetRolesForUser``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `GetRolesForUser`: []Role
-    fmt.Fprintf(os.Stdout, "Response from `UserApi.GetRolesForUser`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `UserAPI.GetRolesForUser`: %v\n", resp)
 }
 ```
 
@@ -459,13 +459,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.GetUserByUsername(context.Background(), username).Execute()
+    resp, r, err := apiClient.UserAPI.GetUserByUsername(context.Background(), username).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.GetUserByUsername``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.GetUserByUsername``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `GetUserByUsername`: User
-    fmt.Fprintf(os.Stdout, "Response from `UserApi.GetUserByUsername`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `UserAPI.GetUserByUsername`: %v\n", resp)
 }
 ```
 
@@ -531,13 +531,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.GetUserComments(context.Background(), username).Limit(limit).Offset(offset).Execute()
+    resp, r, err := apiClient.UserAPI.GetUserComments(context.Background(), username).Limit(limit).Offset(offset).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.GetUserComments``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.GetUserComments``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `GetUserComments`: []Comment
-    fmt.Fprintf(os.Stdout, "Response from `UserApi.GetUserComments`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `UserAPI.GetUserComments`: %v\n", resp)
 }
 ```
 
@@ -603,13 +603,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.GetUserFollowers(context.Background(), username).Execute()
+    resp, r, err := apiClient.UserAPI.GetUserFollowers(context.Background(), username).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.GetUserFollowers``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.GetUserFollowers``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `GetUserFollowers`: []User
-    fmt.Fprintf(os.Stdout, "Response from `UserApi.GetUserFollowers`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `UserAPI.GetUserFollowers`: %v\n", resp)
 }
 ```
 
@@ -674,13 +674,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.ListUsers(context.Background()).Limit(limit).Offset(offset).Execute()
+    resp, r, err := apiClient.UserAPI.ListUsers(context.Background()).Limit(limit).Offset(offset).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.ListUsers``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.ListUsers``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `ListUsers`: []User
-    fmt.Fprintf(os.Stdout, "Response from `UserApi.ListUsers`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `UserAPI.ListUsers`: %v\n", resp)
 }
 ```
 
@@ -741,13 +741,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.ResetPassword(context.Background()).ResetPasswordRequest(resetPasswordRequest).Execute()
+    resp, r, err := apiClient.UserAPI.ResetPassword(context.Background()).ResetPasswordRequest(resetPasswordRequest).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.ResetPassword``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.ResetPassword``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `ResetPassword`: User
-    fmt.Fprintf(os.Stdout, "Response from `UserApi.ResetPassword`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `UserAPI.ResetPassword`: %v\n", resp)
 }
 ```
 
@@ -808,9 +808,9 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.UserApi.UnfollowUser(context.Background(), followedUsername, followerUsername).Execute()
+    r, err := apiClient.UserAPI.UnfollowUser(context.Background(), followedUsername, followerUsername).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.UnfollowUser``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.UnfollowUser``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
 }
@@ -879,13 +879,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.UpdateRolesForUser(context.Background(), username).RequestBody(requestBody).Execute()
+    resp, r, err := apiClient.UserAPI.UpdateRolesForUser(context.Background(), username).RequestBody(requestBody).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.UpdateRolesForUser``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.UpdateRolesForUser``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `UpdateRolesForUser`: []Role
-    fmt.Fprintf(os.Stdout, "Response from `UserApi.UpdateRolesForUser`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `UserAPI.UpdateRolesForUser`: %v\n", resp)
 }
 ```
 
@@ -951,13 +951,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.UserApi.UpdateUser(context.Background(), username).User(user).Execute()
+    resp, r, err := apiClient.UserAPI.UpdateUser(context.Background(), username).User(user).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `UserApi.UpdateUser``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.UpdateUser``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `UpdateUser`: User
-    fmt.Fprintf(os.Stdout, "Response from `UserApi.UpdateUser`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `UserAPI.UpdateUser`: %v\n", resp)
 }
 ```
 

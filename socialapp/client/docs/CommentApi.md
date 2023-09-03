@@ -1,13 +1,13 @@
-# \CommentApi
+# \CommentAPI
 
 All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**CreateComment**](CommentApi.md#CreateComment) | **Post** /v1/comments | Create a new comment
-[**GetComment**](CommentApi.md#GetComment) | **Get** /v1/comments/{id} | Returns details about a particular comment
-[**GetUserComments**](CommentApi.md#GetUserComments) | **Get** /v1/users/{username}/comments | Gets all comments for a user
-[**GetUserFeed**](CommentApi.md#GetUserFeed) | **Get** /v1/feed | Returns a users feed
+[**CreateComment**](CommentAPI.md#CreateComment) | **Post** /v1/comments | Create a new comment
+[**GetComment**](CommentAPI.md#GetComment) | **Get** /v1/comments/{id} | Returns details about a particular comment
+[**GetUserComments**](CommentAPI.md#GetUserComments) | **Get** /v1/users/{username}/comments | Gets all comments for a user
+[**GetUserFeed**](CommentAPI.md#GetUserFeed) | **Get** /v1/feed | Returns a users feed
 
 
 
@@ -36,13 +36,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.CommentApi.CreateComment(context.Background()).Comment(comment).Execute()
+    resp, r, err := apiClient.CommentAPI.CreateComment(context.Background()).Comment(comment).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `CommentApi.CreateComment``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.CreateComment``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `CreateComment`: Comment
-    fmt.Fprintf(os.Stdout, "Response from `CommentApi.CreateComment`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `CommentAPI.CreateComment`: %v\n", resp)
 }
 ```
 
@@ -102,13 +102,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.CommentApi.GetComment(context.Background(), id).Execute()
+    resp, r, err := apiClient.CommentAPI.GetComment(context.Background(), id).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `CommentApi.GetComment``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.GetComment``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `GetComment`: Comment
-    fmt.Fprintf(os.Stdout, "Response from `CommentApi.GetComment`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `CommentAPI.GetComment`: %v\n", resp)
 }
 ```
 
@@ -174,13 +174,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.CommentApi.GetUserComments(context.Background(), username).Limit(limit).Offset(offset).Execute()
+    resp, r, err := apiClient.CommentAPI.GetUserComments(context.Background(), username).Limit(limit).Offset(offset).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `CommentApi.GetUserComments``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.GetUserComments``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `GetUserComments`: []Comment
-    fmt.Fprintf(os.Stdout, "Response from `CommentApi.GetUserComments`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `CommentAPI.GetUserComments`: %v\n", resp)
 }
 ```
 
@@ -245,13 +245,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.CommentApi.GetUserFeed(context.Background()).Execute()
+    resp, r, err := apiClient.CommentAPI.GetUserFeed(context.Background()).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `CommentApi.GetUserFeed``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.GetUserFeed``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `GetUserFeed`: []Comment
-    fmt.Fprintf(os.Stdout, "Response from `CommentApi.GetUserFeed`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `CommentAPI.GetUserFeed`: %v\n", resp)
 }
 ```
 

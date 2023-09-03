@@ -15,34 +15,34 @@ import (
 	"net/http"
 )
 
-// AuthenticationApiRouter defines the required methods for binding the api requests to a responses for the AuthenticationApi
-// The AuthenticationApiRouter implementation should parse necessary information from the http request,
-// pass the data to a AuthenticationApiServicer to perform the required actions, then write the service results to the http response.
-type AuthenticationApiRouter interface {
+// AuthenticationAPIRouter defines the required methods for binding the api requests to a responses for the AuthenticationAPI
+// The AuthenticationAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a AuthenticationAPIServicer to perform the required actions, then write the service results to the http response.
+type AuthenticationAPIRouter interface {
 	GetAccessToken(http.ResponseWriter, *http.Request)
 }
 
-// CommentApiRouter defines the required methods for binding the api requests to a responses for the CommentApi
-// The CommentApiRouter implementation should parse necessary information from the http request,
-// pass the data to a CommentApiServicer to perform the required actions, then write the service results to the http response.
-type CommentApiRouter interface {
+// CommentAPIRouter defines the required methods for binding the api requests to a responses for the CommentAPI
+// The CommentAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a CommentAPIServicer to perform the required actions, then write the service results to the http response.
+type CommentAPIRouter interface {
 	CreateComment(http.ResponseWriter, *http.Request)
 	GetComment(http.ResponseWriter, *http.Request)
 	GetUserComments(http.ResponseWriter, *http.Request)
 	GetUserFeed(http.ResponseWriter, *http.Request)
 }
 
-// FollowingApiRouter defines the required methods for binding the api requests to a responses for the FollowingApi
-// The FollowingApiRouter implementation should parse necessary information from the http request,
-// pass the data to a FollowingApiServicer to perform the required actions, then write the service results to the http response.
-type FollowingApiRouter interface {
+// FollowingAPIRouter defines the required methods for binding the api requests to a responses for the FollowingAPI
+// The FollowingAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a FollowingAPIServicer to perform the required actions, then write the service results to the http response.
+type FollowingAPIRouter interface {
 	GetUserFollowers(http.ResponseWriter, *http.Request)
 }
 
-// RoleApiRouter defines the required methods for binding the api requests to a responses for the RoleApi
-// The RoleApiRouter implementation should parse necessary information from the http request,
-// pass the data to a RoleApiServicer to perform the required actions, then write the service results to the http response.
-type RoleApiRouter interface {
+// RoleAPIRouter defines the required methods for binding the api requests to a responses for the RoleAPI
+// The RoleAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a RoleAPIServicer to perform the required actions, then write the service results to the http response.
+type RoleAPIRouter interface {
 	AddScopeToRole(http.ResponseWriter, *http.Request)
 	CreateRole(http.ResponseWriter, *http.Request)
 	DeleteRole(http.ResponseWriter, *http.Request)
@@ -53,10 +53,10 @@ type RoleApiRouter interface {
 	UpdateRole(http.ResponseWriter, *http.Request)
 }
 
-// ScopeApiRouter defines the required methods for binding the api requests to a responses for the ScopeApi
-// The ScopeApiRouter implementation should parse necessary information from the http request,
-// pass the data to a ScopeApiServicer to perform the required actions, then write the service results to the http response.
-type ScopeApiRouter interface {
+// ScopeAPIRouter defines the required methods for binding the api requests to a responses for the ScopeAPI
+// The ScopeAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a ScopeAPIServicer to perform the required actions, then write the service results to the http response.
+type ScopeAPIRouter interface {
 	CreateScope(http.ResponseWriter, *http.Request)
 	DeleteScope(http.ResponseWriter, *http.Request)
 	GetScope(http.ResponseWriter, *http.Request)
@@ -64,20 +64,20 @@ type ScopeApiRouter interface {
 	UpdateScope(http.ResponseWriter, *http.Request)
 }
 
-// URLApiRouter defines the required methods for binding the api requests to a responses for the URLApi
-// The URLApiRouter implementation should parse necessary information from the http request,
-// pass the data to a URLApiServicer to perform the required actions, then write the service results to the http response.
-type URLApiRouter interface {
+// URLAPIRouter defines the required methods for binding the api requests to a responses for the URLAPI
+// The URLAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a URLAPIServicer to perform the required actions, then write the service results to the http response.
+type URLAPIRouter interface {
 	CreateUrl(http.ResponseWriter, *http.Request)
 	DeleteUrl(http.ResponseWriter, *http.Request)
 	GetUrl(http.ResponseWriter, *http.Request)
 	GetUrlData(http.ResponseWriter, *http.Request)
 }
 
-// UserApiRouter defines the required methods for binding the api requests to a responses for the UserApi
-// The UserApiRouter implementation should parse necessary information from the http request,
-// pass the data to a UserApiServicer to perform the required actions, then write the service results to the http response.
-type UserApiRouter interface {
+// UserAPIRouter defines the required methods for binding the api requests to a responses for the UserAPI
+// The UserAPIRouter implementation should parse necessary information from the http request,
+// pass the data to a UserAPIServicer to perform the required actions, then write the service results to the http response.
+type UserAPIRouter interface {
 	ChangePassword(http.ResponseWriter, *http.Request)
 	CreateUser(http.ResponseWriter, *http.Request)
 	DeleteUser(http.ResponseWriter, *http.Request)
@@ -94,38 +94,38 @@ type UserApiRouter interface {
 	UpdateUser(http.ResponseWriter, *http.Request)
 }
 
-// AuthenticationApiServicer defines the api actions for the AuthenticationApi service
+// AuthenticationAPIServicer defines the api actions for the AuthenticationAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type AuthenticationApiServicer interface {
+type AuthenticationAPIServicer interface {
 	GetAccessToken(context.Context) (ImplResponse, error)
 }
 
-// CommentApiServicer defines the api actions for the CommentApi service
+// CommentAPIServicer defines the api actions for the CommentAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type CommentApiServicer interface {
+type CommentAPIServicer interface {
 	CreateComment(context.Context, Comment) (ImplResponse, error)
 	GetComment(context.Context, int32) (ImplResponse, error)
 	GetUserComments(context.Context, string, int32, int32) (ImplResponse, error)
 	GetUserFeed(context.Context) (ImplResponse, error)
 }
 
-// FollowingApiServicer defines the api actions for the FollowingApi service
+// FollowingAPIServicer defines the api actions for the FollowingAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type FollowingApiServicer interface {
+type FollowingAPIServicer interface {
 	GetUserFollowers(context.Context, string) (ImplResponse, error)
 }
 
-// RoleApiServicer defines the api actions for the RoleApi service
+// RoleAPIServicer defines the api actions for the RoleAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type RoleApiServicer interface {
+type RoleAPIServicer interface {
 	AddScopeToRole(context.Context, int32, []string) (ImplResponse, error)
 	CreateRole(context.Context, Role) (ImplResponse, error)
 	DeleteRole(context.Context, int32) (ImplResponse, error)
@@ -136,11 +136,11 @@ type RoleApiServicer interface {
 	UpdateRole(context.Context, int32, Role) (ImplResponse, error)
 }
 
-// ScopeApiServicer defines the api actions for the ScopeApi service
+// ScopeAPIServicer defines the api actions for the ScopeAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type ScopeApiServicer interface {
+type ScopeAPIServicer interface {
 	CreateScope(context.Context, Scope) (ImplResponse, error)
 	DeleteScope(context.Context, int32) (ImplResponse, error)
 	GetScope(context.Context, int32) (ImplResponse, error)
@@ -148,22 +148,22 @@ type ScopeApiServicer interface {
 	UpdateScope(context.Context, int32, Scope) (ImplResponse, error)
 }
 
-// URLApiServicer defines the api actions for the URLApi service
+// URLAPIServicer defines the api actions for the URLAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type URLApiServicer interface {
+type URLAPIServicer interface {
 	CreateUrl(context.Context, Url) (ImplResponse, error)
 	DeleteUrl(context.Context, string) (ImplResponse, error)
 	GetUrl(context.Context, string) (ImplResponse, error)
 	GetUrlData(context.Context, string) (ImplResponse, error)
 }
 
-// UserApiServicer defines the api actions for the UserApi service
+// UserAPIServicer defines the api actions for the UserAPI service
 // This interface intended to stay up to date with the openapi yaml used to generate it,
 // while the service implementation can be ignored with the .openapi-generator-ignore file
 // and updated with the logic required for the API.
-type UserApiServicer interface {
+type UserAPIServicer interface {
 	ChangePassword(context.Context, ChangePasswordRequest) (ImplResponse, error)
 	CreateUser(context.Context, CreateUserRequest) (ImplResponse, error)
 	DeleteUser(context.Context, string) (ImplResponse, error)

@@ -41,14 +41,7 @@ func AssertCommentRequired(obj Comment) error {
 	return nil
 }
 
-// AssertRecurseCommentRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of Comment (e.g. [][]Comment), otherwise ErrTypeAssertionError is thrown.
-func AssertRecurseCommentRequired(objSlice interface{}) error {
-	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aComment, ok := obj.(Comment)
-		if !ok {
-			return ErrTypeAssertionError
-		}
-		return AssertCommentRequired(aComment)
-	})
+// AssertCommentConstraints checks if the values respects the defined constraints
+func AssertCommentConstraints(obj Comment) error {
+	return nil
 }

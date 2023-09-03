@@ -31,14 +31,7 @@ func AssertErrorRequired(obj Error) error {
 	return nil
 }
 
-// AssertRecurseErrorRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of Error (e.g. [][]Error), otherwise ErrTypeAssertionError is thrown.
-func AssertRecurseErrorRequired(objSlice interface{}) error {
-	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aError, ok := obj.(Error)
-		if !ok {
-			return ErrTypeAssertionError
-		}
-		return AssertErrorRequired(aError)
-	})
+// AssertErrorConstraints checks if the values respects the defined constraints
+func AssertErrorConstraints(obj Error) error {
+	return nil
 }

@@ -38,14 +38,7 @@ func AssertRoleRequired(obj Role) error {
 	return nil
 }
 
-// AssertRecurseRoleRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of Role (e.g. [][]Role), otherwise ErrTypeAssertionError is thrown.
-func AssertRecurseRoleRequired(objSlice interface{}) error {
-	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aRole, ok := obj.(Role)
-		if !ok {
-			return ErrTypeAssertionError
-		}
-		return AssertRoleRequired(aRole)
-	})
+// AssertRoleConstraints checks if the values respects the defined constraints
+func AssertRoleConstraints(obj Role) error {
+	return nil
 }

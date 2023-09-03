@@ -20,23 +20,23 @@ import (
 	"strings"
 )
 
-// RoleApiService RoleApi service
-type RoleApiService service
+// RoleAPIService RoleAPI service
+type RoleAPIService service
 
-type RoleApiAddScopeToRoleRequest struct {
+type RoleAPIAddScopeToRoleRequest struct {
 	ctx         context.Context
-	ApiService  *RoleApiService
+	ApiService  *RoleAPIService
 	id          int32
 	requestBody *[]string
 }
 
 // Add a scope to a role
-func (r RoleApiAddScopeToRoleRequest) RequestBody(requestBody []string) RoleApiAddScopeToRoleRequest {
+func (r RoleAPIAddScopeToRoleRequest) RequestBody(requestBody []string) RoleAPIAddScopeToRoleRequest {
 	r.requestBody = &requestBody
 	return r
 }
 
-func (r RoleApiAddScopeToRoleRequest) Execute() (*http.Response, error) {
+func (r RoleAPIAddScopeToRoleRequest) Execute() (*http.Response, error) {
 	return r.ApiService.AddScopeToRoleExecute(r)
 }
 
@@ -47,10 +47,10 @@ Add a scope to a role
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The id of the role
-	@return RoleApiAddScopeToRoleRequest
+	@return RoleAPIAddScopeToRoleRequest
 */
-func (a *RoleApiService) AddScopeToRole(ctx context.Context, id int32) RoleApiAddScopeToRoleRequest {
-	return RoleApiAddScopeToRoleRequest{
+func (a *RoleAPIService) AddScopeToRole(ctx context.Context, id int32) RoleAPIAddScopeToRoleRequest {
+	return RoleAPIAddScopeToRoleRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -58,14 +58,14 @@ func (a *RoleApiService) AddScopeToRole(ctx context.Context, id int32) RoleApiAd
 }
 
 // Execute executes the request
-func (a *RoleApiService) AddScopeToRoleExecute(r RoleApiAddScopeToRoleRequest) (*http.Response, error) {
+func (a *RoleAPIService) AddScopeToRoleExecute(r RoleAPIAddScopeToRoleRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodPost
 		localVarPostBody   interface{}
 		formFiles          []formFile
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleApiService.AddScopeToRole")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleAPIService.AddScopeToRole")
 	if err != nil {
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -168,19 +168,19 @@ func (a *RoleApiService) AddScopeToRoleExecute(r RoleApiAddScopeToRoleRequest) (
 	return localVarHTTPResponse, nil
 }
 
-type RoleApiCreateRoleRequest struct {
+type RoleAPICreateRoleRequest struct {
 	ctx        context.Context
-	ApiService *RoleApiService
+	ApiService *RoleAPIService
 	role       *Role
 }
 
 // Create a new role
-func (r RoleApiCreateRoleRequest) Role(role Role) RoleApiCreateRoleRequest {
+func (r RoleAPICreateRoleRequest) Role(role Role) RoleAPICreateRoleRequest {
 	r.role = &role
 	return r
 }
 
-func (r RoleApiCreateRoleRequest) Execute() (*Role, *http.Response, error) {
+func (r RoleAPICreateRoleRequest) Execute() (*Role, *http.Response, error) {
 	return r.ApiService.CreateRoleExecute(r)
 }
 
@@ -190,10 +190,10 @@ CreateRole Create a new role
 Create a new role
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return RoleApiCreateRoleRequest
+	@return RoleAPICreateRoleRequest
 */
-func (a *RoleApiService) CreateRole(ctx context.Context) RoleApiCreateRoleRequest {
-	return RoleApiCreateRoleRequest{
+func (a *RoleAPIService) CreateRole(ctx context.Context) RoleAPICreateRoleRequest {
+	return RoleAPICreateRoleRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -202,7 +202,7 @@ func (a *RoleApiService) CreateRole(ctx context.Context) RoleApiCreateRoleReques
 // Execute executes the request
 //
 //	@return Role
-func (a *RoleApiService) CreateRoleExecute(r RoleApiCreateRoleRequest) (*Role, *http.Response, error) {
+func (a *RoleAPIService) CreateRoleExecute(r RoleAPICreateRoleRequest) (*Role, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
@@ -210,7 +210,7 @@ func (a *RoleApiService) CreateRoleExecute(r RoleApiCreateRoleRequest) (*Role, *
 		localVarReturnValue *Role
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleApiService.CreateRole")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleAPIService.CreateRole")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -299,13 +299,13 @@ func (a *RoleApiService) CreateRoleExecute(r RoleApiCreateRoleRequest) (*Role, *
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type RoleApiDeleteRoleRequest struct {
+type RoleAPIDeleteRoleRequest struct {
 	ctx        context.Context
-	ApiService *RoleApiService
+	ApiService *RoleAPIService
 	id         int32
 }
 
-func (r RoleApiDeleteRoleRequest) Execute() (*http.Response, error) {
+func (r RoleAPIDeleteRoleRequest) Execute() (*http.Response, error) {
 	return r.ApiService.DeleteRoleExecute(r)
 }
 
@@ -316,10 +316,10 @@ Delete a role
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id id of the role
-	@return RoleApiDeleteRoleRequest
+	@return RoleAPIDeleteRoleRequest
 */
-func (a *RoleApiService) DeleteRole(ctx context.Context, id int32) RoleApiDeleteRoleRequest {
-	return RoleApiDeleteRoleRequest{
+func (a *RoleAPIService) DeleteRole(ctx context.Context, id int32) RoleAPIDeleteRoleRequest {
+	return RoleAPIDeleteRoleRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -327,14 +327,14 @@ func (a *RoleApiService) DeleteRole(ctx context.Context, id int32) RoleApiDelete
 }
 
 // Execute executes the request
-func (a *RoleApiService) DeleteRoleExecute(r RoleApiDeleteRoleRequest) (*http.Response, error) {
+func (a *RoleAPIService) DeleteRoleExecute(r RoleAPIDeleteRoleRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodDelete
 		localVarPostBody   interface{}
 		formFiles          []formFile
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleApiService.DeleteRole")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleAPIService.DeleteRole")
 	if err != nil {
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -410,13 +410,13 @@ func (a *RoleApiService) DeleteRoleExecute(r RoleApiDeleteRoleRequest) (*http.Re
 	return localVarHTTPResponse, nil
 }
 
-type RoleApiGetRoleRequest struct {
+type RoleAPIGetRoleRequest struct {
 	ctx        context.Context
-	ApiService *RoleApiService
+	ApiService *RoleAPIService
 	id         int32
 }
 
-func (r RoleApiGetRoleRequest) Execute() (*Role, *http.Response, error) {
+func (r RoleAPIGetRoleRequest) Execute() (*Role, *http.Response, error) {
 	return r.ApiService.GetRoleExecute(r)
 }
 
@@ -427,10 +427,10 @@ Returns a role
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The id of the role
-	@return RoleApiGetRoleRequest
+	@return RoleAPIGetRoleRequest
 */
-func (a *RoleApiService) GetRole(ctx context.Context, id int32) RoleApiGetRoleRequest {
-	return RoleApiGetRoleRequest{
+func (a *RoleAPIService) GetRole(ctx context.Context, id int32) RoleAPIGetRoleRequest {
+	return RoleAPIGetRoleRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -440,7 +440,7 @@ func (a *RoleApiService) GetRole(ctx context.Context, id int32) RoleApiGetRoleRe
 // Execute executes the request
 //
 //	@return Role
-func (a *RoleApiService) GetRoleExecute(r RoleApiGetRoleRequest) (*Role, *http.Response, error) {
+func (a *RoleAPIService) GetRoleExecute(r RoleAPIGetRoleRequest) (*Role, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -448,7 +448,7 @@ func (a *RoleApiService) GetRoleExecute(r RoleApiGetRoleRequest) (*Role, *http.R
 		localVarReturnValue *Role
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleApiService.GetRole")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleAPIService.GetRole")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -533,26 +533,26 @@ func (a *RoleApiService) GetRoleExecute(r RoleApiGetRoleRequest) (*Role, *http.R
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type RoleApiListRolesRequest struct {
+type RoleAPIListRolesRequest struct {
 	ctx        context.Context
-	ApiService *RoleApiService
+	ApiService *RoleAPIService
 	limit      *int32
 	offset     *int32
 }
 
 // The numbers of roles to return
-func (r RoleApiListRolesRequest) Limit(limit int32) RoleApiListRolesRequest {
+func (r RoleAPIListRolesRequest) Limit(limit int32) RoleAPIListRolesRequest {
 	r.limit = &limit
 	return r
 }
 
 // The number of items to skip before starting to collect the result
-func (r RoleApiListRolesRequest) Offset(offset int32) RoleApiListRolesRequest {
+func (r RoleAPIListRolesRequest) Offset(offset int32) RoleAPIListRolesRequest {
 	r.offset = &offset
 	return r
 }
 
-func (r RoleApiListRolesRequest) Execute() ([]Role, *http.Response, error) {
+func (r RoleAPIListRolesRequest) Execute() ([]Role, *http.Response, error) {
 	return r.ApiService.ListRolesExecute(r)
 }
 
@@ -562,10 +562,10 @@ ListRoles Returns a list of roles
 Returns a list of roles
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return RoleApiListRolesRequest
+	@return RoleAPIListRolesRequest
 */
-func (a *RoleApiService) ListRoles(ctx context.Context) RoleApiListRolesRequest {
-	return RoleApiListRolesRequest{
+func (a *RoleAPIService) ListRoles(ctx context.Context) RoleAPIListRolesRequest {
+	return RoleAPIListRolesRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -574,7 +574,7 @@ func (a *RoleApiService) ListRoles(ctx context.Context) RoleApiListRolesRequest 
 // Execute executes the request
 //
 //	@return []Role
-func (a *RoleApiService) ListRolesExecute(r RoleApiListRolesRequest) ([]Role, *http.Response, error) {
+func (a *RoleAPIService) ListRolesExecute(r RoleAPIListRolesRequest) ([]Role, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -582,7 +582,7 @@ func (a *RoleApiService) ListRolesExecute(r RoleApiListRolesRequest) ([]Role, *h
 		localVarReturnValue []Role
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleApiService.ListRoles")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleAPIService.ListRoles")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -672,27 +672,27 @@ func (a *RoleApiService) ListRolesExecute(r RoleApiListRolesRequest) ([]Role, *h
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type RoleApiListScopesForRoleRequest struct {
+type RoleAPIListScopesForRoleRequest struct {
 	ctx        context.Context
-	ApiService *RoleApiService
+	ApiService *RoleAPIService
 	id         int32
 	limit      *int32
 	offset     *int32
 }
 
 // The numbers of scopes to return
-func (r RoleApiListScopesForRoleRequest) Limit(limit int32) RoleApiListScopesForRoleRequest {
+func (r RoleAPIListScopesForRoleRequest) Limit(limit int32) RoleAPIListScopesForRoleRequest {
 	r.limit = &limit
 	return r
 }
 
 // The number of items to skip before starting to collect the result
-func (r RoleApiListScopesForRoleRequest) Offset(offset int32) RoleApiListScopesForRoleRequest {
+func (r RoleAPIListScopesForRoleRequest) Offset(offset int32) RoleAPIListScopesForRoleRequest {
 	r.offset = &offset
 	return r
 }
 
-func (r RoleApiListScopesForRoleRequest) Execute() ([]Scope, *http.Response, error) {
+func (r RoleAPIListScopesForRoleRequest) Execute() ([]Scope, *http.Response, error) {
 	return r.ApiService.ListScopesForRoleExecute(r)
 }
 
@@ -703,10 +703,10 @@ Returns a list of scopes for a role
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The id of the role
-	@return RoleApiListScopesForRoleRequest
+	@return RoleAPIListScopesForRoleRequest
 */
-func (a *RoleApiService) ListScopesForRole(ctx context.Context, id int32) RoleApiListScopesForRoleRequest {
-	return RoleApiListScopesForRoleRequest{
+func (a *RoleAPIService) ListScopesForRole(ctx context.Context, id int32) RoleAPIListScopesForRoleRequest {
+	return RoleAPIListScopesForRoleRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -716,7 +716,7 @@ func (a *RoleApiService) ListScopesForRole(ctx context.Context, id int32) RoleAp
 // Execute executes the request
 //
 //	@return []Scope
-func (a *RoleApiService) ListScopesForRoleExecute(r RoleApiListScopesForRoleRequest) ([]Scope, *http.Response, error) {
+func (a *RoleAPIService) ListScopesForRoleExecute(r RoleAPIListScopesForRoleRequest) ([]Scope, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -724,7 +724,7 @@ func (a *RoleApiService) ListScopesForRoleExecute(r RoleApiListScopesForRoleRequ
 		localVarReturnValue []Scope
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleApiService.ListScopesForRole")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleAPIService.ListScopesForRole")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -815,14 +815,14 @@ func (a *RoleApiService) ListScopesForRoleExecute(r RoleApiListScopesForRoleRequ
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type RoleApiRemoveScopeFromRoleRequest struct {
+type RoleAPIRemoveScopeFromRoleRequest struct {
 	ctx        context.Context
-	ApiService *RoleApiService
+	ApiService *RoleAPIService
 	roleId     int32
 	scopeId    int32
 }
 
-func (r RoleApiRemoveScopeFromRoleRequest) Execute() (*http.Response, error) {
+func (r RoleAPIRemoveScopeFromRoleRequest) Execute() (*http.Response, error) {
 	return r.ApiService.RemoveScopeFromRoleExecute(r)
 }
 
@@ -834,10 +834,10 @@ Remove a scope from a role
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param roleId The id of the role
 	@param scopeId The id of the scope
-	@return RoleApiRemoveScopeFromRoleRequest
+	@return RoleAPIRemoveScopeFromRoleRequest
 */
-func (a *RoleApiService) RemoveScopeFromRole(ctx context.Context, roleId int32, scopeId int32) RoleApiRemoveScopeFromRoleRequest {
-	return RoleApiRemoveScopeFromRoleRequest{
+func (a *RoleAPIService) RemoveScopeFromRole(ctx context.Context, roleId int32, scopeId int32) RoleAPIRemoveScopeFromRoleRequest {
+	return RoleAPIRemoveScopeFromRoleRequest{
 		ApiService: a,
 		ctx:        ctx,
 		roleId:     roleId,
@@ -846,14 +846,14 @@ func (a *RoleApiService) RemoveScopeFromRole(ctx context.Context, roleId int32, 
 }
 
 // Execute executes the request
-func (a *RoleApiService) RemoveScopeFromRoleExecute(r RoleApiRemoveScopeFromRoleRequest) (*http.Response, error) {
+func (a *RoleAPIService) RemoveScopeFromRoleExecute(r RoleAPIRemoveScopeFromRoleRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodDelete
 		localVarPostBody   interface{}
 		formFiles          []formFile
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleApiService.RemoveScopeFromRole")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleAPIService.RemoveScopeFromRole")
 	if err != nil {
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -952,20 +952,20 @@ func (a *RoleApiService) RemoveScopeFromRoleExecute(r RoleApiRemoveScopeFromRole
 	return localVarHTTPResponse, nil
 }
 
-type RoleApiUpdateRoleRequest struct {
+type RoleAPIUpdateRoleRequest struct {
 	ctx        context.Context
-	ApiService *RoleApiService
+	ApiService *RoleAPIService
 	id         int32
 	role       *Role
 }
 
 // Update a role
-func (r RoleApiUpdateRoleRequest) Role(role Role) RoleApiUpdateRoleRequest {
+func (r RoleAPIUpdateRoleRequest) Role(role Role) RoleAPIUpdateRoleRequest {
 	r.role = &role
 	return r
 }
 
-func (r RoleApiUpdateRoleRequest) Execute() (*Role, *http.Response, error) {
+func (r RoleAPIUpdateRoleRequest) Execute() (*Role, *http.Response, error) {
 	return r.ApiService.UpdateRoleExecute(r)
 }
 
@@ -976,10 +976,10 @@ Update a role
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id id of the role
-	@return RoleApiUpdateRoleRequest
+	@return RoleAPIUpdateRoleRequest
 */
-func (a *RoleApiService) UpdateRole(ctx context.Context, id int32) RoleApiUpdateRoleRequest {
-	return RoleApiUpdateRoleRequest{
+func (a *RoleAPIService) UpdateRole(ctx context.Context, id int32) RoleAPIUpdateRoleRequest {
+	return RoleAPIUpdateRoleRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -989,7 +989,7 @@ func (a *RoleApiService) UpdateRole(ctx context.Context, id int32) RoleApiUpdate
 // Execute executes the request
 //
 //	@return Role
-func (a *RoleApiService) UpdateRoleExecute(r RoleApiUpdateRoleRequest) (*Role, *http.Response, error) {
+func (a *RoleAPIService) UpdateRoleExecute(r RoleAPIUpdateRoleRequest) (*Role, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
@@ -997,7 +997,7 @@ func (a *RoleApiService) UpdateRoleExecute(r RoleApiUpdateRoleRequest) (*Role, *
 		localVarReturnValue *Role
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleApiService.UpdateRole")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "RoleAPIService.UpdateRole")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}

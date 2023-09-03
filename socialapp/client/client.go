@@ -51,19 +51,19 @@ type APIClient struct {
 
 	// API Services
 
-	AuthenticationApi *AuthenticationApiService
+	AuthenticationAPI *AuthenticationAPIService
 
-	CommentApi *CommentApiService
+	CommentAPI *CommentAPIService
 
-	FollowingApi *FollowingApiService
+	FollowingAPI *FollowingAPIService
 
-	RoleApi *RoleApiService
+	RoleAPI *RoleAPIService
 
-	ScopeApi *ScopeApiService
+	ScopeAPI *ScopeAPIService
 
-	URLApi *URLApiService
+	URLAPI *URLAPIService
 
-	UserApi *UserApiService
+	UserAPI *UserAPIService
 }
 
 type service struct {
@@ -82,13 +82,13 @@ func NewAPIClient(cfg *Configuration) *APIClient {
 	c.common.client = c
 
 	// API Services
-	c.AuthenticationApi = (*AuthenticationApiService)(&c.common)
-	c.CommentApi = (*CommentApiService)(&c.common)
-	c.FollowingApi = (*FollowingApiService)(&c.common)
-	c.RoleApi = (*RoleApiService)(&c.common)
-	c.ScopeApi = (*ScopeApiService)(&c.common)
-	c.URLApi = (*URLApiService)(&c.common)
-	c.UserApi = (*UserApiService)(&c.common)
+	c.AuthenticationAPI = (*AuthenticationAPIService)(&c.common)
+	c.CommentAPI = (*CommentAPIService)(&c.common)
+	c.FollowingAPI = (*FollowingAPIService)(&c.common)
+	c.RoleAPI = (*RoleAPIService)(&c.common)
+	c.ScopeAPI = (*ScopeAPIService)(&c.common)
+	c.URLAPI = (*URLAPIService)(&c.common)
+	c.UserAPI = (*UserAPIService)(&c.common)
 
 	return c
 }
@@ -467,6 +467,7 @@ func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err err
 			return
 		}
 		_, err = f.Seek(0, io.SeekStart)
+		err = os.Remove(f.Name())
 		return
 	}
 	if f, ok := v.(**os.File); ok {
@@ -479,6 +480,7 @@ func (c *APIClient) decode(v interface{}, b []byte, contentType string) (err err
 			return
 		}
 		_, err = (*f).Seek(0, io.SeekStart)
+		err = os.Remove((*f).Name())
 		return
 	}
 	if xmlCheck.MatchString(contentType) {
@@ -555,7 +557,11 @@ func setBody(body interface{}, contentType string) (bodyBuf *bytes.Buffer, err e
 	} else if jsonCheck.MatchString(contentType) {
 		err = json.NewEncoder(bodyBuf).Encode(body)
 	} else if xmlCheck.MatchString(contentType) {
-		err = xml.NewEncoder(bodyBuf).Encode(body)
+		var bs []byte
+		bs, err = xml.Marshal(body)
+		if err == nil {
+			bodyBuf.Write(bs)
+		}
 	}
 
 	if err != nil {

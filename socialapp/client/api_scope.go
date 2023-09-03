@@ -20,22 +20,22 @@ import (
 	"strings"
 )
 
-// ScopeApiService ScopeApi service
-type ScopeApiService service
+// ScopeAPIService ScopeAPI service
+type ScopeAPIService service
 
-type ScopeApiCreateScopeRequest struct {
+type ScopeAPICreateScopeRequest struct {
 	ctx        context.Context
-	ApiService *ScopeApiService
+	ApiService *ScopeAPIService
 	scope      *Scope
 }
 
 // Create a new scope
-func (r ScopeApiCreateScopeRequest) Scope(scope Scope) ScopeApiCreateScopeRequest {
+func (r ScopeAPICreateScopeRequest) Scope(scope Scope) ScopeAPICreateScopeRequest {
 	r.scope = &scope
 	return r
 }
 
-func (r ScopeApiCreateScopeRequest) Execute() (*Scope, *http.Response, error) {
+func (r ScopeAPICreateScopeRequest) Execute() (*Scope, *http.Response, error) {
 	return r.ApiService.CreateScopeExecute(r)
 }
 
@@ -45,10 +45,10 @@ CreateScope Create a new scope
 Create a new scope
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ScopeApiCreateScopeRequest
+	@return ScopeAPICreateScopeRequest
 */
-func (a *ScopeApiService) CreateScope(ctx context.Context) ScopeApiCreateScopeRequest {
-	return ScopeApiCreateScopeRequest{
+func (a *ScopeAPIService) CreateScope(ctx context.Context) ScopeAPICreateScopeRequest {
+	return ScopeAPICreateScopeRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -57,7 +57,7 @@ func (a *ScopeApiService) CreateScope(ctx context.Context) ScopeApiCreateScopeRe
 // Execute executes the request
 //
 //	@return Scope
-func (a *ScopeApiService) CreateScopeExecute(r ScopeApiCreateScopeRequest) (*Scope, *http.Response, error) {
+func (a *ScopeAPIService) CreateScopeExecute(r ScopeAPICreateScopeRequest) (*Scope, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
@@ -65,7 +65,7 @@ func (a *ScopeApiService) CreateScopeExecute(r ScopeApiCreateScopeRequest) (*Sco
 		localVarReturnValue *Scope
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScopeApiService.CreateScope")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScopeAPIService.CreateScope")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -154,13 +154,13 @@ func (a *ScopeApiService) CreateScopeExecute(r ScopeApiCreateScopeRequest) (*Sco
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ScopeApiDeleteScopeRequest struct {
+type ScopeAPIDeleteScopeRequest struct {
 	ctx        context.Context
-	ApiService *ScopeApiService
+	ApiService *ScopeAPIService
 	id         int32
 }
 
-func (r ScopeApiDeleteScopeRequest) Execute() (*http.Response, error) {
+func (r ScopeAPIDeleteScopeRequest) Execute() (*http.Response, error) {
 	return r.ApiService.DeleteScopeExecute(r)
 }
 
@@ -171,10 +171,10 @@ Delete a scope
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id id of the scope
-	@return ScopeApiDeleteScopeRequest
+	@return ScopeAPIDeleteScopeRequest
 */
-func (a *ScopeApiService) DeleteScope(ctx context.Context, id int32) ScopeApiDeleteScopeRequest {
-	return ScopeApiDeleteScopeRequest{
+func (a *ScopeAPIService) DeleteScope(ctx context.Context, id int32) ScopeAPIDeleteScopeRequest {
+	return ScopeAPIDeleteScopeRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -182,14 +182,14 @@ func (a *ScopeApiService) DeleteScope(ctx context.Context, id int32) ScopeApiDel
 }
 
 // Execute executes the request
-func (a *ScopeApiService) DeleteScopeExecute(r ScopeApiDeleteScopeRequest) (*http.Response, error) {
+func (a *ScopeAPIService) DeleteScopeExecute(r ScopeAPIDeleteScopeRequest) (*http.Response, error) {
 	var (
 		localVarHTTPMethod = http.MethodDelete
 		localVarPostBody   interface{}
 		formFiles          []formFile
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScopeApiService.DeleteScope")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScopeAPIService.DeleteScope")
 	if err != nil {
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -265,13 +265,13 @@ func (a *ScopeApiService) DeleteScopeExecute(r ScopeApiDeleteScopeRequest) (*htt
 	return localVarHTTPResponse, nil
 }
 
-type ScopeApiGetScopeRequest struct {
+type ScopeAPIGetScopeRequest struct {
 	ctx        context.Context
-	ApiService *ScopeApiService
+	ApiService *ScopeAPIService
 	id         int32
 }
 
-func (r ScopeApiGetScopeRequest) Execute() (*Scope, *http.Response, error) {
+func (r ScopeAPIGetScopeRequest) Execute() (*Scope, *http.Response, error) {
 	return r.ApiService.GetScopeExecute(r)
 }
 
@@ -282,10 +282,10 @@ Returns a scope
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The id of the scope
-	@return ScopeApiGetScopeRequest
+	@return ScopeAPIGetScopeRequest
 */
-func (a *ScopeApiService) GetScope(ctx context.Context, id int32) ScopeApiGetScopeRequest {
-	return ScopeApiGetScopeRequest{
+func (a *ScopeAPIService) GetScope(ctx context.Context, id int32) ScopeAPIGetScopeRequest {
+	return ScopeAPIGetScopeRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -295,7 +295,7 @@ func (a *ScopeApiService) GetScope(ctx context.Context, id int32) ScopeApiGetSco
 // Execute executes the request
 //
 //	@return Scope
-func (a *ScopeApiService) GetScopeExecute(r ScopeApiGetScopeRequest) (*Scope, *http.Response, error) {
+func (a *ScopeAPIService) GetScopeExecute(r ScopeAPIGetScopeRequest) (*Scope, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -303,7 +303,7 @@ func (a *ScopeApiService) GetScopeExecute(r ScopeApiGetScopeRequest) (*Scope, *h
 		localVarReturnValue *Scope
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScopeApiService.GetScope")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScopeAPIService.GetScope")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -388,26 +388,26 @@ func (a *ScopeApiService) GetScopeExecute(r ScopeApiGetScopeRequest) (*Scope, *h
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ScopeApiListScopesRequest struct {
+type ScopeAPIListScopesRequest struct {
 	ctx        context.Context
-	ApiService *ScopeApiService
+	ApiService *ScopeAPIService
 	limit      *int32
 	offset     *int32
 }
 
 // The numbers of scopes to return
-func (r ScopeApiListScopesRequest) Limit(limit int32) ScopeApiListScopesRequest {
+func (r ScopeAPIListScopesRequest) Limit(limit int32) ScopeAPIListScopesRequest {
 	r.limit = &limit
 	return r
 }
 
 // The number of items to skip before starting to collect the result
-func (r ScopeApiListScopesRequest) Offset(offset int32) ScopeApiListScopesRequest {
+func (r ScopeAPIListScopesRequest) Offset(offset int32) ScopeAPIListScopesRequest {
 	r.offset = &offset
 	return r
 }
 
-func (r ScopeApiListScopesRequest) Execute() ([]Scope, *http.Response, error) {
+func (r ScopeAPIListScopesRequest) Execute() ([]Scope, *http.Response, error) {
 	return r.ApiService.ListScopesExecute(r)
 }
 
@@ -417,10 +417,10 @@ ListScopes Returns a list of scopes
 Returns a list of scopes
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return ScopeApiListScopesRequest
+	@return ScopeAPIListScopesRequest
 */
-func (a *ScopeApiService) ListScopes(ctx context.Context) ScopeApiListScopesRequest {
-	return ScopeApiListScopesRequest{
+func (a *ScopeAPIService) ListScopes(ctx context.Context) ScopeAPIListScopesRequest {
+	return ScopeAPIListScopesRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -429,7 +429,7 @@ func (a *ScopeApiService) ListScopes(ctx context.Context) ScopeApiListScopesRequ
 // Execute executes the request
 //
 //	@return []Scope
-func (a *ScopeApiService) ListScopesExecute(r ScopeApiListScopesRequest) ([]Scope, *http.Response, error) {
+func (a *ScopeAPIService) ListScopesExecute(r ScopeAPIListScopesRequest) ([]Scope, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -437,7 +437,7 @@ func (a *ScopeApiService) ListScopesExecute(r ScopeApiListScopesRequest) ([]Scop
 		localVarReturnValue []Scope
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScopeApiService.ListScopes")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScopeAPIService.ListScopes")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -527,20 +527,20 @@ func (a *ScopeApiService) ListScopesExecute(r ScopeApiListScopesRequest) ([]Scop
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type ScopeApiUpdateScopeRequest struct {
+type ScopeAPIUpdateScopeRequest struct {
 	ctx        context.Context
-	ApiService *ScopeApiService
+	ApiService *ScopeAPIService
 	id         int32
 	scope      *Scope
 }
 
 // Update a scope
-func (r ScopeApiUpdateScopeRequest) Scope(scope Scope) ScopeApiUpdateScopeRequest {
+func (r ScopeAPIUpdateScopeRequest) Scope(scope Scope) ScopeAPIUpdateScopeRequest {
 	r.scope = &scope
 	return r
 }
 
-func (r ScopeApiUpdateScopeRequest) Execute() (*Scope, *http.Response, error) {
+func (r ScopeAPIUpdateScopeRequest) Execute() (*Scope, *http.Response, error) {
 	return r.ApiService.UpdateScopeExecute(r)
 }
 
@@ -551,10 +551,10 @@ Update a scope
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id id of the scope
-	@return ScopeApiUpdateScopeRequest
+	@return ScopeAPIUpdateScopeRequest
 */
-func (a *ScopeApiService) UpdateScope(ctx context.Context, id int32) ScopeApiUpdateScopeRequest {
-	return ScopeApiUpdateScopeRequest{
+func (a *ScopeAPIService) UpdateScope(ctx context.Context, id int32) ScopeAPIUpdateScopeRequest {
+	return ScopeAPIUpdateScopeRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -564,7 +564,7 @@ func (a *ScopeApiService) UpdateScope(ctx context.Context, id int32) ScopeApiUpd
 // Execute executes the request
 //
 //	@return Scope
-func (a *ScopeApiService) UpdateScopeExecute(r ScopeApiUpdateScopeRequest) (*Scope, *http.Response, error) {
+func (a *ScopeAPIService) UpdateScopeExecute(r ScopeAPIUpdateScopeRequest) (*Scope, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPut
 		localVarPostBody    interface{}
@@ -572,7 +572,7 @@ func (a *ScopeApiService) UpdateScopeExecute(r ScopeApiUpdateScopeRequest) (*Sco
 		localVarReturnValue *Scope
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScopeApiService.UpdateScope")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "ScopeAPIService.UpdateScope")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}

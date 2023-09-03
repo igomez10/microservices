@@ -1,13 +1,13 @@
-# \URLApi
+# \URLAPI
 
 All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**CreateUrl**](URLApi.md#CreateUrl) | **Post** /v1/urls | Create a new url
-[**DeleteUrl**](URLApi.md#DeleteUrl) | **Delete** /v1/urls/{alias} | Delete a url
-[**GetUrl**](URLApi.md#GetUrl) | **Get** /v1/urls/{alias} | Get a url
-[**GetUrlData**](URLApi.md#GetUrlData) | **Get** /v1/urls/{alias}/data | Returns a url metadata
+[**CreateUrl**](URLAPI.md#CreateUrl) | **Post** /v1/urls | Create a new url
+[**DeleteUrl**](URLAPI.md#DeleteUrl) | **Delete** /v1/urls/{alias} | Delete a url
+[**GetUrl**](URLAPI.md#GetUrl) | **Get** /v1/urls/{alias} | Get a url
+[**GetUrlData**](URLAPI.md#GetUrlData) | **Get** /v1/urls/{alias}/data | Returns a url metadata
 
 
 
@@ -36,13 +36,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.URLApi.CreateUrl(context.Background()).URL(uRL).Execute()
+    resp, r, err := apiClient.URLAPI.CreateUrl(context.Background()).URL(uRL).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `URLApi.CreateUrl``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `URLAPI.CreateUrl``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `CreateUrl`: URL
-    fmt.Fprintf(os.Stdout, "Response from `URLApi.CreateUrl`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `URLAPI.CreateUrl`: %v\n", resp)
 }
 ```
 
@@ -102,9 +102,9 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.URLApi.DeleteUrl(context.Background(), alias).Execute()
+    r, err := apiClient.URLAPI.DeleteUrl(context.Background(), alias).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `URLApi.DeleteUrl``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `URLAPI.DeleteUrl``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
 }
@@ -170,9 +170,9 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.URLApi.GetUrl(context.Background(), alias).Execute()
+    r, err := apiClient.URLAPI.GetUrl(context.Background(), alias).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `URLApi.GetUrl``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `URLAPI.GetUrl``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
 }
@@ -238,13 +238,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.URLApi.GetUrlData(context.Background(), alias).Execute()
+    resp, r, err := apiClient.URLAPI.GetUrlData(context.Background(), alias).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `URLApi.GetUrlData``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `URLAPI.GetUrlData``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `GetUrlData`: URL
-    fmt.Fprintf(os.Stdout, "Response from `URLApi.GetUrlData`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `URLAPI.GetUrlData`: %v\n", resp)
 }
 ```
 

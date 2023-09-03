@@ -1,10 +1,10 @@
-# \FollowingApi
+# \FollowingAPI
 
 All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**GetUserFollowers**](FollowingApi.md#GetUserFollowers) | **Get** /v1/users/{username}/followers | Get all followers for a user
+[**GetUserFollowers**](FollowingAPI.md#GetUserFollowers) | **Get** /v1/users/{username}/followers | Get all followers for a user
 
 
 
@@ -33,13 +33,13 @@ func main() {
 
     configuration := openapiclient.NewConfiguration()
     apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.FollowingApi.GetUserFollowers(context.Background(), username).Execute()
+    resp, r, err := apiClient.FollowingAPI.GetUserFollowers(context.Background(), username).Execute()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `FollowingApi.GetUserFollowers``: %v\n", err)
+        fmt.Fprintf(os.Stderr, "Error when calling `FollowingAPI.GetUserFollowers``: %v\n", err)
         fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
     }
     // response from `GetUserFollowers`: []User
-    fmt.Fprintf(os.Stdout, "Response from `FollowingApi.GetUserFollowers`: %v\n", resp)
+    fmt.Fprintf(os.Stdout, "Response from `FollowingAPI.GetUserFollowers`: %v\n", resp)
 }
 ```
 

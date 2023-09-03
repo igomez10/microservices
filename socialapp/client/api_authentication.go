@@ -19,15 +19,15 @@ import (
 	"net/url"
 )
 
-// AuthenticationApiService AuthenticationApi service
-type AuthenticationApiService service
+// AuthenticationAPIService AuthenticationAPI service
+type AuthenticationAPIService service
 
-type AuthenticationApiGetAccessTokenRequest struct {
+type AuthenticationAPIGetAccessTokenRequest struct {
 	ctx        context.Context
-	ApiService *AuthenticationApiService
+	ApiService *AuthenticationAPIService
 }
 
-func (r AuthenticationApiGetAccessTokenRequest) Execute() (*AccessToken, *http.Response, error) {
+func (r AuthenticationAPIGetAccessTokenRequest) Execute() (*AccessToken, *http.Response, error) {
 	return r.ApiService.GetAccessTokenExecute(r)
 }
 
@@ -37,10 +37,10 @@ GetAccessToken Get an access token
 Get an access token
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return AuthenticationApiGetAccessTokenRequest
+	@return AuthenticationAPIGetAccessTokenRequest
 */
-func (a *AuthenticationApiService) GetAccessToken(ctx context.Context) AuthenticationApiGetAccessTokenRequest {
-	return AuthenticationApiGetAccessTokenRequest{
+func (a *AuthenticationAPIService) GetAccessToken(ctx context.Context) AuthenticationAPIGetAccessTokenRequest {
+	return AuthenticationAPIGetAccessTokenRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -49,7 +49,7 @@ func (a *AuthenticationApiService) GetAccessToken(ctx context.Context) Authentic
 // Execute executes the request
 //
 //	@return AccessToken
-func (a *AuthenticationApiService) GetAccessTokenExecute(r AuthenticationApiGetAccessTokenRequest) (*AccessToken, *http.Response, error) {
+func (a *AuthenticationAPIService) GetAccessTokenExecute(r AuthenticationAPIGetAccessTokenRequest) (*AccessToken, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
@@ -57,7 +57,7 @@ func (a *AuthenticationApiService) GetAccessTokenExecute(r AuthenticationApiGetA
 		localVarReturnValue *AccessToken
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationApiService.GetAccessToken")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AuthenticationAPIService.GetAccessToken")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}

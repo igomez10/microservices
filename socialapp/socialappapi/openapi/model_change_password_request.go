@@ -31,14 +31,7 @@ func AssertChangePasswordRequestRequired(obj ChangePasswordRequest) error {
 	return nil
 }
 
-// AssertRecurseChangePasswordRequestRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of ChangePasswordRequest (e.g. [][]ChangePasswordRequest), otherwise ErrTypeAssertionError is thrown.
-func AssertRecurseChangePasswordRequestRequired(objSlice interface{}) error {
-	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aChangePasswordRequest, ok := obj.(ChangePasswordRequest)
-		if !ok {
-			return ErrTypeAssertionError
-		}
-		return AssertChangePasswordRequestRequired(aChangePasswordRequest)
-	})
+// AssertChangePasswordRequestConstraints checks if the values respects the defined constraints
+func AssertChangePasswordRequestConstraints(obj ChangePasswordRequest) error {
+	return nil
 }

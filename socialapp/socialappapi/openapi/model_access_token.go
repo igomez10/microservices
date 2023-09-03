@@ -36,14 +36,7 @@ func AssertAccessTokenRequired(obj AccessToken) error {
 	return nil
 }
 
-// AssertRecurseAccessTokenRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of AccessToken (e.g. [][]AccessToken), otherwise ErrTypeAssertionError is thrown.
-func AssertRecurseAccessTokenRequired(objSlice interface{}) error {
-	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aAccessToken, ok := obj.(AccessToken)
-		if !ok {
-			return ErrTypeAssertionError
-		}
-		return AssertAccessTokenRequired(aAccessToken)
-	})
+// AssertAccessTokenConstraints checks if the values respects the defined constraints
+func AssertAccessTokenConstraints(obj AccessToken) error {
+	return nil
 }

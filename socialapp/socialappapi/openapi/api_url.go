@@ -18,25 +18,25 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// URLApiController binds http requests to an api service and writes the service results to the http response
-type URLApiController struct {
-	service      URLApiServicer
+// URLAPIController binds http requests to an api service and writes the service results to the http response
+type URLAPIController struct {
+	service      URLAPIServicer
 	errorHandler ErrorHandler
 }
 
-// URLApiOption for how the controller is set up.
-type URLApiOption func(*URLApiController)
+// URLAPIOption for how the controller is set up.
+type URLAPIOption func(*URLAPIController)
 
-// WithURLApiErrorHandler inject ErrorHandler into controller
-func WithURLApiErrorHandler(h ErrorHandler) URLApiOption {
-	return func(c *URLApiController) {
+// WithURLAPIErrorHandler inject ErrorHandler into controller
+func WithURLAPIErrorHandler(h ErrorHandler) URLAPIOption {
+	return func(c *URLAPIController) {
 		c.errorHandler = h
 	}
 }
 
-// NewURLApiController creates a default api controller
-func NewURLApiController(s URLApiServicer, opts ...URLApiOption) Router {
-	controller := &URLApiController{
+// NewURLAPIController creates a default api controller
+func NewURLAPIController(s URLAPIServicer, opts ...URLAPIOption) Router {
+	controller := &URLAPIController{
 		service:      s,
 		errorHandler: DefaultErrorHandler,
 	}
@@ -48,29 +48,25 @@ func NewURLApiController(s URLApiServicer, opts ...URLApiOption) Router {
 	return controller
 }
 
-// Routes returns all the api routes for the URLApiController
-func (c *URLApiController) Routes() Routes {
+// Routes returns all the api routes for the URLAPIController
+func (c *URLAPIController) Routes() Routes {
 	return Routes{
-		{
-			"CreateUrl",
+		"CreateUrl": Route{
 			strings.ToUpper("Post"),
 			"/v1/urls",
 			c.CreateUrl,
 		},
-		{
-			"DeleteUrl",
+		"DeleteUrl": Route{
 			strings.ToUpper("Delete"),
 			"/v1/urls/{alias}",
 			c.DeleteUrl,
 		},
-		{
-			"GetUrl",
+		"GetUrl": Route{
 			strings.ToUpper("Get"),
 			"/v1/urls/{alias}",
 			c.GetUrl,
 		},
-		{
-			"GetUrlData",
+		"GetUrlData": Route{
 			strings.ToUpper("Get"),
 			"/v1/urls/{alias}/data",
 			c.GetUrlData,
@@ -79,7 +75,7 @@ func (c *URLApiController) Routes() Routes {
 }
 
 // CreateUrl - Create a new url
-func (c *URLApiController) CreateUrl(w http.ResponseWriter, r *http.Request) {
+func (c *URLAPIController) CreateUrl(w http.ResponseWriter, r *http.Request) {
 	urlParam := Url{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
@@ -91,6 +87,10 @@ func (c *URLApiController) CreateUrl(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
+	if err := AssertUrlConstraints(urlParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
 	result, err := c.service.CreateUrl(r.Context(), urlParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -99,11 +99,10 @@ func (c *URLApiController) CreateUrl(w http.ResponseWriter, r *http.Request) {
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }
 
 // DeleteUrl - Delete a url
-func (c *URLApiController) DeleteUrl(w http.ResponseWriter, r *http.Request) {
+func (c *URLAPIController) DeleteUrl(w http.ResponseWriter, r *http.Request) {
 	aliasParam := chi.URLParam(r, "alias")
 	result, err := c.service.DeleteUrl(r.Context(), aliasParam)
 	// If an error occurred, encode the error with the status code
@@ -113,11 +112,10 @@ func (c *URLApiController) DeleteUrl(w http.ResponseWriter, r *http.Request) {
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }
 
 // GetUrl - Get a url
-func (c *URLApiController) GetUrl(w http.ResponseWriter, r *http.Request) {
+func (c *URLAPIController) GetUrl(w http.ResponseWriter, r *http.Request) {
 	aliasParam := chi.URLParam(r, "alias")
 	result, err := c.service.GetUrl(r.Context(), aliasParam)
 	// If an error occurred, encode the error with the status code
@@ -127,11 +125,10 @@ func (c *URLApiController) GetUrl(w http.ResponseWriter, r *http.Request) {
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }
 
 // GetUrlData - Returns a url metadata
-func (c *URLApiController) GetUrlData(w http.ResponseWriter, r *http.Request) {
+func (c *URLAPIController) GetUrlData(w http.ResponseWriter, r *http.Request) {
 	aliasParam := chi.URLParam(r, "alias")
 	result, err := c.service.GetUrlData(r.Context(), aliasParam)
 	// If an error occurred, encode the error with the status code
@@ -141,5 +138,4 @@ func (c *URLApiController) GetUrlData(w http.ResponseWriter, r *http.Request) {
 	}
 	// If no error, encode the body and the result code
 	EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-
 }

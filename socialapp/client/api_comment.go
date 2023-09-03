@@ -20,22 +20,22 @@ import (
 	"strings"
 )
 
-// CommentApiService CommentApi service
-type CommentApiService service
+// CommentAPIService CommentAPI service
+type CommentAPIService service
 
-type CommentApiCreateCommentRequest struct {
+type CommentAPICreateCommentRequest struct {
 	ctx        context.Context
-	ApiService *CommentApiService
+	ApiService *CommentAPIService
 	comment    *Comment
 }
 
 // Create a new comment
-func (r CommentApiCreateCommentRequest) Comment(comment Comment) CommentApiCreateCommentRequest {
+func (r CommentAPICreateCommentRequest) Comment(comment Comment) CommentAPICreateCommentRequest {
 	r.comment = &comment
 	return r
 }
 
-func (r CommentApiCreateCommentRequest) Execute() (*Comment, *http.Response, error) {
+func (r CommentAPICreateCommentRequest) Execute() (*Comment, *http.Response, error) {
 	return r.ApiService.CreateCommentExecute(r)
 }
 
@@ -45,10 +45,10 @@ CreateComment Create a new comment
 Create a new comment
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return CommentApiCreateCommentRequest
+	@return CommentAPICreateCommentRequest
 */
-func (a *CommentApiService) CreateComment(ctx context.Context) CommentApiCreateCommentRequest {
-	return CommentApiCreateCommentRequest{
+func (a *CommentAPIService) CreateComment(ctx context.Context) CommentAPICreateCommentRequest {
+	return CommentAPICreateCommentRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -57,7 +57,7 @@ func (a *CommentApiService) CreateComment(ctx context.Context) CommentApiCreateC
 // Execute executes the request
 //
 //	@return Comment
-func (a *CommentApiService) CreateCommentExecute(r CommentApiCreateCommentRequest) (*Comment, *http.Response, error) {
+func (a *CommentAPIService) CreateCommentExecute(r CommentAPICreateCommentRequest) (*Comment, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodPost
 		localVarPostBody    interface{}
@@ -65,7 +65,7 @@ func (a *CommentApiService) CreateCommentExecute(r CommentApiCreateCommentReques
 		localVarReturnValue *Comment
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CommentApiService.CreateComment")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CommentAPIService.CreateComment")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -154,13 +154,13 @@ func (a *CommentApiService) CreateCommentExecute(r CommentApiCreateCommentReques
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type CommentApiGetCommentRequest struct {
+type CommentAPIGetCommentRequest struct {
 	ctx        context.Context
-	ApiService *CommentApiService
+	ApiService *CommentAPIService
 	id         int32
 }
 
-func (r CommentApiGetCommentRequest) Execute() (*Comment, *http.Response, error) {
+func (r CommentAPIGetCommentRequest) Execute() (*Comment, *http.Response, error) {
 	return r.ApiService.GetCommentExecute(r)
 }
 
@@ -171,10 +171,10 @@ Returns details about a particular comment
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id ID of the comment
-	@return CommentApiGetCommentRequest
+	@return CommentAPIGetCommentRequest
 */
-func (a *CommentApiService) GetComment(ctx context.Context, id int32) CommentApiGetCommentRequest {
-	return CommentApiGetCommentRequest{
+func (a *CommentAPIService) GetComment(ctx context.Context, id int32) CommentAPIGetCommentRequest {
+	return CommentAPIGetCommentRequest{
 		ApiService: a,
 		ctx:        ctx,
 		id:         id,
@@ -184,7 +184,7 @@ func (a *CommentApiService) GetComment(ctx context.Context, id int32) CommentApi
 // Execute executes the request
 //
 //	@return Comment
-func (a *CommentApiService) GetCommentExecute(r CommentApiGetCommentRequest) (*Comment, *http.Response, error) {
+func (a *CommentAPIService) GetCommentExecute(r CommentAPIGetCommentRequest) (*Comment, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -192,7 +192,7 @@ func (a *CommentApiService) GetCommentExecute(r CommentApiGetCommentRequest) (*C
 		localVarReturnValue *Comment
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CommentApiService.GetComment")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CommentAPIService.GetComment")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -277,27 +277,27 @@ func (a *CommentApiService) GetCommentExecute(r CommentApiGetCommentRequest) (*C
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type CommentApiGetUserCommentsRequest struct {
+type CommentAPIGetUserCommentsRequest struct {
 	ctx        context.Context
-	ApiService *CommentApiService
+	ApiService *CommentAPIService
 	username   string
 	limit      *int32
 	offset     *int32
 }
 
 // How many items to return at one time (max 100)
-func (r CommentApiGetUserCommentsRequest) Limit(limit int32) CommentApiGetUserCommentsRequest {
+func (r CommentAPIGetUserCommentsRequest) Limit(limit int32) CommentAPIGetUserCommentsRequest {
 	r.limit = &limit
 	return r
 }
 
 // The number of items to skip before starting to collect the result set
-func (r CommentApiGetUserCommentsRequest) Offset(offset int32) CommentApiGetUserCommentsRequest {
+func (r CommentAPIGetUserCommentsRequest) Offset(offset int32) CommentAPIGetUserCommentsRequest {
 	r.offset = &offset
 	return r
 }
 
-func (r CommentApiGetUserCommentsRequest) Execute() ([]Comment, *http.Response, error) {
+func (r CommentAPIGetUserCommentsRequest) Execute() ([]Comment, *http.Response, error) {
 	return r.ApiService.GetUserCommentsExecute(r)
 }
 
@@ -308,10 +308,10 @@ Gets all comments for a user
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param username username of the user
-	@return CommentApiGetUserCommentsRequest
+	@return CommentAPIGetUserCommentsRequest
 */
-func (a *CommentApiService) GetUserComments(ctx context.Context, username string) CommentApiGetUserCommentsRequest {
-	return CommentApiGetUserCommentsRequest{
+func (a *CommentAPIService) GetUserComments(ctx context.Context, username string) CommentAPIGetUserCommentsRequest {
+	return CommentAPIGetUserCommentsRequest{
 		ApiService: a,
 		ctx:        ctx,
 		username:   username,
@@ -321,7 +321,7 @@ func (a *CommentApiService) GetUserComments(ctx context.Context, username string
 // Execute executes the request
 //
 //	@return []Comment
-func (a *CommentApiService) GetUserCommentsExecute(r CommentApiGetUserCommentsRequest) ([]Comment, *http.Response, error) {
+func (a *CommentAPIService) GetUserCommentsExecute(r CommentAPIGetUserCommentsRequest) ([]Comment, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -329,7 +329,7 @@ func (a *CommentApiService) GetUserCommentsExecute(r CommentApiGetUserCommentsRe
 		localVarReturnValue []Comment
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CommentApiService.GetUserComments")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CommentAPIService.GetUserComments")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -420,12 +420,12 @@ func (a *CommentApiService) GetUserCommentsExecute(r CommentApiGetUserCommentsRe
 	return localVarReturnValue, localVarHTTPResponse, nil
 }
 
-type CommentApiGetUserFeedRequest struct {
+type CommentAPIGetUserFeedRequest struct {
 	ctx        context.Context
-	ApiService *CommentApiService
+	ApiService *CommentAPIService
 }
 
-func (r CommentApiGetUserFeedRequest) Execute() ([]Comment, *http.Response, error) {
+func (r CommentAPIGetUserFeedRequest) Execute() ([]Comment, *http.Response, error) {
 	return r.ApiService.GetUserFeedExecute(r)
 }
 
@@ -435,10 +435,10 @@ GetUserFeed Returns a users feed
 Returns a users feed
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return CommentApiGetUserFeedRequest
+	@return CommentAPIGetUserFeedRequest
 */
-func (a *CommentApiService) GetUserFeed(ctx context.Context) CommentApiGetUserFeedRequest {
-	return CommentApiGetUserFeedRequest{
+func (a *CommentAPIService) GetUserFeed(ctx context.Context) CommentAPIGetUserFeedRequest {
+	return CommentAPIGetUserFeedRequest{
 		ApiService: a,
 		ctx:        ctx,
 	}
@@ -447,7 +447,7 @@ func (a *CommentApiService) GetUserFeed(ctx context.Context) CommentApiGetUserFe
 // Execute executes the request
 //
 //	@return []Comment
-func (a *CommentApiService) GetUserFeedExecute(r CommentApiGetUserFeedRequest) ([]Comment, *http.Response, error) {
+func (a *CommentAPIService) GetUserFeedExecute(r CommentAPIGetUserFeedRequest) ([]Comment, *http.Response, error) {
 	var (
 		localVarHTTPMethod  = http.MethodGet
 		localVarPostBody    interface{}
@@ -455,7 +455,7 @@ func (a *CommentApiService) GetUserFeedExecute(r CommentApiGetUserFeedRequest) (
 		localVarReturnValue []Comment
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CommentApiService.GetUserFeed")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "CommentAPIService.GetUserFeed")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
