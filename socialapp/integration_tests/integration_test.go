@@ -106,7 +106,7 @@ func TestListUsers(t *testing.T) {
 	configuration.DefaultHeader["Cache-Control"] = "no-store"
 	func() {
 		createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
-		_, _, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+		_, _, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 		if err != nil {
 			t.Fatalf("Error creating user: %v", err)
 		}
@@ -125,9 +125,9 @@ func TestListUsers(t *testing.T) {
 	openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	// List users
-	_, r, err := apiClient.UserApi.ListUsers(openAPICtx).Limit(10).Offset(0).Execute()
+	_, r, err := apiClient.UserAPI.ListUsers(openAPICtx).Limit(10).Offset(0).Execute()
 	if err != nil {
-		t.Errorf("Error when calling `UserApi.ListUsers`: %v\n", err)
+		t.Errorf("Error when calling `UserAPI.ListUsers`: %v\n", err)
 		t.Errorf("Full HTTP response: %v\n", r)
 	}
 	if r.StatusCode != http.StatusOK {
@@ -153,11 +153,11 @@ func TestCreateUser(t *testing.T) {
 	user := *client.NewCreateUserRequest(username, "password", "FirstName_example", "LastName_example", email) // User | Create a new user
 
 	func() {
-		_, r, err := apiClient.UserApi.CreateUser(noAuthCtx).
+		_, r, err := apiClient.UserAPI.CreateUser(noAuthCtx).
 			CreateUserRequest(user).
 			Execute()
 		if err != nil {
-			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err, r)
+			t.Errorf("Error when calling `UserAPI.CreateUser`: %v\n %+v\n", err, r)
 		}
 		if r.StatusCode != http.StatusOK {
 			t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
@@ -176,9 +176,9 @@ func TestCreateUser(t *testing.T) {
 			t.Fatalf("Error getting oauth2 context: %v", err)
 		}
 
-		resp, r, err := apiClient.UserApi.GetUserByUsername(oauth2Ctx, username).Execute()
+		resp, r, err := apiClient.UserAPI.GetUserByUsername(oauth2Ctx, username).Execute()
 		if err != nil {
-			t.Errorf("Error when calling `UserApi.GetUserByUsername`: %v\n %+v\n", err, r)
+			t.Errorf("Error when calling `UserAPI.GetUserByUsername`: %v\n %+v\n", err, r)
 		}
 		if r.StatusCode != http.StatusOK {
 			t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
@@ -220,13 +220,13 @@ func TestCreateUser(t *testing.T) {
 			Email:     updatedEmail,
 		}
 
-		updateUserReq := apiClient.UserApi.
+		updateUserReq := apiClient.UserAPI.
 			UpdateUser(oauth2Ctx, username).
 			User(updatedUser)
 
 		uUser, res, err := updateUserReq.Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `UserApi.UpdateUser`: %v\n %+v\n", err, res)
+			t.Fatalf("Error when calling `UserAPI.UpdateUser`: %v\n %+v\n", err, res)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Errorf("Expected status code %d, got %d", http.StatusOK, res.StatusCode)
@@ -269,18 +269,18 @@ func TestFollowCycle(t *testing.T) {
 
 	// create users
 	func() {
-		_, r1, err1 := apiClient.UserApi.CreateUser(proxyCtx).
+		_, r1, err1 := apiClient.UserAPI.CreateUser(proxyCtx).
 			CreateUserRequest(user1).
 			Execute()
 		if err1 != nil {
-			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err1, r1)
+			t.Errorf("Error when calling `UserAPI.CreateUser`: %v\n %+v\n", err1, r1)
 		}
 
-		_, r2, err2 := apiClient.UserApi.CreateUser(proxyCtx).
+		_, r2, err2 := apiClient.UserAPI.CreateUser(proxyCtx).
 			CreateUserRequest(user2).
 			Execute()
 		if err2 != nil {
-			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err2, r2)
+			t.Errorf("Error when calling `UserAPI.CreateUser`: %v\n %+v\n", err2, r2)
 		}
 	}()
 
@@ -304,17 +304,17 @@ func TestFollowCycle(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error getting oauth2 context: %v", err)
 		}
-		r, err := apiClient.UserApi.FollowUser(oauth2Ctx, username2, username1).Execute()
+		r, err := apiClient.UserAPI.FollowUser(oauth2Ctx, username2, username1).Execute()
 		if err != nil {
-			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
+			t.Errorf("Error when calling `UserAPI.FollowUser`: %v\n %+v\n", err, r)
 		}
 	}()
 
 	// validate user 1 follows user 2
 	func() {
-		followers, r, err := apiClient.UserApi.GetUserFollowers(oauth2Ctx, username2).Execute()
+		followers, r, err := apiClient.UserAPI.GetUserFollowers(oauth2Ctx, username2).Execute()
 		if err != nil {
-			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
+			t.Errorf("Error when calling `UserAPI.FollowUser`: %v\n %+v\n", err, r)
 		}
 		if len(followers) != 1 {
 			t.Errorf("Expected 1 follower, got %d", len(followers))
@@ -326,17 +326,17 @@ func TestFollowCycle(t *testing.T) {
 
 	// user 1 unfollows user 2
 	func() {
-		r, err := apiClient.UserApi.UnfollowUser(oauth2Ctx, username2, username1).Execute()
+		r, err := apiClient.UserAPI.UnfollowUser(oauth2Ctx, username2, username1).Execute()
 		if err != nil {
-			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
+			t.Errorf("Error when calling `UserAPI.FollowUser`: %v\n %+v\n", err, r)
 		}
 	}()
 
 	// validate user 1 unfollows user 2
 	func() {
-		followers, r, err := apiClient.UserApi.GetUserFollowers(oauth2Ctx, username2).Execute()
+		followers, r, err := apiClient.UserAPI.GetUserFollowers(oauth2Ctx, username2).Execute()
 		if err != nil {
-			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
+			t.Errorf("Error when calling `UserAPI.FollowUser`: %v\n %+v\n", err, r)
 		}
 
 		if len(followers) != 0 {
@@ -370,20 +370,20 @@ func TestGetExpectedFeed(t *testing.T) {
 
 	// create users
 	func() {
-		_, r1, err1 := apiClient.UserApi.
+		_, r1, err1 := apiClient.UserAPI.
 			CreateUser(proxyCtx).
 			CreateUserRequest(user1).
 			Execute()
 		if err1 != nil {
-			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err1, r1)
+			t.Errorf("Error when calling `UserAPI.CreateUser`: %v\n %+v\n", err1, r1)
 		}
 
-		_, r2, err2 := apiClient.UserApi.
+		_, r2, err2 := apiClient.UserAPI.
 			CreateUser(proxyCtx).
 			CreateUserRequest(user2).
 			Execute()
 		if err2 != nil {
-			t.Errorf("Error when calling `UserApi.CreateUser`: %v\n %+v\n", err2, r2)
+			t.Errorf("Error when calling `UserAPI.CreateUser`: %v\n %+v\n", err2, r2)
 		}
 	}()
 
@@ -408,13 +408,13 @@ func TestGetExpectedFeed(t *testing.T) {
 	}
 
 	func() {
-		r, err := apiClient.UserApi.FollowUser(
+		r, err := apiClient.UserAPI.FollowUser(
 			oauth2Ctx1,
 			username2,
 			username1).
 			Execute()
 		if err != nil {
-			t.Errorf("Error when calling `UserApi.FollowUser`: %v\n %+v\n", err, r)
+			t.Errorf("Error when calling `UserAPI.FollowUser`: %v\n %+v\n", err, r)
 		}
 	}()
 
@@ -435,22 +435,22 @@ func TestGetExpectedFeed(t *testing.T) {
 	}
 	func() {
 		comment := *client.NewComment("Test comment", username2)
-		_, r, err := apiClient.CommentApi.
+		_, r, err := apiClient.CommentAPI.
 			CreateComment(oauth2Ctx2).
 			Comment(comment).
 			Execute()
 		if err != nil {
-			t.Errorf("Error when calling `UserApi.PostComment`: %v\n %+v\n", err, r)
+			t.Errorf("Error when calling `UserAPI.PostComment`: %v\n %+v\n", err, r)
 		}
 	}()
 
 	// validate that comment from user 2 is in feed of user 1
 	func() {
-		feed, r, err := apiClient.CommentApi.
+		feed, r, err := apiClient.CommentAPI.
 			GetUserFeed(oauth2Ctx1).
 			Execute()
 		if err != nil {
-			t.Errorf("Error when calling `UserApi.GetUserFeed`: %v\n %+v\n", err, r)
+			t.Errorf("Error when calling `UserAPI.GetUserFeed`: %v\n %+v\n", err, r)
 		}
 		if len(feed) != 1 {
 			t.Errorf("Expected 1 post in feed, got %d", len(feed))
@@ -462,11 +462,11 @@ func TestGetExpectedFeed(t *testing.T) {
 
 	// validate that feed from user 2 is empty
 	func() {
-		feed, r, err := apiClient.CommentApi.
+		feed, r, err := apiClient.CommentAPI.
 			GetUserFeed(oauth2Ctx2).
 			Execute()
 		if err != nil {
-			t.Errorf("Error when calling `UserApi.GetUserFeed`: %v\n %+v\n", err, r)
+			t.Errorf("Error when calling `UserAPI.GetUserFeed`: %v\n %+v\n", err, r)
 		}
 		if len(feed) != 0 {
 			t.Errorf("Expected 0 post in feed, got %d: \n %+v", len(feed), feed)
@@ -492,7 +492,7 @@ func TestGetAccessToken(t *testing.T) {
 	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", email)
 	// create user
 	func() {
-		_, _, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+		_, _, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 		if err != nil {
 			t.Fatalf("Error creating user: %v", err)
 		}
@@ -517,9 +517,9 @@ func TestGetAccessToken(t *testing.T) {
 	}
 
 	// get token
-	token, res, err := apiClient.AuthenticationApi.GetAccessToken(oauth2Ctx).Execute()
+	token, res, err := apiClient.AuthenticationAPI.GetAccessToken(oauth2Ctx).Execute()
 	if err != nil {
-		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
+		t.Errorf("Error when calling `AuthenticationAPI.GetAccessToken`: %v", err)
 	}
 	// assert scopes are correct
 	if res.Status != "200 OK" {
@@ -549,11 +549,9 @@ func TestRegisterUserFlow(t *testing.T) {
 	createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
 
 	// create a user, no auth needed
-	// POST /user
-	// {user}
-	_, res, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+	_, res, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 	if err != nil {
-		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
+		t.Errorf("Error when calling `UserAPI.CreateUser`: %v", err)
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -576,9 +574,9 @@ func TestRegisterUserFlow(t *testing.T) {
 
 	// Get user by using oauath2 token
 	func() {
-		_, res, err := apiClient.UserApi.GetUserByUsername(oauth2Ctx, username1).Execute()
+		_, res, err := apiClient.UserAPI.GetUserByUsername(oauth2Ctx, username1).Execute()
 		if err != nil {
-			t.Errorf("Error when calling `UserApi.GetUsers`: %v", err)
+			t.Errorf("Error when calling `UserAPI.GetUsers`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Errorf("Expected status code 200, got %d", res.StatusCode)
@@ -588,9 +586,9 @@ func TestRegisterUserFlow(t *testing.T) {
 	// TODO API Should return 401 if no auth is provided
 	// validate 403 if no auth is provided
 	func() {
-		user, res, err := apiClient.UserApi.GetUserByUsername(proxyCtx, username1).Execute()
+		user, res, err := apiClient.UserAPI.GetUserByUsername(proxyCtx, username1).Execute()
 		if err == nil {
-			t.Errorf("Error when calling `UserApi.GetUsers`: %v", err)
+			t.Errorf("Error when calling `UserAPI.GetUsers`: %v", err)
 		}
 		if res.StatusCode != http.StatusForbidden { // TOOD fix to 401
 			t.Errorf("Expected status code 401, got %d", res.StatusCode)
@@ -622,9 +620,9 @@ func TestChangePassword(t *testing.T) {
 	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
 
 	// create a user, no auth needed
-	_, res, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+	_, res, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 	if err != nil {
-		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
+		t.Errorf("Error when calling `UserAPI.CreateUser`: %v", err)
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -645,9 +643,9 @@ func TestChangePassword(t *testing.T) {
 	newPassword := password + "new"
 	func() {
 		changePwdReq := client.NewChangePasswordRequest(password, newPassword)
-		_, res, err := apiClient.UserApi.ChangePassword(oauth2Ctx).ChangePasswordRequest(*changePwdReq).Execute()
+		_, res, err := apiClient.UserAPI.ChangePassword(oauth2Ctx).ChangePasswordRequest(*changePwdReq).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `UserApi.ChangePassword`: %v", err)
+			t.Fatalf("Error when calling `UserAPI.ChangePassword`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -656,9 +654,9 @@ func TestChangePassword(t *testing.T) {
 
 	// attempt to get token with old password, expect 401
 	// func() {
-	// 	token, res, err := apiClient.AuthenticationApi.GetAccessToken(oauth2Ctx).Execute()
+	// 	token, res, err := apiClient.AuthenticationAPI.GetAccessToken(oauth2Ctx).Execute()
 	// 	if err == nil {
-	// 		t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
+	// 		t.Errorf("Error when calling `AuthenticationAPI.GetAccessToken`: %v", err)
 	// 	}
 	// 	if res.StatusCode != http.StatusUnauthorized {
 	// 		t.Errorf("Expected status code 401, got %d", res.StatusCode)
@@ -680,9 +678,9 @@ func TestChangePassword(t *testing.T) {
 		if err != nil {
 			t.Fatalf("Error getting oauth2 context: %v", err)
 		}
-		token, res, err := apiClient.AuthenticationApi.GetAccessToken(newPwdOauth2Ctx).Execute()
+		token, res, err := apiClient.AuthenticationAPI.GetAccessToken(newPwdOauth2Ctx).Execute()
 		if err != nil {
-			t.Errorf("Error when calling `AuthenticationApi.GetAccessToken`: %v", err)
+			t.Errorf("Error when calling `AuthenticationAPI.GetAccessToken`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Errorf("Expected status code 200, got %d", res.StatusCode)
@@ -722,9 +720,9 @@ func TestRoleLifecycle(t *testing.T) {
 	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
 
 	// create a user, no auth needed
-	_, res, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+	_, res, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 	if err != nil {
-		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
+		t.Errorf("Error when calling `UserAPI.CreateUser`: %v", err)
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -744,18 +742,18 @@ func TestRoleLifecycle(t *testing.T) {
 
 	// create a role
 	newRole := client.NewRole(fmt.Sprintf("Test-CreateRole-%d1", time.Now().UnixNano()))
-	createdRole, res, err := apiClient.RoleApi.CreateRole(oauth2Ctx).Role(*newRole).Execute()
+	createdRole, res, err := apiClient.RoleAPI.CreateRole(oauth2Ctx).Role(*newRole).Execute()
 	if err != nil {
-		t.Fatalf("Error when calling `RoleApi.CreateRole`: %v", err)
+		t.Fatalf("Error when calling `RoleAPI.CreateRole`: %v", err)
 	}
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
 	}
 
 	// get role
-	gettedRole, res, err := apiClient.RoleApi.GetRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+	gettedRole, res, err := apiClient.RoleAPI.GetRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
 	if err != nil {
-		t.Fatalf("Error when calling `RoleApi.GetRole`: %v", err)
+		t.Fatalf("Error when calling `RoleAPI.GetRole`: %v", err)
 	}
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -768,24 +766,24 @@ func TestRoleLifecycle(t *testing.T) {
 	// create scope
 	newScope := client.NewScope(fmt.Sprintf("Test-CreateScope-%d1", time.Now().UnixNano()), "Test-CreateScope-Description")
 	func() {
-		createdScope, res, err := apiClient.ScopeApi.CreateScope(oauth2Ctx).Scope(*newScope).Execute()
+		createdScope, res, err := apiClient.ScopeAPI.CreateScope(oauth2Ctx).Scope(*newScope).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `ScopeApi.CreateScope`: %v", err)
+			t.Fatalf("Error when calling `ScopeAPI.CreateScope`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
 		}
 		// attach scope to role
 		scopesToAdd := []string{newScope.Name}
-		res, err = apiClient.RoleApi.AddScopeToRole(oauth2Ctx, int32(*createdRole.Id)).RequestBody(scopesToAdd).Execute()
+		res, err = apiClient.RoleAPI.AddScopeToRole(oauth2Ctx, int32(*createdRole.Id)).RequestBody(scopesToAdd).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `RoleApi.AddScopeToRole`: %v", err)
+			t.Fatalf("Error when calling `RoleAPI.AddScopeToRole`: %v", err)
 		}
 		// verify scope is attached to role
 		// get role scopes
-		roleScopes, res, err := apiClient.RoleApi.ListScopesForRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		roleScopes, res, err := apiClient.RoleAPI.ListScopesForRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `RoleApi.ListScopesForRole`: %v", err)
+			t.Fatalf("Error when calling `RoleAPI.ListScopesForRole`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -797,18 +795,18 @@ func TestRoleLifecycle(t *testing.T) {
 			t.Fatalf("Expected scope name %s, got %s", newScope.Name, roleScopes[0].Name)
 		}
 		// remove scope from role
-		res, err = apiClient.RoleApi.RemoveScopeFromRole(oauth2Ctx, int32(*createdRole.Id), int32(*createdScope.Id)).Execute()
+		res, err = apiClient.RoleAPI.RemoveScopeFromRole(oauth2Ctx, int32(*createdRole.Id), int32(*createdScope.Id)).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `RoleApi.RemoveScopeFromRole`: %v", err)
+			t.Fatalf("Error when calling `RoleAPI.RemoveScopeFromRole`: %v", err)
 		}
 		if res.StatusCode != http.StatusNoContent {
 			t.Fatalf("Expected status code 204, got %d", res.StatusCode)
 		}
 		// verify scope is removed from role
 		// get role scopes
-		roleScopes, res, err = apiClient.RoleApi.ListScopesForRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		roleScopes, res, err = apiClient.RoleAPI.ListScopesForRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `RoleApi.ListScopesForRole`: %v", err)
+			t.Fatalf("Error when calling `RoleAPI.ListScopesForRole`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -817,18 +815,18 @@ func TestRoleLifecycle(t *testing.T) {
 			t.Fatalf("Expected 0 scopes, got %d", len(roleScopes))
 		}
 		// detach scope from role
-		res, err = apiClient.RoleApi.RemoveScopeFromRole(oauth2Ctx, int32(*createdRole.Id), int32(*createdScope.Id)).Execute()
+		res, err = apiClient.RoleAPI.RemoveScopeFromRole(oauth2Ctx, int32(*createdRole.Id), int32(*createdScope.Id)).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `RoleApi.RemoveScopeFromRole`: %v", err)
+			t.Fatalf("Error when calling `RoleAPI.RemoveScopeFromRole`: %v", err)
 		}
 		if res.StatusCode != http.StatusNoContent {
 			t.Fatalf("Expected status code 204, got %d", res.StatusCode)
 		}
 		// verify scope is detached from role
 		// get role scopes
-		roleScopes, res, err = apiClient.RoleApi.ListScopesForRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		roleScopes, res, err = apiClient.RoleAPI.ListScopesForRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `RoleApi.ListScopesForRole`: %v", err)
+			t.Fatalf("Error when calling `RoleAPI.ListScopesForRole`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -838,9 +836,9 @@ func TestRoleLifecycle(t *testing.T) {
 		}
 
 		// delete scope
-		res, err = apiClient.ScopeApi.DeleteScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+		res, err = apiClient.ScopeAPI.DeleteScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `ScopeApi.DeleteScope`: %v", err)
+			t.Fatalf("Error when calling `ScopeAPI.DeleteScope`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -853,9 +851,9 @@ func TestRoleLifecycle(t *testing.T) {
 	newRole.Name = updatedName
 
 	// update role
-	updatedRole, res, err := apiClient.RoleApi.UpdateRole(oauth2Ctx, int32(*createdRole.Id)).Role(*newRole).Execute()
+	updatedRole, res, err := apiClient.RoleAPI.UpdateRole(oauth2Ctx, int32(*createdRole.Id)).Role(*newRole).Execute()
 	if err != nil {
-		t.Fatalf("Error when calling `RoleApi.UpdateRole`: %v", err)
+		t.Fatalf("Error when calling `RoleAPI.UpdateRole`: %v", err)
 	}
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -871,9 +869,9 @@ func TestRoleLifecycle(t *testing.T) {
 	}
 
 	// get role again to check if updated
-	gettedRole, res, err = apiClient.RoleApi.GetRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+	gettedRole, res, err = apiClient.RoleAPI.GetRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
 	if err != nil {
-		t.Fatalf("Error when calling `RoleApi.GetRole`: %v", err)
+		t.Fatalf("Error when calling `RoleAPI.GetRole`: %v", err)
 	}
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -890,9 +888,9 @@ func TestRoleLifecycle(t *testing.T) {
 
 	// delete role
 	func() {
-		res, err := apiClient.RoleApi.DeleteRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		res, err := apiClient.RoleAPI.DeleteRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `RoleApi.DeleteRole`: %v", err)
+			t.Fatalf("Error when calling `RoleAPI.DeleteRole`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -900,9 +898,9 @@ func TestRoleLifecycle(t *testing.T) {
 	}()
 
 	// try to get deleted role
-	gettedDeletedRole, res, err := apiClient.RoleApi.GetRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+	gettedDeletedRole, res, err := apiClient.RoleAPI.GetRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
 	if err == nil {
-		t.Fatalf("Expected error when calling `RoleApi.GetRole`, got nil")
+		t.Fatalf("Expected error when calling `RoleAPI.GetRole`, got nil")
 	}
 	if res.StatusCode != http.StatusNotFound {
 		t.Fatalf("Expected status code 404, got %d", res.StatusCode)
@@ -936,9 +934,9 @@ func TestScopeLifeCycle(t *testing.T) {
 	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
 
 	// create a user, no auth needed
-	_, res, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+	_, res, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 	if err != nil {
-		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
+		t.Errorf("Error when calling `UserAPI.CreateUser`: %v", err)
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -959,18 +957,18 @@ func TestScopeLifeCycle(t *testing.T) {
 	newScope := client.NewScope(fmt.Sprintf("Test-CreateScope-%d1", time.Now().UnixNano()), "Test-CreateScope-Description1")
 	// create a scope
 
-	createdScope, res, err := apiClient.ScopeApi.CreateScope(oauth2Ctx).Scope(*newScope).Execute()
+	createdScope, res, err := apiClient.ScopeAPI.CreateScope(oauth2Ctx).Scope(*newScope).Execute()
 	if err != nil {
-		t.Fatalf("Error when calling `ScopeApi.CreateScope`: %v", err)
+		t.Fatalf("Error when calling `ScopeAPI.CreateScope`: %v", err)
 	}
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
 	}
 
 	// get scope
-	gettedScope, res, err := apiClient.ScopeApi.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+	gettedScope, res, err := apiClient.ScopeAPI.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
 	if err != nil {
-		t.Fatalf("Error when calling `ScopeApi.GetScope`: %v", err)
+		t.Fatalf("Error when calling `ScopeAPI.GetScope`: %v", err)
 	}
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -985,9 +983,9 @@ func TestScopeLifeCycle(t *testing.T) {
 	newScope.Name = updatedName
 
 	// update scope
-	updatedScope, res, err := apiClient.ScopeApi.UpdateScope(oauth2Ctx, int32(*createdScope.Id)).Scope(*newScope).Execute()
+	updatedScope, res, err := apiClient.ScopeAPI.UpdateScope(oauth2Ctx, int32(*createdScope.Id)).Scope(*newScope).Execute()
 	if err != nil {
-		t.Fatalf("Error when calling `ScopeApi.UpdateScope`: %v", err)
+		t.Fatalf("Error when calling `ScopeAPI.UpdateScope`: %v", err)
 	}
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -1003,9 +1001,9 @@ func TestScopeLifeCycle(t *testing.T) {
 	}
 
 	// get scope again to check if updated
-	gettedScope, res, err = apiClient.ScopeApi.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+	gettedScope, res, err = apiClient.ScopeAPI.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
 	if err != nil {
-		t.Fatalf("Error when calling `ScopeApi.GetScope`: %v", err)
+		t.Fatalf("Error when calling `ScopeAPI.GetScope`: %v", err)
 	}
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -1022,9 +1020,9 @@ func TestScopeLifeCycle(t *testing.T) {
 
 	// delete scope
 	func() {
-		res, err := apiClient.ScopeApi.DeleteScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+		res, err := apiClient.ScopeAPI.DeleteScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `ScopeApi.DeleteScope`: %v", err)
+			t.Fatalf("Error when calling `ScopeAPI.DeleteScope`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Fatalf("Expected status code 204, got %d", res.StatusCode)
@@ -1032,9 +1030,9 @@ func TestScopeLifeCycle(t *testing.T) {
 	}()
 
 	// try to get deleted scope
-	gettedDeletedScope, res, err := apiClient.ScopeApi.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+	gettedDeletedScope, res, err := apiClient.ScopeAPI.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
 	if err == nil {
-		t.Fatalf("Expected error when calling `ScopeApi.GetScope`, got nil")
+		t.Fatalf("Expected error when calling `ScopeAPI.GetScope`, got nil")
 	}
 	if res.StatusCode != http.StatusNotFound {
 		t.Fatalf("Expected status code 404, got %d", res.StatusCode)
@@ -1072,9 +1070,9 @@ func TestUserRoleLifeCycle(t *testing.T) {
 	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
 
 	// create a user, no auth needed
-	_, res, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+	_, res, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 	if err != nil {
-		t.Errorf("Error when calling `UserApi.CreateUser`: %v", err)
+		t.Errorf("Error when calling `UserAPI.CreateUser`: %v", err)
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -1095,18 +1093,18 @@ func TestUserRoleLifeCycle(t *testing.T) {
 	newScope := client.NewScope(fmt.Sprintf("Test-CreateScope-%d1", time.Now().UnixNano()), "Test-CreateScope-Description1")
 
 	// create a scope
-	cretedScope, res, err := apiClient.ScopeApi.CreateScope(oauth2Ctx).Scope(*newScope).Execute()
+	cretedScope, res, err := apiClient.ScopeAPI.CreateScope(oauth2Ctx).Scope(*newScope).Execute()
 	if err != nil {
-		t.Fatalf("Error when calling `ScopeApi.CreateScope`: %v", err)
+		t.Fatalf("Error when calling `ScopeAPI.CreateScope`: %v", err)
 	}
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
 	}
 	t.Cleanup(func() {
 		// delete scope
-		res, err := apiClient.ScopeApi.DeleteScope(oauth2Ctx, int32(*cretedScope.Id)).Execute()
+		res, err := apiClient.ScopeAPI.DeleteScope(oauth2Ctx, int32(*cretedScope.Id)).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `ScopeApi.DeleteScope`: %v", err)
+			t.Fatalf("Error when calling `ScopeAPI.DeleteScope`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Fatalf("Expected status code 204, got %d", res.StatusCode)
@@ -1115,25 +1113,25 @@ func TestUserRoleLifeCycle(t *testing.T) {
 
 	// create role
 	newRole := client.NewRole(fmt.Sprintf("Test-CreateRole-%d1", time.Now().UnixNano()))
-	createdRole, res, err := apiClient.RoleApi.CreateRole(oauth2Ctx).Role(*newRole).Execute()
+	createdRole, res, err := apiClient.RoleAPI.CreateRole(oauth2Ctx).Role(*newRole).Execute()
 	if err != nil {
-		t.Fatalf("Error when calling `RoleApi.CreateRole`: %v", err)
+		t.Fatalf("Error when calling `RoleAPI.CreateRole`: %v", err)
 	}
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
 	}
 
 	// attach role to user
-	_, res, err = apiClient.UserApi.UpdateRolesForUser(oauth2Ctx, username).RequestBody([]string{createdRole.Name}).Execute()
+	_, res, err = apiClient.UserAPI.UpdateRolesForUser(oauth2Ctx, username).RequestBody([]string{createdRole.Name}).Execute()
 	if err != nil {
-		t.Fatalf("Error when calling `UserApi.UpdateRolesForUser`: %v", err)
+		t.Fatalf("Error when calling `UserAPI.UpdateRolesForUser`: %v", err)
 	}
 
 	t.Cleanup(func() {
 		// delete role
-		res, err := apiClient.RoleApi.DeleteRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		res, err := apiClient.RoleAPI.DeleteRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
 		if err != nil {
-			t.Fatalf("Error when calling `RoleApi.DeleteRole`: %v", err)
+			t.Fatalf("Error when calling `RoleAPI.DeleteRole`: %v", err)
 		}
 		if res.StatusCode != http.StatusOK {
 			t.Fatalf("Expected status code 204, got %d", res.StatusCode)
@@ -1141,9 +1139,9 @@ func TestUserRoleLifeCycle(t *testing.T) {
 	})
 
 	// List user roles
-	roles, res, err := apiClient.UserApi.GetRolesForUser(oauth2Ctx, username).Execute()
+	roles, res, err := apiClient.UserAPI.GetRolesForUser(oauth2Ctx, username).Execute()
 	if err != nil {
-		t.Fatalf("Error when calling `UserApi.GetRolesForUser`: %v", err)
+		t.Fatalf("Error when calling `UserAPI.GetRolesForUser`: %v", err)
 	}
 	if res.StatusCode != http.StatusOK {
 		t.Fatalf("Expected status code 200, got %d", res.StatusCode)
@@ -1175,7 +1173,7 @@ func TestCacheRequestSameUser(t *testing.T) {
 	apiClient = client.NewAPIClient(configuration)
 	func() {
 		createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
-		_, _, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+		_, _, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 		if err != nil {
 			t.Fatalf("Error creating user: %v", err)
 		}
@@ -1200,14 +1198,14 @@ func TestCacheRequestSameUser(t *testing.T) {
 
 	// List 100 users, different offset on every execution
 	offset := time.Now().UnixNano() % 5000
-	listedUsers, r, err := apiClient.UserApi.
+	listedUsers, r, err := apiClient.UserAPI.
 		ListUsers(openAPICtx).
 		Limit(5).
 		Offset(int32(offset)).
 		Execute()
 
 	if err != nil {
-		t.Errorf("Error when calling `UserApi.ListUsers`: %v\n", err)
+		t.Errorf("Error when calling `UserAPI.ListUsers`: %v\n", err)
 		t.Errorf("Full HTTP response: %v\n", r)
 	}
 	if r.StatusCode != http.StatusOK {
@@ -1217,9 +1215,9 @@ func TestCacheRequestSameUser(t *testing.T) {
 	// get user info 5 times
 	for _, currentUser := range listedUsers {
 		for i := 0; i < 50; i++ {
-			_, r, err = apiClient.UserApi.GetUserByUsername(openAPICtx, currentUser.Username).Execute()
+			_, r, err = apiClient.UserAPI.GetUserByUsername(openAPICtx, currentUser.Username).Execute()
 			if err != nil {
-				t.Errorf("Error when calling `UserApi.GetUser`: %v\n", err)
+				t.Errorf("Error when calling `UserAPI.GetUser`: %v\n", err)
 				t.Errorf("Full HTTP response: %v", r)
 			}
 			if r.StatusCode != http.StatusOK {
@@ -1227,9 +1225,9 @@ func TestCacheRequestSameUser(t *testing.T) {
 			}
 
 			// get user comments
-			_, r, err = apiClient.CommentApi.GetUserComments(openAPICtx, currentUser.Username).Execute()
+			_, r, err = apiClient.CommentAPI.GetUserComments(openAPICtx, currentUser.Username).Execute()
 			if err != nil {
-				t.Errorf("Error when calling `CommentApi.GetUserComments`: %v\n", err)
+				t.Errorf("Error when calling `CommentAPI.GetUserComments`: %v\n", err)
 				t.Errorf("Full HTTP response: %v", r)
 			}
 			if r.StatusCode != http.StatusOK {
@@ -1237,9 +1235,9 @@ func TestCacheRequestSameUser(t *testing.T) {
 			}
 
 			// get feed
-			_, r, err = apiClient.CommentApi.GetUserFeed(openAPICtx).Execute()
+			_, r, err = apiClient.CommentAPI.GetUserFeed(openAPICtx).Execute()
 			if err != nil {
-				t.Errorf("Error when calling `CommentApi.GetUserFeed`: %v\n", err)
+				t.Errorf("Error when calling `CommentAPI.GetUserFeed`: %v\n", err)
 				t.Errorf("Full HTTP response: %v", r)
 			}
 			if r.StatusCode != http.StatusOK {
@@ -1265,7 +1263,7 @@ func TestURLLifeCycle(t *testing.T) {
 	apiClient = client.NewAPIClient(configuration)
 	func() {
 		createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
-		_, _, err := apiClient.UserApi.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+		_, _, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 		if err != nil {
 			t.Fatalf("Error creating user: %v", err)
 		}
@@ -1286,9 +1284,9 @@ func TestURLLifeCycle(t *testing.T) {
 
 	// create url
 	newURL := client.NewURL("https://www.google.com", "google")
-	_, r, err := apiClient.URLApi.CreateUrl(openAPICtx).URL(*newURL).Execute()
+	_, r, err := apiClient.URLAPI.CreateUrl(openAPICtx).URL(*newURL).Execute()
 	if err != nil {
-		t.Errorf("Error when calling `URLApi.CreateURL`: %v\n", err)
+		t.Errorf("Error when calling `URLAPI.CreateURL`: %v\n", err)
 		t.Errorf("Full HTTP response: %v ", r)
 	}
 
@@ -1297,9 +1295,9 @@ func TestURLLifeCycle(t *testing.T) {
 	}
 
 	// get url
-	getUrlRes, err := apiClient.URLApi.GetUrl(proxyCtx, "google").Execute()
+	getUrlRes, err := apiClient.URLAPI.GetUrl(proxyCtx, "google").Execute()
 	if err != nil {
-		t.Errorf("Error when calling `URLApi.GetURL`: %v\n", err)
+		t.Errorf("Error when calling `URLAPI.GetURL`: %v\n", err)
 		t.Errorf("Full HTTP response: %v ", r)
 		t.Fatalf("Error getting url: %v", err)
 	}
@@ -1309,9 +1307,9 @@ func TestURLLifeCycle(t *testing.T) {
 	}
 
 	// delete url
-	deleteUrlRes, err := apiClient.URLApi.DeleteUrl(openAPICtx, "google").Execute()
+	deleteUrlRes, err := apiClient.URLAPI.DeleteUrl(openAPICtx, "google").Execute()
 	if err != nil {
-		t.Errorf("Error when calling `URLApi.DeleteURL`: %v\n", err)
+		t.Errorf("Error when calling `URLAPI.DeleteURL`: %v\n", err)
 		t.Errorf("Full HTTP response: %v ", r)
 		t.Fatalf("Error deleting url: %v", err)
 	}
@@ -1321,9 +1319,9 @@ func TestURLLifeCycle(t *testing.T) {
 	}
 
 	// get url
-	getUrlRes, err = apiClient.URLApi.GetUrl(proxyCtx, "google").Execute()
+	getUrlRes, err = apiClient.URLAPI.GetUrl(proxyCtx, "google").Execute()
 	if err == nil {
-		t.Errorf("Expected error when calling `URLApi.GetURL`, got none")
+		t.Errorf("Expected error when calling `URLAPI.GetURL`, got none")
 	}
 	if getUrlRes.StatusCode != http.StatusNotFound {
 		t.Errorf("Expected status code %d, got %d", http.StatusNotFound, getUrlRes.StatusCode)
