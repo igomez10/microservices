@@ -185,7 +185,7 @@ func run(config Configuration) {
 		DB:     config.queries,
 		DBConn: config.dbConnections.GetPool(),
 	}
-	CommentApiController := openapi.NewCommentApiController(CommentApiService)
+	CommentApiController := openapi.NewCommentAPIController(CommentApiService)
 
 	// User service
 	UserApiService := &user.UserApiService{
@@ -193,34 +193,34 @@ func run(config Configuration) {
 		DBConn:        config.dbConnections.GetPool(),
 		EventRecorder: eventRecorder,
 	}
-	UserApiController := openapi.NewUserApiController(UserApiService)
+	UserApiController := openapi.NewUserAPIController(UserApiService)
 
 	// Auth service
 	AuthApiService := &authentication.AuthenticationService{
 		DB:     config.queries,
 		DBConn: config.dbConnections.GetPool(),
 	}
-	AuthApiController := openapi.NewAuthenticationApiController(AuthApiService)
+	AuthApiController := openapi.NewAuthenticationAPIController(AuthApiService)
 
 	// Role service
 	RoleAPIService := &role.RoleApiService{
 		DB:     config.queries,
 		DBConn: config.dbConnections.GetPool(),
 	}
-	RoleAPIController := openapi.NewRoleApiController(RoleAPIService)
+	RoleAPIController := openapi.NewRoleAPIController(RoleAPIService)
 
 	// Scope service
 	ScopeAPIService := &scope.ScopeApiService{
 		DB:     config.queries,
 		DBConn: config.dbConnections.GetPool(),
 	}
-	ScopeAPIController := openapi.NewScopeApiController(ScopeAPIService)
+	ScopeAPIController := openapi.NewScopeAPIController(ScopeAPIService)
 
 	URLAPIService := &socialappurl.URLApiService{
 		DB:     config.queries,
 		DBConn: config.dbConnections.GetPool(),
 	}
-	URLAPIController := openapi.NewURLApiController(URLAPIService)
+	URLAPIController := openapi.NewURLAPIController(URLAPIService)
 
 	routers := []openapi.Router{
 		CommentApiController,
