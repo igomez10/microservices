@@ -81,6 +81,8 @@ CREATE TABLE IF NOT EXISTS tokens ( -- short term tokens
 );
 CREATE INDEX IF NOT EXISTS tokens_user_id_idx ON tokens (user_id);
 CREATE INDEX IF NOT EXISTS tokens_token_idx ON tokens (token);
+CREATE INDEX IF NOT EXISTS tokens_valid_from_idx ON tokens (valid_from);
+CREATE INDEX IF NOT EXISTS tokens_valid_until_idx ON tokens (valid_until);
 
 CREATE SEQUENCE IF NOT EXISTS roles_id_seq;
 CREATE TABLE IF NOT EXISTS roles (
