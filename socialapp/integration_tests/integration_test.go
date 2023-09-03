@@ -557,7 +557,7 @@ func TestRegisterUserFlow(t *testing.T) {
 	}
 
 	if res.StatusCode != http.StatusOK {
-		t.Errorf("Expected status code 201, got %d", res.StatusCode)
+		t.Errorf("Expected status code 200, got %d", res.StatusCode)
 	}
 
 	scopes := []string{
