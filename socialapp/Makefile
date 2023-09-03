@@ -59,6 +59,12 @@ generate-openapi:
 		--generator-name jmeter \
 		--output jmeter
 
+	# generate postman collection
+	rm -rf postman
+	openapi-generator-cli generate --input-spec openapi.yaml \
+		--generator-name postman-collection \
+		--output postman
+
 
 sqlc-generate:
 	sqlc generate --file db/sqlc.yaml
