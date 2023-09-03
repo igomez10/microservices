@@ -42,5 +42,5 @@ receivers:
     slack_configs:
       - channel: "#alerts"
         title: "{{ .Status | toUpper }}: {{ .CommonLabels.alertname }} ({{ .CommonLabels.datacenter }})"
-        text: "Grafana: https://ocivm:3005/alerting/list?ruleType=alerting&alertState=firing&view=list \n\n{{ range .Alerts }}<!channel> {{ .Annotations.summary }}\n{{ .Annotations.description }}\n{{ end }}"
+        text: "Grafana: http://ocivm:3005/alerting/list?ruleType=alerting&alertState=firing&view=list \n\n{{ range .Alerts }}<!channel> {{ .Annotations.summary }}\n{{ .Annotations.description }}\n{{ end }}"
         send_resolved: true
