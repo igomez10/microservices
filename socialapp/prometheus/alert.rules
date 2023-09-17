@@ -176,7 +176,7 @@ groups:
 
   - alert: PostgresqlUnusedReplicationSlot
     expr: 'pg_replication_slots_active == 0'
-    for: 1m
+    for: 30m
     labels:
       severity: warning
     annotations:
