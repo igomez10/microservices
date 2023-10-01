@@ -45,6 +45,12 @@ services:
       DATA_SOURCE_NAME: "postgresql://postgres:password@database:5432/postgres?sslmode=disable"
     ports:
       - 9187:9187
+    restart: unless-stopped
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:51000"
+        tag: "postgres-exporter"
 
   grafana:
     image: grafana/grafana
