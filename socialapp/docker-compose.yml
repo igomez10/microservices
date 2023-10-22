@@ -38,6 +38,9 @@ services:
       options:
         syslog-address: "udp://localhost:51000"
         tag: "database"
+    cpus: 2
+    mem_limit: 2g
+
 
   postgres-exporter:
     image: quay.io/prometheuscommunity/postgres-exporter
@@ -51,6 +54,8 @@ services:
       options:
         syslog-address: "udp://localhost:51000"
         tag: "postgres-exporter"
+    cpus: 0.5
+    mem_limit: 512m
 
   grafana:
     image: grafana/grafana
@@ -77,6 +82,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    cpus: 0.5
+    mem_limit: 512m
     # send logs to syslog
     logging:
       driver: "syslog"
@@ -116,6 +123,8 @@ services:
     expose:
       - 9093
     restart: always
+    cpus: 0.5
+    mem_limit: 512m
     logging:
       driver: "syslog"
       options:
@@ -146,6 +155,8 @@ services:
       - 9100
     ports:
       - 9100:9100
+    cpus: 0.5
+    mem_limit: 512m
     logging:
       driver: "syslog"
       options:
@@ -179,6 +190,8 @@ services:
       - 8080
     ports:
       - 8080:8080
+    cpus: 0.5
+    mem_limit: 512m
     logging:
       driver: "syslog"
       options:
@@ -197,6 +210,8 @@ services:
       - ${ZOOKEEPER_DATA_DIR}/log:/var/lib/zookeeper/log
       - ${ZOOKEEPER_DATA_DIR}:/var/lib/zookeeper/data
     restart: always
+    cpus: 0.5
+    mem_limit: 512m
     logging:
       driver: "syslog"
       options:
@@ -229,6 +244,8 @@ services:
       KAFKA_NUM_PARTITIONS: 3
       KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
     restart: always
+    cpus: 0.5
+    mem_limit: 512m
     logging:
       driver: "syslog"
       options:
@@ -257,6 +274,8 @@ services:
     volumes:
       - ${BROKER2_DATA_DIR}:/var/lib/kafka/data
     restart: always
+    cpus: 0.5
+    mem_limit: 512m
     logging:
       driver: "syslog"
       options:
@@ -285,6 +304,8 @@ services:
     volumes:
       - ${BROKER3_DATA_DIR}:/var/lib/kafka/data
     restart: always
+    cpus: 0.5
+    mem_limit: 512m
     logging:
       driver: "syslog"
       options:
@@ -305,6 +326,8 @@ services:
       - broker
       - broker2
       - broker3
+    cpus: 0.5
+    mem_limit: 512m
     logging:
       driver: "syslog"
       options:
@@ -320,7 +343,9 @@ services:
     environment:
       "ADD_TEST_JITTER": 1,
       "TEST_SETUP": ${TEST_SETUP},
-    restart: always
+    restart: "unless-stopped"
+    cpus: 0.5
+    mem_limit: 512m
     logging:
       driver: "syslog"
       options:
@@ -362,6 +387,8 @@ services:
       - prometheus
     ports:
       - "9114:9114"
+    cpus: 0.5
+    mem_limit: 512m
 
   debezium:
     image: quay.io/debezium/connect:2.3
@@ -388,6 +415,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    cpus: 0.5
+    mem_limit: 512m
     logging:
       driver: "syslog"
       options:
@@ -409,6 +438,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    cpus: 0.5
+    mem_limit: 512m
     logging:
       driver: "syslog"
       options:
