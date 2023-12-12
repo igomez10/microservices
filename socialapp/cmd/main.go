@@ -58,6 +58,7 @@ type Configuration struct {
 	cache               *cache.Cache
 	propertiesSubdomain *url.URL
 	newRelicApp         *newrelic.Application
+	defaultTimeout      time.Duration
 }
 
 func main() {
@@ -68,6 +69,7 @@ func main() {
 	appName := flag.String("appName", "socialapp", "name of the app for logs")
 	propertiesSubdomain := flag.String("propertiesSubdomain", os.Getenv("PROPERTIES_SUBDOMAIN"), "Properties subdomain")
 	newRelicLicense := flag.String("newRelicLicense", os.Getenv("NEW_RELIC_LICENSE"), "New relic license API Key")
+	defaultTimeout := flag.Duration("defaultTimeout", 10*time.Second, "Default timeout for requests")
 
 	flag.Parse()
 
@@ -157,6 +159,7 @@ func main() {
 		cache:               cache,
 		propertiesSubdomain: propertiesSubdomainURL,
 		newRelicApp:         newrelicApp,
+		defaultTimeout:      *defaultTimeout,
 	}
 
 	defer connections.Close()
@@ -280,7 +283,7 @@ func run(config Configuration) {
 		requestid.Middleware,
 		beacon.Middleware,
 		middleware.Recoverer,
-		middleware.Timeout(60 * time.Second),
+		middleware.Timeout(20 * time.Second),
 		kibanaAuthMiddleware.Authenticate,
 		authorizationRuler.Authorize,
 		middleware.RealIP,
@@ -314,7 +317,7 @@ func run(config Configuration) {
 		requestid.Middleware,
 		beacon.Middleware,
 		middleware.Recoverer,
-		middleware.Timeout(60 * time.Second),
+		middleware.Timeout(config.defaultTimeout),
 		socialappAuthenticationMiddleware.Authenticate,
 		middleware.RealIP,
 		config.cache.Middleware,
@@ -328,7 +331,7 @@ func run(config Configuration) {
 		requestid.Middleware,
 		beacon.Middleware,
 		middleware.Recoverer,
-		middleware.Timeout(60 * time.Second),
+		middleware.Timeout(20 * time.Second),
 		middleware.RealIP,
 	}
 	if err != nil {
