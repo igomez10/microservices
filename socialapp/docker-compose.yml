@@ -8,8 +8,9 @@ volumes:
   prometheus_data: {}
   grafana_data: {}
   db_data: {}
-  kafka_data:
-    driver: local
+  kafka-data: {}
+  kafka2_data: {}
+  kafka3_data: {}
   # phlare_data: {}
 
 services:
@@ -123,8 +124,8 @@ services:
     expose:
       - 9093
     restart: always
-    cpus: 0.5
-    mem_limit: 512m
+    cpus: 2
+    mem_limit: 2g
     logging:
       driver: "syslog"
       options:
@@ -155,8 +156,8 @@ services:
       - 9100
     ports:
       - 9100:9100
-    cpus: 0.5
-    mem_limit: 512m
+    cpus: 1
+    mem_limit: 1024m
     logging:
       driver: "syslog"
       options:
@@ -190,142 +191,199 @@ services:
       - 8080
     ports:
       - 8080:8080
-    cpus: 0.5
-    mem_limit: 512m
+    cpus: 2
+    mem_limit: 4096m
     logging:
       driver: "syslog"
       options:
         syslog-address: "udp://localhost:51000"
         tag: "cadvisor"
 
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.0
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    user: root
-    volumes:
-      - ${ZOOKEEPER_DATA_DIR}/data:/var/lib/zookeeper/data
-      - ${ZOOKEEPER_DATA_DIR}/log:/var/lib/zookeeper/log
-      - ${ZOOKEEPER_DATA_DIR}:/var/lib/zookeeper/data
-    restart: always
-    cpus: 0.5
-    mem_limit: 512m
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "udp://localhost:51000"
-        tag: "zookeeper"
-    
-
   broker:
-    image: confluentinc/cp-kafka:7.3.0
-    container_name: broker
+    image: confluentinc/cp-kafka:latest
     ports:
-      # To learn about configuring Kafka for access across networks see
-      # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
       - "9092:9092"
-      - "29092:29092"
-      - "29093:29093"
-    user: root
-    volumes:
-      - ${BROKER_DATA_DIR}:/var/lib/kafka/data
-    depends_on:
-      - zookeeper
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092
-      KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_LOG_CLEANER_MAX_COMPACTION_LAG_MS: 21600000
-      KAFKA_NUM_PARTITIONS: 3
-      KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
-    restart: always
-    cpus: 0.5
-    mem_limit: 512m
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "udp://localhost:51000"
-        tag: "broker"
+      KAFKA_LISTENERS: PLAINTEXT://:9092,KRAFT://:9097,PLAINTEXT_HOST://:29092  # Both PLAINTEXT and KRAFT listeners
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092  # Only advertise the PLAINTEXT listener
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,KRAFT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: KRAFT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9097 #,2@localhost:9098
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+      CLUSTER_ID: "yFMG3uNHSAKhz-zUrBIhjg"  # Base64-encoded UUID
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+
+  # broker2:
+  #   image: confluentinc/cp-kafka:latest
+  #   environment:
+  #     KAFKA_BROKER_ID: 2
+  #     KAFKA_LISTENERS: PLAINTEXT://:9093,KRAFT://:9098  # Both PLAINTEXT and KRAFT listeners
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9093  # Only advertise the PLAINTEXT listener
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,KRAFT:PLAINTEXT
+  #     KAFKA_CONTROLLER_LISTENER_NAMES: KRAFT
+
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #     KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+  #     KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+  #     KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9097,2@localhost:9098
+  #     KAFKA_NODE_ID: 2
+  #     KAFKA_PROCESS_ROLES: broker,controller
+  #     KAFKA_LOG_DIRS: /var/lib/kafka/data
+  #     CLUSTER_ID: "yFMG3uNHSAKhz-zUrBIhjg"  # Base64-encoded UUID
+  #   volumes:
+  #     - kafka2_data:/var/lib/kafka/data
+  
+  # broker3:
+  #   image: confluentinc/cp-kafka:7.3.0
+  #   container_name: broker3
+  #   environment:
+  #     KAFKA_BROKER_ID: 3
+  #     KAFKA_LISTENERS: PLAINTEXT://:9092
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9094
+  #     KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka1:9097,2@kafka2:9097,3@kafka3:9097
+  #     KAFKA_NODE_ID: 3
+  #     KAFKA_PROCESS_ROLES: broker,controller
+  #   volumes:
+  #     - kafka3_data:/var/lib/kafka/data
+
+
+
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:7.3.0
+  #   container_name: zookeeper
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+  #     ZOOKEEPER_TICK_TIME: 2000
+  #   user: root
+  #   volumes:
+  #     - ${ZOOKEEPER_DATA_DIR}/data:/var/lib/zookeeper/data
+  #     - ${ZOOKEEPER_DATA_DIR}/log:/var/lib/zookeeper/log
+  #     - ${ZOOKEEPER_DATA_DIR}:/var/lib/zookeeper/data
+  #   restart: always
+  #   cpus: 0.5
+  #   mem_limit: 512m
+  #   logging:
+  #     driver: "syslog"
+  #     options:
+  #       syslog-address: "udp://localhost:51000"
+  #       tag: "zookeeper"
     
 
-  broker2:
-    image: confluentinc/cp-kafka:7.3.0
-    container_name: broker2
-    depends_on:
-      - zookeeper
-    user: root
-    ports:
-      - 39092:39092
-    environment:
-      KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092,PLAINTEXT_HOST://localhost:39092
-      KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:39092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_LOG_CLEANER_MAX_COMPACTION_LAG_MS: 21600000
-      KAFKA_NUM_PARTITIONS: 3
-      KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
-    volumes:
-      - ${BROKER2_DATA_DIR}:/var/lib/kafka/data
-    restart: always
-    cpus: 0.5
-    mem_limit: 512m
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "udp://localhost:51000"
-        tag: "broker2"
+  # broker:
+  #   image: confluentinc/cp-kafka:7.3.0
+  #   container_name: broker
+  #   ports:
+  #     # To learn about configuring Kafka for access across networks see
+  #     # https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
+  #     - "9092:9092"
+  #     - "29092:29092"
+  #     - "29093:29093"
+  #   user: root
+  #   volumes:
+  #     - ${BROKER_DATA_DIR}:/var/lib/kafka/data
+  #   # depends_on:
+  #   #   - zookeeper
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092,PLAINTEXT_HOST://localhost:29092
+  #     KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:29092
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+  #     KAFKA_LOG_CLEANER_MAX_COMPACTION_LAG_MS: 21600000
+  #     KAFKA_NUM_PARTITIONS: 3
+  #     KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
+  #   restart: always
+  #   cpus: 1
+  #   mem_limit: 2048m
+  #   logging:
+  #     driver: "syslog"
+  #     options:
+  #       syslog-address: "udp://localhost:51000"
+  #       tag: "broker"
+    
+
+  # broker2:
+  #   image: confluentinc/cp-kafka:7.3.0
+  #   container_name: broker2
+  #   depends_on:
+  #     - zookeeper
+  #   user: root
+  #   ports:
+  #     - 39092:39092
+  #   environment:
+  #     KAFKA_BROKER_ID: 2
+  #     KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092,PLAINTEXT_HOST://localhost:39092
+  #     KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:39092
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+  #     KAFKA_LOG_CLEANER_MAX_COMPACTION_LAG_MS: 21600000
+  #     KAFKA_NUM_PARTITIONS: 3
+  #     KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
+  #   volumes:
+  #     - ${BROKER2_DATA_DIR}:/var/lib/kafka/data
+  #   restart: always
+  #   cpus: 1
+  #   mem_limit: 2048m
+  #   logging:
+  #     driver: "syslog"
+  #     options:
+  #       syslog-address: "udp://localhost:51000"
+  #       tag: "broker2"
 
 
-  broker3:
-    image: confluentinc/cp-kafka:7.3.0
-    container_name: broker3
-    user: root
-    ports:
-      - 49092:49092
-    depends_on:
-      - zookeeper
-    environment:
-      KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092,PLAINTEXT_HOST://localhost:49092
-      KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:49092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_LOG_CLEANER_MAX_COMPACTION_LAG_MS: 21600000
-      KAFKA_NUM_PARTITIONS: 3
-      KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
-    volumes:
-      - ${BROKER3_DATA_DIR}:/var/lib/kafka/data
-    restart: always
-    cpus: 0.5
-    mem_limit: 512m
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "udp://localhost:51000"
-        tag: "broker3"
+  # broker3:
+  #   image: confluentinc/cp-kafka:7.3.0
+  #   container_name: broker3
+  #   user: root
+  #   ports:
+  #     - 49092:49092
+  #   depends_on:
+  #     - zookeeper
+  #   environment:
+  #     KAFKA_BROKER_ID: 3
+  #     KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092,PLAINTEXT_HOST://localhost:49092
+  #     KAFKA_LISTENERS: PLAINTEXT://:9092,PLAINTEXT_HOST://:49092
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+  #     KAFKA_LOG_CLEANER_MAX_COMPACTION_LAG_MS: 21600000
+  #     KAFKA_NUM_PARTITIONS: 3
+  #     KAFKA_AUTO_LEADER_REBALANCE_ENABLE: "true"
+  #   volumes:
+  #     - ${BROKER3_DATA_DIR}:/var/lib/kafka/data
+  #   restart: always
+  #   cpus: 1
+  #   mem_limit: 2048m
+  #   logging:
+  #     driver: "syslog"
+  #     options:
+  #       syslog-address: "udp://localhost:51000"
+  #       tag: "broker3"
 
 
   kafka-ui:
-    image: provectuslabs/kafka-ui
+    image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
     ports:
       - "8095:8080"
     restart: always
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=broker:9092,broker2:9092,broker3:9092
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=broker:9092
     depends_on:
       - broker
-      - broker2
-      - broker3
+      # - broker2
+      # - broker3
     cpus: 0.5
     mem_limit: 512m
     logging:
@@ -390,58 +448,58 @@ services:
     cpus: 0.5
     mem_limit: 512m
 
-  debezium:
-    image: quay.io/debezium/connect:2.3
-    ports:
-      - 8083:8083
-    environment:
-      - BOOTSTRAP_SERVERS=broker:9092,broker2:9092,broker3:9092
-      - GROUP_ID=1
-      - CONFIG_STORAGE_TOPIC=debezium_storage_config
-      - OFFSET_STORAGE_TOPIC=debezium_storage_offsets
-      - STATUS_STORAGE_TOPIC=debezium_storage_status
-    volumes:
-      - ./debezium/plugins:/kafka/connect/plugins
-      - ./debezium/config:/kafka/connect/config
-    depends_on:
-      - broker
-      - broker2
-      - broker3
-      - zookeeper
-      - database
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8083"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    cpus: 0.5
-    mem_limit: 512m
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "udp://localhost:51000"
-        tag: "debezium"
+  # debezium:
+  #   image: quay.io/debezium/connect:2.3
+  #   ports:
+  #     - 8083:8083
+  #   environment:
+  #     - BOOTSTRAP_SERVERS=broker:9092,broker2:9092,broker3:9092
+  #     - GROUP_ID=1
+  #     - CONFIG_STORAGE_TOPIC=debezium_storage_config
+  #     - OFFSET_STORAGE_TOPIC=debezium_storage_offsets
+  #     - STATUS_STORAGE_TOPIC=debezium_storage_status
+  #   volumes:
+  #     - ./debezium/plugins:/kafka/connect/plugins
+  #     - ./debezium/config:/kafka/connect/config
+  #   depends_on:
+  #     - broker
+  #     - broker2
+  #     - broker3
+  #     - zookeeper
+  #     - database
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8083"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 5
+  #   cpus: 2
+  #   mem_limit: 4096m
+  #   logging:
+  #     driver: "syslog"
+  #     options:
+  #       syslog-address: "udp://localhost:51000"
+  #       tag: "debezium"
 
-  debezium-ui:
-    image: debezium/debezium-ui:latest
-    container_name: debezium-ui
-    ports:
-      - "8084:8080"
-    environment:
-      - KAFKA_CONNECT_URIS=http://debezium:8083
-    depends_on:
-      - debezium
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    cpus: 0.5
-    mem_limit: 512m
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "udp://localhost:51000"
-        tag: "debezium-ui"
+  # debezium-ui:
+  #   image: debezium/debezium-ui:latest
+  #   container_name: debezium-ui
+  #   ports:
+  #     - "8084:8080"
+  #   environment:
+  #     - KAFKA_CONNECT_URIS=http://debezium:8083
+  #   depends_on:
+  #     - debezium
+  #   restart: always
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8080"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 5
+  #   cpus: 1
+  #   mem_limit: 1024m
+  #   logging:
+  #     driver: "syslog"
+  #     options:
+  #       syslog-address: "udp://localhost:51000"
+  #       tag: "debezium-ui"
