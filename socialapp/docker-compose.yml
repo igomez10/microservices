@@ -37,7 +37,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "database"
     cpus: 2
     mem_limit: 2g
@@ -53,7 +53,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "postgres-exporter"
     cpus: 0.5
     mem_limit: 512m
@@ -89,9 +89,9 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "grafana"
-
+        
   prometheus:
     image: prom/prometheus:latest
     volumes:
@@ -111,7 +111,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "prometheus"
   alertmanager:
     image: prom/alertmanager:latest
@@ -129,7 +129,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "alertmanager"
 
   node-exporter:
@@ -157,22 +157,22 @@ services:
     ports:
       - 9100:9100
     cpus: 1
-    mem_limit: 1024m
+    mem_limit: 2048m
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "node-exporter"
-
+        
   inspector:
     image: ubuntu:latest
     command: sleep infinity
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "inspector"
-
+        
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.46.0
     container_name: monitoring_cadvisor
@@ -196,9 +196,9 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "cadvisor"
-
+        
   broker1:
     image: confluentinc/cp-kafka:latest
     container_name: broker1
@@ -225,7 +225,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "broker1"
     
 
@@ -253,7 +253,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "broker2"
 
   broker3:
@@ -280,7 +280,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "broker3"
 
   kafka-ui:
@@ -301,7 +301,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "kafka-ui"
 
   integration-tests:
@@ -319,7 +319,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "integration-tests"
 
   # newrelic:
@@ -387,9 +387,9 @@ services:
     cpus: 2
     mem_limit: 4096m
     logging:
-      driver: "syslog"
+      driver: "json-file"
       options:
-        syslog-address: "udp://localhost:51000"
+        max-size: "10m"
         tag: "debezium"
 
   debezium-ui:
@@ -412,5 +412,5 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:51000"
+        syslog-address: "udp://localhost:53000"
         tag: "debezium-ui"
