@@ -139,14 +139,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
-        "w": 3,
+        "h": 6,
+        "w": 2,
         "x": 0,
         "y": 1
       },
       "id": 20,
       "links": [],
       "options": {
+        "minVizHeight": 200,
+        "minVizWidth": 200,
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -156,9 +158,10 @@
           "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -222,14 +225,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 6,
         "w": 3,
-        "x": 3,
+        "x": 2,
         "y": 1
       },
       "id": 155,
       "links": [],
       "options": {
+        "minVizHeight": 200,
+        "minVizWidth": 200,
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -239,9 +244,10 @@
           "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -305,14 +311,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 6,
         "w": 3,
-        "x": 6,
+        "x": 5,
         "y": 1
       },
       "id": 19,
       "links": [],
       "options": {
+        "minVizHeight": 200,
+        "minVizWidth": 200,
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -322,9 +330,10 @@
           "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -378,15 +387,17 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 6,
         "w": 3,
-        "x": 9,
+        "x": 8,
         "y": 1
       },
       "hideTimeOverride": false,
       "id": 16,
       "links": [],
       "options": {
+        "minVizHeight": 200,
+        "minVizWidth": 200,
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -396,9 +407,10 @@
           "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -474,14 +486,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 6,
         "w": 2,
-        "x": 12,
+        "x": 11,
         "y": 1
       },
       "id": 21,
       "links": [],
       "options": {
+        "minVizHeight": 200,
+        "minVizWidth": 200,
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -491,9 +505,10 @@
           "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -555,14 +570,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 6,
         "w": 2,
-        "x": 14,
+        "x": 13,
         "y": 1
       },
       "id": 316,
       "links": [],
       "options": {
+        "minVizHeight": 200,
+        "minVizWidth": 200,
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -572,9 +589,10 @@
           "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -637,14 +655,16 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 4,
+        "h": 6,
         "w": 2,
-        "x": 16,
+        "x": 15,
         "y": 1
       },
       "id": 154,
       "links": [],
       "options": {
+        "minVizHeight": 200,
+        "minVizWidth": 200,
         "orientation": "horizontal",
         "reduceOptions": {
           "calcs": [
@@ -654,9 +674,10 @@
           "values": false
         },
         "showThresholdLabels": false,
-        "showThresholdMarkers": true
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -722,7 +743,7 @@
       "gridPos": {
         "h": 2,
         "w": 2,
-        "x": 18,
+        "x": 17,
         "y": 1
       },
       "id": 23,
@@ -740,9 +761,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -803,7 +825,7 @@
       "gridPos": {
         "h": 2,
         "w": 2,
-        "x": 20,
+        "x": 19,
         "y": 1
       },
       "id": 75,
@@ -821,9 +843,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -837,85 +860,6 @@
         }
       ],
       "title": "RAM Total",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "Total SWAP",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 0,
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 2,
-        "w": 2,
-        "x": 22,
-        "y": 1
-      },
-      "id": 18,
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "none",
-        "graphMode": "none",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.3.6",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "expr": "node_memory_SwapTotal_bytes{instance=\"$node\",job=\"$job\"}",
-          "intervalFactor": 1,
-          "refId": "A",
-          "step": 240
-        }
-      ],
-      "title": "SWAP Total",
       "type": "stat"
     },
     {
@@ -965,7 +909,7 @@
       "gridPos": {
         "h": 2,
         "w": 2,
-        "x": 18,
+        "x": 17,
         "y": 3
       },
       "id": 317,
@@ -983,9 +927,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -1047,7 +992,7 @@
       "gridPos": {
         "h": 2,
         "w": 2,
-        "x": 20,
+        "x": 19,
         "y": 3
       },
       "id": 14,
@@ -1065,9 +1010,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -1128,8 +1074,8 @@
       "gridPos": {
         "h": 2,
         "w": 2,
-        "x": 22,
-        "y": 3
+        "x": 17,
+        "y": 5
       },
       "hideTimeOverride": true,
       "id": 15,
@@ -1147,9 +1093,10 @@
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "auto",
+        "wideLayout": true
       },
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "targets": [
         {
           "datasource": {
@@ -1166,6 +1113,86 @@
       "type": "stat"
     },
     {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "Total SWAP",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 2,
+        "x": 19,
+        "y": 5
+      },
+      "id": 18,
+      "links": [],
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "10.2.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "expr": "node_memory_SwapTotal_bytes{instance=\"$node\",job=\"$job\"}",
+          "intervalFactor": 1,
+          "refId": "A",
+          "step": 240
+        }
+      ],
+      "title": "SWAP Total",
+      "type": "stat"
+    },
+    {
       "collapsed": false,
       "datasource": {
         "type": "prometheus",
@@ -1175,7 +1202,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 5
+        "y": 7
       },
       "id": 263,
       "panels": [],
@@ -1229,7 +1256,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 6
+        "y": 8
       },
       "hiddenSeries": false,
       "id": 77,
@@ -1254,7 +1281,7 @@
         "alertThreshold": true
       },
       "percentage": true,
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1437,7 +1464,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 6
+        "y": 8
       },
       "hiddenSeries": false,
       "id": 78,
@@ -1462,7 +1489,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1633,7 +1660,7 @@
         "h": 7,
         "w": 12,
         "x": 0,
-        "y": 13
+        "y": 15
       },
       "hiddenSeries": false,
       "id": 74,
@@ -1660,7 +1687,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1753,7 +1780,7 @@
         "h": 7,
         "w": 12,
         "x": 12,
-        "y": 13
+        "y": 15
       },
       "height": "",
       "hiddenSeries": false,
@@ -1780,7 +1807,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "9.3.6",
+      "pluginVersion": "10.2.3",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -1844,7 +1871,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 22
       },
       "id": 265,
       "panels": [],
@@ -1894,7 +1921,7 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 3,
@@ -2114,7 +2141,7 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 23
       },
       "hiddenSeries": false,
       "id": 24,
@@ -2328,7 +2355,7 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 33
+        "y": 35
       },
       "hiddenSeries": false,
       "id": 84,
@@ -2447,7 +2474,7 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 33
+        "y": 35
       },
       "height": "",
       "hiddenSeries": false,
@@ -2550,7 +2577,7 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 45
+        "y": 47
       },
       "hiddenSeries": false,
       "id": 229,
@@ -2752,7 +2779,7 @@
         "h": 12,
         "w": 12,
         "x": 12,
-        "y": 45
+        "y": 47
       },
       "hiddenSeries": false,
       "id": 42,
@@ -2896,7 +2923,7 @@
         "h": 12,
         "w": 12,
         "x": 0,
-        "y": 57
+        "y": 59
       },
       "hiddenSeries": false,
       "id": 127,
@@ -2989,7 +3016,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 69
+        "y": 71
       },
       "id": 266,
       "panels": [
@@ -5022,7 +5049,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 70
+        "y": 72
       },
       "id": 267,
       "panels": [
@@ -5526,7 +5553,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 71
+        "y": 73
       },
       "id": 293,
       "panels": [
@@ -5983,7 +6010,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 72
+        "y": 74
       },
       "id": 312,
       "panels": [
@@ -6778,7 +6805,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 73
+        "y": 75
       },
       "id": 269,
       "panels": [
@@ -7518,7 +7545,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 74
+        "y": 76
       },
       "id": 304,
       "panels": [
@@ -7912,7 +7939,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 75
+        "y": 77
       },
       "id": 296,
       "panels": [
@@ -8193,7 +8220,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 76
+        "y": 78
       },
       "id": 270,
       "panels": [
@@ -9832,7 +9859,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 77
+        "y": 79
       },
       "id": 271,
       "panels": [
@@ -10430,7 +10457,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 78
+        "y": 80
       },
       "id": 272,
       "panels": [
@@ -12219,7 +12246,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 79
+        "y": 81
       },
       "id": 273,
       "panels": [
@@ -12879,7 +12906,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 80
+        "y": 82
       },
       "id": 274,
       "panels": [
@@ -14329,7 +14356,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 81
+        "y": 83
       },
       "id": 279,
       "panels": [
@@ -14557,8 +14584,7 @@
     }
   ],
   "refresh": "1m",
-  "schemaVersion": 37,
-  "style": "dark",
+  "schemaVersion": 39,
   "tags": [
     "linux"
   ],
@@ -14667,7 +14693,7 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {
@@ -14698,6 +14724,6 @@
   "timezone": "browser",
   "title": "Node Exporter Full",
   "uid": "rYdddlPWk",
-  "version": 3,
+  "version": 1,
   "weekStart": ""
 }
