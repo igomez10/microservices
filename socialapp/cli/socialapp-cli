@@ -646,6 +646,8 @@ ${BOLD}${WHITE}Usage${OFF}
 EOF
     echo -e "${BOLD}${WHITE}Authentication methods${OFF}"
     echo -e ""
+    echo -e "  - ${BLUE}Basic AUTH${OFF} - add '-u <username>:<password>' before ${YELLOW}<operation>${OFF}"
+    
     echo -e "  - ${MAGENTA}OAuth2 (flow: application)${OFF}"
     echo -e "      Token URL: "
     echo -e "        * /v1/oauth/token"
@@ -813,7 +815,7 @@ print_version() {
 ##############################################################################
 print_getAccessToken_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getAccessToken - Get an access token${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getAccessToken - Get an access token${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo -e "Get an access token" | paste -sd' ' | fold -sw 80
     echo -e ""

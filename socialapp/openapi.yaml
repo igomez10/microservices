@@ -790,7 +790,7 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
-        - OAuth2: []
+        - BasicAuth: []
       summary: Get an access token
       tags:
         - Authentication
@@ -1741,6 +1741,9 @@ components:
         - url
       type: object
   securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
     OAuth2:
       type: oauth2
       flows:

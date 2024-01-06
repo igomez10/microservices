@@ -1921,7 +1921,21 @@
 	                    ]
 	        }
     ],
-    
+    "auth": {
+            		"type": "basic",
+            		"basic": [
+            			{
+            				"key": "username",
+            				"value": "{{USERNAME}}",
+            				"type": "string"
+            			},
+            			{
+            				"key": "password",
+            				"value": "{{PASSWORD}}",
+            				"type": "string"
+            			}
+            		]
+            	},
 	"variable": [
 		{
 			"key": "baseUrl",

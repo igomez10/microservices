@@ -160,6 +160,11 @@ Class | Method | HTTP request | Description
 ## Documentation For Authorization
 
 
+## BasicAuth
+
+
+- **Type**: HTTP basic authentication
+
 ## OAuth2
 
 

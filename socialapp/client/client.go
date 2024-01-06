@@ -441,6 +441,11 @@ func (c *APIClient) prepareRequest(
 			latestToken.SetAuthHeader(localVarRequest)
 		}
 
+		// Basic HTTP Authentication
+		if auth, ok := ctx.Value(ContextBasicAuth).(BasicAuth); ok {
+			localVarRequest.SetBasicAuth(auth.UserName, auth.Password)
+		}
+
 	}
 
 	for header, value := range c.cfg.DefaultHeader {

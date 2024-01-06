@@ -137,6 +137,20 @@ Class | Method | HTTP request | Description
 
 
 Authentication schemes defined for the API:
+### BasicAuth
+
+- **Type**: HTTP basic authentication
+
+Example
+
+```golang
+auth := context.WithValue(context.Background(), sw.ContextBasicAuth, sw.BasicAuth{
+    UserName: "username",
+    Password: "password",
+})
+r, err := client.Service.Operation(auth, args)
+```
+
 ### OAuth2
 
 
