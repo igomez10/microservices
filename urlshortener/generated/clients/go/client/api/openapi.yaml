@@ -1,0 +1,207 @@
+openapi: 3.0.0
+info:
+  contact:
+    email: ignacio.gomez.arboleda@gmail.com
+    name: URL Shortener
+    url: https://about.gomezignacio.com
+  description: URL Shortener is an API for managing short URLs
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: URL Shortener
+  version: 1.0.0
+servers:
+- url: https://urlshortener.gomezignacio.com
+- url: http://localhost:8080
+- url: http://localhost:8085
+security:
+- OAuth2: []
+tags:
+- description: URL management
+  name: URL
+paths:
+  /v1/urls/{alias}:
+    delete:
+      description: Delete a url
+      operationId: deleteUrl
+      parameters:
+      - description: The alias of the url
+        example: abcdef
+        explode: false
+        in: path
+        name: alias
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Url was deleted successfully
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Url not found
+      security:
+      - OAuth2:
+        - shortly.url.delete
+      summary: Delete a url
+      tags:
+      - URL
+    get:
+      description: Returns a url
+      operationId: getUrl
+      parameters:
+      - description: The alias of the url
+        example: thisisanalias
+        explode: false
+        in: path
+        name: alias
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Redirect to the url
+        "308":
+          description: Redirect to the url
+          headers:
+            Location:
+              description: The url
+              explode: false
+              required: true
+              schema:
+                type: string
+              style: simple
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Url not found
+      summary: Get a url
+      tags:
+      - URL
+  /v1/urls/{alias}/data:
+    get:
+      description: Returns a url
+      operationId: getUrlData
+      parameters:
+      - description: The alias of the url
+        example: abcdef
+        explode: false
+        in: path
+        name: alias
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/URL'
+          description: Url is returned
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Url not found
+      summary: Returns a url metadata
+      tags:
+      - URL
+  /v1/urls:
+    post:
+      description: Returns a url
+      operationId: createUrl
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/URL'
+        description: Create a new url
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/URL'
+          description: Url is returned
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Url already exists
+      security:
+      - OAuth2:
+        - shortly.url.create
+      summary: Create a new url
+      tags:
+      - URL
+components:
+  schemas:
+    Error:
+      example:
+        code: 404
+        message: Not found
+      properties:
+        code:
+          format: int32
+          type: integer
+        message:
+          type: string
+      required:
+      - code
+      - message
+      type: object
+    URL:
+      example:
+        alias: example
+        url: https://example.com
+        creted_at: 2020-01-01T00:00:00Z
+        updated_at: 2020-01-01T00:00:00Z
+        deleted_at: 2020-01-01T00:00:00Z
+      properties:
+        url:
+          format: uri
+          type: string
+        alias:
+          type: string
+        created_at:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+        deleted_at:
+          format: date-time
+          type: string
+      required:
+      - alias
+      - url
+      type: object
+  securitySchemes:
+    BasicAuth:
+      scheme: basic
+      type: http
+    OAuth2:
+      flows:
+        clientCredentials:
+          scopes:
+            shortly.url.create: Create a url
+            shortly.url.update: Update a url
+            shortly.url.delete: Delete a url
+          tokenUrl: /v1/oauth/token
+      type: oauth2

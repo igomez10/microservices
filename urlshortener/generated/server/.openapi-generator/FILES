@@ -1,0 +1,12 @@
+.openapi-generator-ignore
+README.md
+api.go
+api/openapi.yaml
+api_url.go
+error.go
+helpers.go
+impl.go
+logger.go
+model_error.go
+model_url.go
+routers.go

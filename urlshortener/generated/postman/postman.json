@@ -1,0 +1,242 @@
+{
+	"info": {
+		"name": "URL Shortener",
+		"description": {
+		    "content": "URL Shortener is an API for managing short URLs",
+		    "type": "text/markdown"
+		},
+		"version": "1.0.0",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+	        {
+	            "name": "URL",
+	            "item": [
+	                        {
+    "name": "/v1/urls",
+                "description": "Returns a url",
+                 "item": [
+                            {
+                                "name": "Create a new url",
+                                "request": {
+                                    "method": "POST",
+                                    "header": [
+                                        {
+                                            "key": "Content-Type",
+                                            "value": "application/json",
+                                            "description": "",
+                                            "disabled": false
+                                        },
+                                        {
+                                            "key": "Accept",
+                                            "value": "application/json",
+                                            "description": "",
+                                            "disabled": false
+                                        }
+                                    ],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n \"url\": \"<string>\",\n \"alias\": \"<string>\",\n \"created_at\": \"<string>\",\n \"updated_at\": \"<string>\",\n \"deleted_at\": \"<string>\"\n}",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{baseUrl}}/v1/urls",
+                                        "host": [
+                                            "{{baseUrl}}"
+                                        ],
+                                        "path": [
+                                            "v1",
+                                            "urls"
+                                        ],
+                                        "variable": [
+                                        ],
+                                        "query": [
+                                        ]
+                                    },
+                                    "description": "Returns a url"
+                                }
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/urls/:alias",
+                "description": "Delete a url",
+                 "item": [
+                            {
+                                "name": "Delete a url",
+                                "request": {
+                                    "method": "DELETE",
+                                    "header": [
+                                        {
+                                            "key": "Accept",
+                                            "value": "application/json",
+                                            "description": "",
+                                            "disabled": false
+                                        }
+                                    ],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{baseUrl}}/v1/urls/:alias",
+                                        "host": [
+                                            "{{baseUrl}}"
+                                        ],
+                                        "path": [
+                                            "v1",
+                                            "urls",
+                                            ":alias"
+                                        ],
+                                        "variable": [
+                                            {
+                                                "key": "alias",
+                                                "value": "",
+                                                "description": "The alias of the url"
+                                            }
+                                        ],
+                                        "query": [
+                                        ]
+                                    },
+                                    "description": "Delete a url"
+                                }
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/urls/:alias",
+                "description": "Returns a url",
+                 "item": [
+                            {
+                                "name": "Get a url",
+                                "request": {
+                                    "method": "GET",
+                                    "header": [
+                                        {
+                                            "key": "Accept",
+                                            "value": "application/json",
+                                            "description": "",
+                                            "disabled": false
+                                        }
+                                    ],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{baseUrl}}/v1/urls/:alias",
+                                        "host": [
+                                            "{{baseUrl}}"
+                                        ],
+                                        "path": [
+                                            "v1",
+                                            "urls",
+                                            ":alias"
+                                        ],
+                                        "variable": [
+                                            {
+                                                "key": "alias",
+                                                "value": "",
+                                                "description": "The alias of the url"
+                                            }
+                                        ],
+                                        "query": [
+                                        ]
+                                    },
+                                    "description": "Returns a url"
+                                }
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/urls/:alias/data",
+                "description": "Returns a url",
+                 "item": [
+                            {
+                                "name": "Returns a url metadata",
+                                "request": {
+                                    "method": "GET",
+                                    "header": [
+                                        {
+                                            "key": "Accept",
+                                            "value": "application/json",
+                                            "description": "",
+                                            "disabled": false
+                                        }
+                                    ],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{baseUrl}}/v1/urls/:alias/data",
+                                        "host": [
+                                            "{{baseUrl}}"
+                                        ],
+                                        "path": [
+                                            "v1",
+                                            "urls",
+                                            ":alias",
+                                            "data"
+                                        ],
+                                        "variable": [
+                                            {
+                                                "key": "alias",
+                                                "value": "",
+                                                "description": "The alias of the url"
+                                            }
+                                        ],
+                                        "query": [
+                                        ]
+                                    },
+                                    "description": "Returns a url"
+                                }
+                            }
+                            ]
+                        }
+	                    ]
+	        }
+    ],
+    "auth": {
+            		"type": "basic",
+            		"basic": [
+            			{
+            				"key": "username",
+            				"value": "{{USERNAME}}",
+            				"type": "string"
+            			},
+            			{
+            				"key": "password",
+            				"value": "{{PASSWORD}}",
+            				"type": "string"
+            			}
+            		]
+            	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://urlshortener.gomezignacio.com",
+			"type": "string"
+        }
+	]
+}
+

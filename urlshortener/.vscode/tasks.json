@@ -1,0 +1,81 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "generate-openapi",
+            "type": "shell",
+            "command": "make generate-openapi",
+            "problemMatcher": []
+        },
+        {
+            "label": "generate-sqlc",
+            "type": "shell",
+            "command": "make sqlc-generate",
+            "problemMatcher": []
+        },
+        {
+            "label": "compose-up",
+            "type": "shell",
+            "command": "make compose-up",
+            "problemMatcher": []
+        },
+        {
+            "label": "start-dev-server",
+            "type": "shell",
+            "command": "make start-dev-server",
+            "problemMatcher": []
+        },
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "make build",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "make test",
+            "problemMatcher": [],
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "go mod tidy",
+            "type": "shell",
+            "command": "go mod tidy",
+            "problemMatcher": []
+        },
+        {
+            "label": "start jmeter",
+            "type": "shell",
+            "command": "make start-jmeter",
+            "problemMatcher": []
+        },
+        {
+            "label": "tf-init",
+            "type": "shell",
+            "command": "make tf-init",
+            "problemMatcher": []
+        },
+        {
+            "label": "tf-plan",
+            "type": "shell",
+            "command": "make tf-plan",
+            "problemMatcher": []
+        },
+        {
+            "label": "tf-apply",
+            "type": "shell",
+            "command": "make tf-apply",
+            "problemMatcher": [],
+        },
+    ]
+}
