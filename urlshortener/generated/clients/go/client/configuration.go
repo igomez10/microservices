@@ -105,7 +105,7 @@ func NewConfiguration() *Configuration {
 				Description: "No description provided",
 			},
 			{
-				URL:         "http://localhost:8085",
+				URL:         "http://localhost:8087",
 				Description: "No description provided",
 			},
 		},

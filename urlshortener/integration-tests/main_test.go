@@ -11,10 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	userClient "github.com/igomez10/microservices/socialapp/client"
 	urlClient "github.com/igomez10/microservices/urlshortener/generated/clients/go/client"
-
-	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 )
 
@@ -42,7 +39,7 @@ func Setup() {
 		ENDPOINT_OAUTH_TOKEN = "http://localhost:8085/v1/oauth/token"
 	case "LOCALHOST_DEBUG":
 		CONTEXT_SERVER = LOCALHOST_DEBUG_SERVER_URL
-		ENDPOINT_OAUTH_TOKEN = "http://localhost:8085/v1/oauth/token"
+		ENDPOINT_OAUTH_TOKEN = "http://localhost:8087/v1/oauth/token"
 	default:
 		CONTEXT_SERVER = RENDER_SERVER_URL
 		ENDPOINT_OAUTH_TOKEN = "https://urlshortener.gomezignacio.com/v1/oauth/token"
@@ -88,46 +85,15 @@ func TestURLLifeCycle(t *testing.T) {
 	Setup()
 	// setup url client
 	urlClientConfiguration := urlClient.NewConfiguration()
+	urlClientConfiguration.Host = "localhost:8087"
 	httpClient := getHTTPClient()
 	urlClientConfiguration.HTTPClient = httpClient
 	urlClnt = urlClient.NewAPIClient(urlClientConfiguration)
 
-	// setup user client
-	userClientConfiguration := userClient.NewConfiguration()
-	userClientConfiguration.HTTPClient = httpClient
-	userClnt := userClient.NewAPIClient(userClientConfiguration)
-
-	// setup general context
-	noAuthCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
-	noAuthCtx = context.WithValue(noAuthCtx, urlClient.ContextServerIndex, CONTEXT_SERVER)
-	noAuthCtx = context.WithValue(noAuthCtx, userClient.ContextServerIndex, CONTEXT_SERVER)
-
-	// create a user to run test on behalf of
-	username1 := fmt.Sprintf("Test-%d1", time.Now().UnixNano())
-	password := fmt.Sprintf("Password-%d1", time.Now().UnixNano())
-	func() {
-		createUsrReq := userClient.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
-		_, _, err := userClnt.UserAPI.CreateUser(noAuthCtx).CreateUserRequest(*createUsrReq).Execute()
-		if err != nil {
-			t.Fatalf("Error creating user: %v", err)
-		}
-	}()
-
-	conf := clientcredentials.Config{
-		ClientID:     username1,
-		ClientSecret: password,
-		Scopes:       []string{"shortly.url.create", "shortly.url.delete"},
-		TokenURL:     ENDPOINT_OAUTH_TOKEN,
-	}
-
-	oauth2Ctx, err := getOuath2Context(noAuthCtx, conf)
-	if err != nil {
-		t.Fatalf("Error getting oauth2 context: %v", err)
-	}
-
 	// create url
-	urlAPICtx := context.WithValue(oauth2Ctx, urlClient.ContextServerIndex, CONTEXT_SERVER)
-	newURL := urlClient.NewURL("https://www.google.com", "google")
+	urlAPICtx := context.WithValue(context.Background(), urlClient.ContextServerIndex, CONTEXT_SERVER)
+	alias := fmt.Sprintf("%d", time.Now().UnixNano())[:9]
+	newURL := urlClient.NewURL("https://www.google.com/", alias)
 	_, r, err := urlClnt.URLAPI.CreateUrl(urlAPICtx).URL(*newURL).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `URLAPI.CreateURL`: %v\n", err)
@@ -139,7 +105,7 @@ func TestURLLifeCycle(t *testing.T) {
 	}
 
 	// get url
-	getUrlRes, err := urlClnt.URLAPI.GetUrl(noAuthCtx, "google").Execute()
+	getUrlRes, err := urlClnt.URLAPI.GetUrl(urlAPICtx, alias).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `URLAPI.GetURL`: %v\n", err)
 		t.Errorf("Full HTTP response: %v ", r)
@@ -151,7 +117,7 @@ func TestURLLifeCycle(t *testing.T) {
 	}
 
 	// delete url
-	deleteUrlRes, err := urlClnt.URLAPI.DeleteUrl(urlAPICtx, "google").Execute()
+	deleteUrlRes, err := urlClnt.URLAPI.DeleteUrl(urlAPICtx, alias).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `URLAPI.DeleteURL`: %v\n", err)
 		t.Errorf("Full HTTP response: %v ", r)
@@ -163,7 +129,7 @@ func TestURLLifeCycle(t *testing.T) {
 	}
 
 	// get url
-	getUrlRes, err = urlClnt.URLAPI.GetUrl(noAuthCtx, "google").Execute()
+	getUrlRes, err = urlClnt.URLAPI.GetUrl(urlAPICtx, alias).Execute()
 	if err == nil {
 		t.Errorf("Expected error when calling `URLAPI.GetURL`, got none")
 	}

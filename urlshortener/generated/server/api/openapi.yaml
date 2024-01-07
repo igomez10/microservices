@@ -13,7 +13,7 @@ info:
 servers:
 - url: https://urlshortener.gomezignacio.com
 - url: http://localhost:8080
-- url: http://localhost:8085
+- url: http://localhost:8087
 security:
 - OAuth2: []
 tags:
