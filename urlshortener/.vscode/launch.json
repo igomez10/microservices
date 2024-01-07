@@ -10,9 +10,6 @@
             "request": "launch",
             "mode": "auto",
             "program": "cmd/main.go",
-            "args": [
-                "--port=8085",
-            ],
             "cwd": ".",
             "envFile": "${workspaceFolder}/.env"
         }
