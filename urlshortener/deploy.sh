@@ -1,4 +1,4 @@
-cd microservices/socialapp
+cd microservices/urlshortener
 git pull
 docker compose build
 docker compose down

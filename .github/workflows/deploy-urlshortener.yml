@@ -1,11 +1,11 @@
-name: Socialapp SSH and Docker Compose
+name: URLShortener SSH and Docker Compose
 
 on:
   push:
     branches:
       - mainline
     paths:
-      - 'microservices/socialapp/**'
+      - 'microservices/urlshortener/**'
 
 jobs:
   deploy:
@@ -26,5 +26,5 @@ jobs:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_PORT: ${{ secrets.SSH_PORT }}
         run: |
-          cd socialapp
+          cd urlshortener
           make deploy
