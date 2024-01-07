@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/igomez10/microservices/urlshortener/generated/server"
@@ -17,17 +18,25 @@ import (
 )
 
 var opts struct {
-	Port     int    `long:"port" env:"PORT" default:"8080" description:"HTTP port"`
-	HTTPAddr string `long:"http-addr" env:"HTTP_ADDR" defatult:"" description:"HTTP address"`
-	DBURL    string `long:"db-url" env:"DB_URL" default:"postgres://postgres:password@localhost:5432/urlshortener?sslmode=disable" description:"Database URL"`
-	logLevel string `long:"log-level" env:"LOG_LEVEL" default:"info" description:"Log level"`
+	Port       int    `long:"port" env:"PORT" default:"8080" description:"HTTP port"`
+	HTTPAddr   string `long:"http-addr" env:"HTTP_ADDR" defatult:"" description:"HTTP address"`
+	DBURL      string `long:"db-url" env:"DB_URL" default:"postgres://postgres:password@localhost:5432/urlshortener?sslmode=disable" description:"Database URL"`
+	logLevel   string `long:"log-level" env:"LOG_LEVEL" default:"info" description:"Log level"`
+	MetaServer struct {
+		Addr string `long:"addr" env:"ADDR" default:"localhost" description:"Meta service address"`
+		Port int    `long:"port" env:"PORT" default:"8081" description:"Meta service port"`
+	} `group:"Meta service" namespace:"meta" env-namespace:"META"`
 }
 
 func main() {
 	// Parse flags
 	if _, err := flags.Parse(&opts); err != nil {
-		panic(err)
+		if err.(*flags.Error).Type != flags.ErrHelp {
+			log.Fatal().Err(err).Msg("failed to parse flags")
+		}
+		os.Exit(0)
 	}
+
 	// log config print stack trace
 	log.Logger = log.With().Caller().Logger()
 	// Set log level zerolog
@@ -66,6 +75,19 @@ func main() {
 		DBConn: dbConn,
 	}
 	URLAPIController := server.NewURLAPIController(URLAPIService)
+
+	// health check
+	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+
+	// Start meta service
+	go func() {
+		if err := http.ListenAndServe(fmt.Sprintf("%s:%d", opts.MetaServer.Addr, opts.MetaServer.Port), nil); err != nil {
+			log.Fatal().Err(err).Msg("failed to start meta service")
+		}
+	}()
 
 	// Start HTTP server
 	urlRouter := server.NewRouter(URLAPIController)
