@@ -20,7 +20,7 @@ services:
       - socialapp_default
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
       interval: 5s
       timeout: 5s
       retries: 5
