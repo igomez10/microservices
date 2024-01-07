@@ -40,6 +40,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/pkg/controller/user"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
+	urlClient "github.com/igomez10/microservices/urlshortener/generated/clients/go/client"
 	_ "github.com/lib/pq"
 	_ "github.com/newrelic/go-agent/v3/integrations/nrpq"
 	"github.com/newrelic/go-agent/v3/newrelic"
@@ -219,9 +220,13 @@ func run(config Configuration) {
 	}
 	ScopeAPIController := openapi.NewScopeAPIController(ScopeAPIService)
 
+	// URL service
+	urlServiceClient := urlClient.NewAPIClient(urlClient.NewConfiguration())
 	URLAPIService := &socialappurl.URLApiService{
-		DB:     config.queries,
-		DBConn: config.dbConnections.GetPool(),
+		DB:                     config.queries,
+		DBConn:                 config.dbConnections.GetPool(),
+		Client:                 urlServiceClient,
+		UseURLShortenerService: os.Getenv("USE_URL_SHORTENER_SERVICE") == "true",
 	}
 	URLAPIController := openapi.NewURLAPIController(URLAPIService)
 
@@ -304,6 +309,8 @@ func run(config Configuration) {
 	if err != nil {
 		log.Fatal().Err(err)
 	}
+
+	urlshortenerSubdomain := os.Getenv("URLSHORTENER_SUBDOMAIN")
 	socialappSubdomain := os.Getenv("SOCIALAPP_SUBDOMAIN")
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
 
@@ -340,6 +347,23 @@ func run(config Configuration) {
 
 	propertiesProxy := proxyrouter.NewProxyRouter(kibanaTargetURL, propertiesMiddleware)
 
+	// URL shortener
+	urlShortenerURL, err := url.Parse(os.Getenv("URLSHORTENER_URL"))
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to parse urlshortener target url")
+	}
+	urlshortenerMiddleware := []func(http.Handler) http.Handler{
+		cors.AllowAll().Handler,
+		middleware.Heartbeat("/health"),
+		requestid.Middleware,
+		beacon.Middleware,
+		middleware.Recoverer,
+		middleware.Timeout(20 * time.Second),
+		middleware.RealIP,
+	}
+	urlshortenerProxy := proxyrouter.NewProxyRouter(urlShortenerURL, urlshortenerMiddleware)
+
+	// LOCAL
 	localSubdomain := os.Getenv("LOCAL_SUBDOMAIN")
 	if localSubdomain == "" {
 		// default to google.com
@@ -375,6 +399,8 @@ func run(config Configuration) {
 			propertiesProxy.Router.ServeHTTP(w, r)
 		case socialappSubdomain:
 			socialappRouter.Router.ServeHTTP(w, r)
+		case urlshortenerSubdomain:
+			urlshortenerProxy.Router.ServeHTTP(w, r)
 		case localSubdomain:
 			socialappRouter.Router.ServeHTTP(w, r)
 		default:

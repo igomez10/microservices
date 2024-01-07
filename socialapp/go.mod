@@ -4,11 +4,12 @@ go 1.21
 
 require (
 	github.com/getkin/kin-openapi v0.119.0
-	github.com/go-chi/chi/v5 v5.0.10
+	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-chi/cors v1.2.1
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-cmp v0.5.9
-	github.com/google/uuid v1.3.1
+	github.com/google/uuid v1.5.0
+	github.com/igomez10/microservices/urlshortener v0.0.0-20240107153729-6e8a7df19022
 	github.com/lib/pq v1.10.9
 	github.com/newrelic/go-agent v3.24.1+incompatible
 	github.com/newrelic/go-agent/v3 v3.24.1
@@ -17,7 +18,7 @@ require (
 	github.com/prometheus/client_golang v1.16.0
 	github.com/rs/zerolog v1.30.0
 	github.com/slok/go-http-metrics v0.10.0
-	golang.org/x/oauth2 v0.11.0
+	golang.org/x/oauth2 v0.15.0
 )
 
 require (
@@ -41,9 +42,9 @@ require (
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.11.1 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	golang.org/x/net v0.14.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/grpc v1.57.0 // indirect

@@ -8,21 +8,30 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/converter"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
+	urlClient "github.com/igomez10/microservices/urlshortener/generated/clients/go/client"
 )
 
 // implements the URLApiServicer interface
 // s *URLApiService openapi.URLApiServicer
 type URLApiService struct {
-	DB     db.Querier
+	// legacyDB is the legacy database, now we use the urlshortener microservice
+	// DEPRECATED
+	DB db.Querier
+	// DEPRECATED
 	DBConn db.DBTX
+
+	// urlClient is the Client for the urlshortener service
+	Client *urlClient.APIClient
+
+	// feature flags
+	UseURLShortenerService bool
 }
 
 func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
 
 	// validate we dont have a url with the same alias
-	_, err := s.DB.GetURLFromAlias(ctx, s.DBConn, newURL.Alias)
-	if err == nil {
+	if _, err := s.DB.GetURLFromAlias(ctx, s.DBConn, newURL.Alias); err == nil {
 		log.Error().Err(err).Msg("url with alias already exists")
 		return openapi.ImplResponse{
 			Code: http.StatusConflict,
@@ -66,23 +75,41 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (openapi.Im
 func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
 
-	// validate we dont have a url with the same alias
-	shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
-	if err != nil {
-		log.Error().Err(err).Msg("alias does not exist")
-		return openapi.ImplResponse{
-			Code: http.StatusNotFound,
-			Body: openapi.Error{
-				Message: "alias does not exist",
-				Code:    http.StatusNotFound,
-			},
-		}, nil
+	var shortURL string
+	if s.UseURLShortenerService {
+		// use the urlshortener service
+		u, res, err := s.Client.URLAPI.GetUrlData(ctx, alias).Execute()
+		if err != nil || res.StatusCode != http.StatusOK {
+			log.Error().Err(err).Msg("error getting url from urlshortener service")
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Message: "error fetching url from downstream service",
+					Code:    http.StatusInternalServerError,
+				},
+			}, err
+		}
+
+		shortURL = u.Url
+	} else {
+		shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
+		if err != nil {
+			log.Error().Err(err).Msg("alias does not exist")
+			return openapi.ImplResponse{
+				Code: http.StatusNotFound,
+				Body: openapi.Error{
+					Message: "alias does not exist",
+					Code:    http.StatusNotFound,
+				},
+			}, nil
+		}
+		shortURL = shortedURL.Url
 	}
 
 	res := openapi.ImplResponse{
 		Code: http.StatusPermanentRedirect,
 		Headers: map[string][]string{
-			"Location": {shortedURL.Url},
+			"Location": {shortURL},
 		},
 	}
 
