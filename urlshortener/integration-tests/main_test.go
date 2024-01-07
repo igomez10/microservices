@@ -25,7 +25,7 @@ var (
 	ENDPOINT_OAUTH_TOKEN string
 )
 
-// add setup function
+// Setup sets up the test environment
 func Setup() {
 	//  set the endpoint for the oauth token
 	testSetup := os.Getenv("TEST_SETUP")
@@ -47,8 +47,7 @@ func Setup() {
 }
 
 func TestMain(m *testing.M) {
-	// run tests
-	// add jitter
+	// add jitter at the beginning of the test
 	if os.Getenv("ADD_TEST_JITTER") != "" {
 		jitterInSeconds := uuid.New().ID() % 60
 		log.Printf("Adding test jitter of %d seconds", jitterInSeconds)
