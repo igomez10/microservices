@@ -24,12 +24,12 @@ bitcoinprice/.vscode/bookmarks.json
 socialapp/.vscode/configurationCache.log
 socialapp/.vscode/settings.json
 socialapp/.vscode/targets.log
-socialapp/cmd/__debug_bin
 socialapp/.openapi-generator/FILES
 socialapp/.openapi-generator/VERSION
 socialapp/jmeter.log
 
 */prometheus/data/*
-socialapp/.env
-socialapp/integration_tests/__debug_bin
+**/.env
 socialapp/alertmanager/slack_url
+**/__debug_bin*
+
