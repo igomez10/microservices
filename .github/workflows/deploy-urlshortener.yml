@@ -5,7 +5,7 @@ on:
     branches:
       - mainline
     paths:
-      - 'microservices/urlshortener/**'
+      - 'urlshortener/**'
 
 jobs:
   deploy:
