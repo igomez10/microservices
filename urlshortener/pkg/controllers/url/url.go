@@ -26,11 +26,11 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (serve
 	// validate we dont have a url with the same alias
 	_, err := s.DB.GetURLFromAlias(ctx, s.DBConn, newURL.Alias)
 	if err == nil {
-		log.Error().Err(err).Msg("url with alias already exists")
+		log.Error().Err(err).Msg("url with alias %q already exists")
 		return server.ImplResponse{
 			Code: http.StatusConflict,
 			Body: server.Error{
-				Message: "url with alias already exists",
+				Message: "url with alias %q already exists",
 				Code:    http.StatusConflict,
 			},
 		}, nil
@@ -42,7 +42,7 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (serve
 	}
 	res, err := s.DB.CreateURL(ctx, s.DBConn, newURLParams)
 	if err != nil {
-		log.Error().Err(err).Msg("error creating url")
+		log.Error().Err(err).Msgf("error creating url %q with alias %q", newURL.Url, newURL.Alias)
 		return server.ImplResponse{}, err
 	}
 
