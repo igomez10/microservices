@@ -41,22 +41,6 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (open
 
 	var openapiURL openapi.Url
 	if s.UseURLShortenerService {
-		// use the urlshortener service
-		// validate we dont have a url with the same alias
-		{
-			_, res, err := s.Client.URLAPI.GetUrlData(ctx, newURL.Alias).Execute()
-			if err == nil && res.StatusCode == http.StatusOK {
-				log.Error().Err(err).Msg("url with alias already exists")
-				return openapi.ImplResponse{
-					Code: http.StatusConflict,
-					Body: openapi.Error{
-						Message: "url with alias already exists",
-						Code:    http.StatusConflict,
-					},
-				}, nil
-			}
-		}
-
 		// create the url
 		{
 			newURLRequest := urlClient.NewURL(newURL.Url, newURL.Alias)
@@ -64,7 +48,7 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (open
 				URL(*newURLRequest).
 				Execute()
 			if err != nil || createRes.StatusCode != http.StatusOK {
-				log.Error().Err(err).Msg("error creating url")
+				log.Error().Err(err).Msgf("error creating url %q with alias %q", newURL.Url, newURL.Alias)
 				return openapi.ImplResponse{
 					Code: http.StatusInternalServerError,
 					Body: openapi.Error{
