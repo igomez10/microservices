@@ -11,7 +11,11 @@
             "mode": "auto",
             "program": "cmd/main.go",
             "cwd": ".",
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.env",
+            "args": [
+                "--meta.port=8584",
+                "--port=8087",
+            ]
         }
     ]
 }

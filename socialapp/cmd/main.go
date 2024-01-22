@@ -60,6 +60,9 @@ type Configuration struct {
 	propertiesSubdomain *url.URL
 	newRelicApp         *newrelic.Application
 	defaultTimeout      time.Duration
+
+	// urlService is the url for the urlshortener service
+	urlService *url.URL
 }
 
 func main() {
@@ -71,6 +74,7 @@ func main() {
 	propertiesSubdomain := flag.String("propertiesSubdomain", os.Getenv("PROPERTIES_SUBDOMAIN"), "Properties subdomain")
 	newRelicLicense := flag.String("newRelicLicense", os.Getenv("NEW_RELIC_LICENSE"), "New relic license API Key")
 	defaultTimeout := flag.Duration("defaultTimeout", 10*time.Second, "Default timeout for requests")
+	urlServiceHost := flag.String("urlServiceHost", os.Getenv("URL_SERVICE_HOST"), "URL service host")
 
 	flag.Parse()
 
@@ -149,6 +153,16 @@ func main() {
 		}
 	}
 
+	// parse url service host
+	var urlService *url.URL
+	if len(*urlServiceHost) != 0 && *urlServiceHost != "" {
+		u, err := url.Parse(*urlServiceHost)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("failed to parse url service host url %s", *urlServiceHost)
+		}
+		urlService = u
+	}
+
 	c := Configuration{
 		appPort:             *appPort,
 		proxyURL:            *proxyURL,
@@ -161,6 +175,7 @@ func main() {
 		propertiesSubdomain: propertiesSubdomainURL,
 		newRelicApp:         newrelicApp,
 		defaultTimeout:      *defaultTimeout,
+		urlService:          urlService,
 	}
 
 	defer connections.Close()
@@ -221,13 +236,22 @@ func run(config Configuration) {
 	ScopeAPIController := openapi.NewScopeAPIController(ScopeAPIService)
 
 	// URL service
-	urlServiceClient := urlClient.NewAPIClient(urlClient.NewConfiguration())
 	URLAPIService := &socialappurl.URLApiService{
-		DB:                     config.queries,
-		DBConn:                 config.dbConnections.GetPool(),
-		Client:                 urlServiceClient,
-		UseURLShortenerService: os.Getenv("USE_URL_SHORTENER_SERVICE") == "true",
+		DB:     config.queries,
+		DBConn: config.dbConnections.GetPool(),
 	}
+
+	if config.urlService != nil {
+		uc := urlClient.NewConfiguration()
+		uc.Host = config.urlService.Host
+		uc.Scheme = config.urlService.Scheme
+		uc.HTTPClient = http.DefaultClient
+		uc.UserAgent = config.appName
+		urlServiceClient := urlClient.NewAPIClient(uc)
+		URLAPIService.Client = urlServiceClient
+		URLAPIService.UseURLShortenerService = true
+	}
+
 	URLAPIController := openapi.NewURLAPIController(URLAPIService)
 
 	routers := []openapi.Router{

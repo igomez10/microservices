@@ -20,6 +20,7 @@ type URLApiService struct {
 	// DEPRECATED
 	DBConn db.DBTX
 
+	// NEW URLSHORTENER SERVICE
 	// urlClient is the Client for the urlshortener service
 	Client *urlClient.APIClient
 
@@ -27,32 +28,85 @@ type URLApiService struct {
 	UseURLShortenerService bool
 }
 
+type URLApiServiceConfig struct {
+	DB                     db.Querier
+	DBConn                 db.DBTX
+	Client                 *urlClient.APIClient
+	UseURLShortenerService bool
+}
+
+// CreateUrl creates a new url
 func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
 
-	// validate we dont have a url with the same alias
-	if _, err := s.DB.GetURLFromAlias(ctx, s.DBConn, newURL.Alias); err == nil {
-		log.Error().Err(err).Msg("url with alias already exists")
-		return openapi.ImplResponse{
-			Code: http.StatusConflict,
-			Body: openapi.Error{
-				Message: "url with alias already exists",
-				Code:    http.StatusConflict,
-			},
-		}, nil
+	var openapiURL openapi.Url
+	if s.UseURLShortenerService {
+		// use the urlshortener service
+		// validate we dont have a url with the same alias
+		{
+			_, res, err := s.Client.URLAPI.GetUrlData(ctx, newURL.Alias).Execute()
+			if err == nil && res.StatusCode == http.StatusOK {
+				log.Error().Err(err).Msg("url with alias already exists")
+				return openapi.ImplResponse{
+					Code: http.StatusConflict,
+					Body: openapi.Error{
+						Message: "url with alias already exists",
+						Code:    http.StatusConflict,
+					},
+				}, nil
+			}
+		}
+
+		// create the url
+		{
+			newURLRequest := urlClient.NewURL(newURL.Url, newURL.Alias)
+			u, createRes, err := s.Client.URLAPI.CreateUrl(ctx).
+				URL(*newURLRequest).
+				Execute()
+			if err != nil || createRes.StatusCode != http.StatusOK {
+				log.Error().Err(err).Msg("error creating url")
+				return openapi.ImplResponse{
+					Code: http.StatusInternalServerError,
+					Body: openapi.Error{
+						Message: "error creating url",
+						Code:    http.StatusInternalServerError,
+					},
+				}, err
+			}
+			openapiURL = openapi.Url{
+				Url:       u.Url,
+				Alias:     u.Alias,
+				CreatedAt: *u.CreatedAt,
+				UpdatedAt: *u.UpdatedAt,
+				DeletedAt: *u.DeletedAt,
+			}
+		}
+
+	} else {
+		// validate we dont have a url with the same alias
+		if _, err := s.DB.GetURLFromAlias(ctx, s.DBConn, newURL.Alias); err == nil {
+			log.Error().Err(err).Msg("url with alias already exists")
+			return openapi.ImplResponse{
+				Code: http.StatusConflict,
+				Body: openapi.Error{
+					Message: "url with alias already exists",
+					Code:    http.StatusConflict,
+				},
+			}, nil
+		}
+
+		newURLParams := db.CreateURLParams{
+			Alias: newURL.Alias,
+			Url:   newURL.Url,
+		}
+		res, err := s.DB.CreateURL(ctx, s.DBConn, newURLParams)
+		if err != nil {
+			log.Error().Err(err).Msg("error creating url")
+			return openapi.ImplResponse{}, err
+		}
+		openapiURL = converter.FromDBUrlToAPIUrl(res)
 	}
 
-	newURLParams := db.CreateURLParams{
-		Alias: newURL.Alias,
-		Url:   newURL.Url,
-	}
-	res, err := s.DB.CreateURL(ctx, s.DBConn, newURLParams)
-	if err != nil {
-		log.Error().Err(err).Msg("error creating url")
-		return openapi.ImplResponse{}, err
-	}
-
-	openapiURL := converter.FromDBUrlToAPIUrl(res)
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
 		Body: openapiURL,
@@ -60,12 +114,33 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (open
 
 }
 
+// DeleteUrl deletes a url
 func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
-
-	if err := s.DB.DeleteURL(ctx, s.DBConn, alias); err != nil {
-		log.Error().Err(err).Msg("error deleting url")
-		return openapi.ImplResponse{}, err
+	if s.UseURLShortenerService {
+		// use the urlshortener service
+		res, err := s.Client.URLAPI.DeleteUrl(ctx, alias).Execute()
+		if err != nil || res.StatusCode != http.StatusOK {
+			log.Error().Err(err).Msg("error deleting url")
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Message: "error deleting url",
+					Code:    http.StatusInternalServerError,
+				},
+			}, err
+		}
+	} else {
+		if err := s.DB.DeleteURL(ctx, s.DBConn, alias); err != nil {
+			log.Error().Err(err).Msg("error deleting url")
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Message: "error deleting url",
+					Code:    http.StatusInternalServerError,
+				},
+			}, err
+		}
 	}
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
@@ -80,14 +155,26 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplR
 		// use the urlshortener service
 		u, res, err := s.Client.URLAPI.GetUrlData(ctx, alias).Execute()
 		if err != nil || res.StatusCode != http.StatusOK {
-			log.Error().Err(err).Msg("error getting url from urlshortener service")
-			return openapi.ImplResponse{
-				Code: http.StatusInternalServerError,
-				Body: openapi.Error{
-					Message: "error fetching url from downstream service",
-					Code:    http.StatusInternalServerError,
-				},
-			}, err
+			switch res.StatusCode {
+			case http.StatusNotFound:
+				log.Error().Err(err).Msg("alias does not exist")
+				return openapi.ImplResponse{
+					Code: http.StatusNotFound,
+					Body: openapi.Error{
+						Message: "alias does not exist",
+						Code:    http.StatusNotFound,
+					},
+				}, nil
+			default:
+				log.Error().Err(err).Msg("error getting url from urlshortener service")
+				return openapi.ImplResponse{
+					Code: http.StatusInternalServerError,
+					Body: openapi.Error{
+						Message: "error fetching url from downstream service",
+						Code:    http.StatusInternalServerError,
+					},
+				}, err
+			}
 		}
 
 		shortURL = u.Url
@@ -106,6 +193,7 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplR
 		shortURL = shortedURL.Url
 	}
 
+	// add location header for redirect in the response
 	res := openapi.ImplResponse{
 		Code: http.StatusPermanentRedirect,
 		Headers: map[string][]string{
@@ -113,34 +201,54 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplR
 		},
 	}
 
-	// add location hedaer for redirect in the response
 	return res, nil
 }
 
 func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
 
-	// validate we dont have a url with the same alias
-	shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
-	if err != nil {
-		log.Error().Err(err).Msg("alias does not exist")
-		return openapi.ImplResponse{
-			Code: http.StatusNotFound,
-			Body: openapi.Error{
-				Message: "alias does not exist",
-				Code:    http.StatusNotFound,
-			},
-		}, nil
+	var responseUrl openapi.Url
+	if s.UseURLShortenerService {
+		u, res, err := s.Client.URLAPI.GetUrlData(ctx, alias).Execute()
+		if err != nil || res.StatusCode != http.StatusOK {
+			log.Error().Err(err).Msg("error getting url from urlshortener service")
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Message: "error fetching url from downstream service",
+					Code:    http.StatusInternalServerError,
+				},
+			}, err
+		}
+
+		responseUrl = openapi.Url{
+			Alias:     u.Alias,
+			Url:       u.Url,
+			CreatedAt: *u.CreatedAt,
+			UpdatedAt: *u.UpdatedAt,
+			DeletedAt: *u.DeletedAt,
+		}
+	} else {
+		// validate we dont have a url with the same alias
+		shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
+		if err != nil {
+			log.Error().Err(err).Msg("alias does not exist")
+			return openapi.ImplResponse{
+				Code: http.StatusNotFound,
+				Body: openapi.Error{
+					Message: "alias does not exist",
+					Code:    http.StatusNotFound,
+				},
+			}, nil
+		}
+
+		responseUrl = converter.FromDBUrlToAPIUrl(shortedURL)
 	}
 
 	res := openapi.ImplResponse{
 		Code: http.StatusOK,
-		Body: openapi.Url{
-			Alias: shortedURL.Alias,
-			Url:   shortedURL.Url,
-		},
+		Body: responseUrl,
 	}
 
-	// add location hedaer for redirect in the response
 	return res, nil
 }

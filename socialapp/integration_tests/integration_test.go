@@ -1283,7 +1283,7 @@ func TestURLLifeCycle(t *testing.T) {
 	openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	// create url
-	newURL := client.NewURL("https://www.google.com", "google")
+	newURL := client.NewURL("https://www.google.com", fmt.Sprintf("%d", time.Now().Unix()))
 	_, r, err := apiClient.URLAPI.CreateUrl(openAPICtx).URL(*newURL).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `URLAPI.CreateURL`: %v\n", err)
@@ -1295,7 +1295,7 @@ func TestURLLifeCycle(t *testing.T) {
 	}
 
 	// get url
-	getUrlRes, err := apiClient.URLAPI.GetUrl(proxyCtx, "google").Execute()
+	getUrlRes, err := apiClient.URLAPI.GetUrl(proxyCtx, newURL.Alias).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `URLAPI.GetURL`: %v\n", err)
 		t.Errorf("Full HTTP response: %v ", r)
@@ -1307,7 +1307,7 @@ func TestURLLifeCycle(t *testing.T) {
 	}
 
 	// delete url
-	deleteUrlRes, err := apiClient.URLAPI.DeleteUrl(openAPICtx, "google").Execute()
+	deleteUrlRes, err := apiClient.URLAPI.DeleteUrl(openAPICtx, newURL.Alias).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `URLAPI.DeleteURL`: %v\n", err)
 		t.Errorf("Full HTTP response: %v ", r)
@@ -1319,7 +1319,7 @@ func TestURLLifeCycle(t *testing.T) {
 	}
 
 	// get url
-	getUrlRes, err = apiClient.URLAPI.GetUrl(proxyCtx, "google").Execute()
+	getUrlRes, err = apiClient.URLAPI.GetUrl(proxyCtx, newURL.Alias).Execute()
 	if err == nil {
 		t.Errorf("Expected error when calling `URLAPI.GetURL`, got none")
 	}
