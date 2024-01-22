@@ -12,10 +12,24 @@ services:
         "--db-url=${DB_URL}",
         "--meta.addr=0.0.0.0",
         "--meta.port=8082",
+        "--newrelic-license=${NEWRELIC_LICENSE}",
       ]
     ports:
       - "8089:8089"
     user: "1000:1000"
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+      restart_policy:
+        condition: on-failure
+    
+
     networks:
       - socialapp_default
     restart: always

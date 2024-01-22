@@ -13,6 +13,7 @@ import (
 	"github.com/igomez10/microservices/urlshortener/pkg/db"
 	flags "github.com/jessevdk/go-flags"
 	_ "github.com/newrelic/go-agent/v3/integrations/nrpq"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -26,6 +27,7 @@ var opts struct {
 		Addr string `long:"addr" env:"ADDR" default:"localhost" description:"Meta service address"`
 		Port int    `long:"port" env:"PORT" default:"8081" description:"Meta service port"`
 	} `group:"Meta service" namespace:"meta" env-namespace:"META"`
+	NewRelicLicense string `long:"newrelic-license" env:"NEWRELIC_LICENSE" default:"" description:"New relic license"`
 }
 
 func main() {
@@ -88,6 +90,21 @@ func main() {
 			log.Fatal().Err(err).Msg("failed to start meta service")
 		}
 	}()
+
+	// start new relic
+	// var newrelicApp *newrelic.Application
+	if opts.NewRelicLicense != "" {
+		_, err := newrelic.NewApplication(
+			newrelic.ConfigAppName("urlshortener"),
+			newrelic.ConfigLicense(opts.NewRelicLicense),
+			newrelic.ConfigAppLogForwardingEnabled(false),
+			newrelic.ConfigAppLogEnabled(false),
+			newrelic.ConfigDistributedTracerEnabled(false),
+		)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to create new relic application")
+		}
+	}
 
 	// Start HTTP server
 	urlRouter := server.NewRouter(URLAPIController)
