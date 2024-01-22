@@ -18,7 +18,7 @@ services:
       - "8089:8089"
     user: "1000:1000"
     deploy:
-      replicas: 2
+      replicas: 1
       resources:
         limits:
           cpus: "0.5"
