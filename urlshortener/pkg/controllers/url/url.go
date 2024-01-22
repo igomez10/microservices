@@ -58,8 +58,14 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (server.Imp
 	log := contexthelper.GetLoggerInContext(ctx)
 
 	if err := s.DB.DeleteURL(ctx, s.DBConn, alias); err != nil {
-		log.Error().Err(err).Msg("error deleting url")
-		return server.ImplResponse{}, err
+		log.Error().Err(err).Msgf("error deleting url %q", alias)
+		return server.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: server.Error{
+				Message: "error deleting url",
+				Code:    http.StatusInternalServerError,
+			},
+		}, err
 	}
 	return server.ImplResponse{
 		Code: http.StatusOK,
