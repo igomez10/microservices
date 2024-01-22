@@ -2,6 +2,7 @@ package url
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/igomez10/microservices/urlshortener/generated/server"
@@ -43,7 +44,12 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (serve
 	res, err := s.DB.CreateURL(ctx, s.DBConn, newURLParams)
 	if err != nil {
 		log.Error().Err(err).Msgf("error creating url %q with alias %q", newURL.Url, newURL.Alias)
-		return server.ImplResponse{}, err
+		return server.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: server.Error{
+				Message: fmt.Sprintf("error creating url %q with alias %q", newURL.Url, newURL.Alias),
+			},
+		}, err
 	}
 
 	serverURL := converter.FromDBUrlToAPIUrl(res)
