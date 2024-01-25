@@ -15,7 +15,10 @@
             "args": [
                 "--meta.port=8584",
                 "--port=8087",
-            ]
+            ],
+            "env": {
+                "DB_URL": "postgres://postgres:password@localhost:5432/urlshortener?sslmode=disable"
+            }
         }
     ]
 }
