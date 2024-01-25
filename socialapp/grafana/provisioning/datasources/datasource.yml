@@ -28,6 +28,7 @@ datasources:
     database: socialapp
     jsonData:
       sslmode: disable
+      postgresVersion: 1500
     secureJsonData:
       password: $POSTGRESQL_PASSWORD
   - orgId: 1
@@ -39,10 +40,23 @@ datasources:
     user: postgres
     database: puttyknife
     jsonData:
-      postgresVersion: 1400
+      postgresVersion: 1500
       sslmode: disable
     secureJsonData:
       password: $POSTGRESQL_PROPERTIES_PASSWORD
+  - orgId: 1
+    version: 8
+    name: PostgreSQL-urlshortener
+    type: postgres
+    access: proxy
+    url: database:5432
+    user: postgres
+    database: urlshortener
+    jsonData:
+      postgresVersion: 1500
+      sslmode: disable
+    secureJsonData:
+      password: $POSTGRESQL_PASSWORD
   - orgId: 1
     version: 1
     name: Prometheus

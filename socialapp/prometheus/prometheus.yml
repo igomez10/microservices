@@ -84,6 +84,12 @@ scrape_configs:
     static_configs:
       - targets:
           - puttyknife-m2:9090
+
+  - job_name: "urlshortener"
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - urlshortener:8082
 #  - job_name: 'pushgateway'
 #    scrape_interval: 10s
 #    dns_sd_configs:
