@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/igomez10/microservices/socialapp/internal/responseWriter"
-	newrelic "github.com/newrelic/go-agent"
 	nrredis "github.com/newrelic/go-agent/v3/integrations/nrredis-v8"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/rs/zerolog/log"
