@@ -13,7 +13,6 @@ require (
 	github.com/rs/zerolog v1.30.0
 	github.com/slok/go-http-metrics v0.11.0
 	golang.org/x/oauth2 v0.15.0
-	honnef.co/go/tools v0.4.6
 )
 
 require (
@@ -30,7 +29,6 @@ require (
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/tools v0.12.1-0.20230825192346-2191a27a6dc5 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/grpc v1.57.0 // indirect

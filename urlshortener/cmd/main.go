@@ -108,7 +108,7 @@ func main() {
 			newrelic.ConfigLicense(opts.NewRelicLicense),
 			newrelic.ConfigAppLogForwardingEnabled(false),
 			newrelic.ConfigAppLogEnabled(false),
-			newrelic.ConfigDistributedTracerEnabled(false),
+			newrelic.ConfigDistributedTracerEnabled(true),
 		)
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create new relic application")

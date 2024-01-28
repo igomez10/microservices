@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/igomez10/microservices/urlshortener/generated/server"
 	"github.com/igomez10/microservices/urlshortener/pkg/controllers/contexthelper"
 	"github.com/igomez10/microservices/urlshortener/pkg/converter"
 	"github.com/igomez10/microservices/urlshortener/pkg/db"
+	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
 // validate URLApiService implements the URLApiServicer interface
@@ -19,23 +21,33 @@ var _ server.URLAPIServicer = (*URLApiService)(nil)
 type URLApiService struct {
 	DB     db.Querier
 	DBConn db.DBTX
+
+	metrics newrelic.Application
+}
+
+type MetricEvent struct {
+	Alias string `json:"alias"`
+	Url   string `json:"url"`
+	IsErr bool   `json:"is_err"`
+}
+
+func (m *MetricEvent) toMap() map[string]interface{} {
+	return map[string]interface{}{
+		"alias":  m.Alias,
+		"url":    m.Url,
+		"is_err": m.IsErr,
+	}
 }
 
 func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (server.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
-
-	// validate we dont have a url with the same alias
-	_, err := s.DB.GetURLFromAlias(ctx, s.DBConn, newURL.Alias)
-	if err == nil {
-		log.Error().Err(err).Msg("url with alias %q already exists")
-		return server.ImplResponse{
-			Code: http.StatusConflict,
-			Body: server.Error{
-				Message: "url with alias %q already exists",
-				Code:    http.StatusConflict,
-			},
-		}, nil
+	event := MetricEvent{
+		Alias: newURL.Alias,
+		Url:   newURL.Url,
 	}
+	defer func() {
+		s.metrics.RecordCustomEvent("CreateUrl", event.toMap())
+	}()
 
 	newURLParams := db.CreateURLParams{
 		Alias: newURL.Alias,
@@ -44,6 +56,18 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (serve
 	res, err := s.DB.CreateURL(ctx, s.DBConn, newURLParams)
 	if err != nil {
 		log.Error().Err(err).Msgf("error creating url %q with alias %q", newURL.Url, newURL.Alias)
+		if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+			return server.ImplResponse{
+				Code: http.StatusConflict,
+				Body: server.Error{
+					Message: fmt.Sprintf("url with alias %q already exists", newURL.Alias),
+					Code:    http.StatusConflict,
+				},
+			}, nil
+		}
+
+		// other error
+		event.IsErr = true
 		return server.ImplResponse{
 			Code: http.StatusInternalServerError,
 			Body: server.Error{
@@ -62,9 +86,18 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (serve
 
 func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (server.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
+	event := MetricEvent{
+		Alias: alias,
+		IsErr: false,
+	}
+
+	defer func() {
+		s.metrics.RecordCustomEvent("DeleteUrl", event.toMap())
+	}()
 
 	if err := s.DB.DeleteURL(ctx, s.DBConn, alias); err != nil {
 		log.Error().Err(err).Msgf("error deleting url %q", alias)
+		event.IsErr = true
 		return server.ImplResponse{
 			Code: http.StatusInternalServerError,
 			Body: server.Error{
@@ -80,11 +113,18 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (server.Imp
 
 func (s *URLApiService) GetUrl(ctx context.Context, alias string) (server.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
+	event := MetricEvent{
+		Alias: alias,
+		IsErr: false,
+	}
+	defer func() {
+		s.metrics.RecordCustomEvent("GetUrl", event.toMap())
+	}()
 
-	// validate we dont have a url with the same alias
 	shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
 	if err != nil {
 		log.Error().Err(err).Msg("alias does not exist")
+		event.IsErr = true
 		return server.ImplResponse{
 			Code: http.StatusNotFound,
 			Body: server.Error{
@@ -108,10 +148,18 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (server.ImplRe
 func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (server.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
 
-	// validate we dont have a url with the same alias
+	event := MetricEvent{
+		Alias: alias,
+	}
+
+	defer func() {
+		s.metrics.RecordCustomEvent("GetUrlData", event.toMap())
+	}()
+
 	shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
 	if err != nil {
 		log.Error().Err(err).Msg("alias does not exist")
+		event.IsErr = true
 		return server.ImplResponse{
 			Code: http.StatusNotFound,
 			Body: server.Error{
@@ -129,6 +177,5 @@ func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (server.Im
 		},
 	}
 
-	// add location hedaer for redirect in the response
 	return res, nil
 }

@@ -91,7 +91,7 @@ func TestURLLifeCycle(t *testing.T) {
 
 	// create url
 	urlAPICtx := context.WithValue(context.Background(), urlClient.ContextServerIndex, CONTEXT_SERVER)
-	alias := fmt.Sprintf("%d", time.Now().UnixNano())[:9]
+	alias := fmt.Sprintf("%d", uuid.New().ID())
 	newURL := urlClient.NewURL("https://www.google.com/", alias)
 	_, r, err := urlClnt.URLAPI.CreateUrl(urlAPICtx).URL(*newURL).Execute()
 	if err != nil {
@@ -101,6 +101,15 @@ func TestURLLifeCycle(t *testing.T) {
 
 	if r.StatusCode != http.StatusOK {
 		t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+	}
+
+	// create same url should fail with 409
+	_, r, err = urlClnt.URLAPI.CreateUrl(urlAPICtx).URL(*newURL).Execute()
+	if err == nil {
+		t.Errorf("Expected error when calling `URLAPI.CreateURL`, got none")
+	}
+	if r.StatusCode != http.StatusConflict {
+		t.Errorf("Expected status code %d, got %d", http.StatusConflict, r.StatusCode)
 	}
 
 	// get url
