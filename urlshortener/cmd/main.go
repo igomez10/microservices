@@ -103,7 +103,7 @@ func main() {
 	// start new relic
 	var newrelicApp *newrelic.Application
 	if opts.NewRelicLicense != "" {
-		_, err := newrelic.NewApplication(
+		na, err := newrelic.NewApplication(
 			newrelic.ConfigAppName("urlshortener"),
 			newrelic.ConfigLicense(opts.NewRelicLicense),
 			newrelic.ConfigAppLogForwardingEnabled(false),
@@ -113,6 +113,9 @@ func main() {
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to create new relic application")
 		}
+		newrelicApp = na
+	} else {
+		log.Warn().Msg("new relic license not provided, new relic will not be enabled")
 	}
 
 	// Start HTTP server
@@ -173,7 +176,8 @@ func NewMetaRouter() chi.Router {
 // string pointer saved in the context as "pattern"
 func (p *Pattern) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r = r.WithContext(contexthelper.SetRequestPatternInContext(r.Context(), p.Pattern))
+		ctx := contexthelper.SetRequestPatternInContext(r.Context(), p.Pattern)
+		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
 }
