@@ -738,16 +738,16 @@
             "type": "timeseries"
         }
     ],
-    "refresh": false,
+    "refresh": "",
     "schemaVersion": 39,
     "tags": [],
     "templating": {
         "list": [
             {
                 "current": {
-                    "selected": true,
-                    "text": "30m",
-                    "value": "30m"
+                    "selected": false,
+                    "text": "1h",
+                    "value": "1h"
                 },
                 "hide": 0,
                 "includeAll": false,
@@ -775,12 +775,12 @@
                         "value": "15m"
                     },
                     {
-                        "selected": true,
+                        "selected": false,
                         "text": "30m",
                         "value": "30m"
                     },
                     {
-                        "selected": false,
+                        "selected": true,
                         "text": "1h",
                         "value": "1h"
                     }
@@ -793,8 +793,8 @@
             {
                 "current": {
                     "selected": true,
-                    "text": "0.85",
-                    "value": "0.85"
+                    "text": "0.95",
+                    "value": "0.95"
                 },
                 "hide": 0,
                 "includeAll": false,
@@ -817,7 +817,7 @@
                         "value": "0.80"
                     },
                     {
-                        "selected": true,
+                        "selected": false,
                         "text": "0.85",
                         "value": "0.85"
                     },
@@ -827,7 +827,7 @@
                         "value": "0.90"
                     },
                     {
-                        "selected": false,
+                        "selected": true,
                         "text": "0.95",
                         "value": "0.95"
                     },
@@ -871,6 +871,6 @@
     "timezone": "",
     "title": "HTTP Service",
     "uid": "l1YgmnvVk",
-    "version": 4,
+    "version": 7,
     "weekStart": ""
 }
