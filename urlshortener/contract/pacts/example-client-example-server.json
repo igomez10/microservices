@@ -1,0 +1,47 @@
+{
+  "consumer": {
+    "name": "example-client"
+  },
+  "provider": {
+    "name": "example-server"
+  },
+  "interactions": [
+    {
+      "description": "a request to get a URL",
+      "providerState": "URL exists in database",
+      "request": {
+        "method": "GET",
+        "path": "/v1/urls/example/data",
+        "matchingRules": {
+          "$.path": {
+            "match": "regex",
+            "regex": "\\/v1\\/urls\\/.*\\/data"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json; charset=utf-8"
+        },
+        "body": {
+          "url": "http://example.com",
+          "alias": "example",
+          "created_at": "2024-02-01T06:43:16.68484+01:00",
+          "updated_at": "2024-02-01T07:43:16.684841+01:00",
+          "deleted_at": "0001-01-01T00:00:00Z"
+        },
+        "matchingRules": {
+          "$.body": {
+            "match": "type"
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "2.0.0"
+    }
+  }
+}
