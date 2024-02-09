@@ -42,7 +42,6 @@ services:
     cpus: 2
     mem_limit: 2g
 
-
   postgres-exporter:
     image: quay.io/prometheuscommunity/postgres-exporter
     environment:
@@ -91,18 +90,18 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "grafana"
-        
+
   prometheus:
     image: prom/prometheus:latest
     volumes:
       - ./prometheus/:/etc/prometheus/
       - prometheus_data:/prometheus
     command:
-      - '--storage.tsdb.retention.size=6GB'
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - "--storage.tsdb.retention.size=6GB"
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
     ports:
       - 9090:9090
     expose:
@@ -118,7 +117,7 @@ services:
     volumes:
       - ./alertmanager/:/etc/alertmanager/
     command:
-      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
     ports:
       - 9093:9093
     expose:
@@ -144,14 +143,14 @@ services:
       - /etc:/host/etc:ro
       - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
     command:
-      - '--path.procfs=/host/proc'
-      - '--path.rootfs=/rootfs'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
       # enable process collector
-      - '--collector.processes'
+      - "--collector.processes"
       #  enable systemd collector
-      - '--collector.systemd'
+      - "--collector.systemd"
     expose:
       - 9100
     ports:
@@ -163,7 +162,7 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "node-exporter"
-        
+
   inspector:
     image: ubuntu:latest
     command: sleep infinity
@@ -172,7 +171,7 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "inspector"
-        
+
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.46.0
     container_name: monitoring_cadvisor
@@ -185,8 +184,8 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
     command:
-      - '--docker_only=true'
-      - '--housekeeping_interval=10s'
+      - "--docker_only=true"
+      - "--housekeeping_interval=10s"
     expose:
       - 8080
     ports:
@@ -198,7 +197,7 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "cadvisor"
-        
+
   broker1:
     image: confluentinc/cp-kafka:latest
     container_name: broker1
@@ -227,7 +226,6 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "broker1"
-    
 
   broker2:
     image: confluentinc/cp-kafka:latest
@@ -247,7 +245,7 @@ services:
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       CLUSTER_ID: "yFMG3uNHSAKhz-zUrBIhjg"
     volumes:
-        - ${BROKER2_DATA_DIR}:/var/lib/kafka/data
+      - ${BROKER2_DATA_DIR}:/var/lib/kafka/data
     cpus: 2
     mem_limit: 4096m
     logging:
@@ -274,7 +272,7 @@ services:
       KAFKA_LOG_DIRS: /var/lib/kafka/data
       CLUSTER_ID: "yFMG3uNHSAKhz-zUrBIhjg"
     volumes:
-        - ${BROKER3_DATA_DIR}:/var/lib/kafka/data
+      - ${BROKER3_DATA_DIR}:/var/lib/kafka/data
     cpus: 2
     mem_limit: 4096m
     logging:
@@ -348,7 +346,7 @@ services:
       ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
       ELASTICSEARCH_USERNAME: ${ELASTICSEARCH_USERNAME}
     command:
-      - '--es.uri=http://${ELASTICSEARCH_USERNAME}:${ELASTICSEARCH_PASSWORD}@elasticsearch:9200'
+      - "--es.uri=http://${ELASTICSEARCH_USERNAME}:${ELASTICSEARCH_PASSWORD}@elasticsearch:9200"
     restart: always
     networks:
       - elk
@@ -415,7 +413,7 @@ services:
         syslog-address: "udp://localhost:53000"
         tag: "debezium-ui"
   unleash:
-    image: unleashorg/unleash-server:latest
+    image: unleashorg/unleash-server:5
     ports:
       - "4242:4242"
     environment:
@@ -428,7 +426,7 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    command: [ "node", "index.js" ]
+    command: ["node", "index.js"]
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:4242/health || exit 1
       interval: 1s
