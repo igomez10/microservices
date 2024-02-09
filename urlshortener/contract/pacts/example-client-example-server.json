@@ -27,8 +27,8 @@
         "body": {
           "url": "http://example.com",
           "alias": "example",
-          "created_at": "2024-02-01T06:43:16.68484+01:00",
-          "updated_at": "2024-02-01T07:43:16.684841+01:00",
+          "created_at": "2024-02-01T06:56:10.339157+01:00",
+          "updated_at": "2024-02-01T07:56:10.339157+01:00",
           "deleted_at": "0001-01-01T00:00:00Z"
         },
         "matchingRules": {

@@ -22,6 +22,10 @@ services:
     environment:
       PACT_BROKER_PORT: "9292"
       PACT_BROKER_DATABASE_URL: "postgres://postgres:password@postgres/postgres"
+      # username
+      PACT_BROKER_BASIC_AUTH_USERNAME: "pactbroker"
+      # password
+      PACT_BROKER_BASIC_AUTH_PASSWORD: "pactbroker"
       PACT_BROKER_LOG_LEVEL: INFO
       PACT_BROKER_SQL_LOG_LEVEL: DEBUG
       # PACT_BROKER_DATABASE_CONNECT_MAX_RETRIES is only needed for docker-compose

@@ -4,15 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/igomez10/microservices/urlshortener/generated/clients/go/client"
 	"github.com/igomez10/microservices/urlshortener/generated/server"
 	"github.com/pact-foundation/pact-go/dsl"
+	"github.com/pact-foundation/pact-go/types"
 )
 
 func TestClientPact_Local(t *testing.T) {
@@ -78,6 +81,26 @@ func TestClientPact_Local(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+
+		// Publish the Pacts...
+		func() {
+			p := dsl.Publisher{}
+
+			fmt.Println("Publishing Pact files to broker", os.Getenv("PACT_DIR"), os.Getenv("PACT_BROKER_URL"))
+			err := p.Publish(types.PublishRequest{
+				PactURLs:        []string{filepath.FromSlash("./pacts/example-client-example-server.json")},
+				PactBroker:      fmt.Sprintf("http://localhost:9292"),
+				ConsumerVersion: "1.0.0",
+				Tags:            []string{"master"},
+				BrokerUsername:  "pactbroker",
+				BrokerPassword:  "pactbroker",
+			})
+
+			if err != nil {
+				log.Println("ERROR: ", err)
+				os.Exit(1)
+			}
+		}()
 	})
 
 	// write Contract into file
