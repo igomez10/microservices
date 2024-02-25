@@ -4,4 +4,4 @@ docker compose build
 docker compose down
 docker compose up -d
 docker builder prune -f
-go clean -modcache 
+/usr/local/go/bin/go clean -modcache 
