@@ -654,7 +654,7 @@ groups:
 
   - alert: HostContextSwitching
     expr: '(rate(node_context_switches_total[5m])) / (count without(cpu, mode) (node_cpu_seconds_total{mode="idle"})) > 4000'
-    for: 0m
+    for: 1m
     labels:
       severity: warning
     annotations:
