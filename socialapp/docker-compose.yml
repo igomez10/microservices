@@ -58,7 +58,7 @@ services:
     mem_limit: 512m
 
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:10.0.12
     user: "472"
     ports:
       - 3005:3000
@@ -92,7 +92,7 @@ services:
         tag: "grafana"
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.50.1
     volumes:
       - ./prometheus/:/etc/prometheus/
       - prometheus_data:/prometheus
@@ -132,7 +132,7 @@ services:
         tag: "alertmanager"
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.7.0
     container_name: node-exporter
     privileged: true
     restart: unless-stopped
@@ -173,7 +173,7 @@ services:
         tag: "inspector"
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.46.0
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
     container_name: monitoring_cadvisor
     privileged: true
     restart: unless-stopped
