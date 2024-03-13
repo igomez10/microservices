@@ -15,4 +15,5 @@ CNAME
 .dockerignore
 _config.yml
 Dockerfile
+Integration.Dockerfile
 docker-compose.yml

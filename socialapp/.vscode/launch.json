@@ -17,6 +17,21 @@
             ],
             "cwd": ".",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "name": "Launch integration tests",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "integration_tests/main.go",
+            "args": [],
+            "cwd": ".",
+            "env": {
+                "TEST_SETUP": "1",
+                "HTTP_PROXY": "http://localhost:9091",
+                "HTTPS_PROXY": "http://localhost:9091",
+            },
+            // "envFile": "${workspaceFolder}/.env",
         }
     ]
 }

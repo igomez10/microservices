@@ -6,4 +6,5 @@ RUN go get -d -v ./...
 RUN go install -v ./...
 COPY ./integration_tests ./integration_tests
 COPY ./client ./client
-CMD ["go", "test" , "-count", "1",  "-v", "./integration_tests/..."]
+RUN go build -o /go/src/github.com/igomez10/microservices/app ./integration_tests
+CMD ["/go/src/github.com/igomez10/microservices/app"]
