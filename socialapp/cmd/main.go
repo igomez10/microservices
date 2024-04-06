@@ -2,7 +2,7 @@ package main
 
 import (
 	//  With pprof to enable profiling
-	// _ "net/http/pprof"
+	_ "net/http/pprof"
 
 	"context"
 	"database/sql"
@@ -46,6 +46,13 @@ import (
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
 type Configuration struct {
@@ -60,7 +67,7 @@ type Configuration struct {
 	propertiesSubdomain *url.URL
 	newRelicApp         *newrelic.Application
 	defaultTimeout      time.Duration
-
+	agentURL            *url.URL
 	// urlService is the url for the urlshortener service
 	urlService *url.URL
 }
@@ -75,6 +82,7 @@ func main() {
 	newRelicLicense := flag.String("newRelicLicense", os.Getenv("NEW_RELIC_LICENSE"), "New relic license API Key")
 	defaultTimeout := flag.Duration("defaultTimeout", 10*time.Second, "Default timeout for requests")
 	urlServiceHost := flag.String("urlServiceHost", os.Getenv("URL_SERVICE_HOST"), "URL service host")
+	urlAgent := flag.String("agentURL", os.Getenv("AGENT_URL"), "Agent URL \"http://localhost:4317\"")
 
 	flag.Parse()
 
@@ -163,6 +171,16 @@ func main() {
 		urlService = u
 	}
 
+	// parse agent url
+	var agentService *url.URL
+	if len(*urlAgent) != 0 && *urlAgent != "" {
+		u, err := url.Parse(*urlAgent)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("failed to parse agent url %s", *urlAgent)
+		}
+		agentService = u
+	}
+
 	c := Configuration{
 		appPort:             *appPort,
 		proxyURL:            *proxyURL,
@@ -176,6 +194,7 @@ func main() {
 		newRelicApp:         newrelicApp,
 		defaultTimeout:      *defaultTimeout,
 		urlService:          urlService,
+		agentURL:            agentService,
 	}
 
 	defer connections.Close()
@@ -183,6 +202,7 @@ func main() {
 }
 
 func run(config Configuration) {
+	ctx := context.Background()
 	// Setup logger
 	zerolog.SetGlobalLevel(config.logLevel)
 	log.Logger = zerolog.New(config.logDestination)
@@ -193,6 +213,29 @@ func run(config Configuration) {
 		Str("instance", instanceID).
 		Timestamp().
 		Logger()
+
+	// setup tracing
+	http.DefaultClient = &http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
+
+	agentURL := config.agentURL.String()
+	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithInsecure(), otlptracegrpc.WithEndpointURL(agentURL))
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", config.agentURL.String())
+	}
+
+	// Create a new tracer provider with a batch span processor and the otlp exporter.
+	tp := trace.NewTracerProvider(
+		trace.WithBatcher(exporter),
+		trace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String(config.appName),
+			attribute.KeyValue{Key: attribute.Key("instance_id"), Value: attribute.StringValue(instanceID)},
+		// Add more attributes as needed
+		)),
+	)
+
+	// Register the tracer provider as the global provider.
+	otel.SetTracerProvider(tp)
 
 	// EventRecorder for event sourcing
 	eventRecorder := eventRecorder.EventRecorder{
@@ -429,6 +472,7 @@ func run(config Configuration) {
 			socialappRouter.Router.ServeHTTP(w, r)
 		default:
 			message := fmt.Sprintf("Host %q Not found", r.Host)
+			log.Info().Msg("Request host invalid Host" + r.Host)
 			w.Write([]byte(message))
 			w.WriteHeader(404)
 		}

@@ -1,7 +1,9 @@
 package requestid
 
 import (
+	"context"
 	"net/http"
+	"runtime/pprof"
 
 	"github.com/google/uuid"
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
@@ -25,15 +27,15 @@ func Middleware(next http.Handler) http.Handler {
 		// ---------
 		//  HANDLE REQUEST
 
-		// WITH PPROF
-		// labels := pprof.Labels("path", r.URL.Path)
-		// pprof.Do(r.Context(), labels, func(ctx context.Context) {
-		// 	// Do some work...
-		// 	next.ServeHTTP(w, r)
-		// })
+		// WITH PPROF PROFILING PYROSCOPE
+		labels := pprof.Labels("path", r.URL.Path)
+		pprof.Do(r.Context(), labels, func(ctx context.Context) {
+			// Do some work...
+			next.ServeHTTP(w, r)
+		})
 
 		// WITHOUT PPROF
-		next.ServeHTTP(w, r)
+		// next.ServeHTTP(w, r)
 
 		// HANDLE RESPONSE
 		// ---------

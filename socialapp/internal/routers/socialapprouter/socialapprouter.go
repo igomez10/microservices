@@ -1,6 +1,7 @@
 package socialapprouter
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/slok/go-http-metrics/metrics/prometheus"
 	metricsMiddleware "github.com/slok/go-http-metrics/middleware"
 	"github.com/slok/go-http-metrics/middleware/std"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 type SocialAppRouter struct {
@@ -94,7 +96,11 @@ func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers [
 						_, handler = newrelic.WrapHandle(newrelicApp, route.Pattern, handler)
 					}
 
-					r.Method(route.Method, route.Pattern, handler)
+					// Add open telemetry traces
+					resourceName := fmt.Sprintf("%s_%s", route.Method, route.Pattern)
+					otelHandler := otelhttp.NewHandler(http.Handler(handler), resourceName)
+
+					r.Method(route.Method, route.Pattern, otelHandler)
 				})
 			}
 		}

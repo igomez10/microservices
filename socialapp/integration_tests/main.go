@@ -87,42 +87,43 @@ func getOuath2Context(initialContext context.Context, config clientcredentials.C
 }
 
 func main() {
+	fmt.Println("Starting")
 	ctx := context.Background()
 	if err := ListUsersLifecycle(ctx); err != nil {
-		panic(err)
+		fmt.Println("error ListUsersLifecycle", err)
 	}
 	if err := CreateUserLifecycle(ctx); err != nil {
-		panic(err)
+		fmt.Println("error CreateUserLifecycle", err)
 	}
 	if err := FollowLifeCycle(ctx); err != nil {
-		panic(err)
+		fmt.Println("error FollowLifeCycle", err)
 	}
 	if err := GetExpectedFeed(ctx); err != nil {
-		panic(err)
+		fmt.Println("error GetExpectedFeed", err)
 	}
 	if err := GetAccessToken(ctx); err != nil {
-		panic(err)
+		fmt.Println("error GetAccessToken", err)
 	}
 	if err := RegisterUserFlow(ctx); err != nil {
-		panic(err)
+		fmt.Println("error RegisterUserFlow", err)
 	}
 	if err := ChangePassword(ctx); err != nil {
-		panic(err)
+		fmt.Println("error ChangePassword", err)
 	}
 	if err := RoleLifecycle(ctx); err != nil {
-		panic(err)
+		fmt.Println("error RoleLifecycle", err)
 	}
 	if err := ScopeLifecycle(ctx); err != nil {
-		panic(err)
+		fmt.Println("error ScopeLifecycle", err)
 	}
 	if err := UserRoleLifeCycle(ctx); err != nil {
-		panic(err)
+		fmt.Println("error UserRoleLifeCycle", err)
 	}
 	if err := CacheRequestSameUser(ctx); err != nil {
-		panic(err)
+		fmt.Println("error CacheRequestSameUser", err)
 	}
 	if err := URLLifeCycle(ctx); err != nil {
-		panic(err)
+		fmt.Println("error URLLifeCycle", err)
 	}
 }
 
