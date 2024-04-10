@@ -12,6 +12,8 @@ package openapi
 
 import (
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 	"strings"
 
@@ -148,24 +150,42 @@ func (c *ScopeAPIController) GetScope(w http.ResponseWriter, r *http.Request) {
 
 // ListScopes - Returns a list of scopes
 func (c *ScopeAPIController) ListScopes(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	limitParam, err := parseNumericParameter[int32](
-		query.Get("limit"),
-		WithDefaultOrParse[int32](20, parseInt32),
-		WithMinimum[int32](1),
-		WithMaximum[int32](100),
-	)
+	query, err := parseQuery(r.URL.RawQuery)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	offsetParam, err := parseNumericParameter[int32](
-		query.Get("offset"),
-		WithParse[int32](parseInt32),
-	)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
+	var limitParam int32
+	if query.Has("limit") {
+		param, err := parseNumericParameter[int32](
+			query.Get("limit"),
+			WithParse[int32](parseInt32),
+			WithMinimum[int32](1),
+			WithMaximum[int32](100),
+		)
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+			return
+		}
+
+		limitParam = param
+	} else {
+		var param int32 = 20
+		limitParam = param
+	}
+	var offsetParam int32
+	if query.Has("offset") {
+		param, err := parseNumericParameter[int32](
+			query.Get("offset"),
+			WithParse[int32](parseInt32),
+		)
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+			return
+		}
+
+		offsetParam = param
+	} else {
 	}
 	result, err := c.service.ListScopes(r.Context(), limitParam, offsetParam)
 	// If an error occurred, encode the error with the status code
@@ -190,7 +210,7 @@ func (c *ScopeAPIController) UpdateScope(w http.ResponseWriter, r *http.Request)
 	scopeParam := Scope{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&scopeParam); err != nil {
+	if err := d.Decode(&scopeParam); err != nil && !errors.Is(err, io.EOF) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}

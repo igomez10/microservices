@@ -12,7 +12,9 @@ Contact: ignacio.gomez.arboleda@gmail.com
 package client
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -26,6 +28,8 @@ type Scope struct {
 	Description string     `json:"description"`
 	CreatedAt   *time.Time `json:"created_at,omitempty"`
 }
+
+type _Scope Scope
 
 // NewScope instantiates a new Scope object
 // This constructor will assign default values to properties that have it defined,
@@ -177,6 +181,44 @@ func (o Scope) ToMap() (map[string]interface{}, error) {
 		toSerialize["created_at"] = o.CreatedAt
 	}
 	return toSerialize, nil
+}
+
+func (o *Scope) UnmarshalJSON(data []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"name",
+		"description",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varScope := _Scope{}
+
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varScope)
+
+	if err != nil {
+		return err
+	}
+
+	*o = Scope(varScope)
+
+	return err
 }
 
 type NullableScope struct {

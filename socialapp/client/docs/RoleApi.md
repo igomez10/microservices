@@ -29,23 +29,23 @@ Add a scope to a role
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    id := int32(123) // int32 | The id of the role
-    requestBody := []string{"Property_example"} // []string | Add a scope to a role
+	id := int32(123) // int32 | The id of the role
+	requestBody := []string{"Property_example"} // []string | Add a scope to a role
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.RoleAPI.AddScopeToRole(context.Background(), id).RequestBody(requestBody).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.AddScopeToRole``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	r, err := apiClient.RoleAPI.AddScopeToRole(context.Background(), id).RequestBody(requestBody).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.AddScopeToRole``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
 }
 ```
 
@@ -99,24 +99,24 @@ Create a new role
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    role := *openapiclient.NewRole("Name_example") // Role | Create a new role
+	role := *openapiclient.NewRole("Name_example") // Role | Create a new role
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.RoleAPI.CreateRole(context.Background()).Role(role).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.CreateRole``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `CreateRole`: Role
-    fmt.Fprintf(os.Stdout, "Response from `RoleAPI.CreateRole`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.RoleAPI.CreateRole(context.Background()).Role(role).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.CreateRole``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `CreateRole`: Role
+	fmt.Fprintf(os.Stdout, "Response from `RoleAPI.CreateRole`: %v\n", resp)
 }
 ```
 
@@ -165,22 +165,22 @@ Delete a role
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    id := int32(123) // int32 | id of the role
+	id := int32(123) // int32 | id of the role
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.RoleAPI.DeleteRole(context.Background(), id).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.DeleteRole``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	r, err := apiClient.RoleAPI.DeleteRole(context.Background(), id).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.DeleteRole``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
 }
 ```
 
@@ -233,24 +233,24 @@ Returns a role
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    id := int32(123) // int32 | The id of the role
+	id := int32(123) // int32 | The id of the role
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.RoleAPI.GetRole(context.Background(), id).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.GetRole``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `GetRole`: Role
-    fmt.Fprintf(os.Stdout, "Response from `RoleAPI.GetRole`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.RoleAPI.GetRole(context.Background(), id).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.GetRole``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetRole`: Role
+	fmt.Fprintf(os.Stdout, "Response from `RoleAPI.GetRole`: %v\n", resp)
 }
 ```
 
@@ -303,25 +303,25 @@ Returns a list of roles
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    limit := int32(56) // int32 | The numbers of roles to return (optional) (default to 20)
-    offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
+	limit := int32(56) // int32 | The numbers of roles to return (optional) (default to 20)
+	offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.RoleAPI.ListRoles(context.Background()).Limit(limit).Offset(offset).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.ListRoles``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `ListRoles`: []Role
-    fmt.Fprintf(os.Stdout, "Response from `RoleAPI.ListRoles`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.RoleAPI.ListRoles(context.Background()).Limit(limit).Offset(offset).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.ListRoles``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `ListRoles`: []Role
+	fmt.Fprintf(os.Stdout, "Response from `RoleAPI.ListRoles`: %v\n", resp)
 }
 ```
 
@@ -371,26 +371,26 @@ Returns a list of scopes for a role
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    id := int32(123) // int32 | The id of the role
-    limit := int32(56) // int32 | The numbers of scopes to return (optional) (default to 20)
-    offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
+	id := int32(123) // int32 | The id of the role
+	limit := int32(56) // int32 | The numbers of scopes to return (optional) (default to 20)
+	offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.RoleAPI.ListScopesForRole(context.Background(), id).Limit(limit).Offset(offset).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.ListScopesForRole``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `ListScopesForRole`: []Scope
-    fmt.Fprintf(os.Stdout, "Response from `RoleAPI.ListScopesForRole`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.RoleAPI.ListScopesForRole(context.Background(), id).Limit(limit).Offset(offset).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.ListScopesForRole``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `ListScopesForRole`: []Scope
+	fmt.Fprintf(os.Stdout, "Response from `RoleAPI.ListScopesForRole`: %v\n", resp)
 }
 ```
 
@@ -445,23 +445,23 @@ Remove a scope from a role
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    roleId := int32(123) // int32 | The id of the role
-    scopeId := int32(123) // int32 | The id of the scope
+	roleId := int32(123) // int32 | The id of the role
+	scopeId := int32(123) // int32 | The id of the scope
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.RoleAPI.RemoveScopeFromRole(context.Background(), roleId, scopeId).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.RemoveScopeFromRole``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	r, err := apiClient.RoleAPI.RemoveScopeFromRole(context.Background(), roleId, scopeId).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.RemoveScopeFromRole``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
 }
 ```
 
@@ -516,25 +516,25 @@ Update a role
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    id := int32(123) // int32 | id of the role
-    role := *openapiclient.NewRole("Name_example") // Role | Update a role (optional)
+	id := int32(123) // int32 | id of the role
+	role := *openapiclient.NewRole("Name_example") // Role | Update a role (optional)
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.RoleAPI.UpdateRole(context.Background(), id).Role(role).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.UpdateRole``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `UpdateRole`: Role
-    fmt.Fprintf(os.Stdout, "Response from `RoleAPI.UpdateRole`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.RoleAPI.UpdateRole(context.Background(), id).Role(role).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `RoleAPI.UpdateRole``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `UpdateRole`: Role
+	fmt.Fprintf(os.Stdout, "Response from `RoleAPI.UpdateRole`: %v\n", resp)
 }
 ```
 

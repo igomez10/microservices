@@ -12,7 +12,9 @@ Contact: ignacio.gomez.arboleda@gmail.com
 package client
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -28,6 +30,8 @@ type User struct {
 	Email     string     `json:"email"`
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 }
+
+type _User User
 
 // NewUser instantiates a new User object
 // This constructor will assign default values to properties that have it defined,
@@ -231,6 +235,46 @@ func (o User) ToMap() (map[string]interface{}, error) {
 		toSerialize["created_at"] = o.CreatedAt
 	}
 	return toSerialize, nil
+}
+
+func (o *User) UnmarshalJSON(data []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"username",
+		"first_name",
+		"last_name",
+		"email",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varUser := _User{}
+
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varUser)
+
+	if err != nil {
+		return err
+	}
+
+	*o = User(varUser)
+
+	return err
 }
 
 type NullableUser struct {

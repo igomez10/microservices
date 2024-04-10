@@ -25,24 +25,24 @@ Create a new comment
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    comment := *openapiclient.NewComment("Content_example", "Username_example") // Comment | Create a new comment
+	comment := *openapiclient.NewComment("Content_example", "Username_example") // Comment | Create a new comment
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.CommentAPI.CreateComment(context.Background()).Comment(comment).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.CreateComment``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `CreateComment`: Comment
-    fmt.Fprintf(os.Stdout, "Response from `CommentAPI.CreateComment`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.CommentAPI.CreateComment(context.Background()).Comment(comment).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.CreateComment``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `CreateComment`: Comment
+	fmt.Fprintf(os.Stdout, "Response from `CommentAPI.CreateComment`: %v\n", resp)
 }
 ```
 
@@ -91,24 +91,24 @@ Returns details about a particular comment
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    id := int32(123) // int32 | ID of the comment
+	id := int32(123) // int32 | ID of the comment
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.CommentAPI.GetComment(context.Background(), id).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.GetComment``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `GetComment`: Comment
-    fmt.Fprintf(os.Stdout, "Response from `CommentAPI.GetComment`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.CommentAPI.GetComment(context.Background(), id).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.GetComment``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetComment`: Comment
+	fmt.Fprintf(os.Stdout, "Response from `CommentAPI.GetComment`: %v\n", resp)
 }
 ```
 
@@ -161,26 +161,26 @@ Gets all comments for a user
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    username := "johndoe" // string | username of the user
-    limit := int32(20) // int32 | How many items to return at one time (max 100) (optional) (default to 20)
-    offset := int32(0) // int32 | The number of items to skip before starting to collect the result set (optional)
+	username := "johndoe" // string | username of the user
+	limit := int32(20) // int32 | How many items to return at one time (max 100) (optional) (default to 20)
+	offset := int32(0) // int32 | The number of items to skip before starting to collect the result set (optional)
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.CommentAPI.GetUserComments(context.Background(), username).Limit(limit).Offset(offset).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.GetUserComments``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `GetUserComments`: []Comment
-    fmt.Fprintf(os.Stdout, "Response from `CommentAPI.GetUserComments`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.CommentAPI.GetUserComments(context.Background(), username).Limit(limit).Offset(offset).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.GetUserComments``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetUserComments`: []Comment
+	fmt.Fprintf(os.Stdout, "Response from `CommentAPI.GetUserComments`: %v\n", resp)
 }
 ```
 
@@ -235,23 +235,23 @@ Returns a users feed
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.CommentAPI.GetUserFeed(context.Background()).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.GetUserFeed``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `GetUserFeed`: []Comment
-    fmt.Fprintf(os.Stdout, "Response from `CommentAPI.GetUserFeed`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.CommentAPI.GetUserFeed(context.Background()).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.GetUserFeed``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetUserFeed`: []Comment
+	fmt.Fprintf(os.Stdout, "Response from `CommentAPI.GetUserFeed`: %v\n", resp)
 }
 ```
 

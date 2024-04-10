@@ -12,6 +12,8 @@ package openapi
 
 import (
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 	"strings"
 
@@ -181,6 +183,10 @@ func (c *UserAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 // DeleteUser - Deletes a particular user
 func (c *UserAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
+	if usernameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"username"}, nil)
+		return
+	}
 	result, err := c.service.DeleteUser(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -194,7 +200,15 @@ func (c *UserAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 // FollowUser - Add a user as a follower
 func (c *UserAPIController) FollowUser(w http.ResponseWriter, r *http.Request) {
 	followedUsernameParam := chi.URLParam(r, "followedUsername")
+	if followedUsernameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"followedUsername"}, nil)
+		return
+	}
 	followerUsernameParam := chi.URLParam(r, "followerUsername")
+	if followerUsernameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"followerUsername"}, nil)
+		return
+	}
 	result, err := c.service.FollowUser(r.Context(), followedUsernameParam, followerUsernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -208,6 +222,10 @@ func (c *UserAPIController) FollowUser(w http.ResponseWriter, r *http.Request) {
 // GetFollowingUsers - Get all followed users for a user
 func (c *UserAPIController) GetFollowingUsers(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
+	if usernameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"username"}, nil)
+		return
+	}
 	result, err := c.service.GetFollowingUsers(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -221,6 +239,10 @@ func (c *UserAPIController) GetFollowingUsers(w http.ResponseWriter, r *http.Req
 // GetRolesForUser - Get all roles for a user
 func (c *UserAPIController) GetRolesForUser(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
+	if usernameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"username"}, nil)
+		return
+	}
 	result, err := c.service.GetRolesForUser(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -234,6 +256,10 @@ func (c *UserAPIController) GetRolesForUser(w http.ResponseWriter, r *http.Reque
 // GetUserByUsername - Get a particular user by username
 func (c *UserAPIController) GetUserByUsername(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
+	if usernameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"username"}, nil)
+		return
+	}
 	result, err := c.service.GetUserByUsername(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -246,25 +272,47 @@ func (c *UserAPIController) GetUserByUsername(w http.ResponseWriter, r *http.Req
 
 // GetUserComments - Gets all comments for a user
 func (c *UserAPIController) GetUserComments(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	usernameParam := chi.URLParam(r, "username")
-	limitParam, err := parseNumericParameter[int32](
-		query.Get("limit"),
-		WithDefaultOrParse[int32](20, parseInt32),
-		WithMinimum[int32](1),
-		WithMaximum[int32](100),
-	)
+	query, err := parseQuery(r.URL.RawQuery)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	offsetParam, err := parseNumericParameter[int32](
-		query.Get("offset"),
-		WithParse[int32](parseInt32),
-	)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+	usernameParam := chi.URLParam(r, "username")
+	if usernameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"username"}, nil)
 		return
+	}
+	var limitParam int32
+	if query.Has("limit") {
+		param, err := parseNumericParameter[int32](
+			query.Get("limit"),
+			WithParse[int32](parseInt32),
+			WithMinimum[int32](1),
+			WithMaximum[int32](100),
+		)
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+			return
+		}
+
+		limitParam = param
+	} else {
+		var param int32 = 20
+		limitParam = param
+	}
+	var offsetParam int32
+	if query.Has("offset") {
+		param, err := parseNumericParameter[int32](
+			query.Get("offset"),
+			WithParse[int32](parseInt32),
+		)
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+			return
+		}
+
+		offsetParam = param
+	} else {
 	}
 	result, err := c.service.GetUserComments(r.Context(), usernameParam, limitParam, offsetParam)
 	// If an error occurred, encode the error with the status code
@@ -279,6 +327,10 @@ func (c *UserAPIController) GetUserComments(w http.ResponseWriter, r *http.Reque
 // GetUserFollowers - Get all followers for a user
 func (c *UserAPIController) GetUserFollowers(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
+	if usernameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"username"}, nil)
+		return
+	}
 	result, err := c.service.GetUserFollowers(r.Context(), usernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -291,24 +343,44 @@ func (c *UserAPIController) GetUserFollowers(w http.ResponseWriter, r *http.Requ
 
 // ListUsers - List users
 func (c *UserAPIController) ListUsers(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	limitParam, err := parseNumericParameter[int32](
-		query.Get("limit"),
-		WithDefaultOrParse[int32](20, parseInt32),
-		WithMinimum[int32](1),
-		WithMaximum[int32](100),
-	)
+	query, err := parseQuery(r.URL.RawQuery)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	offsetParam, err := parseNumericParameter[int32](
-		query.Get("offset"),
-		WithDefaultOrParse[int32](0, parseInt32),
-	)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
+	var limitParam int32
+	if query.Has("limit") {
+		param, err := parseNumericParameter[int32](
+			query.Get("limit"),
+			WithParse[int32](parseInt32),
+			WithMinimum[int32](1),
+			WithMaximum[int32](100),
+		)
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+			return
+		}
+
+		limitParam = param
+	} else {
+		var param int32 = 20
+		limitParam = param
+	}
+	var offsetParam int32
+	if query.Has("offset") {
+		param, err := parseNumericParameter[int32](
+			query.Get("offset"),
+			WithParse[int32](parseInt32),
+		)
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+			return
+		}
+
+		offsetParam = param
+	} else {
+		var param int32 = 0
+		offsetParam = param
 	}
 	result, err := c.service.ListUsers(r.Context(), limitParam, offsetParam)
 	// If an error occurred, encode the error with the status code
@@ -350,7 +422,15 @@ func (c *UserAPIController) ResetPassword(w http.ResponseWriter, r *http.Request
 // UnfollowUser - Remove a user as a follower
 func (c *UserAPIController) UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	followedUsernameParam := chi.URLParam(r, "followedUsername")
+	if followedUsernameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"followedUsername"}, nil)
+		return
+	}
 	followerUsernameParam := chi.URLParam(r, "followerUsername")
+	if followerUsernameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"followerUsername"}, nil)
+		return
+	}
 	result, err := c.service.UnfollowUser(r.Context(), followedUsernameParam, followerUsernameParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
@@ -364,10 +444,14 @@ func (c *UserAPIController) UnfollowUser(w http.ResponseWriter, r *http.Request)
 // UpdateRolesForUser - Update all roles for a user
 func (c *UserAPIController) UpdateRolesForUser(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
+	if usernameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"username"}, nil)
+		return
+	}
 	requestBodyParam := []string{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&requestBodyParam); err != nil {
+	if err := d.Decode(&requestBodyParam); err != nil && !errors.Is(err, io.EOF) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
@@ -384,6 +468,10 @@ func (c *UserAPIController) UpdateRolesForUser(w http.ResponseWriter, r *http.Re
 // UpdateUser - Update a user
 func (c *UserAPIController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
+	if usernameParam == "" {
+		c.errorHandler(w, r, &RequiredError{"username"}, nil)
+		return
+	}
 	userParam := User{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()

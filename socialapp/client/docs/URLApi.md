@@ -25,24 +25,24 @@ Create a new url
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    uRL := *openapiclient.NewURL("Url_example", "Alias_example") // URL | Create a new url
+	uRL := *openapiclient.NewURL("Url_example", "Alias_example") // URL | Create a new url
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.URLAPI.CreateUrl(context.Background()).URL(uRL).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `URLAPI.CreateUrl``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `CreateUrl`: URL
-    fmt.Fprintf(os.Stdout, "Response from `URLAPI.CreateUrl`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.URLAPI.CreateUrl(context.Background()).URL(uRL).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `URLAPI.CreateUrl``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `CreateUrl`: URL
+	fmt.Fprintf(os.Stdout, "Response from `URLAPI.CreateUrl`: %v\n", resp)
 }
 ```
 
@@ -91,22 +91,22 @@ Delete a url
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    alias := "abcdef" // string | The alias of the url
+	alias := "abcdef" // string | The alias of the url
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.URLAPI.DeleteUrl(context.Background(), alias).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `URLAPI.DeleteUrl``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	r, err := apiClient.URLAPI.DeleteUrl(context.Background(), alias).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `URLAPI.DeleteUrl``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
 }
 ```
 
@@ -159,22 +159,22 @@ Get a url
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    alias := "abcdef" // string | The alias of the url
+	alias := "abcdef" // string | The alias of the url
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.URLAPI.GetUrl(context.Background(), alias).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `URLAPI.GetUrl``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	r, err := apiClient.URLAPI.GetUrl(context.Background(), alias).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `URLAPI.GetUrl``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
 }
 ```
 
@@ -227,24 +227,24 @@ Returns a url metadata
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    alias := "abcdef" // string | The alias of the url
+	alias := "abcdef" // string | The alias of the url
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.URLAPI.GetUrlData(context.Background(), alias).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `URLAPI.GetUrlData``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `GetUrlData`: URL
-    fmt.Fprintf(os.Stdout, "Response from `URLAPI.GetUrlData`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.URLAPI.GetUrlData(context.Background(), alias).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `URLAPI.GetUrlData``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetUrlData`: URL
+	fmt.Fprintf(os.Stdout, "Response from `URLAPI.GetUrlData`: %v\n", resp)
 }
 ```
 

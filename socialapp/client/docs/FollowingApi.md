@@ -22,24 +22,24 @@ Get all followers for a user
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    username := "johndoe" // string | username of the user
+	username := "johndoe" // string | username of the user
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.FollowingAPI.GetUserFollowers(context.Background(), username).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `FollowingAPI.GetUserFollowers``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `GetUserFollowers`: []User
-    fmt.Fprintf(os.Stdout, "Response from `FollowingAPI.GetUserFollowers`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.FollowingAPI.GetUserFollowers(context.Background(), username).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `FollowingAPI.GetUserFollowers``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetUserFollowers`: []User
+	fmt.Fprintf(os.Stdout, "Response from `FollowingAPI.GetUserFollowers`: %v\n", resp)
 }
 ```
 

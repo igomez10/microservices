@@ -12,6 +12,8 @@ package openapi
 
 import (
 	"encoding/json"
+	"errors"
+	"io"
 	"net/http"
 	"strings"
 
@@ -190,24 +192,42 @@ func (c *RoleAPIController) GetRole(w http.ResponseWriter, r *http.Request) {
 
 // ListRoles - Returns a list of roles
 func (c *RoleAPIController) ListRoles(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	limitParam, err := parseNumericParameter[int32](
-		query.Get("limit"),
-		WithDefaultOrParse[int32](20, parseInt32),
-		WithMinimum[int32](1),
-		WithMaximum[int32](100),
-	)
+	query, err := parseQuery(r.URL.RawQuery)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	offsetParam, err := parseNumericParameter[int32](
-		query.Get("offset"),
-		WithParse[int32](parseInt32),
-	)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
+	var limitParam int32
+	if query.Has("limit") {
+		param, err := parseNumericParameter[int32](
+			query.Get("limit"),
+			WithParse[int32](parseInt32),
+			WithMinimum[int32](1),
+			WithMaximum[int32](100),
+		)
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+			return
+		}
+
+		limitParam = param
+	} else {
+		var param int32 = 20
+		limitParam = param
+	}
+	var offsetParam int32
+	if query.Has("offset") {
+		param, err := parseNumericParameter[int32](
+			query.Get("offset"),
+			WithParse[int32](parseInt32),
+		)
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+			return
+		}
+
+		offsetParam = param
+	} else {
 	}
 	result, err := c.service.ListRoles(r.Context(), limitParam, offsetParam)
 	// If an error occurred, encode the error with the status code
@@ -221,7 +241,11 @@ func (c *RoleAPIController) ListRoles(w http.ResponseWriter, r *http.Request) {
 
 // ListScopesForRole - Returns a list of scopes for a role
 func (c *RoleAPIController) ListScopesForRole(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
+	query, err := parseQuery(r.URL.RawQuery)
+	if err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
 	idParam, err := parseNumericParameter[int32](
 		chi.URLParam(r, "id"),
 		WithRequire[int32](parseInt32),
@@ -230,23 +254,37 @@ func (c *RoleAPIController) ListScopesForRole(w http.ResponseWriter, r *http.Req
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	limitParam, err := parseNumericParameter[int32](
-		query.Get("limit"),
-		WithDefaultOrParse[int32](20, parseInt32),
-		WithMinimum[int32](1),
-		WithMaximum[int32](100),
-	)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
+	var limitParam int32
+	if query.Has("limit") {
+		param, err := parseNumericParameter[int32](
+			query.Get("limit"),
+			WithParse[int32](parseInt32),
+			WithMinimum[int32](1),
+			WithMaximum[int32](100),
+		)
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+			return
+		}
+
+		limitParam = param
+	} else {
+		var param int32 = 20
+		limitParam = param
 	}
-	offsetParam, err := parseNumericParameter[int32](
-		query.Get("offset"),
-		WithParse[int32](parseInt32),
-	)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
+	var offsetParam int32
+	if query.Has("offset") {
+		param, err := parseNumericParameter[int32](
+			query.Get("offset"),
+			WithParse[int32](parseInt32),
+		)
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+			return
+		}
+
+		offsetParam = param
+	} else {
 	}
 	result, err := c.service.ListScopesForRole(r.Context(), idParam, limitParam, offsetParam)
 	// If an error occurred, encode the error with the status code
@@ -299,7 +337,7 @@ func (c *RoleAPIController) UpdateRole(w http.ResponseWriter, r *http.Request) {
 	roleParam := Role{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&roleParam); err != nil {
+	if err := d.Decode(&roleParam); err != nil && !errors.Is(err, io.EOF) {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}

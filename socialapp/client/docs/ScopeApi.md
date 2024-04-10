@@ -26,24 +26,24 @@ Create a new scope
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    scope := *openapiclient.NewScope("Name_example", "Description_example") // Scope | Create a new scope
+	scope := *openapiclient.NewScope("Name_example", "Description_example") // Scope | Create a new scope
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.ScopeAPI.CreateScope(context.Background()).Scope(scope).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.CreateScope``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `CreateScope`: Scope
-    fmt.Fprintf(os.Stdout, "Response from `ScopeAPI.CreateScope`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.ScopeAPI.CreateScope(context.Background()).Scope(scope).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.CreateScope``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `CreateScope`: Scope
+	fmt.Fprintf(os.Stdout, "Response from `ScopeAPI.CreateScope`: %v\n", resp)
 }
 ```
 
@@ -92,22 +92,22 @@ Delete a scope
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    id := int32(123) // int32 | id of the scope
+	id := int32(123) // int32 | id of the scope
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    r, err := apiClient.ScopeAPI.DeleteScope(context.Background(), id).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.DeleteScope``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	r, err := apiClient.ScopeAPI.DeleteScope(context.Background(), id).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.DeleteScope``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
 }
 ```
 
@@ -160,24 +160,24 @@ Returns a scope
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    id := int32(123) // int32 | The id of the scope
+	id := int32(123) // int32 | The id of the scope
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.ScopeAPI.GetScope(context.Background(), id).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.GetScope``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `GetScope`: Scope
-    fmt.Fprintf(os.Stdout, "Response from `ScopeAPI.GetScope`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.ScopeAPI.GetScope(context.Background(), id).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.GetScope``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `GetScope`: Scope
+	fmt.Fprintf(os.Stdout, "Response from `ScopeAPI.GetScope`: %v\n", resp)
 }
 ```
 
@@ -230,25 +230,25 @@ Returns a list of scopes
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    limit := int32(56) // int32 | The numbers of scopes to return (optional) (default to 20)
-    offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
+	limit := int32(56) // int32 | The numbers of scopes to return (optional) (default to 20)
+	offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.ScopeAPI.ListScopes(context.Background()).Limit(limit).Offset(offset).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.ListScopes``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `ListScopes`: []Scope
-    fmt.Fprintf(os.Stdout, "Response from `ScopeAPI.ListScopes`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.ScopeAPI.ListScopes(context.Background()).Limit(limit).Offset(offset).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.ListScopes``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `ListScopes`: []Scope
+	fmt.Fprintf(os.Stdout, "Response from `ScopeAPI.ListScopes`: %v\n", resp)
 }
 ```
 
@@ -298,25 +298,25 @@ Update a scope
 package main
 
 import (
-    "context"
-    "fmt"
-    "os"
-    openapiclient "github.com/GIT_USER_ID/GIT_REPO_ID/client"
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
 )
 
 func main() {
-    id := int32(123) // int32 | id of the scope
-    scope := *openapiclient.NewScope("Name_example", "Description_example") // Scope | Update a scope (optional)
+	id := int32(123) // int32 | id of the scope
+	scope := *openapiclient.NewScope("Name_example", "Description_example") // Scope | Update a scope (optional)
 
-    configuration := openapiclient.NewConfiguration()
-    apiClient := openapiclient.NewAPIClient(configuration)
-    resp, r, err := apiClient.ScopeAPI.UpdateScope(context.Background(), id).Scope(scope).Execute()
-    if err != nil {
-        fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.UpdateScope``: %v\n", err)
-        fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
-    }
-    // response from `UpdateScope`: Scope
-    fmt.Fprintf(os.Stdout, "Response from `ScopeAPI.UpdateScope`: %v\n", resp)
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.ScopeAPI.UpdateScope(context.Background(), id).Scope(scope).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `ScopeAPI.UpdateScope``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `UpdateScope`: Scope
+	fmt.Fprintf(os.Stdout, "Response from `ScopeAPI.UpdateScope`: %v\n", resp)
 }
 ```
 

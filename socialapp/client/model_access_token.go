@@ -12,7 +12,9 @@ Contact: ignacio.gomez.arboleda@gmail.com
 package client
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 )
 
 // checks if the AccessToken type satisfies the MappedNullable interface at compile time
@@ -25,6 +27,8 @@ type AccessToken struct {
 	Scopes      []string `json:"scopes,omitempty"`
 	ExpiresIn   int32    `json:"expires_in"`
 }
+
+type _AccessToken AccessToken
 
 // NewAccessToken instantiates a new AccessToken object
 // This constructor will assign default values to properties that have it defined,
@@ -167,6 +171,45 @@ func (o AccessToken) ToMap() (map[string]interface{}, error) {
 	}
 	toSerialize["expires_in"] = o.ExpiresIn
 	return toSerialize, nil
+}
+
+func (o *AccessToken) UnmarshalJSON(data []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"access_token",
+		"token_type",
+		"expires_in",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varAccessToken := _AccessToken{}
+
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varAccessToken)
+
+	if err != nil {
+		return err
+	}
+
+	*o = AccessToken(varAccessToken)
+
+	return err
 }
 
 type NullableAccessToken struct {

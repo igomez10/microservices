@@ -12,7 +12,9 @@ Contact: ignacio.gomez.arboleda@gmail.com
 package client
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 )
 
 // checks if the ChangePasswordRequest type satisfies the MappedNullable interface at compile time
@@ -23,6 +25,8 @@ type ChangePasswordRequest struct {
 	OldPassword string `json:"old_password"`
 	NewPassword string `json:"new_password"`
 }
+
+type _ChangePasswordRequest ChangePasswordRequest
 
 // NewChangePasswordRequest instantiates a new ChangePasswordRequest object
 // This constructor will assign default values to properties that have it defined,
@@ -104,6 +108,44 @@ func (o ChangePasswordRequest) ToMap() (map[string]interface{}, error) {
 	toSerialize["old_password"] = o.OldPassword
 	toSerialize["new_password"] = o.NewPassword
 	return toSerialize, nil
+}
+
+func (o *ChangePasswordRequest) UnmarshalJSON(data []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"old_password",
+		"new_password",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varChangePasswordRequest := _ChangePasswordRequest{}
+
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varChangePasswordRequest)
+
+	if err != nil {
+		return err
+	}
+
+	*o = ChangePasswordRequest(varChangePasswordRequest)
+
+	return err
 }
 
 type NullableChangePasswordRequest struct {

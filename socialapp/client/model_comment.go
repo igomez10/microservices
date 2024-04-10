@@ -12,7 +12,9 @@ Contact: ignacio.gomez.arboleda@gmail.com
 package client
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -27,6 +29,8 @@ type Comment struct {
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	Username  string     `json:"username"`
 }
+
+type _Comment Comment
 
 // NewComment instantiates a new Comment object
 // This constructor will assign default values to properties that have it defined,
@@ -213,6 +217,44 @@ func (o Comment) ToMap() (map[string]interface{}, error) {
 	}
 	toSerialize["username"] = o.Username
 	return toSerialize, nil
+}
+
+func (o *Comment) UnmarshalJSON(data []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"content",
+		"username",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varComment := _Comment{}
+
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varComment)
+
+	if err != nil {
+		return err
+	}
+
+	*o = Comment(varComment)
+
+	return err
 }
 
 type NullableComment struct {

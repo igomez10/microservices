@@ -1,12 +1,14 @@
 generate-openapi:
-	openapi-generator-cli version-manager set 7.0.0
+	openapi-generator-cli version-manager set 7.4.0
 	#  generate server:
 	rm -rf ./socialappapi
 	openapi-generator-cli generate --input-spec openapi.yaml  \
 	--generator-name go-server \
 	--output socialappapi \
 	--ignore-file-override \
-	--additional-properties=packageName=socialappapi \
+	--git-repo-id=microservices/socialapp \
+	--git-user-id=igomez10 \
+	--additional-properties=packageName=openapi \
 	--additional-properties=outputAsLibrary=true \
 	--additional-properties=packageVersion=1.18.0 \
 	--additional-properties=serverPort=8080 \
@@ -22,6 +24,9 @@ generate-openapi:
 	openapi-generator-cli generate --input-spec openapi.yaml  \
         --generator-name go \
         --output client \
+		--git-repo-id=microservices/socialapp \
+		--git-user-id=igomez10 \
+		--additional-properties=packageName=client \
 		--additional-properties=isGoSubmodule=true \
 		--additional-properties=packageName=client \
 		--additional-properties=structPrefix=true
