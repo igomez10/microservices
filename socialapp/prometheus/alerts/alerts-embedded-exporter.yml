@@ -24,7 +24,7 @@ groups:
 
     - alert: PrometheusAllTargetsMissing
       expr: 'sum by (job) (up) == 0'
-      for: 0m
+      for: 2m
       labels:
         severity: critical
       annotations:
