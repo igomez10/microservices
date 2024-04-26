@@ -39,8 +39,8 @@ prometheus.scrape "socialapp" {
         {"__address__" = "socialapp.gomezignacio.com", group = "socialapp", service = "socialapp"},
     ]
     // We need a scrape interval and timeout of 2s as we want reactive metric data.
-    scrape_interval = "2s"
-    scrape_timeout = "2s"
+    scrape_interval = "15s"
+    scrape_timeout = "10s"
     // Send the metrics to the prometheus remote write receiver for exporting to Mimir.
     forward_to = [prometheus.remote_write.mimir.receiver]
     // Attach the job name to the metrics.
