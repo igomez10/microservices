@@ -75,7 +75,7 @@ groups:
           description: "PostgreSQL has dead-locks\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PostgresqlHighRollbackRate
-        expr: 'rate(pg_stat_database_xact_rollback{datname!~"template.*"}[3m]) / rate(pg_stat_database_xact_commit{datname!~"template.*"}[3m]) > 0.04'
+        expr: 'rate(pg_stat_database_xact_rollback{datname!~"template.*|urlshortener"}[3m]) / rate(pg_stat_database_xact_commit{datname!~"template.*|urlshortener"}[3m]) > 0.04'
         for: 0m
         labels:
           severity: warning

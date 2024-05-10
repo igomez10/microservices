@@ -449,9 +449,10 @@ services:
       - "./tempo/tempo.yaml:/etc/tempo.yaml"
     restart: unless-stopped
     logging:
-      driver: loki
+      driver: syslog
       options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+        syslog-address: "udp://localhost:53000"
+        tag: "tempo"
 
   agent:
     image: grafana/agent:v0.39.0
@@ -474,9 +475,10 @@ services:
       "/etc/agent/config.river",
     ]
     logging:
-      driver: loki
+      driver: syslog
       options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+        syslog-address: "udp://localhost:53000"
+        tag: "agent"
 
   pyroscope:
     image: grafana/pyroscope:latest
@@ -491,9 +493,10 @@ services:
       - ./pyroscope/pyroscope.yml:/etc/pyroscope.yml
     restart: unless-stopped
     logging:
-      driver: loki
+      driver: syslog
       options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+        syslog-address: "udp://localhost:53000"
+        tag: "pyroscope"
 
   mimir:
     image: grafana/mimir:2.11.0
@@ -504,12 +507,11 @@ services:
       - "./mimir/mimir.yaml:/etc/mimir.yaml"
     restart: unless-stopped
     logging:
-      driver: loki
+      driver: syslog
       options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+        syslog-address: "udp://localhost:53000"
+        tag: "mimir"
 
   loki:
     image: grafana/loki:2.9.4
-    ports:
-      - "3100:3100"
     restart: unless-stopped
