@@ -415,7 +415,9 @@ pyroscope.scrape "socialapp" {
         // {"__address__" = "socialapp-requester:4001", group = "socialapp", service_name = "socialapp-requester"},
         // {"__address__" = "socialapp-recorder:4002", group = "socialapp", service_name = "socialapp-recorder"},
         // {"__address__" = "host.docker.internal:8085", group = "socialapp", service_name = "socialapp-local"},
-        {"__address__" = "socialapp.gomezignacio.com", group = "socialapp", service_name = "socialapp"},
+        
+        // disabled until render reduces pricing on bandwidth
+        // {"__address__" = "socialapp.gomezignacio.com", group = "socialapp", service_name = "socialapp"},
     ]
     // The profiling configuration block determines the profiling information to be retrieved. For the
     // NodeJS application, we're looking for both CPU and memory data.
