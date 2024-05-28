@@ -36,7 +36,7 @@ prometheus.scrape "socialapp" {
     // names.
     targets = [
         // {"__address__" = "host.docker.internal:8085", group = "socialapp", service = "socialapp-local"},
-        {"__address__" = "socialapp.gomezignacio.com", group = "socialapp", service = "socialapp"},
+        // {"__address__" = "socialapp.gomezignacio.com", group = "socialapp", service = "socialapp"},
     ]
     // We need a scrape interval and timeout of 2s as we want reactive metric data.
     scrape_interval = "15s"
