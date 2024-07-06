@@ -58,7 +58,7 @@ services:
     mem_limit: 512m
 
   grafana:
-    image: grafana/grafana:10.0.12
+    image: grafana/grafana:10.4.5
     user: "472"
     ports:
       - 3005:3000
@@ -203,6 +203,7 @@ services:
     container_name: broker1
     ports:
       - "9092:9092"
+      - "29092:29092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_LISTENERS: PLAINTEXT://:9092,KRAFT://:9097,PLAINTEXT_HOST://:29092
@@ -246,6 +247,8 @@ services:
       CLUSTER_ID: "yFMG3uNHSAKhz-zUrBIhjg"
     volumes:
       - ${BROKER2_DATA_DIR}:/var/lib/kafka/data
+    ports:
+      - "29093:29093"
     cpus: 2
     mem_limit: 4096m
     logging:
@@ -257,6 +260,8 @@ services:
   broker3:
     image: confluentinc/cp-kafka:latest
     container_name: broker3
+    ports:
+      - "29094:29094"
     environment:
       KAFKA_BROKER_ID: 3
       KAFKA_LISTENERS: PLAINTEXT://:9092,KRAFT://:9099,PLAINTEXT_HOST://:29094
