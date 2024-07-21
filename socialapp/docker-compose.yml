@@ -453,6 +453,8 @@ services:
     volumes:
       - "./tempo/tempo.yaml:/etc/tempo.yaml"
     restart: unless-stopped
+    cpus: 2
+    mem_limit: 4096m
     logging:
       driver: syslog
       options:
@@ -508,6 +510,8 @@ services:
     command: ["-ingester.native-histograms-ingestion-enabled=true", "-config.file=/etc/mimir.yaml"]
     ports:
       - "9009:9009"
+    cpus: 2
+    mem_limit: 4096m
     volumes:
       - "./mimir/mimir.yaml:/etc/mimir.yaml"
     restart: unless-stopped
