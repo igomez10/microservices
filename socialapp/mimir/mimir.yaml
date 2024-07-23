@@ -80,6 +80,6 @@ store_gateway:
 limits:
   # A maximum of 1000000 exemplars in memory at any one time.
   # This setting enables exemplar processing and storage.
-  # max_global_exemplars_per_user: 1000000
   ingestion_rate: 100000
-  # max_global_series_per_user: 1000000
+  max_global_series_per_user: 1000000
+  max_global_exemplars_per_user: 1000000

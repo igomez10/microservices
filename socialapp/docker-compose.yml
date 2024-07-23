@@ -58,7 +58,7 @@ services:
     mem_limit: 512m
 
   grafana:
-    image: grafana/grafana:10.4.5
+    image: grafana/grafana:11.1.0
     user: "472"
     ports:
       - 3005:3000
@@ -461,8 +461,8 @@ services:
         syslog-address: "udp://localhost:53000"
         tag: "tempo"
 
-  agent:
-    image: grafana/agent:v0.39.0
+  alloy:
+    image: grafana/alloy:v1.1.0
     ports:
       - "12347:12345"
       - "12348:12348"
@@ -472,23 +472,22 @@ services:
       - "51893:51893/tcp"
       - "3100:3100"
     volumes:
-      - "./agent/config.river:/etc/agent/config.river"
-      - "./agent/endpoints.json:/etc/agent/endpoints.json"
-    environment:
-      - AGENT_MODE=flow
+      - "./alloy/config.alloy:/etc/alloy/config.alloy"
+      - "./alloy/endpoints.json:/etc/alloy/endpoints.json"
     command: [
       "run",
       "--server.http.listen-addr=0.0.0.0:12345",
-      "/etc/agent/config.river",
+      "--stability.level=public-preview",
+      "/etc/alloy/config.alloy",
     ]
     logging:
       driver: syslog
       options:
         syslog-address: "udp://localhost:53000"
-        tag: "agent"
+        tag: "alloy"
 
   pyroscope:
-    image: grafana/pyroscope:latest
+    image: grafana/pyroscope:1.6.1
     environment:
       JAEGER_AGENT_HOST: tempo
       JAEGER_SAMPLER_TYPE: const
