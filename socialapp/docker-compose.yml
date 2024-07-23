@@ -440,7 +440,7 @@ services:
       start_period: 15s
 
   tempo:
-    image: grafana/tempo:2.4.0
+    image: grafana/tempo:2.5.0
     ports:
       - "3200:3200"
       - "4317:4317"
@@ -506,7 +506,7 @@ services:
         tag: "pyroscope"
 
   mimir:
-    image: grafana/mimir:2.11.0
+    image: grafana/mimir:2.13.0
     command: ["-ingester.native-histograms-ingestion-enabled=true", "-config.file=/etc/mimir.yaml"]
     ports:
       - "9009:9009"
