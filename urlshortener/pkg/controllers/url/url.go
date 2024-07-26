@@ -40,7 +40,6 @@ func (m *MetricEvent) toMap() map[string]interface{} {
 }
 
 func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (server.ImplResponse, error) {
-	log := contexthelper.GetLoggerInContext(ctx)
 	event := MetricEvent{
 		Alias: newURL.Alias,
 		Url:   newURL.Url,
@@ -55,7 +54,6 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (serve
 	}
 	res, err := s.DB.CreateURL(ctx, s.DBConn, newURLParams)
 	if err != nil {
-		log.Error().Err(err).Msgf("error creating url %q with alias %q", newURL.Url, newURL.Alias)
 		if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
 			return server.ImplResponse{
 				Code: http.StatusConflict,
