@@ -112,7 +112,6 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (server.Imp
 }
 
 func (s *URLApiService) GetUrl(ctx context.Context, alias string) (server.ImplResponse, error) {
-	log := contexthelper.GetLoggerInContext(ctx)
 	event := MetricEvent{
 		Alias: alias,
 		IsErr: false,
@@ -123,7 +122,6 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (server.ImplRe
 
 	shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
 	if err != nil {
-		log.Error().Err(err).Msg("alias does not exist")
 		event.IsErr = true
 		return server.ImplResponse{
 			Code: http.StatusNotFound,
@@ -146,8 +144,6 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (server.ImplRe
 }
 
 func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (server.ImplResponse, error) {
-	log := contexthelper.GetLoggerInContext(ctx)
-
 	event := MetricEvent{
 		Alias: alias,
 	}
@@ -158,7 +154,6 @@ func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (server.Im
 
 	shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
 	if err != nil {
-		log.Error().Err(err).Msg("alias does not exist")
 		event.IsErr = true
 		return server.ImplResponse{
 			Code: http.StatusNotFound,
