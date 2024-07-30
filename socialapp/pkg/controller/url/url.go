@@ -2,6 +2,7 @@ package url
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
@@ -38,7 +39,6 @@ type URLApiServiceConfig struct {
 // CreateUrl creates a new url
 func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
-
 	var openapiURL openapi.Url
 	if s.UseURLShortenerService {
 		// create the url
@@ -47,7 +47,7 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (open
 			u, createRes, err := s.Client.URLAPI.CreateUrl(ctx).
 				URL(*newURLRequest).
 				Execute()
-			if err != nil || createRes.StatusCode != http.StatusOK {
+			if err != nil {
 				log.Error().Err(err).Msgf("error creating url %q with alias %q", newURL.Url, newURL.Alias)
 				return openapi.ImplResponse{
 					Code: http.StatusInternalServerError,
@@ -57,6 +57,19 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (open
 					},
 				}, err
 			}
+
+			switch createRes.StatusCode {
+			case http.StatusConflict:
+				log.Error().Err(err).Msgf("url with alias %q already exists", newURL.Alias)
+				return openapi.ImplResponse{
+					Code: http.StatusConflict,
+					Body: openapi.Error{
+						Message: fmt.Sprintf("url with alias %q already exists", newURL.Alias),
+						Code:    http.StatusConflict,
+					},
+				}, nil
+			}
+
 			openapiURL = openapi.Url{
 				Url:       u.Url,
 				Alias:     u.Alias,
