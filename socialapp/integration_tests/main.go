@@ -166,8 +166,7 @@ func ListUsersLifecycle(ctx context.Context) error {
 	// List users
 	_, r, err := apiClient.UserAPI.ListUsers(openAPICtx).Limit(10).Offset(0).Execute()
 	if err != nil {
-		log.Err(err).Int("status_code", r.StatusCode).Msg("Error listing users")
-		return err
+		return fmt.Errorf("Error when calling `UserAPI.ListUsers`: %v\n %+v\n", err, r)
 	}
 	if r.StatusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status code: %d", r.StatusCode)
@@ -1303,8 +1302,7 @@ func CacheRequestSameUser(ctx context.Context) error {
 		Execute()
 
 	if err != nil {
-		log.Error().Err(err).Msgf("Full HTTP Response: %v\n", r)
-		return fmt.Errorf("Error when calling `UserAPI.ListUsers`: %v\n", err)
+		return fmt.Errorf("Error when calling `UserAPI.ListUsers`: %v %v", err, r)
 	}
 	if r.StatusCode != http.StatusOK {
 		return fmt.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
@@ -1315,8 +1313,7 @@ func CacheRequestSameUser(ctx context.Context) error {
 		for i := 0; i < 50; i++ {
 			_, r, err = apiClient.UserAPI.GetUserByUsername(openAPICtx, currentUser.Username).Execute()
 			if err != nil {
-				log.Info().Msgf("Full HTTP Response: %v\n", r)
-				return fmt.Errorf("Error when calling `UserAPI.GetUser`: %v\n", err)
+				return fmt.Errorf("Error when calling `UserAPI.GetUser`: %v %v", err, r)
 
 			}
 			if r.StatusCode != http.StatusOK {
@@ -1326,8 +1323,7 @@ func CacheRequestSameUser(ctx context.Context) error {
 			// get user comments
 			_, r, err = apiClient.CommentAPI.GetUserComments(openAPICtx, currentUser.Username).Execute()
 			if err != nil {
-				log.Info().Msgf("Full HTTP Response: %v\n", r)
-				return fmt.Errorf("Error when calling `CommentAPI.GetUserComments`: %v\n", err)
+				return fmt.Errorf("Error when calling `CommentAPI.GetUserComments`: %v %v", err, r)
 
 			}
 			if r.StatusCode != http.StatusOK {
@@ -1337,8 +1333,7 @@ func CacheRequestSameUser(ctx context.Context) error {
 			// get feed
 			_, r, err = apiClient.CommentAPI.GetUserFeed(openAPICtx).Execute()
 			if err != nil {
-				log.Info().Msgf("Full HTTP Response: %v\n", r)
-				return fmt.Errorf("Error when calling `CommentAPI.GetUserFeed`: %v\n", err)
+				return fmt.Errorf("Error when calling `CommentAPI.GetUserFeed`: %v %v", err, r)
 
 			}
 			if r.StatusCode != http.StatusOK {
@@ -1391,8 +1386,7 @@ func URLLifeCycle(ctx context.Context) error {
 	newURL := client.NewURL("https://www.google.com", fmt.Sprintf("%d", time.Now().Unix()))
 	_, r, err := apiClient.URLAPI.CreateUrl(openAPICtx).URL(*newURL).Execute()
 	if err != nil {
-		log.Err(err).Msgf("Full HTTP Response: %v\n", r)
-		return fmt.Errorf("Error when calling `URLAPI.CreateURL`: %v\n", err)
+		return fmt.Errorf("Error when calling `URLAPI.CreateURL`: %v %v", err, r)
 	}
 
 	if r.StatusCode != http.StatusOK {
@@ -1402,8 +1396,7 @@ func URLLifeCycle(ctx context.Context) error {
 	// get url
 	getUrlRes, err := apiClient.URLAPI.GetUrl(proxyCtx, newURL.Alias).Execute()
 	if err != nil {
-		log.Err(err).Msgf("Full HTTP Response: %v\n", getUrlRes)
-		return fmt.Errorf("Error when calling `URLAPI.GetURL`: %v\n", err)
+		return fmt.Errorf("Error when calling `URLAPI.GetURL`: %v %v", err, getUrlRes)
 	}
 
 	if getUrlRes.StatusCode != http.StatusOK {
@@ -1413,8 +1406,7 @@ func URLLifeCycle(ctx context.Context) error {
 	// delete url
 	deleteUrlRes, err := apiClient.URLAPI.DeleteUrl(openAPICtx, newURL.Alias).Execute()
 	if err != nil {
-		log.Err(err).Msgf("Full HTTP Response: %v\n", deleteUrlRes)
-		return fmt.Errorf("Error when calling `URLAPI.DeleteURL`: %v\n", err)
+		return fmt.Errorf("Error when calling `URLAPI.DeleteURL`: %v %v", err, deleteUrlRes)
 	}
 
 	if deleteUrlRes.StatusCode != http.StatusOK {
