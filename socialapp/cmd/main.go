@@ -23,6 +23,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/igomez10/microservices/socialapp/internal/authorizationparser"
 	"github.com/igomez10/microservices/socialapp/internal/eventRecorder"
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/authorization"
@@ -85,6 +86,21 @@ func main() {
 	urlAgent := flag.String("agentURL", os.Getenv("AGENT_URL"), "Agent URL \"http://localhost:4317\"")
 
 	flag.Parse()
+
+	// setup retryable http client
+	retryClient := retryablehttp.NewClient()
+	retryClient.Logger = nil
+	retryClient.RequestLogHook = func(_ retryablehttp.Logger, req *http.Request, attempt int) {
+		if attempt >= 1 {
+			log.Warn().Msgf("http retry %d: %s %s", attempt, req.Method, req.URL)
+		}
+	}
+
+	retryClient.HTTPClient.Transport = newrelic.NewRoundTripper(http.DefaultTransport)
+	retryClient.RetryMax = 5
+	retryClient.HTTPClient.Timeout = 15 * time.Second
+	retryClient.Backoff = retryablehttp.LinearJitterBackoff
+	http.DefaultClient = retryClient.StandardClient()
 
 	// Set proxy
 	if *proxyURL != "" {

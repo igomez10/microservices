@@ -9,6 +9,7 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-cmp v0.6.0
 	github.com/google/uuid v1.6.0
+	github.com/hashicorp/go-retryablehttp v0.7.7
 	github.com/igomez10/microservices/urlshortener v0.0.0-20240107153729-6e8a7df19022
 	github.com/lib/pq v1.10.9
 	github.com/newrelic/go-agent/v3 v3.24.1
@@ -37,6 +38,7 @@ require (
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.0 // indirect
+	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/invopop/yaml v0.2.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect

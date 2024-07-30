@@ -8,7 +8,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/go-retryablehttp"
 	"github.com/igomez10/microservices/socialapp/client"
+	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -72,10 +74,20 @@ func Setup() {
 	}
 }
 func getHTTPClient() *http.Client {
-	// setup timeout to 10 seconds
-	timeout := time.Duration(10 * time.Second)
-	http.DefaultClient.Timeout = timeout
+	// setup retryable http client
+	retryClient := retryablehttp.NewClient()
+	retryClient.Logger = nil
+	retryClient.RequestLogHook = func(_ retryablehttp.Logger, req *http.Request, attempt int) {
+		if attempt >= 1 {
+			log.Warn().Msgf("http retry %d: %s %s", attempt, req.Method, req.URL)
+		}
+	}
 
+	retryClient.HTTPClient.Transport = newrelic.NewRoundTripper(http.DefaultTransport)
+	retryClient.RetryMax = 5
+	retryClient.HTTPClient.Timeout = 15 * time.Second
+	retryClient.Backoff = retryablehttp.LinearJitterBackoff
+	http.DefaultClient = retryClient.StandardClient()
 	return http.DefaultClient
 }
 
