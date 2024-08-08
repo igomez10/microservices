@@ -104,6 +104,27 @@ func main() {
 	retryClient.RetryMax = 5
 	retryClient.HTTPClient.Timeout = 15 * time.Second
 	retryClient.Backoff = retryablehttp.LinearJitterBackoff
+
+	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
+		// Retry on network errors or 5xx status codes
+		if err != nil {
+			log.Warn().
+				Err(err).
+				Stringer("url", resp.Request.URL).
+				Str("method", resp.Request.Method).
+				Str("status", resp.Status).
+				Int("status_code", resp.StatusCode).
+				Msg("http retry")
+			return true, err
+		}
+
+		if resp.StatusCode >= 500 {
+			return true, nil
+		}
+
+		return false, nil
+	}
+
 	http.DefaultClient = retryClient.StandardClient()
 
 	// Set proxy
