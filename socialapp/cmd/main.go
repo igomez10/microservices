@@ -92,7 +92,11 @@ func main() {
 	retryClient.Logger = nil
 	retryClient.RequestLogHook = func(_ retryablehttp.Logger, req *http.Request, attempt int) {
 		if attempt >= 1 {
-			log.Warn().Msgf("http retry %d: %s %s", attempt, req.Method, req.URL)
+			log.Warn().
+				Str("method", req.Method).
+				Str("url", req.URL.String()).
+				Int("attempt", attempt).
+				Msgf("http retry")
 		}
 	}
 
