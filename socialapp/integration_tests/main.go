@@ -88,7 +88,7 @@ func getHTTPClient() *http.Client {
 	}
 
 	retryClient.HTTPClient.Transport = newrelic.NewRoundTripper(http.DefaultTransport)
-	retryClient.RetryMax = 5
+	retryClient.RetryMax = 10
 	retryClient.HTTPClient.Timeout = 15 * time.Second
 	retryClient.Backoff = retryablehttp.LinearJitterBackoff
 	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
