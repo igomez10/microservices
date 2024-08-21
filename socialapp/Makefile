@@ -1,5 +1,5 @@
 generate-openapi:
-	openapi-generator-cli version-manager set 7.4.0
+	openapi-generator-cli version-manager set 7.8.0
 	#  generate server:
 	rm -rf ./socialappapi
 	openapi-generator-cli generate --input-spec openapi.yaml  \
