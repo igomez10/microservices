@@ -285,7 +285,6 @@ paths:
       summary: Gets all comments for a user
       tags:
       - User
-      - Comment
   /v1/users/{username}/followers:
     get:
       description: Get all followers for a user

@@ -1145,69 +1145,6 @@
                             ]
                         },
 	                        {
-    "name": "/v1/users/:username/comments",
-                "description": "Gets all comments for a user",
-                 "item": [
-                            {
-                                "name": "Gets all comments for a user",
-                                "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users/:username/comments",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users",
-                                            ":username",
-                                            "comments"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "username",
-                                                "value": "",
-                                                "description": "username of the user"
-                                            }
-                                        ],
-                                        "query": [
-                                            {
-                                                "key": "limit",
-                                                "value": "20",
-                                                "description": "How many items to return at one time (max 100)",
-                                                "disabled": true
-                                            },
-                                            {
-                                                "key": "offset",
-                                                "value": "0",
-                                                "description": "The number of items to skip before starting to collect the result set",
-                                                "disabled": true
-                                            }
-                                        ]
-                                    },
-                                    "description": "Gets all comments for a user"
-                                }
-                            }
-                            ]
-                        },
-	                        {
     "name": "/v1/users/:username/followers",
                 "description": "Get all followers for a user",
                  "item": [

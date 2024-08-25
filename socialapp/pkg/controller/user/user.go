@@ -218,7 +218,28 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string, l
 	if limit == 0 {
 		limit = 100
 	}
-	commnet, err := s.DB.GetUserComments(ctx, s.DBConn, db.GetUserCommentsParams{
+
+	// validate the user exists
+	dbuser, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
+	if errGetUser != nil {
+		switch errGetUser {
+		case sql.ErrNoRows:
+			return openapi.Response(http.StatusNotFound, openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "User not found",
+			}), nil
+		default:
+			log.Error().
+				Err(errGetUser).
+				Msg("Error getting user")
+			return openapi.Response(http.StatusInternalServerError, openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Error getting user",
+			}), nil
+		}
+	}
+
+	dbComments, err := s.DB.GetUserComments(ctx, s.DBConn, db.GetUserCommentsParams{
 		Username: username,
 		Limit:    limit,
 		Offset:   offset,
@@ -236,7 +257,12 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string, l
 		}, nil
 	}
 
-	return openapi.Response(http.StatusOK, commnet), nil
+	apiComments := make([]openapi.Comment, len(dbComments))
+	for i := range dbComments {
+		apiComments[i] = converter.FromDBCmtToAPICmt(dbComments[i], dbuser)
+	}
+
+	return openapi.Response(http.StatusOK, apiComments), nil
 }
 
 // ListUsers - Returns all the users

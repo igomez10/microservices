@@ -128,11 +128,11 @@ func main() {
 	http.DefaultClient = retryClient.StandardClient()
 
 	// Set proxy
-	if *proxyURL != "" {
+	if proxyURL != nil && *proxyURL != "" {
 		if u, err := url.Parse(*proxyURL); err != nil {
-			http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(u)}
-		} else {
 			log.Err(err).Msgf("Failed to parse proxy URL")
+		} else {
+			http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(u)}
 		}
 	}
 
@@ -212,16 +212,6 @@ func main() {
 		urlService = u
 	}
 
-	// parse agent url
-	var agentService *url.URL
-	if len(*urlAgent) != 0 && *urlAgent != "" {
-		u, err := url.Parse(*urlAgent)
-		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to parse agent url %s", *urlAgent)
-		}
-		agentService = u
-	}
-
 	c := Configuration{
 		appPort:             *appPort,
 		proxyURL:            *proxyURL,
@@ -235,7 +225,15 @@ func main() {
 		newRelicApp:         newrelicApp,
 		defaultTimeout:      *defaultTimeout,
 		urlService:          urlService,
-		agentURL:            agentService,
+	}
+
+	// parse agent url
+	if urlAgent != nil && *urlAgent != "" {
+		u, err := url.Parse(*urlAgent)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("failed to parse agent url %s", *urlAgent)
+		}
+		c.agentURL = u
 	}
 
 	defer connections.Close()

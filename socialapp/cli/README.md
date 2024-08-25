@@ -106,7 +106,6 @@ Class | Method | HTTP request | Description
 *AuthenticationApi* | [**getAccessToken**](docs/AuthenticationApi.md#getaccesstoken) | **POST** /v1/oauth/token | Get an access token
 *CommentApi* | [**createComment**](docs/CommentApi.md#createcomment) | **POST** /v1/comments | Create a new comment
 *CommentApi* | [**getComment**](docs/CommentApi.md#getcomment) | **GET** /v1/comments/{id} | Returns details about a particular comment
-*CommentApi* | [**getUserComments**](docs/CommentApi.md#getusercomments) | **GET** /v1/users/{username}/comments | Gets all comments for a user
 *CommentApi* | [**getUserFeed**](docs/CommentApi.md#getuserfeed) | **GET** /v1/feed | Returns a users feed
 *FollowingApi* | [**getUserFollowers**](docs/FollowingApi.md#getuserfollowers) | **GET** /v1/users/{username}/followers | Get all followers for a user
 *RoleApi* | [**addScopeToRole**](docs/RoleApi.md#addscopetorole) | **POST** /v1/roles/{id}/scopes | Add a scope to a role

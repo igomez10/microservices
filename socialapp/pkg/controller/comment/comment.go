@@ -77,46 +77,6 @@ func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.Impl
 	return openapi.Response(http.StatusOK, c), nil
 }
 
-func (s *CommentService) GetUserComments(ctx context.Context, username string, limit int32, offset int32) (openapi.ImplResponse, error) {
-	log := contexthelper.GetLoggerInContext(ctx)
-	// validate the user exists
-	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
-	if errGetUser != nil {
-		log.Error().
-			Err(errGetUser).
-			Msg("Error getting user")
-		return openapi.Response(http.StatusNotFound, nil), nil
-	}
-
-	limit = limit % 100
-	if limit == 0 {
-		limit = 100
-	}
-	comments, err := s.DB.GetUserComments(ctx, s.DBConn, db.GetUserCommentsParams{
-		Username: username,
-		Limit:    limit,
-		Offset:   offset,
-	})
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Error getting comment")
-		return openapi.Response(http.StatusNotFound, nil), nil
-	}
-
-	apiComments := make([]openapi.Comment, 0, len(comments))
-	for i := range comments {
-		if comments[i].DeletedAt.Valid {
-			continue
-		}
-
-		c := converter.FromDBCmtToAPICmt(comments[i], user)
-		apiComments = append(apiComments, c)
-	}
-
-	return openapi.Response(http.StatusOK, comments), nil
-}
-
 func (s *CommentService) GetUserFeed(ctx context.Context) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate the user exists

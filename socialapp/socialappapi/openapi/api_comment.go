@@ -62,11 +62,6 @@ func (c *CommentAPIController) Routes() Routes {
 			"/v1/comments/{id}",
 			c.GetComment,
 		},
-		"GetUserComments": Route{
-			strings.ToUpper("Get"),
-			"/v1/users/{username}/comments",
-			c.GetUserComments,
-		},
 		"GetUserFeed": Route{
 			strings.ToUpper("Get"),
 			"/v1/feed",
@@ -113,60 +108,6 @@ func (c *CommentAPIController) GetComment(w http.ResponseWriter, r *http.Request
 		return
 	}
 	result, err := c.service.GetComment(r.Context(), idParam)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
-	}
-	// If no error, encode the body and the result code
-	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
-}
-
-// GetUserComments - Gets all comments for a user
-func (c *CommentAPIController) GetUserComments(w http.ResponseWriter, r *http.Request) {
-	query, err := parseQuery(r.URL.RawQuery)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
-	}
-	usernameParam := chi.URLParam(r, "username")
-	if usernameParam == "" {
-		c.errorHandler(w, r, &RequiredError{"username"}, nil)
-		return
-	}
-	var limitParam int32
-	if query.Has("limit") {
-		param, err := parseNumericParameter[int32](
-			query.Get("limit"),
-			WithParse[int32](parseInt32),
-			WithMinimum[int32](1),
-			WithMaximum[int32](100),
-		)
-		if err != nil {
-			c.errorHandler(w, r, &ParsingError{Param: "limit", Err: err}, nil)
-			return
-		}
-
-		limitParam = param
-	} else {
-		var param int32 = 20
-		limitParam = param
-	}
-	var offsetParam int32
-	if query.Has("offset") {
-		param, err := parseNumericParameter[int32](
-			query.Get("offset"),
-			WithParse[int32](parseInt32),
-		)
-		if err != nil {
-			c.errorHandler(w, r, &ParsingError{Param: "offset", Err: err}, nil)
-			return
-		}
-
-		offsetParam = param
-	} else {
-	}
-	result, err := c.service.GetUserComments(r.Context(), usernameParam, limitParam, offsetParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

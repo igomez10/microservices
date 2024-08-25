@@ -83,7 +83,6 @@ Class | Method | HTTP request | Description
 *AuthenticationAPI* | [**GetAccessToken**](docs/AuthenticationAPI.md#getaccesstoken) | **Post** /v1/oauth/token | Get an access token
 *CommentAPI* | [**CreateComment**](docs/CommentAPI.md#createcomment) | **Post** /v1/comments | Create a new comment
 *CommentAPI* | [**GetComment**](docs/CommentAPI.md#getcomment) | **Get** /v1/comments/{id} | Returns details about a particular comment
-*CommentAPI* | [**GetUserComments**](docs/CommentAPI.md#getusercomments) | **Get** /v1/users/{username}/comments | Gets all comments for a user
 *CommentAPI* | [**GetUserFeed**](docs/CommentAPI.md#getuserfeed) | **Get** /v1/feed | Returns a users feed
 *FollowingAPI* | [**GetUserFollowers**](docs/FollowingAPI.md#getuserfollowers) | **Get** /v1/users/{username}/followers | Get all followers for a user
 *RoleAPI* | [**AddScopeToRole**](docs/RoleAPI.md#addscopetorole) | **Post** /v1/roles/{id}/scopes | Add a scope to a role

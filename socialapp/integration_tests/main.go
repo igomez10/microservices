@@ -1356,9 +1356,9 @@ func CacheRequestSameUser(ctx context.Context) error {
 			}
 
 			// get user comments
-			_, r, err = apiClient.CommentAPI.GetUserComments(openAPICtx, currentUser.Username).Execute()
+			_, r, err = apiClient.UserAPI.GetUserComments(openAPICtx, currentUser.Username).Execute()
 			if err != nil {
-				return fmt.Errorf("Error when calling `CommentAPI.GetUserComments`: %v %v", err, r)
+				return fmt.Errorf("Error when calling `UserAPI.GetUserComments`: %v %v", err, r)
 
 			}
 			if r.StatusCode != http.StatusOK {

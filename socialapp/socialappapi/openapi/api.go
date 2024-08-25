@@ -29,7 +29,6 @@ type AuthenticationAPIRouter interface {
 type CommentAPIRouter interface {
 	CreateComment(http.ResponseWriter, *http.Request)
 	GetComment(http.ResponseWriter, *http.Request)
-	GetUserComments(http.ResponseWriter, *http.Request)
 	GetUserFeed(http.ResponseWriter, *http.Request)
 }
 
@@ -110,7 +109,6 @@ type AuthenticationAPIServicer interface {
 type CommentAPIServicer interface {
 	CreateComment(context.Context, Comment) (ImplResponse, error)
 	GetComment(context.Context, int32) (ImplResponse, error)
-	GetUserComments(context.Context, string, int32, int32) (ImplResponse, error)
 	GetUserFeed(context.Context) (ImplResponse, error)
 }
 

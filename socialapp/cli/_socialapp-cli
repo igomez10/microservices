@@ -299,7 +299,6 @@ case $state in
     _values "Operations" \
             "getAccessToken[Get an access token]"             "createComment[Create a new comment]" \
             "getComment[Returns details about a particular comment]" \
-            "getUserComments[Gets all comments for a user]" \
             "getUserFeed[Returns a users feed]"             "getUserFollowers[Get all followers for a user]"             "addScopeToRole[Add a scope to a role]" \
             "createRole[Create a new role]" \
             "deleteRole[Delete a role]" \
@@ -352,15 +351,6 @@ case $state in
         _op_arguments=(
           "id=:[PATH] ID of the comment"
                     )
-        _describe -t actions 'operations' _op_arguments -S '' && ret=0
-        ;;
-      getUserComments)
-        local -a _op_arguments
-        _op_arguments=(
-          "username=:[PATH] username of the user"
-          "limit=:[QUERY] How many items to return at one time (max 100)"
-"offset=:[QUERY] The number of items to skip before starting to collect the result set"
-          )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       getUserFeed)

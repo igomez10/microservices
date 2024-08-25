@@ -72,7 +72,6 @@ _socialapp-cli()
     operations["getAccessToken"]=1
     operations["createComment"]=1
     operations["getComment"]=1
-    operations["getUserComments"]=1
     operations["getUserFeed"]=1
     operations["getUserFollowers"]=1
     operations["addScopeToRole"]=1
@@ -113,7 +112,6 @@ _socialapp-cli()
     operation_parameters["getAccessToken"]=""
     operation_parameters["createComment"]=""
     operation_parameters["getComment"]="id= "
-    operation_parameters["getUserComments"]="username= limit= offset= "
     operation_parameters["getUserFeed"]=""
     operation_parameters["getUserFollowers"]="username= "
     operation_parameters["addScopeToRole"]="id= "
