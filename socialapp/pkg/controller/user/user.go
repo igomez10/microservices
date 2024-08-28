@@ -13,6 +13,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
 	"github.com/igomez10/microservices/socialapp/internal/eventRecorder"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
@@ -28,6 +29,11 @@ type UserApiService struct {
 const DEFAULT_ROLE_NAME = "administrator"
 
 func (s *UserApiService) CreateUser(ctx context.Context, createUserReq openapi.CreateUserRequest) (openapi.ImplResponse, error) {
+	//otel span for tracing
+	// ctx, span := trace.SpanFromContext(ctx).TracerProvider().Tracer("exampleTracer").Start(ctx, "figureOutName")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateUser")
+	defer span.End()
+
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate we dont have a user with the same username that is not deleted
 	// start transaction
@@ -268,14 +274,21 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string, l
 // ListUsers - Returns all the users
 func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ListUsers")
+	defer span.End()
+
 	limit = limit % 20
 	if limit == 0 {
 		limit = 20
 	}
+
+	ctx, spanDBList := tracerhelper.GetTracer().Start(ctx, "db.ListUsers")
 	dbUsers, err := s.DB.ListUsers(ctx, s.DBConn, db.ListUsersParams{
 		Limit:  limit,
 		Offset: offset,
 	})
+	defer spanDBList.End()
+
 	if err != nil {
 		log.Error().
 			Stack().

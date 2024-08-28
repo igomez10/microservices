@@ -12,6 +12,7 @@ import (
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/cache"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/controller/user"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/prometheus/client_golang/prometheus"
@@ -42,6 +43,11 @@ type Middleware struct {
 func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf")
+		defer span.End()
+
+		r = r.WithContext(ctx)
+
 		start := time.Now()
 		var authResult string
 		log := contexthelper.GetLoggerInContext(r.Context())

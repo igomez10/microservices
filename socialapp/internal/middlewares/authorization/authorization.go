@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 )
 
 type Middleware struct {
@@ -15,6 +16,11 @@ type Middleware struct {
 // The scopes are expected in the context of the request
 func (m *Middleware) Authorize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.authorization")
+		defer span.End()
+
+		r = r.WithContext(ctx)
+
 		log := contexthelper.GetLoggerInContext(r.Context())
 		// get scopes from context
 		tokenScopes, ok := contexthelper.GetRequestedScopesInContext(r.Context())

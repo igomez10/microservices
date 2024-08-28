@@ -6,6 +6,7 @@ import (
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/responseWriter"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/rs/zerolog"
 )
 
@@ -19,6 +20,11 @@ type Beacon struct {
 // Middleware function for handling HTTP requests and logging their responses.
 func (b *Beacon) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.beacon")
+		defer span.End()
+
+		r = r.WithContext(ctx)
+
 		customW := responseWriter.NewCustomResponseWriter(w)
 		r = r.WithContext(contexthelper.SetLoggerInContext(r.Context(), b.Logger))
 		startTime := time.Now()

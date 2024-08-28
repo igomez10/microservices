@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/igomez10/microservices/socialapp/internal/responseWriter"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	nrredis "github.com/newrelic/go-agent/v3/integrations/nrredis-v8"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/prometheus/client_golang/prometheus"
@@ -45,6 +46,10 @@ var metricRedisCahe = promauto.NewCounterVec(prometheus.CounterOpts{
 
 func (c *Cache) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.cache")
+		defer span.End()
+
+		r = r.WithContext(ctx)
 		// check if cache should be used
 		shouldSearchCache := true
 		if r.Header.Get("Cache-Control") == "no-store" {

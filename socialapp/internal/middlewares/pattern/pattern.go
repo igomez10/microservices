@@ -1,9 +1,11 @@
 package pattern
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 )
 
 type Pattern struct {
@@ -15,6 +17,11 @@ type Pattern struct {
 // string pointer saved in the context as "pattern"
 func (p *Pattern) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracerhelper.GetTracer().Start(r.Context(), fmt.Sprintf(r.Method+"_%s", r.URL.Path))
+		defer span.End()
+
+		r = r.WithContext(ctx)
+
 		r = r.WithContext(contexthelper.SetRequestPatternInContext(r.Context(), p.Pattern))
 		next.ServeHTTP(w, r)
 	})

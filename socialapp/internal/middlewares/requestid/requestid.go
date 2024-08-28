@@ -7,10 +7,16 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 )
 
 func Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.request_id")
+		defer span.End()
+
+		r = r.WithContext(ctx)
+
 		requestID := uuid.New().String()
 		w.Header().Set("X-Request-ID", requestID)
 		r.Header.Set("X-Request-ID", requestID)
