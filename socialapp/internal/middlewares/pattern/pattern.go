@@ -17,7 +17,7 @@ type Pattern struct {
 // string pointer saved in the context as "pattern"
 func (p *Pattern) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx, span := tracerhelper.GetTracer().Start(r.Context(), fmt.Sprintf(r.Method+"_%s", r.URL.Path))
+		ctx, span := tracerhelper.GetTracer().Start(r.Context(), fmt.Sprintf(r.Method+"_%s", p.Pattern))
 		defer span.End()
 
 		r = r.WithContext(ctx)
