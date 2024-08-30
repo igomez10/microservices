@@ -7,6 +7,7 @@ import (
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
@@ -18,6 +19,8 @@ type ScopeApiService struct {
 }
 
 func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scope) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ScopeApiService.CreateScope")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.
 		With().
@@ -52,6 +55,8 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 }
 
 func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ScopeApiService.DeleteScope")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.
 		With().
@@ -100,6 +105,8 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (opena
 }
 
 func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int32) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ScopeApiService.GetScope")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.
 		With().
@@ -131,6 +138,8 @@ func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int32) (openapi.
 }
 
 func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset int32) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ScopeApiService.ListScopes")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.
 		With().
@@ -174,6 +183,8 @@ func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset in
 }
 
 func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeID int32, updatedScope openapi.Scope) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ScopeApiService.UpdateScope")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.
 		With().

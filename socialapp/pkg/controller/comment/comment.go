@@ -7,6 +7,7 @@ import (
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/rs/zerolog/log"
@@ -19,6 +20,8 @@ type CommentService struct {
 }
 
 func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comment) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CommentService.CreateComment")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, comment.Username)
@@ -61,6 +64,8 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 }
 
 func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CommentService.GetComment")
+	defer span.End()
 	comment, err := s.DB.GetComment(ctx, s.DBConn, int64(id))
 	if err != nil {
 		log.Error().Err(err).Msg("Error getting comment")
@@ -78,6 +83,8 @@ func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.Impl
 }
 
 func (s *CommentService) GetUserFeed(ctx context.Context) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CommentService.GetUserFeed")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate the user exists
 	// get username from context

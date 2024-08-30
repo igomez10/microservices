@@ -7,6 +7,7 @@ import (
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
@@ -18,6 +19,8 @@ type RoleApiService struct {
 }
 
 func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.CreateRole")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
 		Str("newrole", fmt.Sprintf("%+v", newRole)).
@@ -67,6 +70,8 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 }
 
 func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.DeleteRole")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
 		Int("role_id", int(roleID)).
@@ -110,6 +115,8 @@ func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.
 }
 
 func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.ctx")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
 		Int("role_id", int(roleID)).
@@ -139,6 +146,8 @@ func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.Imp
 }
 
 func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int32) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.ListRoles")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
 		Int("limit", int(limit)).
@@ -180,6 +189,8 @@ func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int3
 }
 
 func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole openapi.Role) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.UpdateRole")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
 		Int("role_id", int(roleID)).
@@ -246,6 +257,8 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 }
 
 func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scopes []string) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.AddScopeToRole")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
 		Strs("scopes", scopes).
@@ -316,6 +329,8 @@ func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scope
 }
 
 func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleID int32, limit int32, offset int32) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.ListScopesForRole")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
 		Int("role_id", int(roleID)).
@@ -374,6 +389,8 @@ func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleID int32, li
 }
 
 func (s *RoleApiService) RemoveScopeFromRole(ctx context.Context, roleID int32, scopeID int32) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.RemoveScopeFromRole")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
 		Int("role_id", int(roleID)).

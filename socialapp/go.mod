@@ -22,6 +22,7 @@ require (
 	go.opentelemetry.io/otel v1.25.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.25.0
 	go.opentelemetry.io/otel/sdk v1.25.0
+	go.opentelemetry.io/otel/trace v1.25.0
 	golang.org/x/oauth2 v0.17.0
 )
 
@@ -54,7 +55,6 @@ require (
 	github.com/stretchr/objx v0.5.2 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.25.0 // indirect
 	go.opentelemetry.io/otel/metric v1.25.0 // indirect
-	go.opentelemetry.io/otel/trace v1.25.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.1.0 // indirect
 	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect

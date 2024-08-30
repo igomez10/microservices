@@ -7,6 +7,7 @@ import (
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	urlClient "github.com/igomez10/microservices/urlshortener/generated/clients/go/client"
@@ -38,6 +39,8 @@ type URLApiServiceConfig struct {
 
 // CreateUrl creates a new url
 func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "URLApiService.CreateUrl")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	var openapiURL openapi.Url
 	if s.UseURLShortenerService {
@@ -113,6 +116,8 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (open
 
 // DeleteUrl deletes a url
 func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "URLApiService.DeleteUrl")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	if s.UseURLShortenerService {
 		// use the urlshortener service
@@ -145,6 +150,8 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (openapi.Im
 }
 
 func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "URLApiService.GetUrl")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 
 	var shortURL string
@@ -202,6 +209,8 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplR
 }
 
 func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "URLApiService.GetUrlData")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 
 	var responseUrl openapi.Url
