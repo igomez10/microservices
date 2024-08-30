@@ -11,6 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
@@ -22,6 +23,8 @@ type AuthenticationService struct {
 }
 
 func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "AuthenticationService.GetAccessToken")
+	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 
 	username, ok := contexthelper.GetUsernameInContext(ctx)
