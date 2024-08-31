@@ -13,6 +13,7 @@ services:
         "--meta.addr=0.0.0.0",
         "--meta.port=8082",
         "--newrelic-license=${NEWRELIC_LICENSE}",
+        "--agent-url=http://alloy:4317",
       ]
     ports:
       - "8082:8082"
