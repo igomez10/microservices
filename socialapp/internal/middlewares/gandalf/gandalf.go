@@ -17,6 +17,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 var gandalf_token_cache = promauto.NewCounterVec(prometheus.CounterOpts{
@@ -53,6 +54,10 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		log := contexthelper.GetLoggerInContext(r.Context())
 		// get token from header
 		if m.AllowlistedPaths[r.URL.Path] != nil && m.AllowlistedPaths[r.URL.Path][r.Method] {
+			span.SetAttributes(attribute.KeyValue{
+				Key:   attribute.Key("allowlisted"),
+				Value: attribute.StringValue(fmt.Sprintf("true")),
+			})
 			r = contexthelper.SetRequestedScopesInContext(r, map[string]bool{})
 			log.Info().
 				Str("path", r.URL.Path).
