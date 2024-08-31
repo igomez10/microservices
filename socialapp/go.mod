@@ -1,6 +1,6 @@
 module github.com/igomez10/microservices/socialapp
 
-go 1.21
+go 1.23
 
 require (
 	github.com/getkin/kin-openapi v0.119.0

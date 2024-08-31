@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/google/uuid"
 	"github.com/igomez10/microservices/urlshortener/generated/server"
 	"github.com/igomez10/microservices/urlshortener/pkg/contexthelper"
 	"github.com/igomez10/microservices/urlshortener/pkg/controllers/url"
@@ -23,6 +24,13 @@ import (
 	"github.com/slok/go-http-metrics/metrics/prometheus"
 	metricsMiddleware "github.com/slok/go-http-metrics/middleware"
 	"github.com/slok/go-http-metrics/middleware/std"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
 var opts struct {
@@ -35,9 +43,12 @@ var opts struct {
 		Port int    `long:"port" env:"PORT" default:"8081" description:"Meta service port"`
 	} `group:"Meta service" namespace:"meta" env-namespace:"META"`
 	NewRelicLicense string `long:"newrelic-license" env:"NEWRELIC_LICENSE" default:"" description:"New relic license"`
+	AgentURL        string `long:"agent-url" env:"AGENT_URL" default:"" description:"Agent URL"`
+	AppName         string `long:"app-name" env:"APP_NAME" default:"urlshortener" description:"Application name"`
 }
 
 func main() {
+	mainCtx := context.Background()
 	// Parse flags
 	if _, err := flags.Parse(&opts); err != nil {
 		if err.(*flags.Error).Type != flags.ErrHelp {
@@ -45,6 +56,14 @@ func main() {
 		}
 		os.Exit(0)
 	}
+
+	instanceID := uuid.NewString()
+	log.Logger = log.With().
+		Str("app", opts.AppName).
+		Str("instance", instanceID).
+		Timestamp().
+		Caller().
+		Logger()
 
 	// log config print stack trace
 	log.Logger = log.With().Caller().Logger()
@@ -118,8 +137,28 @@ func main() {
 		log.Warn().Msg("new relic license not provided, new relic will not be enabled")
 	}
 
+	exporter, err := otlptracegrpc.New(mainCtx, otlptracegrpc.WithInsecure(), otlptracegrpc.WithEndpointURL(opts.AgentURL))
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", opts.AgentURL)
+	}
+
+	// Create a new tracer provider with a batch span processor and the otlp exporter.
+	tp := trace.NewTracerProvider(
+		trace.WithBatcher(exporter),
+		trace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String("urlshortener"),
+			attribute.KeyValue{Key: attribute.Key("instance_id"), Value: attribute.StringValue(instanceID)},
+		// Add more attributes as needed
+		)),
+	)
+
+	// Register the tracer provider as the global provider.
+	otel.SetTracerProvider(tp)
+
 	// Start HTTP server
 	middlewares := []func(http.Handler) http.Handler{
+		otelhttp.NewMiddleware("urlshortener"),
 		middleware.RequestID,
 		middleware.RealIP,
 		middleware.Recoverer,
