@@ -275,6 +275,7 @@ func run(config Configuration) {
 
 	// Register the tracer provider as the global provider.
 	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 
 	// EventRecorder for event sourcing
 	eventRecorder := eventRecorder.EventRecorder{
