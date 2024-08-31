@@ -523,3 +523,20 @@ services:
   loki:
     image: grafana/loki:2.9.4
     restart: unless-stopped
+  
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    ports:
+      - "9000:9000"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "portainer_data:/data"
+    cpus: 0.5
+    mem_limit: 512m
+    restart: always
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://localhost:53000"
+        tag: "portainer"
