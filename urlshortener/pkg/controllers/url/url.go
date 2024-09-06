@@ -10,11 +10,14 @@ import (
 	"github.com/igomez10/microservices/urlshortener/pkg/controllers/contexthelper"
 	"github.com/igomez10/microservices/urlshortener/pkg/converter"
 	"github.com/igomez10/microservices/urlshortener/pkg/db"
+	"github.com/igomez10/microservices/urlshortener/pkg/tracerhelper"
 	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
 // validate URLApiService implements the URLApiServicer interface
 var _ server.URLAPIServicer = (*URLApiService)(nil)
+
+const appName = "urlshortener"
 
 // implements the URLApiServicer interface
 // s *URLApiService server.URLApiServicer
@@ -40,6 +43,9 @@ func (m *MetricEvent) toMap() map[string]interface{} {
 }
 
 func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (server.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "CreateUrl")
+	defer span.End()
+
 	event := MetricEvent{
 		Alias: newURL.Alias,
 		Url:   newURL.Url,
@@ -83,6 +89,9 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (serve
 }
 
 func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (server.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "DeleteUrl")
+	defer span.End()
+
 	log := contexthelper.GetLoggerInContext(ctx)
 	event := MetricEvent{
 		Alias: alias,
@@ -110,6 +119,9 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (server.Imp
 }
 
 func (s *URLApiService) GetUrl(ctx context.Context, alias string) (server.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "GetUrl")
+	defer span.End()
+
 	event := MetricEvent{
 		Alias: alias,
 		IsErr: false,
@@ -142,6 +154,9 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (server.ImplRe
 }
 
 func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (server.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "GetUrlData")
+	defer span.End()
+
 	event := MetricEvent{
 		Alias: alias,
 	}
