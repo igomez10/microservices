@@ -59,7 +59,7 @@ services:
     mem_limit: 512m
 
   grafana:
-    image: grafana/grafana:11.1.0
+    image: grafana/grafana:11.2.0
     user: "472"
     ports:
       - 3005:3000
@@ -442,7 +442,7 @@ services:
       start_period: 15s
 
   tempo:
-    image: grafana/tempo:2.5.0
+    image: grafana/tempo:2.6.0
     ports:
       - "3200:3200"
       - "4317:4317"
@@ -451,7 +451,7 @@ services:
       - "55680:55680"
       - "55681:55681"
       - "14250:14250"
-    command: [ "-config.file=/etc/tempo.yaml" ]
+    command: ["-config.file=/etc/tempo.yaml"]
     volumes:
       - "./tempo/tempo.yaml:/etc/tempo.yaml"
     restart: unless-stopped
@@ -476,12 +476,13 @@ services:
     volumes:
       - "./alloy/config.alloy:/etc/alloy/config.alloy"
       - "./alloy/endpoints.json:/etc/alloy/endpoints.json"
-    command: [
-      "run",
-      "--server.http.listen-addr=0.0.0.0:12345",
-      "--stability.level=public-preview",
-      "/etc/alloy/config.alloy",
-    ]
+    command:
+      [
+        "run",
+        "--server.http.listen-addr=0.0.0.0:12345",
+        "--stability.level=public-preview",
+        "/etc/alloy/config.alloy",
+      ]
     logging:
       driver: syslog
       options:
@@ -494,9 +495,9 @@ services:
       JAEGER_AGENT_HOST: tempo
       JAEGER_SAMPLER_TYPE: const
       JAEGER_SAMPLER_PARAM: 1
-    command: [ "-config.file=/etc/pyroscope.yml" ]
+    command: ["-config.file=/etc/pyroscope.yml"]
     ports:
-      - '4040:4040'
+      - "4040:4040"
     volumes:
       - ./pyroscope/pyroscope.yml:/etc/pyroscope.yml
     restart: unless-stopped
@@ -508,7 +509,11 @@ services:
 
   mimir:
     image: grafana/mimir:2.13.0
-    command: ["-ingester.native-histograms-ingestion-enabled=true", "-config.file=/etc/mimir.yaml"]
+    command:
+      [
+        "-ingester.native-histograms-ingestion-enabled=true",
+        "-config.file=/etc/mimir.yaml",
+      ]
     ports:
       - "9009:9009"
     cpus: 2
@@ -525,7 +530,7 @@ services:
   loki:
     image: grafana/loki:2.9.4
     restart: unless-stopped
-  
+
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
