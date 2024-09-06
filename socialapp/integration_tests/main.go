@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/igomez10/microservices/socialapp/client"
+	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -199,6 +200,9 @@ func main() {
 
 func ListUsersLifecycle(ctx context.Context) error {
 	Setup()
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests.ListUsersLifecycle")
+	defer span.End()
+
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
@@ -247,6 +251,9 @@ func ListUsersLifecycle(ctx context.Context) error {
 
 func CreateUserLifecycle(ctx context.Context) error {
 	Setup()
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests.CreateUserLifecycle")
+	defer span.End()
+
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
@@ -364,6 +371,8 @@ func CreateUserLifecycle(ctx context.Context) error {
 
 func FollowLifeCycle(ctx context.Context) error {
 	Setup()
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests.FollowLifeCycle")
+	defer span.End()
 	// create two users
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -478,6 +487,10 @@ func FollowLifeCycle(ctx context.Context) error {
 
 func GetExpectedFeed(ctx context.Context) error {
 	Setup()
+
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests.GetExpectedFeed")
+	defer span.End()
+
 	// create two users
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -621,6 +634,8 @@ func GetExpectedFeed(ctx context.Context) error {
 
 func GetAccessToken(ctx context.Context) error {
 	Setup()
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests.GetAccessToken")
+	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
@@ -680,6 +695,8 @@ func GetAccessToken(ctx context.Context) error {
 
 func RegisterUserFlow(ctx context.Context) error {
 	Setup()
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests.RegisterUserFlow")
+	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
@@ -750,12 +767,14 @@ func RegisterUserFlow(ctx context.Context) error {
 	return nil
 }
 
-func ChangePassword(context.Context) error {
+func ChangePassword(ctx context.Context) error {
 	Setup()
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests.ChangePassword")
+	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
-	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 	scopes := []string{
 		"socialapp.users.read",
@@ -850,6 +869,8 @@ func ChangePassword(context.Context) error {
 
 func RoleLifecycle(ctx context.Context) error {
 	Setup()
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests.RoleLifecycle")
+	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
@@ -1074,6 +1095,8 @@ func RoleLifecycle(ctx context.Context) error {
 
 func ScopeLifecycle(ctx context.Context) error {
 	Setup()
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests.ScopeLifecycle")
+	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
@@ -1208,6 +1231,8 @@ func ScopeLifecycle(ctx context.Context) error {
 
 func UserRoleLifeCycle(ctx context.Context) (err error) {
 	Setup()
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests.UserRoleLifeCycle")
+	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
@@ -1325,6 +1350,8 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 
 func CacheRequestSameUser(ctx context.Context) error {
 	Setup()
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests.CacheRequestSameUser")
+	defer span.End()
 	configuration := client.NewConfiguration()
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
@@ -1418,6 +1445,8 @@ func CacheRequestSameUser(ctx context.Context) error {
 
 func URLLifeCycle(ctx context.Context) error {
 	Setup()
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests.URLLifeCycle")
+	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
