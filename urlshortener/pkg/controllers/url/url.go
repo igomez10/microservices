@@ -12,7 +12,8 @@ import (
 	"github.com/igomez10/microservices/urlshortener/pkg/db"
 	"github.com/igomez10/microservices/urlshortener/pkg/tracerhelper"
 	"github.com/newrelic/go-agent/v3/newrelic"
-	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 )
 
 // validate URLApiService implements the URLApiServicer interface
@@ -44,9 +45,7 @@ func (m *MetricEvent) toMap() map[string]interface{} {
 }
 
 func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (server.ImplResponse, error) {
-	// ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateUrl")
-	span := trace.SpanFromContext(ctx)
-
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateUrl")
 	defer span.End()
 
 	event := MetricEvent{
@@ -61,7 +60,10 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (serve
 		Alias: newURL.Alias,
 		Url:   newURL.Url,
 	}
+
+	ctx, dbspan := tracerhelper.GetTracer().Start(ctx, "db.CreateUrl")
 	res, err := s.DB.CreateURL(ctx, s.DBConn, newURLParams)
+	dbspan.End()
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
 			return server.ImplResponse{
@@ -105,6 +107,7 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (server.Imp
 		s.metrics.RecordCustomEvent("DeleteUrl", event.toMap())
 	}()
 
+	ctx, dbspan := tracerhelper.GetTracer().Start(ctx, "db.DeleteUrl")
 	if err := s.DB.DeleteURL(ctx, s.DBConn, alias); err != nil {
 		log.Error().Err(err).Msgf("error deleting url %q", alias)
 		event.IsErr = true
@@ -116,6 +119,8 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (server.Imp
 			},
 		}, err
 	}
+	dbspan.End()
+
 	return server.ImplResponse{
 		Code: http.StatusOK,
 	}, nil
@@ -133,7 +138,9 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (server.ImplRe
 		s.metrics.RecordCustomEvent("GetUrl", event.toMap())
 	}()
 
+	ctx, dbspan := tracerhelper.GetTracer().Start(ctx, "db.GetURLFromAlias")
 	shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
+	dbspan.End()
 	if err != nil {
 		event.IsErr = true
 		return server.ImplResponse{
@@ -168,7 +175,9 @@ func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (server.Im
 		s.metrics.RecordCustomEvent("GetUrlData", event.toMap())
 	}()
 
+	ctx, dbspan := tracerhelper.GetTracer().Start(ctx, "db.GetURLFromAlias")
 	shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
+	dbspan.End()
 	if err != nil {
 		event.IsErr = true
 		return server.ImplResponse{
@@ -187,6 +196,19 @@ func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (server.Im
 			Url:   shortedURL.Url,
 		},
 	}
+
+	span.AddEvent("GetUrlData")
+	span.SetAttributes(
+		attribute.KeyValue{
+			Key:   "alias",
+			Value: attribute.StringValue(alias),
+		},
+		attribute.KeyValue{
+			Key:   "url",
+			Value: attribute.StringValue(shortedURL.Url),
+		},
+	)
+	span.SetStatus(codes.Ok, "GetUrlData")
 
 	return res, nil
 }
