@@ -29,7 +29,7 @@ type UserApiService struct {
 const DEFAULT_ROLE_NAME = "administrator"
 
 func (s *UserApiService) CreateUser(ctx context.Context, createUserReq openapi.CreateUserRequest) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserApiService.CreateUser")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateUser")
 	defer span.End()
 
 	log := contexthelper.GetLoggerInContext(ctx)
@@ -177,7 +177,7 @@ func EncryptPassword(plaintextPassword string, salt string) string {
 
 // DeleteUser - Deletes a particular user
 func (s *UserApiService) DeleteUser(ctx context.Context, username string) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserApiService.DeleteUser")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "DeleteUser")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	if err := s.DB.DeleteUserByUsername(ctx, s.DBConn, username); err != nil {
@@ -197,7 +197,7 @@ func (s *UserApiService) DeleteUser(ctx context.Context, username string) (opena
 
 // GetUserByUsername - Get a particular user by username
 func (s *UserApiService) GetUserByUsername(ctx context.Context, username string) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserApiService.GetUserByUsername")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetUserByUsername")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	dbUser, err := s.DB.GetUserByUsername(ctx, s.DBConn, username)
@@ -220,7 +220,7 @@ func (s *UserApiService) GetUserByUsername(ctx context.Context, username string)
 
 // GetUserComments - Gets all comments for a user
 func (s *UserApiService) GetUserComments(ctx context.Context, username string, limit int32, offset int32) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserApiService.GetUserComments")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetUserComments")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 
@@ -278,7 +278,7 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string, l
 // ListUsers - Returns all the users
 func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32) (openapi.ImplResponse, error) {
 	log := contexthelper.GetLoggerInContext(ctx)
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserApiService.ListUsers")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ListUsers")
 	defer span.End()
 
 	limit = limit % 20
@@ -317,7 +317,7 @@ func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32) (op
 }
 
 func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string, newUserData openapi.User) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserApiService.UpdateUser")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "UpdateUser")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	// begin transaction
@@ -435,7 +435,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 }
 
 func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string, followerUsername string) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserApiService.FollowUser")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "FollowUser")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 
@@ -509,7 +509,7 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 }
 
 func (s *UserApiService) GetUserFollowers(ctx context.Context, username string) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserApiService.GetUserFollowers")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetUserFollowers")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate the user exists
@@ -551,7 +551,7 @@ func (s *UserApiService) GetUserFollowers(ctx context.Context, username string) 
 }
 
 func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername string, followerUsername string) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserApiService.UnfollowUser")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "UnfollowUser")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate the user exists
@@ -605,7 +605,7 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 }
 
 func (s *UserApiService) GetFollowingUsers(ctx context.Context, username string) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserApiService.GetFollowingUsers")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetFollowingUsers")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate the user exists
@@ -646,7 +646,7 @@ func (s *UserApiService) GetFollowingUsers(ctx context.Context, username string)
 }
 
 func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangePasswordRequest) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserApiService.ChangePassword")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ChangePassword")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 
@@ -809,7 +809,7 @@ func (s *UserApiService) GetRolesForUser(ctx context.Context, username string) (
 }
 
 func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string, roles []string) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserApiService.UpdateRolesForUser")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "UpdateRolesForUser")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	tx, err := s.DBConn.Begin()
