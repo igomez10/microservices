@@ -138,10 +138,12 @@ func getOuath2Context(initialContext context.Context, config clientcredentials.C
 	return initialContext, nil
 }
 
-var tracer trace.Tracer
+func getTracer() trace.Tracer {
+	tracer := otel.Tracer("integration-tests")
+	return tracer
+}
 
 func main() {
-
 	flag.Parse()
 	log.Info().Msg("Starting integration tests")
 	ctx := context.Background()
@@ -167,8 +169,6 @@ func main() {
 			propagation.Baggage{},
 		),
 	)
-
-	tracer = otel.GetTracerProvider().Tracer("integration-tests")
 
 	if err := ListUsersLifecycle(ctx); err != nil {
 		log.Error().Err(err).Msg("error ListUsersLifecycle")
@@ -210,8 +210,7 @@ func main() {
 
 func ListUsersLifecycle(ctx context.Context) error {
 	Setup()
-
-	ctx, span := tracer.Start(ctx, "ListUsersLifecycle")
+	ctx, span := getTracer().Start(ctx, "ListUsersLifecycle")
 	defer span.End()
 
 	configuration := NewDefaultConfiguration(WithSkipCache())
@@ -262,7 +261,7 @@ func ListUsersLifecycle(ctx context.Context) error {
 
 func CreateUserLifecycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracer.Start(ctx, "CreateUserLifecycle")
+	ctx, span := getTracer().Start(ctx, "CreateUserLifecycle")
 	defer span.End()
 
 	configuration := NewDefaultConfiguration(WithSkipCache())
@@ -382,7 +381,7 @@ func CreateUserLifecycle(ctx context.Context) error {
 
 func FollowLifeCycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracer.Start(ctx, "FollowLifeCycle")
+	ctx, span := getTracer().Start(ctx, "FollowLifeCycle")
 	defer span.End()
 	// create two users
 	configuration := NewDefaultConfiguration(WithSkipCache())
@@ -499,7 +498,7 @@ func FollowLifeCycle(ctx context.Context) error {
 func GetExpectedFeed(ctx context.Context) error {
 	Setup()
 
-	ctx, span := tracer.Start(ctx, "GetExpectedFeed")
+	ctx, span := getTracer().Start(ctx, "GetExpectedFeed")
 	defer span.End()
 
 	// create two users
@@ -645,7 +644,7 @@ func GetExpectedFeed(ctx context.Context) error {
 
 func GetAccessToken(ctx context.Context) error {
 	Setup()
-	ctx, span := tracer.Start(ctx, "GetAccessToken")
+	ctx, span := getTracer().Start(ctx, "GetAccessToken")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -706,7 +705,7 @@ func GetAccessToken(ctx context.Context) error {
 
 func RegisterUserFlow(ctx context.Context) error {
 	Setup()
-	ctx, span := tracer.Start(ctx, "RegisterUserFlow")
+	ctx, span := getTracer().Start(ctx, "RegisterUserFlow")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -780,7 +779,7 @@ func RegisterUserFlow(ctx context.Context) error {
 
 func ChangePassword(ctx context.Context) error {
 	Setup()
-	ctx, span := tracer.Start(ctx, "ChangePassword")
+	ctx, span := getTracer().Start(ctx, "ChangePassword")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -880,7 +879,7 @@ func ChangePassword(ctx context.Context) error {
 
 func RoleLifecycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracer.Start(ctx, "RoleLifecycle")
+	ctx, span := getTracer().Start(ctx, "RoleLifecycle")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -1106,7 +1105,7 @@ func RoleLifecycle(ctx context.Context) error {
 
 func ScopeLifecycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracer.Start(ctx, "ScopeLifecycle")
+	ctx, span := getTracer().Start(ctx, "ScopeLifecycle")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -1242,7 +1241,7 @@ func ScopeLifecycle(ctx context.Context) error {
 
 func UserRoleLifeCycle(ctx context.Context) (err error) {
 	Setup()
-	ctx, span := tracer.Start(ctx, "UserRoleLifeCycle")
+	ctx, span := getTracer().Start(ctx, "UserRoleLifeCycle")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -1361,7 +1360,7 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 
 func CacheRequestSameUser(ctx context.Context) error {
 	Setup()
-	ctx, span := tracer.Start(ctx, "CacheRequestSameUser")
+	ctx, span := getTracer().Start(ctx, "CacheRequestSameUser")
 	defer span.End()
 	configuration := client.NewConfiguration()
 	httpClient := getHTTPClient()
@@ -1456,7 +1455,7 @@ func CacheRequestSameUser(ctx context.Context) error {
 
 func URLLifeCycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracer.Start(ctx, "URLLifeCycle")
+	ctx, span := getTracer().Start(ctx, "URLLifeCycle")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
