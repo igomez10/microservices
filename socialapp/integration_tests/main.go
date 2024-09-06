@@ -206,6 +206,10 @@ func main() {
 	if err := URLLifeCycle(ctx); err != nil {
 		log.Error().Err(err).Msg("error URLLifeCycle")
 	}
+
+	if err := tp.ForceFlush(ctx); err != nil {
+		log.Error().Err(err).Msg("error flushing traces")
+	}
 }
 
 func ListUsersLifecycle(ctx context.Context) error {
