@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/newrelic/go-agent/v3/newrelic"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
@@ -101,6 +102,9 @@ func Setup() {
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 
+	// with timestamp and caller
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339, NoColor: false}).
+		With().Caller().Timestamp().Logger()
 }
 func getHTTPClient() *http.Client {
 	// setup retryable http client
@@ -153,7 +157,7 @@ func getOuath2Context(initialContext context.Context, config clientcredentials.C
 func main() {
 	flag.Parse()
 
-	fmt.Println("Starting")
+	log.Info().Msg("Starting integration tests")
 	ctx := context.Background()
 	if err := ListUsersLifecycle(ctx); err != nil {
 		log.Error().Err(err).Msg("error ListUsersLifecycle")
