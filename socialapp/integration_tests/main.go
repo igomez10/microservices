@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/igomez10/microservices/socialapp/client"
-	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -21,6 +20,7 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/trace"
 
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"golang.org/x/oauth2"
@@ -138,6 +138,8 @@ func getOuath2Context(initialContext context.Context, config clientcredentials.C
 	return initialContext, nil
 }
 
+var tracer trace.Tracer
+
 func main() {
 
 	flag.Parse()
@@ -166,9 +168,7 @@ func main() {
 		),
 	)
 
-	// set root trace
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "")
-	defer span.End()
+	tracer = otel.GetTracerProvider().Tracer("integration-tests")
 
 	if err := ListUsersLifecycle(ctx); err != nil {
 		log.Error().Err(err).Msg("error ListUsersLifecycle")
@@ -211,14 +211,14 @@ func main() {
 func ListUsersLifecycle(ctx context.Context) error {
 	Setup()
 
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "ListUsersLifecycle")
+	ctx, span := tracer.Start(ctx, "ListUsersLifecycle")
 	defer span.End()
 
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 
-	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	username1 := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
@@ -262,13 +262,13 @@ func ListUsersLifecycle(ctx context.Context) error {
 
 func CreateUserLifecycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateUserLifecycle")
+	ctx, span := tracer.Start(ctx, "CreateUserLifecycle")
 	defer span.End()
 
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
-	noAuthCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	noAuthCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	noAuthCtx = context.WithValue(noAuthCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
@@ -382,7 +382,7 @@ func CreateUserLifecycle(ctx context.Context) error {
 
 func FollowLifeCycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "FollowLifeCycle")
+	ctx, span := tracer.Start(ctx, "FollowLifeCycle")
 	defer span.End()
 	// create two users
 	configuration := NewDefaultConfiguration(WithSkipCache())
@@ -499,7 +499,7 @@ func FollowLifeCycle(ctx context.Context) error {
 func GetExpectedFeed(ctx context.Context) error {
 	Setup()
 
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetExpectedFeed")
+	ctx, span := tracer.Start(ctx, "GetExpectedFeed")
 	defer span.End()
 
 	// create two users
@@ -645,12 +645,12 @@ func GetExpectedFeed(ctx context.Context) error {
 
 func GetAccessToken(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetAccessToken")
+	ctx, span := tracer.Start(ctx, "GetAccessToken")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
-	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
@@ -706,12 +706,12 @@ func GetAccessToken(ctx context.Context) error {
 
 func RegisterUserFlow(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "RegisterUserFlow")
+	ctx, span := tracer.Start(ctx, "RegisterUserFlow")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
-	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
@@ -780,7 +780,7 @@ func RegisterUserFlow(ctx context.Context) error {
 
 func ChangePassword(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "ChangePassword")
+	ctx, span := tracer.Start(ctx, "ChangePassword")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -880,12 +880,12 @@ func ChangePassword(ctx context.Context) error {
 
 func RoleLifecycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleLifecycle")
+	ctx, span := tracer.Start(ctx, "RoleLifecycle")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
-	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 	scopes := []string{
 		"socialapp.roles.read",
@@ -1106,12 +1106,12 @@ func RoleLifecycle(ctx context.Context) error {
 
 func ScopeLifecycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "ScopeLifecycle")
+	ctx, span := tracer.Start(ctx, "ScopeLifecycle")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
-	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 	scopes := []string{
 		"socialapp.scopes.read",
@@ -1242,12 +1242,12 @@ func ScopeLifecycle(ctx context.Context) error {
 
 func UserRoleLifeCycle(ctx context.Context) (err error) {
 	Setup()
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserRoleLifeCycle")
+	ctx, span := tracer.Start(ctx, "UserRoleLifeCycle")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
-	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 	scopes := []string{
 		"socialapp.scopes.read",
@@ -1361,13 +1361,13 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 
 func CacheRequestSameUser(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "CacheRequestSameUser")
+	ctx, span := tracer.Start(ctx, "CacheRequestSameUser")
 	defer span.End()
 	configuration := client.NewConfiguration()
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 
-	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	username1 := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
@@ -1456,13 +1456,13 @@ func CacheRequestSameUser(ctx context.Context) error {
 
 func URLLifeCycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "URLLifeCycle")
+	ctx, span := tracer.Start(ctx, "URLLifeCycle")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 
-	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	username1 := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
