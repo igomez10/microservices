@@ -12,6 +12,7 @@ import (
 	"github.com/igomez10/microservices/urlshortener/pkg/db"
 	"github.com/igomez10/microservices/urlshortener/pkg/tracerhelper"
 	"github.com/newrelic/go-agent/v3/newrelic"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // validate URLApiService implements the URLApiServicer interface
@@ -43,7 +44,9 @@ func (m *MetricEvent) toMap() map[string]interface{} {
 }
 
 func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (server.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "CreateUrl")
+	// ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateUrl")
+	span := trace.SpanFromContext(ctx)
+
 	defer span.End()
 
 	event := MetricEvent{
@@ -89,7 +92,7 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url) (serve
 }
 
 func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (server.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "DeleteUrl")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "DeleteUrl")
 	defer span.End()
 
 	log := contexthelper.GetLoggerInContext(ctx)
@@ -119,7 +122,7 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (server.Imp
 }
 
 func (s *URLApiService) GetUrl(ctx context.Context, alias string) (server.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "GetUrl")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetUrl")
 	defer span.End()
 
 	event := MetricEvent{
@@ -154,7 +157,7 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (server.ImplRe
 }
 
 func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (server.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "GetUrlData")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetUrlData")
 	defer span.End()
 
 	event := MetricEvent{

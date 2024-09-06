@@ -21,7 +21,6 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	"go.opentelemetry.io/otel/trace"
 
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"golang.org/x/oauth2"
@@ -168,7 +167,7 @@ func main() {
 	)
 
 	// set root trace
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "")
 	defer span.End()
 
 	if err := ListUsersLifecycle(ctx); err != nil {
@@ -212,7 +211,8 @@ func main() {
 func ListUsersLifecycle(ctx context.Context) error {
 	Setup()
 
-	trace.SpanFromContext(ctx).AddEvent("IntegrationTests.ListUsersLifecycle")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ListUsersLifecycle")
+	defer span.End()
 
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -262,7 +262,7 @@ func ListUsersLifecycle(ctx context.Context) error {
 
 func CreateUserLifecycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "IntegrationTests.CreateUserLifecycle")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateUserLifecycle")
 	defer span.End()
 
 	configuration := NewDefaultConfiguration(WithSkipCache())
@@ -382,13 +382,13 @@ func CreateUserLifecycle(ctx context.Context) error {
 
 func FollowLifeCycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "IntegrationTests.FollowLifeCycle")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "FollowLifeCycle")
 	defer span.End()
 	// create two users
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
-	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
@@ -499,14 +499,14 @@ func FollowLifeCycle(ctx context.Context) error {
 func GetExpectedFeed(ctx context.Context) error {
 	Setup()
 
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "IntegrationTests.GetExpectedFeed")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetExpectedFeed")
 	defer span.End()
 
 	// create two users
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
-	proxyCtx := context.WithValue(context.Background(), oauth2.HTTPClient, httpClient)
+	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
@@ -645,7 +645,7 @@ func GetExpectedFeed(ctx context.Context) error {
 
 func GetAccessToken(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "IntegrationTests.GetAccessToken")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetAccessToken")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -706,7 +706,7 @@ func GetAccessToken(ctx context.Context) error {
 
 func RegisterUserFlow(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "IntegrationTests.RegisterUserFlow")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "RegisterUserFlow")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -780,7 +780,7 @@ func RegisterUserFlow(ctx context.Context) error {
 
 func ChangePassword(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "IntegrationTests.ChangePassword")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ChangePassword")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -880,7 +880,7 @@ func ChangePassword(ctx context.Context) error {
 
 func RoleLifecycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "IntegrationTests.RoleLifecycle")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleLifecycle")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -1106,7 +1106,7 @@ func RoleLifecycle(ctx context.Context) error {
 
 func ScopeLifecycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "IntegrationTests.ScopeLifecycle")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ScopeLifecycle")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -1242,7 +1242,7 @@ func ScopeLifecycle(ctx context.Context) error {
 
 func UserRoleLifeCycle(ctx context.Context) (err error) {
 	Setup()
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "IntegrationTests.UserRoleLifeCycle")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "UserRoleLifeCycle")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
@@ -1361,7 +1361,7 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 
 func CacheRequestSameUser(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "IntegrationTests.CacheRequestSameUser")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CacheRequestSameUser")
 	defer span.End()
 	configuration := client.NewConfiguration()
 	httpClient := getHTTPClient()
@@ -1456,7 +1456,7 @@ func CacheRequestSameUser(ctx context.Context) error {
 
 func URLLifeCycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "IntegrationTests.URLLifeCycle")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "URLLifeCycle")
 	defer span.End()
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()

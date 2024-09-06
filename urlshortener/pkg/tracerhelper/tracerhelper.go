@@ -5,8 +5,6 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func GetTracerWithAppName(appname string) trace.Tracer {
-	tracerProvider := otel.GetTracerProvider()
-	tracer := tracerProvider.Tracer(appname)
-	return tracer
+func GetTracer() trace.Tracer {
+	return otel.Tracer("tracerhelper")
 }

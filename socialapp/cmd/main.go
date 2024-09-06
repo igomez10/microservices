@@ -265,7 +265,9 @@ func run(config Configuration) {
 		Logger()
 
 	// setup tracing
-	http.DefaultClient = &http.Client{Transport: otelhttp.NewTransport(http.DefaultTransport)}
+	http.DefaultClient = &http.Client{
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+	}
 
 	agentURL := config.agentURL.String()
 	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithInsecure(), otlptracegrpc.WithEndpointURL(agentURL))
