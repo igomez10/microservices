@@ -316,6 +316,7 @@ services:
     environment:
       "ADD_TEST_JITTER": 1,
       "TEST_SETUP": ${TEST_SETUP},
+      "AGENT_URL": "tempo:4317"
     restart: "unless-stopped"
     cpus: 0.5
     mem_limit: 512m

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,6 +13,13 @@ import (
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/rs/zerolog/log"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/resource"
+	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
 )
@@ -24,6 +32,7 @@ var (
 	CONTEXT_SERVER       int
 	apiClient            *client.APIClient
 	ENDPOINT_OAUTH_TOKEN string
+	urlAgent             = flag.String("agentURL", os.Getenv("AGENT_URL"), "Agent URL \"http://localhost:4317\"")
 )
 
 const defaultUsername = "Test-%d1"
@@ -72,6 +81,26 @@ func Setup() {
 		CONTEXT_SERVER = RENDER_SERVER_URL
 		ENDPOINT_OAUTH_TOKEN = "https://socialapp.gomezignacio.com/v1/oauth/token"
 	}
+
+	ctx := context.Background()
+	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithInsecure(), otlptracegrpc.WithEndpointURL(*urlAgent))
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", *urlAgent)
+	}
+
+	tp := trace.NewTracerProvider(
+		trace.WithBatcher(exporter),
+		trace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String("integration-tests"),
+		// Add more attributes as needed
+		)),
+	)
+
+	// Register the tracer provider as the global provider.
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+
 }
 func getHTTPClient() *http.Client {
 	// setup retryable http client
@@ -87,7 +116,7 @@ func getHTTPClient() *http.Client {
 		}
 	}
 
-	retryClient.HTTPClient.Transport = newrelic.NewRoundTripper(http.DefaultTransport)
+	retryClient.HTTPClient.Transport = newrelic.NewRoundTripper(otelhttp.NewTransport(http.DefaultTransport))
 	retryClient.RetryMax = 10
 	retryClient.HTTPClient.Timeout = 15 * time.Second
 	retryClient.Backoff = retryablehttp.LinearJitterBackoff
@@ -122,6 +151,8 @@ func getOuath2Context(initialContext context.Context, config clientcredentials.C
 }
 
 func main() {
+	flag.Parse()
+
 	fmt.Println("Starting")
 	ctx := context.Background()
 	if err := ListUsersLifecycle(ctx); err != nil {
