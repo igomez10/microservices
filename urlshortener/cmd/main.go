@@ -158,7 +158,6 @@ func main() {
 
 	// Start HTTP server
 	middlewares := []func(http.Handler) http.Handler{
-		otelhttp.NewMiddleware("urlshortener"),
 		middleware.RequestID,
 		middleware.RealIP,
 		middleware.Recoverer,
@@ -252,7 +251,9 @@ func NewRouter(middlewares []func(http.Handler) http.Handler, routers []server.R
 						_, handler = newrelic.WrapHandle(newrelicApp, route.Pattern, handler)
 					}
 
-					r.Method(route.Method, route.Pattern, handler)
+					resourceName := fmt.Sprintf("%s_%s", route.Method, route.Pattern)
+					otelHandler := otelhttp.NewHandler(http.Handler(handler), resourceName)
+					r.Method(route.Method, route.Pattern, otelHandler)
 				})
 			}
 		}

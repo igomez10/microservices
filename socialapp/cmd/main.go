@@ -10,7 +10,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -418,7 +417,7 @@ func run(config Configuration) {
 
 	// 2. SocialApp router
 	// read api spec
-	content, err := ioutil.ReadAll(openapiFile)
+	content, err := io.ReadAll(io.Reader(openapiFile))
 	if err != nil {
 		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to read openapi file")
 	}
