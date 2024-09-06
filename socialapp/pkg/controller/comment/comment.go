@@ -20,7 +20,7 @@ type CommentService struct {
 }
 
 func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comment) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "CommentService.CreateComment")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateComment")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate user exists

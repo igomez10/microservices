@@ -19,7 +19,7 @@ type ScopeApiService struct {
 }
 
 func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scope) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "ScopeApiService.CreateScope")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateScope")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.
@@ -55,7 +55,7 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 }
 
 func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "ScopeApiService.DeleteScope")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "DeleteScope")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.
@@ -105,7 +105,7 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (opena
 }
 
 func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int32) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "ScopeApiService.GetScope")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetScope")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.
@@ -138,7 +138,7 @@ func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int32) (openapi.
 }
 
 func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset int32) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "ScopeApiService.ListScopes")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ListScopes")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.
@@ -183,7 +183,7 @@ func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset in
 }
 
 func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeID int32, updatedScope openapi.Scope) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "ScopeApiService.UpdateScope")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "UpdateScope")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.

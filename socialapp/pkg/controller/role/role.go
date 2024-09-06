@@ -19,7 +19,7 @@ type RoleApiService struct {
 }
 
 func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.CreateRole")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
@@ -70,7 +70,7 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 }
 
 func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.DeleteRole")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "DeleteRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
@@ -115,7 +115,7 @@ func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.
 }
 
 func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.ctx")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
@@ -146,7 +146,7 @@ func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.Imp
 }
 
 func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int32) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.ListRoles")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ListRoles")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
@@ -189,7 +189,7 @@ func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int3
 }
 
 func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole openapi.Role) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.UpdateRole")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "UpdateRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
@@ -257,7 +257,7 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 }
 
 func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scopes []string) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.AddScopeToRole")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "AddScopeToRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
@@ -329,7 +329,7 @@ func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scope
 }
 
 func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleID int32, limit int32, offset int32) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.ListScopesForRole")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "ListScopesForRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
@@ -389,7 +389,7 @@ func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleID int32, li
 }
 
 func (s *RoleApiService) RemoveScopeFromRole(ctx context.Context, roleID int32, scopeID int32) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "RoleApiService.RemoveScopeFromRole")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "RemoveScopeFromRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().

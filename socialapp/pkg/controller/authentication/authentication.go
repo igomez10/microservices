@@ -23,7 +23,7 @@ type AuthenticationService struct {
 }
 
 func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "AuthenticationService.GetAccessToken")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetAccessToken")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 

@@ -6,12 +6,5 @@ import (
 )
 
 func GetTracer() trace.Tracer {
-	var appname = "socialapp"
-	return GetTracerWithAppName(appname)
-}
-
-func GetTracerWithAppName(appname string) trace.Tracer {
-	tracerProvider := otel.GetTracerProvider()
-	tracer := tracerProvider.Tracer(appname)
-	return tracer
+	return otel.Tracer("")
 }

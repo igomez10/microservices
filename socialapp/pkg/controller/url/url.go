@@ -39,7 +39,7 @@ type URLApiServiceConfig struct {
 
 // CreateUrl creates a new url
 func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "URLApiService.CreateUrl")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateUrl")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	var openapiURL openapi.Url
@@ -116,7 +116,7 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (open
 
 // DeleteUrl deletes a url
 func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "URLApiService.DeleteUrl")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "DeleteUrl")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	if s.UseURLShortenerService {
@@ -150,7 +150,7 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (openapi.Im
 }
 
 func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "URLApiService.GetUrl")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetUrl")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 
@@ -209,7 +209,7 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplR
 }
 
 func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (openapi.ImplResponse, error) {
-	ctx, span := tracerhelper.GetTracer().Start(ctx, "URLApiService.GetUrlData")
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetUrlData")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 
