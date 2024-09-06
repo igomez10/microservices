@@ -20,7 +20,9 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/sdk/trace"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/trace"
+
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/clientcredentials"
@@ -147,9 +149,9 @@ func main() {
 		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", *urlAgent)
 	}
 
-	tp := trace.NewTracerProvider(
-		trace.WithBatcher(exporter),
-		trace.WithResource(resource.NewWithAttributes(
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exporter),
+		sdktrace.WithResource(resource.NewWithAttributes(
 			semconv.SchemaURL,
 			semconv.ServiceNameKey.String("integration-tests"),
 		// Add more attributes as needed
@@ -158,7 +160,16 @@ func main() {
 
 	// Register the tracer provider as the global provider.
 	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	otel.SetTextMapPropagator(
+		propagation.NewCompositeTextMapPropagator(
+			propagation.TraceContext{},
+			propagation.Baggage{},
+		),
+	)
+
+	// set root trace
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "IntegrationTests")
+	defer span.End()
 
 	if err := ListUsersLifecycle(ctx); err != nil {
 		log.Error().Err(err).Msg("error ListUsersLifecycle")
@@ -200,8 +211,8 @@ func main() {
 
 func ListUsersLifecycle(ctx context.Context) error {
 	Setup()
-	ctx, span := tracerhelper.GetTracerWithAppName(appName).Start(ctx, "IntegrationTests.ListUsersLifecycle")
-	defer span.End()
+
+	trace.SpanFromContext(ctx).AddEvent("IntegrationTests.ListUsersLifecycle")
 
 	configuration := NewDefaultConfiguration(WithSkipCache())
 	httpClient := getHTTPClient()
