@@ -139,7 +139,7 @@ func getOuath2Context(initialContext context.Context, config clientcredentials.C
 }
 
 func getTracer() trace.Tracer {
-	tracer := otel.Tracer("integration-tests")
+	tracer := otel.Tracer("")
 	return tracer
 }
 
