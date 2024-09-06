@@ -84,25 +84,6 @@ func Setup() {
 		ENDPOINT_OAUTH_TOKEN = "https://socialapp.gomezignacio.com/v1/oauth/token"
 	}
 
-	ctx := context.Background()
-	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithInsecure(), otlptracegrpc.WithEndpointURL(*urlAgent))
-	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", *urlAgent)
-	}
-
-	tp := trace.NewTracerProvider(
-		trace.WithBatcher(exporter),
-		trace.WithResource(resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceNameKey.String("integration-tests"),
-		// Add more attributes as needed
-		)),
-	)
-
-	// Register the tracer provider as the global provider.
-	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
-
 	// with timestamp and caller
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339, NoColor: false}).
 		With().Caller().Timestamp().Logger()
@@ -156,10 +137,28 @@ func getOuath2Context(initialContext context.Context, config clientcredentials.C
 }
 
 func main() {
-	flag.Parse()
 
+	flag.Parse()
 	log.Info().Msg("Starting integration tests")
 	ctx := context.Background()
+	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithInsecure(), otlptracegrpc.WithEndpointURL(*urlAgent))
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", *urlAgent)
+	}
+
+	tp := trace.NewTracerProvider(
+		trace.WithBatcher(exporter),
+		trace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String("integration-tests"),
+		// Add more attributes as needed
+		)),
+	)
+
+	// Register the tracer provider as the global provider.
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+
 	if err := ListUsersLifecycle(ctx); err != nil {
 		log.Error().Err(err).Msg("error ListUsersLifecycle")
 	}
