@@ -84,7 +84,6 @@ func main() {
 	defaultTimeout := flag.Duration("defaultTimeout", 10*time.Second, "Default timeout for requests")
 	urlServiceHost := flag.String("urlServiceHost", os.Getenv("URL_SERVICE_HOST"), "URL service host")
 	urlAgent := flag.String("agentURL", os.Getenv("AGENT_URL"), "Agent URL \"http://localhost:4317\"")
-
 	flag.Parse()
 
 	// setup retryable http client
