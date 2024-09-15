@@ -161,7 +161,7 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplR
 		if err != nil || res.StatusCode != http.StatusOK {
 			switch res.StatusCode {
 			case http.StatusNotFound:
-				log.Error().Err(err).Msg("alias does not exist")
+				log.Debug().Err(err).Msg("alias does not exist")
 				return openapi.ImplResponse{
 					Code: http.StatusNotFound,
 					Body: openapi.Error{
@@ -185,7 +185,7 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplR
 	} else {
 		shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
 		if err != nil {
-			log.Error().Err(err).Msg("alias does not exist")
+			log.Debug().Err(err).Msg("alias does not exist")
 			return openapi.ImplResponse{
 				Code: http.StatusNotFound,
 				Body: openapi.Error{
@@ -238,7 +238,7 @@ func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (openapi.I
 		// validate we dont have a url with the same alias
 		shortedURL, err := s.DB.GetURLFromAlias(ctx, s.DBConn, alias)
 		if err != nil {
-			log.Error().Err(err).Msg("alias does not exist")
+			log.Debug().Err(err).Msg("alias does not exist")
 			return openapi.ImplResponse{
 				Code: http.StatusNotFound,
 				Body: openapi.Error{

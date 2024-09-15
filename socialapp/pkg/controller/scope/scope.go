@@ -116,10 +116,10 @@ func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int32) (openapi.
 	s.DB.GetScope(ctx, s.DBConn, int64(scopeID))
 	scope, err := s.DB.GetScope(ctx, s.DBConn, int64(scopeID))
 	if err != nil {
-		log.Error().
+		log.Debug().
 			Err(err).
 			Int("scope_id", int(scopeID)).
-			Msg("failed to retrieve created scope")
+			Msg("failed to retrieve scope")
 
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
