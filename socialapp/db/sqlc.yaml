@@ -1,4 +1,4 @@
-version: 2
+version: "2"
 sql:
   - schema: "setup/schema.sql"
     queries: "query.sql"
@@ -7,6 +7,19 @@ sql:
       go:
         package: "db"
         out: "../pkg/db"
+        emit_interface: true
+        emit_exported_queries: true
+        emit_methods_with_db_argument: true
+        emit_json_tags: true
+        json_tags_case_style: "snake"
+  - schema: "setup/schema.sql"
+    queries: "query.sql"
+    engine: "postgresql"
+    gen:
+      go:
+        package: "db"
+        out: "../pkg/dbpgx"
+        sql_package: "pgx/v5"
         emit_interface: true
         emit_exported_queries: true
         emit_methods_with_db_argument: true

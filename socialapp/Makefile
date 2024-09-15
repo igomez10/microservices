@@ -73,7 +73,7 @@ generate-openapi:
 
 sqlc-generate:
 	sqlc generate --file db/sqlc.yaml
-
+	
 compose-up:
 	docker compose down && docker-compose up
 
