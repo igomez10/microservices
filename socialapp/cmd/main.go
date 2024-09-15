@@ -260,6 +260,7 @@ func run(config Configuration) {
 		Str("app", config.appName).
 		Str("instance", instanceID).
 		Timestamp().
+		Caller().
 		Logger()
 
 	// setup tracing
