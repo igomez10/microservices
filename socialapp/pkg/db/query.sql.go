@@ -7,9 +7,9 @@ package db
 
 import (
 	"context"
-	"database/sql"
-	"encoding/json"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const CreateComment = `-- name: CreateComment :one
@@ -27,7 +27,7 @@ type CreateCommentParams struct {
 }
 
 func (q *Queries) CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (Comment, error) {
-	row := db.QueryRowContext(ctx, CreateComment, arg.UserID, arg.Content)
+	row := db.QueryRow(ctx, CreateComment, arg.UserID, arg.Content)
 	var i Comment
 	err := row.Scan(
 		&i.ID,
@@ -56,7 +56,7 @@ type CreateCommentForUserParams struct {
 }
 
 func (q *Queries) CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (Comment, error) {
-	row := db.QueryRowContext(ctx, CreateCommentForUser, arg.Username, arg.Content)
+	row := db.QueryRow(ctx, CreateCommentForUser, arg.Username, arg.Content)
 	var i Comment
 	err := row.Scan(
 		&i.ID,
@@ -87,7 +87,7 @@ type CreateCredentialParams struct {
 }
 
 func (q *Queries) CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (Credential, error) {
-	row := db.QueryRowContext(ctx, CreateCredential,
+	row := db.QueryRow(ctx, CreateCredential,
 		arg.UserID,
 		arg.PublicKey,
 		arg.Description,
@@ -115,15 +115,15 @@ VALUES (
 `
 
 type CreateEventParams struct {
-	AggregateID   int64           `json:"aggregate_id"`
-	AggregateType string          `json:"aggregate_type"`
-	Version       int64           `json:"version"`
-	EventType     string          `json:"event_type"`
-	Payload       json.RawMessage `json:"payload"`
+	AggregateID   int64  `json:"aggregate_id"`
+	AggregateType string `json:"aggregate_type"`
+	Version       int64  `json:"version"`
+	EventType     string `json:"event_type"`
+	Payload       []byte `json:"payload"`
 }
 
 func (q *Queries) CreateEvent(ctx context.Context, db DBTX, arg CreateEventParams) error {
-	_, err := db.ExecContext(ctx, CreateEvent,
+	_, err := db.Exec(ctx, CreateEvent,
 		arg.AggregateID,
 		arg.AggregateType,
 		arg.Version,
@@ -145,7 +145,7 @@ type CreateRoleParams struct {
 }
 
 func (q *Queries) CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams) (Role, error) {
-	row := db.QueryRowContext(ctx, CreateRole, arg.Name, arg.Description)
+	row := db.QueryRow(ctx, CreateRole, arg.Name, arg.Description)
 	var i Role
 	err := row.Scan(
 		&i.ID,
@@ -172,7 +172,7 @@ type CreateRoleScopeParams struct {
 }
 
 func (q *Queries) CreateRoleScope(ctx context.Context, db DBTX, arg CreateRoleScopeParams) (RolesToScope, error) {
-	row := db.QueryRowContext(ctx, CreateRoleScope, arg.RoleID, arg.ScopeID)
+	row := db.QueryRow(ctx, CreateRoleScope, arg.RoleID, arg.ScopeID)
 	var i RolesToScope
 	err := row.Scan(&i.ID, &i.RoleID, &i.ScopeID)
 	return i, err
@@ -193,7 +193,7 @@ type CreateScopeParams struct {
 }
 
 func (q *Queries) CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (Scope, error) {
-	row := db.QueryRowContext(ctx, CreateScope, arg.Name, arg.Description)
+	row := db.QueryRow(ctx, CreateScope, arg.Name, arg.Description)
 	var i Scope
 	err := row.Scan(
 		&i.ID,
@@ -215,13 +215,13 @@ RETURNING id, user_id, token, valid_from, valid_until
 `
 
 type CreateTokenParams struct {
-	Token      string    `json:"token"`
-	UserID     int64     `json:"user_id"`
-	ValidUntil time.Time `json:"valid_until"`
+	Token      string           `json:"token"`
+	UserID     int64            `json:"user_id"`
+	ValidUntil pgtype.Timestamp `json:"valid_until"`
 }
 
 func (q *Queries) CreateToken(ctx context.Context, db DBTX, arg CreateTokenParams) (Token, error) {
-	row := db.QueryRowContext(ctx, CreateToken, arg.Token, arg.UserID, arg.ValidUntil)
+	row := db.QueryRow(ctx, CreateToken, arg.Token, arg.UserID, arg.ValidUntil)
 	var i Token
 	err := row.Scan(
 		&i.ID,
@@ -248,7 +248,7 @@ type CreateTokenToScopeParams struct {
 }
 
 func (q *Queries) CreateTokenToScope(ctx context.Context, db DBTX, arg CreateTokenToScopeParams) (TokensToScope, error) {
-	row := db.QueryRowContext(ctx, CreateTokenToScope, arg.TokenID, arg.ScopeID)
+	row := db.QueryRow(ctx, CreateTokenToScope, arg.TokenID, arg.ScopeID)
 	var i TokensToScope
 	err := row.Scan(&i.ID, &i.TokenID, &i.ScopeID)
 	return i, err
@@ -269,7 +269,7 @@ type CreateURLParams struct {
 }
 
 func (q *Queries) CreateURL(ctx context.Context, db DBTX, arg CreateURLParams) (Url, error) {
-	row := db.QueryRowContext(ctx, CreateURL, arg.Alias, arg.Url)
+	row := db.QueryRow(ctx, CreateURL, arg.Alias, arg.Url)
 	var i Url
 	err := row.Scan(
 		&i.ID,
@@ -292,18 +292,18 @@ RETURNING id, username, hashed_password, hashed_password_expires_at, salt, first
 `
 
 type CreateUserParams struct {
-	Username        string       `json:"username"`
-	HashedPassword  string       `json:"hashed_password"`
-	Salt            string       `json:"salt"`
-	FirstName       string       `json:"first_name"`
-	LastName        string       `json:"last_name"`
-	Email           string       `json:"email"`
-	EmailToken      string       `json:"email_token"`
-	EmailVerifiedAt sql.NullTime `json:"email_verified_at"`
+	Username        string           `json:"username"`
+	HashedPassword  string           `json:"hashed_password"`
+	Salt            string           `json:"salt"`
+	FirstName       string           `json:"first_name"`
+	LastName        string           `json:"last_name"`
+	Email           string           `json:"email"`
+	EmailToken      string           `json:"email_token"`
+	EmailVerifiedAt pgtype.Timestamp `json:"email_verified_at"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (User, error) {
-	row := db.QueryRowContext(ctx, CreateUser,
+	row := db.QueryRow(ctx, CreateUser,
 		arg.Username,
 		arg.HashedPassword,
 		arg.Salt,
@@ -347,7 +347,7 @@ type CreateUserToRoleParams struct {
 }
 
 func (q *Queries) CreateUserToRole(ctx context.Context, db DBTX, arg CreateUserToRoleParams) (UsersToRole, error) {
-	row := db.QueryRowContext(ctx, CreateUserToRole, arg.UserID, arg.RoleID)
+	row := db.QueryRow(ctx, CreateUserToRole, arg.UserID, arg.RoleID)
 	var i UsersToRole
 	err := row.Scan(&i.ID, &i.RoleID, &i.UserID)
 	return i, err
@@ -360,7 +360,7 @@ WHERE user_id = $1 AND NOW() < valid_until
 `
 
 func (q *Queries) DeleteAllTokensForUser(ctx context.Context, db DBTX, userID int64) error {
-	_, err := db.ExecContext(ctx, DeleteAllTokensForUser, userID)
+	_, err := db.Exec(ctx, DeleteAllTokensForUser, userID)
 	return err
 }
 
@@ -371,7 +371,7 @@ WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteComment(ctx context.Context, db DBTX, id int64) error {
-	_, err := db.ExecContext(ctx, DeleteComment, id)
+	_, err := db.Exec(ctx, DeleteComment, id)
 	return err
 }
 
@@ -381,7 +381,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DeleteCredential(ctx context.Context, db DBTX, id int64) error {
-	_, err := db.ExecContext(ctx, DeleteCredential, id)
+	_, err := db.Exec(ctx, DeleteCredential, id)
 	return err
 }
 
@@ -392,7 +392,7 @@ WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteRole(ctx context.Context, db DBTX, id int64) error {
-	_, err := db.ExecContext(ctx, DeleteRole, id)
+	_, err := db.Exec(ctx, DeleteRole, id)
 	return err
 }
 
@@ -407,7 +407,7 @@ type DeleteRoleScopeParams struct {
 }
 
 func (q *Queries) DeleteRoleScope(ctx context.Context, db DBTX, arg DeleteRoleScopeParams) error {
-	_, err := db.ExecContext(ctx, DeleteRoleScope, arg.RoleID, arg.ScopeID)
+	_, err := db.Exec(ctx, DeleteRoleScope, arg.RoleID, arg.ScopeID)
 	return err
 }
 
@@ -418,7 +418,7 @@ WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteScope(ctx context.Context, db DBTX, id int64) error {
-	_, err := db.ExecContext(ctx, DeleteScope, id)
+	_, err := db.Exec(ctx, DeleteScope, id)
 	return err
 }
 
@@ -429,7 +429,7 @@ WHERE token = $1 AND NOW() < valid_until
 `
 
 func (q *Queries) DeleteToken(ctx context.Context, db DBTX, token string) error {
-	_, err := db.ExecContext(ctx, DeleteToken, token)
+	_, err := db.Exec(ctx, DeleteToken, token)
 	return err
 }
 
@@ -440,7 +440,7 @@ WHERE alias = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteURL(ctx context.Context, db DBTX, alias string) error {
-	_, err := db.ExecContext(ctx, DeleteURL, alias)
+	_, err := db.Exec(ctx, DeleteURL, alias)
 	return err
 }
 
@@ -451,7 +451,7 @@ WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, db DBTX, id int64) error {
-	_, err := db.ExecContext(ctx, DeleteUser, id)
+	_, err := db.Exec(ctx, DeleteUser, id)
 	return err
 }
 
@@ -462,7 +462,7 @@ WHERE username = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteUserByUsername(ctx context.Context, db DBTX, username string) error {
-	_, err := db.ExecContext(ctx, DeleteUserByUsername, username)
+	_, err := db.Exec(ctx, DeleteUserByUsername, username)
 	return err
 }
 
@@ -477,7 +477,7 @@ type DeleteUserToRoleParams struct {
 }
 
 func (q *Queries) DeleteUserToRole(ctx context.Context, db DBTX, arg DeleteUserToRoleParams) error {
-	_, err := db.ExecContext(ctx, DeleteUserToRole, arg.UserID, arg.RoleID)
+	_, err := db.Exec(ctx, DeleteUserToRole, arg.UserID, arg.RoleID)
 	return err
 }
 
@@ -495,7 +495,7 @@ type FollowUserParams struct {
 }
 
 func (q *Queries) FollowUser(ctx context.Context, db DBTX, arg FollowUserParams) error {
-	_, err := db.ExecContext(ctx, FollowUser, arg.FollowerID, arg.FollowedID)
+	_, err := db.Exec(ctx, FollowUser, arg.FollowerID, arg.FollowedID)
 	return err
 }
 
@@ -505,7 +505,7 @@ WHERE id = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetComment(ctx context.Context, db DBTX, id int64) (Comment, error) {
-	row := db.QueryRowContext(ctx, GetComment, id)
+	row := db.QueryRow(ctx, GetComment, id)
 	var i Comment
 	err := row.Scan(
 		&i.ID,
@@ -525,7 +525,7 @@ WHERE public_key = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetCredential(ctx context.Context, db DBTX, publicKey string) (Credential, error) {
-	row := db.QueryRowContext(ctx, GetCredential, publicKey)
+	row := db.QueryRow(ctx, GetCredential, publicKey)
 	var i Credential
 	err := row.Scan(
 		&i.ID,
@@ -554,7 +554,7 @@ ORDER BY
 `
 
 func (q *Queries) GetFollowedUsers(ctx context.Context, db DBTX, followerID int64) ([]User, error) {
-	rows, err := db.QueryContext(ctx, GetFollowedUsers, followerID)
+	rows, err := db.Query(ctx, GetFollowedUsers, followerID)
 	if err != nil {
 		return nil, err
 	}
@@ -580,9 +580,6 @@ func (q *Queries) GetFollowedUsers(ctx context.Context, db DBTX, followerID int6
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -605,7 +602,7 @@ ORDER BY
 `
 
 func (q *Queries) GetFollowers(ctx context.Context, db DBTX, followedID int64) ([]User, error) {
-	rows, err := db.QueryContext(ctx, GetFollowers, followedID)
+	rows, err := db.Query(ctx, GetFollowers, followedID)
 	if err != nil {
 		return nil, err
 	}
@@ -632,9 +629,6 @@ func (q *Queries) GetFollowers(ctx context.Context, db DBTX, followedID int64) (
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -647,7 +641,7 @@ WHERE id = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetRole(ctx context.Context, db DBTX, id int64) (Role, error) {
-	row := db.QueryRowContext(ctx, GetRole, id)
+	row := db.QueryRow(ctx, GetRole, id)
 	var i Role
 	err := row.Scan(
 		&i.ID,
@@ -665,7 +659,7 @@ WHERE name = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetRoleByName(ctx context.Context, db DBTX, name string) (Role, error) {
-	row := db.QueryRowContext(ctx, GetRoleByName, name)
+	row := db.QueryRow(ctx, GetRoleByName, name)
 	var i Role
 	err := row.Scan(
 		&i.ID,
@@ -683,7 +677,7 @@ WHERE id = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetScope(ctx context.Context, db DBTX, id int64) (Scope, error) {
-	row := db.QueryRowContext(ctx, GetScope, id)
+	row := db.QueryRow(ctx, GetScope, id)
 	var i Scope
 	err := row.Scan(
 		&i.ID,
@@ -701,7 +695,7 @@ WHERE name = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetScopeByName(ctx context.Context, db DBTX, name string) (Scope, error) {
-	row := db.QueryRowContext(ctx, GetScopeByName, name)
+	row := db.QueryRow(ctx, GetScopeByName, name)
 	var i Scope
 	err := row.Scan(
 		&i.ID,
@@ -719,7 +713,7 @@ WHERE token = $1 LIMIT 1
 `
 
 func (q *Queries) GetToken(ctx context.Context, db DBTX, token string) (Token, error) {
-	row := db.QueryRowContext(ctx, GetToken, token)
+	row := db.QueryRow(ctx, GetToken, token)
 	var i Token
 	err := row.Scan(
 		&i.ID,
@@ -745,7 +739,7 @@ WHERE
 `
 
 func (q *Queries) GetTokenScopes(ctx context.Context, db DBTX, id int64) ([]Scope, error) {
-	rows, err := db.QueryContext(ctx, GetTokenScopes, id)
+	rows, err := db.Query(ctx, GetTokenScopes, id)
 	if err != nil {
 		return nil, err
 	}
@@ -764,9 +758,6 @@ func (q *Queries) GetTokenScopes(ctx context.Context, db DBTX, id int64) ([]Scop
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -781,7 +772,7 @@ WHERE alias = $1 AND deleted_at IS NULL LIMIT 1
 
 // SHORTLY
 func (q *Queries) GetURLFromAlias(ctx context.Context, db DBTX, alias string) (Url, error) {
-	row := db.QueryRowContext(ctx, GetURLFromAlias, alias)
+	row := db.QueryRow(ctx, GetURLFromAlias, alias)
 	var i Url
 	err := row.Scan(
 		&i.ID,
@@ -800,7 +791,7 @@ WHERE email = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error) {
-	row := db.QueryRowContext(ctx, GetUserByEmail, email)
+	row := db.QueryRow(ctx, GetUserByEmail, email)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -826,7 +817,7 @@ WHERE id = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, db DBTX, id int64) (User, error) {
-	row := db.QueryRowContext(ctx, GetUserByID, id)
+	row := db.QueryRow(ctx, GetUserByID, id)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -852,7 +843,7 @@ WHERE username = $1 AND deleted_at IS NULL LIMIT 1
 `
 
 func (q *Queries) GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error) {
-	row := db.QueryRowContext(ctx, GetUserByUsername, username)
+	row := db.QueryRow(ctx, GetUserByUsername, username)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -894,7 +885,7 @@ type GetUserCommentsParams struct {
 }
 
 func (q *Queries) GetUserComments(ctx context.Context, db DBTX, arg GetUserCommentsParams) ([]Comment, error) {
-	rows, err := db.QueryContext(ctx, GetUserComments, arg.Username, arg.Limit, arg.Offset)
+	rows, err := db.Query(ctx, GetUserComments, arg.Username, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -914,9 +905,6 @@ func (q *Queries) GetUserComments(ctx context.Context, db DBTX, arg GetUserComme
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -938,7 +926,7 @@ WHERE
 `
 
 func (q *Queries) GetUserRoles(ctx context.Context, db DBTX, id int64) ([]Role, error) {
-	rows, err := db.QueryContext(ctx, GetUserRoles, id)
+	rows, err := db.Query(ctx, GetUserRoles, id)
 	if err != nil {
 		return nil, err
 	}
@@ -956,9 +944,6 @@ func (q *Queries) GetUserRoles(ctx context.Context, db DBTX, id int64) ([]Role, 
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -979,7 +964,7 @@ type ListCommentParams struct {
 }
 
 func (q *Queries) ListComment(ctx context.Context, db DBTX, arg ListCommentParams) ([]Comment, error) {
-	rows, err := db.QueryContext(ctx, ListComment, arg.Limit, arg.Offset)
+	rows, err := db.Query(ctx, ListComment, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -999,9 +984,6 @@ func (q *Queries) ListComment(ctx context.Context, db DBTX, arg ListCommentParam
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -1032,7 +1014,7 @@ type ListRoleScopesParams struct {
 }
 
 func (q *Queries) ListRoleScopes(ctx context.Context, db DBTX, arg ListRoleScopesParams) ([]Scope, error) {
-	rows, err := db.QueryContext(ctx, ListRoleScopes, arg.ID, arg.Limit, arg.Offset)
+	rows, err := db.Query(ctx, ListRoleScopes, arg.ID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -1050,9 +1032,6 @@ func (q *Queries) ListRoleScopes(ctx context.Context, db DBTX, arg ListRoleScope
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -1073,7 +1052,7 @@ type ListRolesParams struct {
 }
 
 func (q *Queries) ListRoles(ctx context.Context, db DBTX, arg ListRolesParams) ([]Role, error) {
-	rows, err := db.QueryContext(ctx, ListRoles, arg.Limit, arg.Offset)
+	rows, err := db.Query(ctx, ListRoles, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -1091,9 +1070,6 @@ func (q *Queries) ListRoles(ctx context.Context, db DBTX, arg ListRolesParams) (
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -1113,7 +1089,7 @@ type ListScopesParams struct {
 }
 
 func (q *Queries) ListScopes(ctx context.Context, db DBTX, arg ListScopesParams) ([]Scope, error) {
-	rows, err := db.QueryContext(ctx, ListScopes, arg.Limit, arg.Offset)
+	rows, err := db.Query(ctx, ListScopes, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -1131,9 +1107,6 @@ func (q *Queries) ListScopes(ctx context.Context, db DBTX, arg ListScopesParams)
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -1154,7 +1127,7 @@ type ListUsersParams struct {
 }
 
 func (q *Queries) ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) ([]User, error) {
-	rows, err := db.QueryContext(ctx, ListUsers, arg.Limit, arg.Offset)
+	rows, err := db.Query(ctx, ListUsers, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -1181,9 +1154,6 @@ func (q *Queries) ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) (
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -1201,7 +1171,7 @@ type UnfollowUserParams struct {
 }
 
 func (q *Queries) UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error {
-	_, err := db.ExecContext(ctx, UnfollowUser, arg.FollowerID, arg.FollowedID)
+	_, err := db.Exec(ctx, UnfollowUser, arg.FollowerID, arg.FollowedID)
 	return err
 }
 
@@ -1218,7 +1188,7 @@ type UpdateRoleParams struct {
 }
 
 func (q *Queries) UpdateRole(ctx context.Context, db DBTX, arg UpdateRoleParams) error {
-	_, err := db.ExecContext(ctx, UpdateRole, arg.Name, arg.Description, arg.ID)
+	_, err := db.Exec(ctx, UpdateRole, arg.Name, arg.Description, arg.ID)
 	return err
 }
 
@@ -1234,8 +1204,8 @@ type UpdateScopeParams struct {
 	ID          int64  `json:"id"`
 }
 
-func (q *Queries) UpdateScope(ctx context.Context, db DBTX, arg UpdateScopeParams) (sql.Result, error) {
-	return db.ExecContext(ctx, UpdateScope, arg.Name, arg.Description, arg.ID)
+func (q *Queries) UpdateScope(ctx context.Context, db DBTX, arg UpdateScopeParams) (pgconn.CommandTag, error) {
+	return db.Exec(ctx, UpdateScope, arg.Name, arg.Description, arg.ID)
 }
 
 const UpdateUser = `-- name: UpdateUser :exec
@@ -1245,21 +1215,21 @@ WHERE id=$11 AND deleted_at IS NULL
 `
 
 type UpdateUserParams struct {
-	Username                string       `json:"username"`
-	HashedPassword          string       `json:"hashed_password"`
-	HashedPasswordExpiresAt time.Time    `json:"hashed_password_expires_at"`
-	Salt                    string       `json:"salt"`
-	FirstName               string       `json:"first_name"`
-	LastName                string       `json:"last_name"`
-	Email                   string       `json:"email"`
-	EmailToken              string       `json:"email_token"`
-	EmailVerifiedAt         sql.NullTime `json:"email_verified_at"`
-	UpdatedAt               time.Time    `json:"updated_at"`
-	ID                      int64        `json:"id"`
+	Username                string           `json:"username"`
+	HashedPassword          string           `json:"hashed_password"`
+	HashedPasswordExpiresAt pgtype.Timestamp `json:"hashed_password_expires_at"`
+	Salt                    string           `json:"salt"`
+	FirstName               string           `json:"first_name"`
+	LastName                string           `json:"last_name"`
+	Email                   string           `json:"email"`
+	EmailToken              string           `json:"email_token"`
+	EmailVerifiedAt         pgtype.Timestamp `json:"email_verified_at"`
+	UpdatedAt               pgtype.Timestamp `json:"updated_at"`
+	ID                      int64            `json:"id"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) error {
-	_, err := db.ExecContext(ctx, UpdateUser,
+	_, err := db.Exec(ctx, UpdateUser,
 		arg.Username,
 		arg.HashedPassword,
 		arg.HashedPasswordExpiresAt,
@@ -1282,21 +1252,21 @@ WHERE username = $11 AND deleted_at IS NULL
 `
 
 type UpdateUserByUsernameParams struct {
-	HashedPassword          string       `json:"hashed_password"`
-	HashedPasswordExpiresAt time.Time    `json:"hashed_password_expires_at"`
-	Salt                    string       `json:"salt"`
-	FirstName               string       `json:"first_name"`
-	LastName                string       `json:"last_name"`
-	Email                   string       `json:"email"`
-	EmailToken              string       `json:"email_token"`
-	EmailVerifiedAt         sql.NullTime `json:"email_verified_at"`
-	UpdatedAt               time.Time    `json:"updated_at"`
-	NewUsername             string       `json:"new_username"`
-	OldUsername             string       `json:"old_username"`
+	HashedPassword          string           `json:"hashed_password"`
+	HashedPasswordExpiresAt pgtype.Timestamp `json:"hashed_password_expires_at"`
+	Salt                    string           `json:"salt"`
+	FirstName               string           `json:"first_name"`
+	LastName                string           `json:"last_name"`
+	Email                   string           `json:"email"`
+	EmailToken              string           `json:"email_token"`
+	EmailVerifiedAt         pgtype.Timestamp `json:"email_verified_at"`
+	UpdatedAt               pgtype.Timestamp `json:"updated_at"`
+	NewUsername             string           `json:"new_username"`
+	OldUsername             string           `json:"old_username"`
 }
 
 func (q *Queries) UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) error {
-	_, err := db.ExecContext(ctx, UpdateUserByUsername,
+	_, err := db.Exec(ctx, UpdateUserByUsername,
 		arg.HashedPassword,
 		arg.HashedPasswordExpiresAt,
 		arg.Salt,

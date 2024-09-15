@@ -6,7 +6,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
+
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type Querier interface {
@@ -58,7 +59,7 @@ type Querier interface {
 	ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) ([]User, error)
 	UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error
 	UpdateRole(ctx context.Context, db DBTX, arg UpdateRoleParams) error
-	UpdateScope(ctx context.Context, db DBTX, arg UpdateScopeParams) (sql.Result, error)
+	UpdateScope(ctx context.Context, db DBTX, arg UpdateScopeParams) (pgconn.CommandTag, error)
 	UpdateUser(ctx context.Context, db DBTX, arg UpdateUserParams) error
 	UpdateUserByUsername(ctx context.Context, db DBTX, arg UpdateUserByUsernameParams) error
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/controller/user"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
+	"github.com/jackc/pgx/v5"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.opentelemetry.io/otel/attribute"
@@ -34,7 +35,7 @@ var gandalf_duration_microseconds = promauto.NewSummaryVec(prometheus.SummaryOpt
 
 type Middleware struct {
 	DB               db.Querier
-	DBConn           *sql.DB
+	DBConn           *pgx.Conn
 	Cache            *cache.Cache
 	AllowlistedPaths map[string]map[string]bool
 	AllowBasicAuth   bool
@@ -122,7 +123,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 					}
 				}
 
-				if time.Now().After(token.ValidUntil) {
+				if time.Now().After(token.ValidUntil.Time) {
 					log.Error().
 						Err(err).
 						Msg("Token expired")

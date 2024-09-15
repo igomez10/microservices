@@ -16,13 +16,15 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 // implements the UserServicer interface
 // s *UserApiService openapi.UserApiServicer
 type UserApiService struct {
 	DB            db.Querier
-	DBConn        *sql.DB
+	DBConn        *pgx.Conn
 	EventRecorder eventRecorder.EventRecorder
 }
 
@@ -35,8 +37,8 @@ func (s *UserApiService) CreateUser(ctx context.Context, createUserReq openapi.C
 	log := contexthelper.GetLoggerInContext(ctx)
 	// validate we dont have a user with the same username that is not deleted
 	// start transaction
-	tx, err := s.DBConn.BeginTx(ctx, nil)
-	defer tx.Rollback()
+	tx, err := s.DBConn.Begin(ctx)
+	defer tx.Rollback(ctx)
 
 	if err != nil {
 		log.Error().
@@ -91,9 +93,8 @@ func (s *UserApiService) CreateUser(ctx context.Context, createUserReq openapi.C
 		HashedPassword: hashedPasswordBase64,
 		EmailToken:     emailToken,
 		Salt:           salt,
-		EmailVerifiedAt: sql.NullTime{ // We will assume every email is confirmed for now
-			Time:  time.Now(),
-			Valid: true,
+		EmailVerifiedAt: pgtype.Timestamp{
+			Time: time.Now(), // We will assume every email is confirmed for now
 		},
 	}
 
@@ -149,7 +150,7 @@ func (s *UserApiService) CreateUser(ctx context.Context, createUserReq openapi.C
 	}
 
 	// commit transaction
-	if err := tx.Commit(); err != nil {
+	if err := tx.Commit(ctx); err != nil {
 		log.Error().
 			Err(err).
 			Msg("Error committing transaction")
@@ -162,7 +163,7 @@ func (s *UserApiService) CreateUser(ctx context.Context, createUserReq openapi.C
 		FirstName: createdUser.FirstName,
 		LastName:  createdUser.LastName,
 		Email:     createdUser.Email,
-		CreatedAt: createdUser.CreatedAt,
+		CreatedAt: createdUser.CreatedAt.Time,
 	}
 
 	return openapi.Response(http.StatusOK, res), nil
@@ -321,7 +322,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	// begin transaction
-	tx, err := s.DBConn.BeginTx(ctx, nil)
+	tx, err := s.DBConn.Begin(ctx)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -439,7 +440,7 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 
-	tx, err := s.DBConn.Begin()
+	tx, err := s.DBConn.Begin(ctx)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -448,7 +449,7 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 			Code: http.StatusInternalServerError,
 		}, nil
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
 	// validate the user exists
 	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, tx, followedUsername)
@@ -496,7 +497,7 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 		}, nil
 	}
 
-	if err := tx.Commit(); err != nil {
+	if err := tx.Commit(ctx); err != nil {
 		log.Error().
 			Err(err).
 			Msg("Error committing transaction")
@@ -650,7 +651,7 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 
-	tx, err := s.DBConn.Begin()
+	tx, err := s.DBConn.Begin(ctx)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -659,7 +660,7 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 			Code: http.StatusInternalServerError,
 		}, err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
 	// get user from request context
 	username, ok := ctx.Value("username").(string)
@@ -749,7 +750,7 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 		}, nil
 	}
 
-	if err := tx.Commit(); err != nil {
+	if err := tx.Commit(ctx); err != nil {
 		log.Error().
 			Err(err).
 			Msg("Error committing transaction")
@@ -812,7 +813,7 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "UpdateRolesForUser")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
-	tx, err := s.DBConn.Begin()
+	tx, err := s.DBConn.Begin(ctx)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -821,7 +822,7 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 			Code: http.StatusInternalServerError,
 		}, err
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
 	// verify the dbUser exists
 	dbUser, errGetUser := s.DB.GetUserByUsername(ctx, tx, username)
@@ -943,7 +944,7 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 		}
 	}
 
-	if err := tx.Commit(); err != nil {
+	if err := tx.Commit(ctx); err != nil {
 		log.Error().
 			Err(err).
 			Msg("Error committing transaction")

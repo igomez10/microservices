@@ -3,7 +3,6 @@ package authentication
 import (
 	"context"
 	"crypto/sha256"
-	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"net/http"
@@ -14,12 +13,14 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 // s *AuthenticationService openapi.AuthenticationApiServicer
 type AuthenticationService struct {
 	DB     db.Querier
-	DBConn *sql.DB
+	DBConn *pgx.Conn
 }
 
 func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.ImplResponse, error) {
@@ -52,14 +53,14 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 	}
 
 	// begin transaction
-	tx, err := s.DBConn.BeginTx(ctx, nil)
+	tx, err := s.DBConn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to begin transaction")
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
 		}, nil
 	}
-	defer tx.Rollback()
+	defer tx.Rollback(ctx)
 
 	usr, err := s.DB.GetUserByUsername(ctx, tx, username)
 	if err != nil {
@@ -90,9 +91,12 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 	validUntil := time.Now().UTC().Add(30 * 24 * time.Hour)
 
 	createdToken, err := s.DB.CreateToken(ctx, tx, db.CreateTokenParams{
-		Token:      tokenString,
-		UserID:     usr.ID,
-		ValidUntil: validUntil,
+		Token:  tokenString,
+		UserID: usr.ID,
+		ValidUntil: pgtype.Timestamp{
+			Time:  validUntil,
+			Valid: true,
+		},
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create token")
@@ -137,7 +141,7 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 	}
 
 	// commit transaction
-	if err := tx.Commit(); err != nil {
+	if err := tx.Commit(ctx); err != nil {
 		log.Error().
 			Err(err).
 			Msg("Failed to commit transaction")
