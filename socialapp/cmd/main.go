@@ -5,6 +5,7 @@ import (
 	_ "net/http/pprof"
 
 	"context"
+	"database/sql"
 	"encoding/base64"
 	"flag"
 	"fmt"
@@ -40,7 +41,6 @@ import (
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	urlClient "github.com/igomez10/microservices/urlshortener/generated/clients/go/client"
-	"github.com/jackc/pgx/v5"
 	_ "github.com/lib/pq"
 	_ "github.com/newrelic/go-agent/v3/integrations/nrpq"
 	"github.com/newrelic/go-agent/v3/newrelic"
@@ -539,9 +539,9 @@ func run(config Configuration) {
 // CreateDBPools creates a pool of connections to the database, in go's implementation of sql, the sql.DB is a connection pool
 // but we want to manually control the minimum number of connections to the database
 func CreateDBPools(databaseURL string, numPools int) *ForcedConnectionPool {
-	pools := make([]*pgx.Conn, 0, numPools)
+	pools := make([]*sql.DB, 0, numPools)
 	for i := 0; i < numPools; i++ {
-		dbConn, err := pgx.Connect(context.Background(), databaseURL)
+		dbConn, err := sql.Open("nrpostgres", databaseURL)
 		if err != nil {
 			log.Fatal().Err(err)
 		}
@@ -556,7 +556,7 @@ func CreateDBPools(databaseURL string, numPools int) *ForcedConnectionPool {
 
 		pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		if err := dbConn.Ping(pingCtx); err != nil {
+		if err := dbConn.PingContext(pingCtx); err != nil {
 			log.Fatal().Err(err).Msg("failed to ping database, shutting down")
 		}
 
@@ -574,12 +574,12 @@ func CreateDBPools(databaseURL string, numPools int) *ForcedConnectionPool {
 
 // ForcedConnectionPool is a wrapper around native Go sql.DB, this allows us to force the minium number of connections
 type ForcedConnectionPool struct {
-	connections       []*pgx.Conn
+	connections       []*sql.DB
 	numPools          int
 	currentRoundRobin int
 }
 
-func (f *ForcedConnectionPool) GetPool() *pgx.Conn {
+func (f *ForcedConnectionPool) GetPool() *sql.DB {
 	// round robin
 	pool := f.connections[f.currentRoundRobin]
 	f.currentRoundRobin += 1
@@ -590,6 +590,6 @@ func (f *ForcedConnectionPool) GetPool() *pgx.Conn {
 
 func (f *ForcedConnectionPool) Close() {
 	for _, conn := range f.connections {
-		conn.Close(context.Background())
+		conn.Close()
 	}
 }

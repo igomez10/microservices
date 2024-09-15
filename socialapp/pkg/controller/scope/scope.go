@@ -10,7 +10,6 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
-	"github.com/jackc/pgx/v5"
 )
 
 // s *ScopeApiService openapi.ScopeApiServicer
@@ -81,29 +80,20 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (opena
 		}, nil
 	}
 
-	if err := s.DB.DeleteScope(ctx, s.DBConn, scope.ID); err != nil {
-		switch err {
-		case pgx.ErrNoRows:
-			return openapi.ImplResponse{
-				Code: http.StatusNotFound,
-				Body: openapi.Error{
-					Code:    http.StatusNotFound,
-					Message: "scope not found",
-				},
-			}, nil
-		default:
-			log.Error().
-				Err(err).
-				Int("scope_id", int(scopeID)).
-				Msg("failed to delete scope")
-			return openapi.ImplResponse{
-				Code: http.StatusInternalServerError,
-				Body: openapi.Error{
-					Code:    http.StatusInternalServerError,
-					Message: "failed to delete scope",
-				},
-			}, nil
-		}
+	deleteErr := s.DB.DeleteScope(ctx, s.DBConn, scope.ID)
+	if err != nil {
+		log.Error().
+			Err(deleteErr).
+			Int("scope_id", int(scopeID)).
+			Msg("failed to retrieve created scope")
+
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "failed to delete scope",
+			},
+		}, nil
 	}
 
 	apiScope := converter.FromDBScopeToAPIScope(scope)

@@ -10,7 +10,7 @@ func FromDBCmtToAPICmt(comment db.Comment, user db.User) openapi.Comment {
 		Id:        comment.ID,
 		Content:   comment.Content,
 		LikeCount: int64(comment.LikeCount),
-		CreatedAt: comment.CreatedAt.Time,
+		CreatedAt: comment.CreatedAt,
 		Username:  user.Username,
 	}
 
@@ -22,7 +22,7 @@ func FromDBRoleToAPIRole(dbRole db.Role) openapi.Role {
 		Id:          dbRole.ID,
 		Name:        dbRole.Name,
 		Description: dbRole.Description,
-		CreatedAt:   dbRole.CreatedAt.Time,
+		CreatedAt:   dbRole.CreatedAt,
 	}
 
 	return apiRole
@@ -34,7 +34,7 @@ func FromDBUserToAPIUser(u db.User) openapi.User {
 		FirstName: u.FirstName,
 		LastName:  u.LastName,
 		Email:     u.Email,
-		CreatedAt: u.CreatedAt.Time,
+		CreatedAt: u.CreatedAt,
 	}
 
 	return apiUser
@@ -45,7 +45,7 @@ func FromDBScopeToAPIScope(dbScope db.Scope) openapi.Scope {
 		Id:          dbScope.ID,
 		Name:        dbScope.Name,
 		Description: dbScope.Description,
-		CreatedAt:   dbScope.CreatedAt.Time,
+		CreatedAt:   dbScope.CreatedAt,
 	}
 
 	return apiScope
@@ -55,8 +55,8 @@ func FromDBUrlToAPIUrl(dbUrl db.Url) openapi.Url {
 	apiUrl := openapi.Url{
 		Alias:     dbUrl.Alias,
 		Url:       dbUrl.Url,
-		CreatedAt: dbUrl.CreatedAt.Time,
-		UpdatedAt: dbUrl.UpdatedAt.Time,
+		CreatedAt: dbUrl.CreatedAt,
+		UpdatedAt: dbUrl.UpdatedAt,
 	}
 
 	return apiUrl

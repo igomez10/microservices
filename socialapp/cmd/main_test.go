@@ -2,26 +2,26 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
 	"github.com/igomez10/microservices/socialapp/pkg/db"
-	"github.com/jackc/pgx/v5"
 	_ "github.com/lib/pq"
 )
 
 // integration
 func TestFetchURLIntegration(t *testing.T) {
 	ctx := context.Background()
-	dbConn, err := pgx.Connect(ctx, "postgres://postgres:password@localhost:5432/postgres?sslmode=disable")
+	dbConn, err := sql.Open("postgres", "postgres://postgres:password@localhost:5432/postgres?sslmode=disable")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer dbConn.Close(ctx)
+	defer dbConn.Close()
 
 	if dbConn == nil {
 		t.Fatal("db is nil")
 	}
-	defer dbConn.Close(ctx)
+	defer dbConn.Close()
 
 	queries := db.New()
 	createUserReq := db.CreateUserParams{

@@ -68,16 +68,9 @@ func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.Impl
 	defer span.End()
 	comment, err := s.DB.GetComment(ctx, s.DBConn, int64(id))
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return openapi.Response(http.StatusNotFound, nil), nil
-		default:
-			log.Error().Err(err).Msg("Error getting comment")
-		}
 		log.Error().Err(err).Msg("Error getting comment")
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
-
 	// get username
 	user, errGetUser := s.DB.GetUserByID(ctx, s.DBConn, comment.UserID)
 	if errGetUser != nil {
