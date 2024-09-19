@@ -102,9 +102,10 @@ func main() {
 	retryClient.HTTPClient.Transport = newrelic.NewRoundTripper(http.DefaultTransport)
 	//set max connections age to 10 seconds
 	retryClient.HTTPClient.Transport = &http.Transport{
-		MaxIdleConns:          100,
-		MaxIdleConnsPerHost:   100,
-		IdleConnTimeout:       10 * time.Second,
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 100,
+		// IdleConnTmeout is the maximum amount of time an idle (keep-alive) connection will remain idle before closing itself.
+		IdleConnTimeout:       120 * time.Second,
 		TLSHandshakeTimeout:   10 * time.Second,
 		ResponseHeaderTimeout: 10 * time.Second,
 		ExpectContinueTimeout: 10 * time.Second,
