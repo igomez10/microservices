@@ -464,7 +464,7 @@ services:
         tag: "tempo"
 
   alloy:
-    image: grafana/alloy:v1.1.0
+    image: grafana/alloy:v1.3.0
     ports:
       - "12347:12345"
       - "12348:12348"
@@ -513,6 +513,7 @@ services:
       [
         "-ingester.native-histograms-ingestion-enabled=true",
         "-config.file=/etc/mimir.yaml",
+        "--ingester.max-global-series-per-user=2500000",
       ]
     ports:
       - "9009:9009"
