@@ -33,3 +33,4 @@ socialapp/jmeter.log
 socialapp/alertmanager/slack_url
 **/__debug_bin*
 
+socialapp/letsencrypt/acme.json
