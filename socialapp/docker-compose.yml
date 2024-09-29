@@ -548,3 +548,27 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "portainer"
+  traefik:
+    image: traefik:v3.1.4
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8087:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./letsencrypt:/letsencrypt"
+    cpus: 0.5
+    mem_limit: 512m
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://localhost:53000"
+        tag: "traefik"
