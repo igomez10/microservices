@@ -71,6 +71,10 @@ type Configuration struct {
 	agentURL            *url.URL
 	// urlService is the url for the urlshortener service
 	urlService *url.URL
+	// urlshortenerSubdomain := os.Getenv("URLSHORTENER_SUBDOMAIN")
+	// socialappSubdomain := os.Getenv("SOCIALAPP_SUBDOMAIN")
+	urlShortenerSubdomain string
+	socialappSubdomain    string
 }
 
 func main() {
@@ -84,7 +88,21 @@ func main() {
 	defaultTimeout := flag.Duration("defaultTimeout", 10*time.Second, "Default timeout for requests")
 	urlServiceHost := flag.String("urlServiceHost", os.Getenv("URL_SERVICE_HOST"), "URL service host")
 	urlAgent := flag.String("agentURL", os.Getenv("AGENT_URL"), "Agent URL \"http://localhost:4317\"")
+	urlShortenerSubdomain := flag.String("urlShortenerSubdomain", os.Getenv("URLSHORTENER_SUBDOMAIN"), "URL shortener subdomain")
+	socialappSubdomain := flag.String("socialappSubdomain", os.Getenv("SOCIALAPP_SUBDOMAIN"), "Socialapp subdomain")
 	flag.Parse()
+
+	log.Info().
+		Str("logHost", *logHost).
+		Str("logLevel", *logLevel).
+		Str("appName", *appName).
+		Str("propertiesSubdomain", *propertiesSubdomain).
+		Str("newRelicLicense", *newRelicLicense).
+		Str("urlServiceHost", *urlServiceHost).
+		Str("agentURL", *urlAgent).
+		Str("urlShortenerSubdomain", *urlShortenerSubdomain).
+		Str("socialappSubdomain", *socialappSubdomain).
+		Msg("Starting SocialApp")
 
 	// setup retryable http client
 	retryClient := retryablehttp.NewClient()
@@ -223,18 +241,20 @@ func main() {
 	}
 
 	c := Configuration{
-		appPort:             *appPort,
-		proxyURL:            *proxyURL,
-		logLevel:            parsedLogLevel,
-		logDestination:      logDestination,
-		appName:             *appName,
-		dbConnections:       connections,
-		queries:             queries,
-		cache:               cache,
-		propertiesSubdomain: propertiesSubdomainURL,
-		newRelicApp:         newrelicApp,
-		defaultTimeout:      *defaultTimeout,
-		urlService:          urlService,
+		appPort:               *appPort,
+		proxyURL:              *proxyURL,
+		logLevel:              parsedLogLevel,
+		logDestination:        logDestination,
+		appName:               *appName,
+		dbConnections:         connections,
+		queries:               queries,
+		cache:                 cache,
+		propertiesSubdomain:   propertiesSubdomainURL,
+		newRelicApp:           newrelicApp,
+		defaultTimeout:        *defaultTimeout,
+		urlService:            urlService,
+		urlShortenerSubdomain: *urlShortenerSubdomain,
+		socialappSubdomain:    *socialappSubdomain,
 	}
 
 	// parse agent url
@@ -430,8 +450,6 @@ func run(config Configuration) {
 		log.Fatal().Err(err)
 	}
 
-	urlshortenerSubdomain := os.Getenv("URLSHORTENER_SUBDOMAIN")
-	socialappSubdomain := os.Getenv("SOCIALAPP_SUBDOMAIN")
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
 
 	// compress responses with gzip to save bandwidth
@@ -493,6 +511,7 @@ func run(config Configuration) {
 	// 3. Main router for routing to different routers based on subdomain
 	mainRouter := chi.NewRouter()
 	mainRouter.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
+		log.Info().Str("host", r.Host).Msg("Request host")
 		switch r.Host {
 		case kibanaSubdomain:
 			// check for auth cookie
@@ -517,9 +536,9 @@ func run(config Configuration) {
 			authKibanaRouter.Router.ServeHTTP(w, r)
 		case config.propertiesSubdomain.Host:
 			propertiesProxy.Router.ServeHTTP(w, r)
-		case socialappSubdomain:
+		case config.socialappSubdomain:
 			socialappRouter.Router.ServeHTTP(w, r)
-		case urlshortenerSubdomain:
+		case config.urlShortenerSubdomain:
 			urlshortenerProxy.Router.ServeHTTP(w, r)
 		case localSubdomain:
 			socialappRouter.Router.ServeHTTP(w, r)

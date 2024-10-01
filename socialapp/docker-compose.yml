@@ -15,6 +15,48 @@ volumes:
   # phlare_data: {}
 
 services:
+  socialapp:
+    deploy:
+      replicas: 3
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - elk
+      - default
+    command:
+      [
+        "/main",
+        "--port=8086",
+        "--propertiesSubdomain=${PROPERTIES_SUBDOMAIN}",
+        "--urlServiceHost=urlshortener:8089",
+        "--agentURL=alloy:4317",
+        "--urlShortenerSubdomain=${URL_SHORTENER}",
+        "--socialappSubdomain=${SOCIALAPP_SUBDOMAIN}",
+      ]
+    volumes:
+      - ./openapi.yaml:/openapi.yaml
+    environment:
+      DATABASE_URL: postgres://postgres:password@database:5432/socialapp?sslmode=disable
+      REDIS_URL: redis://redis:6379
+    restart: unless-stopped
+    labels:
+      - "traefik.http.routers.socialapp.entrypoints=websecure"
+      - "traefik.http.routers.socialapp.tls.certresolver=myresolver"
+      - "traefik.http.routers.socialapp.rule=Host(`socialapp.gomezignacio.com`)"
+      - "traefik.http.services.socialapp.loadbalancer.server.port=8086"
+      - "traefik.http.routers.http-socialapp.rule=Host(`socialapp.gomezignacio.com`)"
+      - "traefik.http.routers.http-socialapp.entrypoints=web"
+    depends_on:
+      - database
+    cpus: 0.5
+    mem_limit: 512m
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:53000"
+        tag: "socialapp"
+
   database:
     image: postgres:15
     environment:
@@ -167,6 +209,8 @@ services:
   inspector:
     image: ubuntu:latest
     command: sleep infinity
+    ports:
+      - 1243:1243
     logging:
       driver: "syslog"
       options:
@@ -308,12 +352,31 @@ services:
         syslog-address: "udp://localhost:53000"
         tag: "kafka-ui"
 
-  integration-tests:
+  integration-tests-1:
     build:
       context: .
       dockerfile: Integration.Dockerfile
-    deploy:
-      replicas: 2
+    ports:
+      - "45678:45678"
+    environment:
+      "ADD_TEST_JITTER": 1,
+      "TEST_SETUP": ${TEST_SETUP},
+      "AGENT_URL": "http://tempo:4317"
+    restart: "unless-stopped"
+    cpus: 0.5
+    mem_limit: 512m
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:53000"
+        tag: "integration-tests"
+
+  integration-tests-2:
+    build:
+      context: .
+      dockerfile: Integration.Dockerfile
+    ports:
+      - "45679:45679"
     environment:
       "ADD_TEST_JITTER": 1,
       "TEST_SETUP": ${TEST_SETUP},
@@ -462,7 +525,7 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "tempo"
-
+        
   alloy:
     image: grafana/alloy:v1.3.0
     ports:
@@ -548,6 +611,7 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "portainer"
+  
   traefik:
     image: traefik:v3.1.4
     command:
@@ -558,6 +622,8 @@ services:
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      # use staging for testing
+      # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
     ports:
       - "80:80"
       - "443:443"
@@ -565,10 +631,22 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./letsencrypt:/letsencrypt"
+    cpus: 1
+    mem_limit: 1024m
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://localhost:53000"
+        tag: "traefik"
+
+  redis:
+    image: redis:6.2.6
+    ports:
+      - "6379:6379"
     cpus: 0.5
     mem_limit: 512m
     logging:
       driver: syslog
       options:
         syslog-address: "udp://localhost:53000"
-        tag: "traefik"
+        tag: "redis"

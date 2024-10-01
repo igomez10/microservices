@@ -5,11 +5,8 @@ COPY go.sum .
 RUN go get -d -v ./...
 RUN go install -v ./...
 COPY . .
-RUN go build -o main cmd/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o /main cmd/main.go
 
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-COPY --from=builder /go/src/github.com/igomez10/microservices/main .
-CMD ["./main"]
-
+FROM scratch
+COPY --from=builder /main /main
+CMD ["/main"]
