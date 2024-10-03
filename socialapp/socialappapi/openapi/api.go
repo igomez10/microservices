@@ -92,6 +92,7 @@ type UserAPIRouter interface {
 	UnfollowUser(http.ResponseWriter, *http.Request)
 	UpdateRolesForUser(http.ResponseWriter, *http.Request)
 	UpdateUser(http.ResponseWriter, *http.Request)
+	Welcome(http.ResponseWriter, *http.Request)
 }
 
 // AuthenticationAPIServicer defines the api actions for the AuthenticationAPI service
@@ -177,4 +178,5 @@ type UserAPIServicer interface {
 	UnfollowUser(context.Context, string, string) (ImplResponse, error)
 	UpdateRolesForUser(context.Context, string, []string) (ImplResponse, error)
 	UpdateUser(context.Context, string, User) (ImplResponse, error)
+	Welcome(context.Context) (ImplResponse, error)
 }

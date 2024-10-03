@@ -18,6 +18,7 @@ Method | HTTP request | Description
 [**unfollowUser**](UserApi.md#unfollowUser) | **DELETE** /v1/users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
 [**updateRolesForUser**](UserApi.md#updateRolesForUser) | **PUT** /v1/users/{username}/roles | Update all roles for a user
 [**updateUser**](UserApi.md#updateUser) | **PUT** /v1/users/{username} | Update a user
+[**welcome**](UserApi.md#welcome) | **GET** / | Welcome to the Socialapp API
 
 
 
@@ -514,6 +515,38 @@ Name | Type | Description  | Notes
 
 - **Content-Type**: application/json
 - **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+
+## welcome
+
+Welcome to the Socialapp API
+
+Welcome to the Socialapp API
+
+### Example
+
+```bash
+socialapp-cli welcome
+```
+
+### Parameters
+
+This endpoint does not need any parameter.
+
+### Return type
+
+**string**
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: Not Applicable
+- **Accept**: text/plain, application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

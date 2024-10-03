@@ -105,6 +105,7 @@ _socialapp-cli()
     operations["unfollowUser"]=1
     operations["updateRolesForUser"]=1
     operations["updateUser"]=1
+    operations["welcome"]=1
 
     # An associative array of operations to their parameters
     # Only include path, query and header parameters
@@ -145,6 +146,7 @@ _socialapp-cli()
     operation_parameters["unfollowUser"]="followedUsername= followerUsername= "
     operation_parameters["updateRolesForUser"]="username= "
     operation_parameters["updateUser"]="username= "
+    operation_parameters["welcome"]=""
 
     # An associative array of possible values for enum parameters
     declare -A operation_parameters_enum_values

@@ -327,6 +327,7 @@ case $state in
             "unfollowUser[Remove a user as a follower]" \
             "updateRolesForUser[Update all roles for a user]" \
             "updateUser[Update a user]" \
+            "welcome[Welcome to the Socialapp API]" \
 
     _arguments "(--help)--help[Print information about operation]"
 
@@ -585,6 +586,12 @@ case $state in
         _op_arguments=(
           "username=:[PATH] username of the user"
                     )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      welcome)
+        local -a _op_arguments
+        _op_arguments=(
+                              )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
     esac

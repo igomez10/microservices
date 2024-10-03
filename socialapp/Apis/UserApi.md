@@ -18,6 +18,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 | [**unfollowUser**](UserApi.md#unfollowUser) | **DELETE** /v1/users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower |
 | [**updateRolesForUser**](UserApi.md#updateRolesForUser) | **PUT** /v1/users/{username}/roles | Update all roles for a user |
 | [**updateUser**](UserApi.md#updateUser) | **PUT** /v1/users/{username} | Update a user |
+| [**welcome**](UserApi.md#welcome) | **GET** / | Welcome to the Socialapp API |
 
 
 <a name="changePassword"></a>
@@ -404,4 +405,28 @@ Update a user
 
 - **Content-Type**: application/json
 - **Accept**: application/json
+
+<a name="welcome"></a>
+# **welcome**
+> String welcome()
+
+Welcome to the Socialapp API
+
+    Welcome to the Socialapp API
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+**String**
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: text/plain, application/json
 

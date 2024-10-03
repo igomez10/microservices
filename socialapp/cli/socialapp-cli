@@ -750,6 +750,7 @@ read -r -d '' ops <<EOF
   ${CYAN}unfollowUser${OFF};Remove a user as a follower (AUTH)
   ${CYAN}updateRolesForUser${OFF};Update all roles for a user (AUTH)
   ${CYAN}updateUser${OFF};Update a user (AUTH)
+  ${CYAN}welcome${OFF};Welcome to the Socialapp API (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
@@ -1468,8 +1469,10 @@ print_getUserByUsername_help() {
         echo -e "       ${BLUE}x-next${OFF} - A link to the next page of responses" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/        /'
     code=401
     echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
-    code=0
-    echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=404
+    echo -e "${result_color_table[${code:0:1}]}  404;Username not found${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=500
+    echo -e "${result_color_table[${code:0:1}]}  500;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
 }
 ##############################################################################
 #
@@ -1633,6 +1636,26 @@ print_updateUser_help() {
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
     echo -e "${result_color_table[${code:0:1}]}  200;User was updated successfully${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=401
+    echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    code=0
+    echo -e "${result_color_table[${code:0:1}]}  0;Unexpected error${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+}
+##############################################################################
+#
+# Print help for welcome operation
+#
+##############################################################################
+print_welcome_help() {
+    echo ""
+    echo -e "${BOLD}${WHITE}welcome - Welcome to the Socialapp API${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e ""
+    echo -e "Welcome to the Socialapp API" | paste -sd' ' | fold -sw 80
+    echo -e ""
+    echo ""
+    echo -e "${BOLD}${WHITE}Responses${OFF}"
+    code=200
+    echo -e "${result_color_table[${code:0:1}]}  200;Welcome message${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=401
     echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
@@ -3440,6 +3463,42 @@ call_updateUser() {
     fi
 }
 
+##############################################################################
+#
+# Call welcome operation
+#
+##############################################################################
+call_welcome() {
+    # ignore error about 'path_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local path_parameter_names=()
+    # ignore error about 'query_parameter_names' being unused; passed by reference
+    # shellcheck disable=SC2034
+    local query_parameter_names=(  )
+    local path
+
+    if ! path=$(build_request_path "/" path_parameter_names query_parameter_names); then
+        ERROR_MSG=$path
+        exit 1
+    fi
+    local method="GET"
+    local headers_curl
+    headers_curl=$(header_arguments_to_curl)
+    if [[ -n $header_accept ]]; then
+        headers_curl="${headers_curl} -H 'Accept: ${header_accept}'"
+    fi
+
+    local basic_auth_option=""
+    if [[ -n $basic_auth_credential ]]; then
+        basic_auth_option="-u ${basic_auth_credential}"
+    fi
+    if [[ "$print_curl" = true ]]; then
+        echo "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    else
+        eval "curl -d '' ${basic_auth_option} ${curl_arguments} ${headers_curl} -X ${method} \"${host}${path}\""
+    fi
+}
+
 
 
 ##############################################################################
@@ -3645,6 +3704,9 @@ case $key in
     updateUser)
     operation="updateUser"
     ;;
+    welcome)
+    operation="welcome"
+    ;;
     *==*)
     # Parse body arguments and convert them into top level
     # JSON properties passed in the body content as strings
@@ -3839,6 +3901,9 @@ case $operation in
     ;;
     updateUser)
     call_updateUser
+    ;;
+    welcome)
+    call_welcome
     ;;
     *)
     ERROR_MSG="ERROR: Unknown operation: $operation"

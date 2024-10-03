@@ -124,6 +124,11 @@ func (c *UserAPIController) Routes() Routes {
 			"/v1/users/{username}",
 			c.UpdateUser,
 		},
+		"Welcome": Route{
+			strings.ToUpper("Get"),
+			"/",
+			c.Welcome,
+		},
 	}
 }
 
@@ -489,6 +494,18 @@ func (c *UserAPIController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result, err := c.service.UpdateUser(r.Context(), usernameParam, userParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
+}
+
+// Welcome - Welcome to the Socialapp API
+func (c *UserAPIController) Welcome(w http.ResponseWriter, r *http.Request) {
+	result, err := c.service.Welcome(r.Context())
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

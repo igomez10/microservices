@@ -18,12 +18,23 @@ import (
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
+var _ openapi.UserAPIServicer = (*UserApiService)(nil)
+var seedID string
+
 // implements the UserServicer interface
 // s *UserApiService openapi.UserApiServicer
 type UserApiService struct {
 	DB            db.Querier
 	DBConn        *sql.DB
 	EventRecorder eventRecorder.EventRecorder
+}
+
+// Welcome implements openapi.UserAPIServicer.
+func (s *UserApiService) Welcome(context.Context) (openapi.ImplResponse, error) {
+	if seedID == "" {
+		seedID = uuid.New().String()
+	}
+	return openapi.Response(http.StatusOK, "Welcome to the User API"), nil
 }
 
 const DEFAULT_ROLE_NAME = "administrator"

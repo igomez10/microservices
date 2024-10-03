@@ -32,6 +32,32 @@ tags:
 - description: URL management
   name: URL
 paths:
+  /:
+    get:
+      description: Welcome to the Socialapp API
+      operationId: welcome
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                type: string
+          description: Welcome message
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unexpected error
+      summary: Welcome to the Socialapp API
+      tags:
+      - User
   /v1/users:
     get:
       description: List all users in the system (paginated)
@@ -527,7 +553,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: Unauthorized
-        default:
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Username not found
+        "500":
           content:
             application/json:
               schema:

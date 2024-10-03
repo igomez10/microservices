@@ -606,6 +606,49 @@
 	            "name": "User",
 	            "item": [
 	                        {
+    "name": "/",
+                "description": "Welcome to the Socialapp API",
+                 "item": [
+                            {
+                                "name": "Welcome to the Socialapp API",
+                                "request": {
+                                    "method": "GET",
+                                    "header": [
+                                        {
+                                            "key": "Accept",
+                                            "value": "text/plain",
+                                            "description": "",
+                                            "disabled": false
+                                        }
+                                    ],
+                                    "body": {
+                                        "mode": "raw",
+                                        "raw": "",
+                                        "options": {
+                                            "raw": {
+                                                "language": "json"
+                                            }
+                                        }
+                                    },
+                                    "url": {
+                                        "raw": "{{baseUrl}}/",
+                                        "host": [
+                                            "{{baseUrl}}"
+                                        ],
+                                        "path": [
+                                            ""
+                                        ],
+                                        "variable": [
+                                        ],
+                                        "query": [
+                                        ]
+                                    },
+                                    "description": "Welcome to the Socialapp API"
+                                }
+                            }
+                            ]
+                        },
+	                        {
     "name": "/v1/password",
                 "description": "Change the password of the current user",
                  "item": [

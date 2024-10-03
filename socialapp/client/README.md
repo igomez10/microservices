@@ -116,6 +116,7 @@ Class | Method | HTTP request | Description
 *UserAPI* | [**UnfollowUser**](docs/UserAPI.md#unfollowuser) | **Delete** /v1/users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
 *UserAPI* | [**UpdateRolesForUser**](docs/UserAPI.md#updaterolesforuser) | **Put** /v1/users/{username}/roles | Update all roles for a user
 *UserAPI* | [**UpdateUser**](docs/UserAPI.md#updateuser) | **Put** /v1/users/{username} | Update a user
+*UserAPI* | [**Welcome**](docs/UserAPI.md#welcome) | **Get** / | Welcome to the Socialapp API
 
 
 ## Documentation For Models

@@ -43,6 +43,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 *UserApi* | [**unfollowUser**](Apis/UserApi.md#unfollowuser) | **DELETE** /v1/users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower |
 *UserApi* | [**updateRolesForUser**](Apis/UserApi.md#updaterolesforuser) | **PUT** /v1/users/{username}/roles | Update all roles for a user |
 *UserApi* | [**updateUser**](Apis/UserApi.md#updateuser) | **PUT** /v1/users/{username} | Update a user |
+*UserApi* | [**welcome**](Apis/UserApi.md#welcome) | **GET** / | Welcome to the Socialapp API |
 
 
 <a name="documentation-for-models"></a>
