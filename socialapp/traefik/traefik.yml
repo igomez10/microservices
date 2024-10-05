@@ -8,7 +8,34 @@ api:
 entryPoints:
   web:
     address: ":80"
-  # websecure:
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        certResolver: letsencrypt
+
+certificatesResolvers:
+  letsencryptstaging:
+    acme:
+      email: u393vy+12c8gljgemypk@sharklasers.com
+      storage: acmestaging.json
+      httpChallenge:
+        # used during the challenge
+        entryPoint: web
+      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+  letsencrypt:
+    acme:
+      email: u393vy+12c8gljgemypk@sharklasers.com
+      storage: acme.json
+      httpChallenge:
+        # used during the challenge
+        entryPoint: web
 
 providers:
   docker:

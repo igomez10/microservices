@@ -611,10 +611,6 @@ services:
 
   traefik:
     image: traefik:v3.1.4
-    command:
-      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
-      # use staging for testing
-      # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
     ports:
       - "80:80"
       - "443:443"
@@ -651,11 +647,27 @@ services:
         syslog-address: "udp://localhost:53000"
         tag: "redis"
 
+  whoamiinternal:
+    image: traefik/whoami
+    labels:
+      - "traefik.http.routers.whoamiinternal.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.services.whoamiinternal.loadbalancer.server.port=80"
+      - "traefik.http.routers.whoamiinternal.entrypoints=websecure"
+      - "traefik.enable=true"
+    cpus: 0.5
+    mem_limit: 512m
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://localhost:53000"
+        tag: "whoamiinternal"
+
   whoami:
     image: traefik/whoami
     labels:
       - "traefik.http.routers.whoami.rule=Host(`whoami.${EXPOSED_HOST}`)"
       - "traefik.http.services.whoami.loadbalancer.server.port=80"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
       - "traefik.enable=true"
     cpus: 0.5
     mem_limit: 512m
