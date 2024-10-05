@@ -15,6 +15,7 @@ volumes:
   # phlare_data: {}
 
 services:
+
   socialapp:
     deploy:
       replicas: 3
@@ -41,12 +42,10 @@ services:
       REDIS_URL: redis://redis:6379
     restart: unless-stopped
     labels:
-      - "traefik.http.routers.socialapp.entrypoints=websecure"
-      - "traefik.http.routers.socialapp.tls.certresolver=myresolver"
-      - "traefik.http.routers.socialapp.rule=Host(`socialapp.gomezignacio.com`)"
+      - "traefik.enable=true"
+      - "traefik.http.routers.socialapp.entrypoints=web"
+      - "traefik.http.routers.socialapp.rule=Host(`socialapp.${EXPOSED_HOST}`)"
       - "traefik.http.services.socialapp.loadbalancer.server.port=8086"
-      - "traefik.http.routers.http-socialapp.rule=Host(`socialapp.gomezignacio.com`)"
-      - "traefik.http.routers.http-socialapp.entrypoints=web"
     depends_on:
       - database
     cpus: 0.5
@@ -72,6 +71,11 @@ services:
     ports:
       - "5432:5432"
     restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.database.entrypoints=web"
+      - "traefik.http.routers.database.rule=Host(`database.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.services.database.loadbalancer.server.port=5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
@@ -127,7 +131,11 @@ services:
       retries: 5
     cpus: 0.5
     mem_limit: 512m
-    # send logs to syslog
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.entrypoints=web"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     logging:
       driver: "syslog"
       options:
@@ -149,12 +157,18 @@ services:
       - 9090:9090
     expose:
       - 9090
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.entrypoints=web"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
     restart: always
     logging:
       driver: "syslog"
       options:
         syslog-address: "udp://localhost:53000"
         tag: "prometheus"
+
   alertmanager:
     image: prom/alertmanager:latest
     volumes:
@@ -334,8 +348,6 @@ services:
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
-    ports:
-      - "8095:8080"
     restart: always
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
@@ -346,6 +358,11 @@ services:
       - broker3
     cpus: 0.5
     mem_limit: 512m
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kafka-ui.entrypoints=web"
+      - "traefik.http.routers.kafka-ui.rule=Host(`kafkaui.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.services.kafka-ui.loadbalancer.server.port=8080"
     logging:
       driver: "syslog"
       options:
@@ -615,13 +632,7 @@ services:
   traefik:
     image: traefik:v3.1.4
     command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL}"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       # use staging for testing
       # - "--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
     ports:
@@ -631,8 +642,14 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./letsencrypt:/letsencrypt"
+      - "./traefik/traefik.yml:/etc/traefik/traefik.yml"
     cpus: 1
     mem_limit: 1024m
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.traefik.entrypoints=web"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
     logging:
       driver: syslog
       options:
@@ -641,10 +658,13 @@ services:
 
   redis:
     image: redis:6.2.6
-    ports:
-      - "6379:6379"
     cpus: 0.5
     mem_limit: 512m
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.redis.entrypoints=web"
+      - "traefik.http.routers.redis.rule=Host(`redis.${EXPOSED_HOST}`)"
+      - "traefik.http.services.redis.loadbalancer.server.port=6379"
     logging:
       driver: syslog
       options:
