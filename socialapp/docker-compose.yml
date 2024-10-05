@@ -71,11 +71,6 @@ services:
     ports:
       - "5432:5432"
     restart: always
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.database.entrypoints=web"
-      - "traefik.http.routers.database.rule=Host(`database.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.services.database.loadbalancer.server.port=5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
@@ -131,11 +126,6 @@ services:
       retries: 5
     cpus: 0.5
     mem_limit: 512m
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.grafana.entrypoints=web"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     logging:
       driver: "syslog"
       options:
@@ -157,11 +147,6 @@ services:
       - 9090:9090
     expose:
       - 9090
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.prometheus.entrypoints=web"
-      - "traefik.http.routers.prometheus.rule=Host(`prometheus.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
     restart: always
     logging:
       driver: "syslog"
@@ -358,11 +343,6 @@ services:
       - broker3
     cpus: 0.5
     mem_limit: 512m
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.kafka-ui.entrypoints=web"
-      - "traefik.http.routers.kafka-ui.rule=Host(`kafkaui.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.services.kafka-ui.loadbalancer.server.port=8080"
     logging:
       driver: "syslog"
       options:
@@ -542,7 +522,7 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "tempo"
-        
+
   alloy:
     image: grafana/alloy:v1.3.0
     ports:
@@ -628,7 +608,7 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "portainer"
-  
+
   traefik:
     image: traefik:v3.1.4
     command:
