@@ -650,3 +650,17 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "redis"
+
+  whoami:
+    image: traefik/whoami
+    labels:
+      - "traefik.http.routers.whoami.rule=Host(`whoami.${EXPOSED_HOST}`)"
+      - "traefik.http.services.whoami.loadbalancer.server.port=80"
+      - "traefik.enable=true"
+    cpus: 0.5
+    mem_limit: 512m
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://localhost:53000"
+        tag: "whoami"
