@@ -511,7 +511,10 @@ func run(config Configuration) {
 	// 3. Main router for routing to different routers based on subdomain
 	mainRouter := chi.NewRouter()
 	mainRouter.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
-		log.Info().Str("host", r.Host).Msg("Request host")
+		log.Info().Str("host", r.Host).
+			Str("path", r.URL.Path).
+			Msg("Request host")
+
 		switch r.Host {
 		case kibanaSubdomain:
 			// check for auth cookie
@@ -536,7 +539,7 @@ func run(config Configuration) {
 			authKibanaRouter.Router.ServeHTTP(w, r)
 		case config.propertiesSubdomain.Host:
 			propertiesProxy.Router.ServeHTTP(w, r)
-		case config.socialappSubdomain:
+		case config.socialappSubdomain, config.socialappSubdomain + ":80", config.socialappSubdomain + ":443":
 			socialappRouter.Router.ServeHTTP(w, r)
 		case config.urlShortenerSubdomain:
 			urlshortenerProxy.Router.ServeHTTP(w, r)
