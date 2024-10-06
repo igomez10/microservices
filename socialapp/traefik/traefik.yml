@@ -22,19 +22,19 @@ certificatesResolvers:
   letsencryptstaging:
     acme:
       email: u393vy+12c8gljgemypk@sharklasers.com
-      storage: acmestaging.json
+      storage: /letsencrypt/acmestaging.json
       httpChallenge:
         # used during the challenge
         entryPoint: web
       caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
 
-  letsencrypt:
-    acme:
-      email: u393vy+12c8gljgemypk@sharklasers.com
-      storage: acme.json
-      httpChallenge:
-        # used during the challenge
-        entryPoint: web
+  # letsencrypt:
+  #   acme:
+  #     email: u393vy+12c8gljgemypk@sharklasers.com
+  #     storage: /letsencrypt/acme.json
+  #     httpChallenge:
+  #       # used during the challenge
+  #       entryPoint: web
 
 providers:
   docker:
@@ -58,6 +58,13 @@ metrics:
       - 0.3
       - 1.2
       - 5.0
+
+tracing:
+  serviceName: "traefik"
+  addInternals: true
+  otlp:
+    http:
+      endpoint: "http://tempo:4317"
 
 ## Dynamic configuration
 http:

@@ -33,6 +33,14 @@ scrape_configs:
       - targets:
           - socialapp.gomezignacio.com
 
+  # - job_name: "socialapp"
+  #   dns_sd_configs:
+  #     - names:
+  #         - socialapp
+  #       type: A
+  #       port: 80
+  #       refresh_interval: "30s"
+
   - job_name: "cadvisor"
     scrape_interval: 15s
     dns_sd_configs:
@@ -90,6 +98,17 @@ scrape_configs:
     static_configs:
       - targets:
           - urlshortener:8082
+
+  - job_name: "traefik"
+    scrape_interval: 15s
+    # allow insecure connections
+    scheme: http
+    # ignore certificate errors
+    tls_config:
+      insecure_skip_verify: true
+    static_configs:
+      - targets:
+          - traefik:80
 #  - job_name: 'pushgateway'
 #    scrape_interval: 10s
 #    dns_sd_configs:
