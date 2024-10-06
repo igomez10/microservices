@@ -547,7 +547,7 @@ func run(config Configuration) {
 			socialappRouter.Router.ServeHTTP(w, r)
 		default:
 			message := fmt.Sprintf("Host %q Not found", r.Host)
-			log.Info().Msg("Request host invalid Host" + r.Host)
+			log.Info().Str("Host", r.Host).Msg("Request host invalid Host")
 			w.Write([]byte(message))
 			w.WriteHeader(404)
 		}

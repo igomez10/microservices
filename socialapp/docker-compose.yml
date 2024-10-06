@@ -31,7 +31,7 @@ services:
       - "--port=8086"
       - "--propertiesSubdomain=${PROPERTIES_SUBDOMAIN}"
       - "--urlServiceHost=urlshortener:8089"
-      - "--agentURL=alloy:4317"
+      - "--agentURL=http://alloy:4317"
       - "--urlShortenerSubdomain=${URL_SHORTENER}"
       - "--socialappSubdomain=${SOCIALAPP_SUBDOMAIN}"
     volumes:
@@ -603,7 +603,6 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "portainer"
-
 
   redis:
     image: redis:6.2.6
