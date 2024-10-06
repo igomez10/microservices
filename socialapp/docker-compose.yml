@@ -641,6 +641,9 @@ services:
       - "traefik.http.routers.traefik.rule=Host(`traefik.${EXPOSED_HOST}`)"
       - "traefik.http.routers.traefik.entrypoints=weblocal"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+    networks:
+      - default
+      - elk
     logging:
       driver: syslog
       options:

@@ -58,3 +58,9 @@ metrics:
       - 0.3
       - 1.2
       - 5.0
+
+## Dynamic configuration
+http:
+  serversTransports:
+    mytransport:
+      disableHTTP2: true
