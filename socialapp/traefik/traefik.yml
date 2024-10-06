@@ -18,8 +18,7 @@ entryPoints:
   weblocal:
     address: ":11111"
 
-# certificatesResolvers:
-
+certificatesResolvers:
   letsencrypt:
     acme:
       email: u393vy+12c8gljgemypk@sharklasers.com
