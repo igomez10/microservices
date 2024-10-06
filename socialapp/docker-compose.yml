@@ -12,6 +12,7 @@ volumes:
   kafka-data2: {}
   kafka-data3: {}
   portainer_data: {}
+  letsencrypt: {}
   # phlare_data: {}
 
 services:
@@ -612,7 +613,7 @@ services:
       - "11111:11111"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - "./letsencrypt:/letsencrypt"
+      - letsencrypt:/letsencrypt
       - "./traefik/traefik.yml:/etc/traefik/traefik.yml"
     cpus: 1
     mem_limit: 1024m
