@@ -604,6 +604,22 @@ services:
         syslog-address: "udp://localhost:53000"
         tag: "portainer"
 
+
+  redis:
+    image: redis:6.2.6
+    cpus: 0.5
+    mem_limit: 512m
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.redis.entrypoints=weblocal"
+      - "traefik.http.routers.redis.rule=Host(`redis.${EXPOSED_HOST}`)"
+      - "traefik.http.services.redis.loadbalancer.server.port=6379"
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://localhost:53000"
+        tag: "redis"
+
   traefik:
     image: traefik:v3.1.4
     ports:
@@ -628,27 +644,14 @@ services:
         syslog-address: "udp://localhost:53000"
         tag: "traefik"
 
-  redis:
-    image: redis:6.2.6
-    cpus: 0.5
-    mem_limit: 512m
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.redis.entrypoints=weblocal"
-      - "traefik.http.routers.redis.rule=Host(`redis.${EXPOSED_HOST}`)"
-      - "traefik.http.services.redis.loadbalancer.server.port=6379"
-    logging:
-      driver: syslog
-      options:
-        syslog-address: "udp://localhost:53000"
-        tag: "redis"
-
   whoamiinternal:
     image: traefik/whoami
     labels:
       - "traefik.http.routers.whoamiinternal.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
       - "traefik.http.services.whoamiinternal.loadbalancer.server.port=80"
       - "traefik.http.routers.whoamiinternal.entrypoints=websecure"
+      - "traefik.http.routers.whoamiinternal.tls=true"
+      - "traefik.http.routers.whoamiinternal.tls.certresolver=letsencrypt"
       - "traefik.enable=true"
     cpus: 0.5
     mem_limit: 512m
@@ -664,6 +667,8 @@ services:
       - "traefik.http.routers.whoami.rule=Host(`whoami.${EXPOSED_HOST}`)"
       - "traefik.http.services.whoami.loadbalancer.server.port=80"
       - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls=true"
+      - "traefik.http.routers.whoami.tls.certresolver=letsencrypt"
       - "traefik.enable=true"
     cpus: 0.5
     mem_limit: 512m
