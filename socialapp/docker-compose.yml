@@ -26,15 +26,13 @@ services:
       - elk
       - default
     command:
-      [
-        "/main",
-        "--port=8086",
-        "--propertiesSubdomain=${PROPERTIES_SUBDOMAIN}",
-        "--urlServiceHost=urlshortener:8089",
-        "--agentURL=alloy:4317",
-        "--urlShortenerSubdomain=${URL_SHORTENER}",
-        "--socialappSubdomain=${SOCIALAPP_SUBDOMAIN}",
-      ]
+      - "/main"
+      - "--port=8086"
+      - "--propertiesSubdomain=${PROPERTIES_SUBDOMAIN}"
+      - "--urlServiceHost=urlshortener:8089"
+      - "--agentURL=alloy:4317"
+      - "--urlShortenerSubdomain=${URL_SHORTENER}"
+      - "--socialappSubdomain=${SOCIALAPP_SUBDOMAIN}"
     volumes:
       - ./openapi.yaml:/openapi.yaml
     environment:
@@ -72,7 +70,7 @@ services:
       - "5432:5432"
     restart: always
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
+      test: [ "CMD", "pg_isready", "-U", "postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -120,7 +118,7 @@ services:
       - ./grafana/config.monitoring
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -445,7 +443,7 @@ services:
       - database
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8083"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8083" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -457,28 +455,28 @@ services:
         max-size: "10m"
         tag: "debezium"
 
-  debezium-ui:
-    image: debezium/debezium-ui:latest
-    container_name: debezium-ui
-    ports:
-      - "8084:8080"
-    environment:
-      - KAFKA_CONNECT_URIS=http://debezium:8083
-    depends_on:
-      - debezium
-    restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    cpus: 1
-    mem_limit: 1024m
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "udp://localhost:53000"
-        tag: "debezium-ui"
+  # debezium-ui:
+  #   image: debezium/debezium-ui:latest
+  #   container_name: debezium-ui
+  #   ports:
+  #     - "8084:8080"
+  #   environment:
+  #     - KAFKA_CONNECT_URIS=http://debezium:8083
+  #   depends_on:
+  #     - debezium
+  #   restart: always
+  #   healthcheck:
+  #     test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 5
+  #   cpus: 1
+  #   mem_limit: 1024m
+  #   logging:
+  #     driver: "syslog"
+  #     options:
+  #       syslog-address: "udp://localhost:53000"
+  #       tag: "debezium-ui"
   unleash:
     image: unleashorg/unleash-server:5
     ports:
@@ -493,7 +491,7 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    command: ["node", "index.js"]
+    command: [ "node", "index.js" ]
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:4242/health || exit 1
       interval: 1s
@@ -511,7 +509,7 @@ services:
       - "55680:55680"
       - "55681:55681"
       - "14250:14250"
-    command: ["-config.file=/etc/tempo.yaml"]
+    command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - "./tempo/tempo.yaml:/etc/tempo.yaml"
     restart: unless-stopped
@@ -537,12 +535,10 @@ services:
       - "./alloy/config.alloy:/etc/alloy/config.alloy"
       - "./alloy/endpoints.json:/etc/alloy/endpoints.json"
     command:
-      [
-        "run",
-        "--server.http.listen-addr=0.0.0.0:12345",
-        "--stability.level=public-preview",
-        "/etc/alloy/config.alloy",
-      ]
+      - "run"
+      - "--server.http.listen-addr=0.0.0.0:12345"
+      - "--stability.level=public-preview"
+      - "/etc/alloy/config.alloy"
     logging:
       driver: syslog
       options:
@@ -555,7 +551,7 @@ services:
       JAEGER_AGENT_HOST: tempo
       JAEGER_SAMPLER_TYPE: const
       JAEGER_SAMPLER_PARAM: 1
-    command: ["-config.file=/etc/pyroscope.yml"]
+    command: [ "-config.file=/etc/pyroscope.yml" ]
     ports:
       - "4040:4040"
     volumes:
@@ -570,11 +566,9 @@ services:
   mimir:
     image: grafana/mimir:2.13.0
     command:
-      [
-        "-ingester.native-histograms-ingestion-enabled=true",
-        "-config.file=/etc/mimir.yaml",
-        "--ingester.max-global-series-per-user=2500000",
-      ]
+      - "-ingester.native-histograms-ingestion-enabled=true"
+      - "-config.file=/etc/mimir.yaml"
+      - "-ingester.max-global-series-per-user=2500000"
     ports:
       - "9009:9009"
     cpus: 2
@@ -615,6 +609,7 @@ services:
       - "80:80"
       - "443:443"
       - "8087:8080"
+      - "11111:11111"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./letsencrypt:/letsencrypt"
@@ -624,7 +619,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`traefik.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.traefik.entrypoints=web"
+      - "traefik.http.routers.traefik.entrypoints=weblocal"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
     logging:
       driver: syslog
@@ -638,7 +633,7 @@ services:
     mem_limit: 512m
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.redis.entrypoints=web"
+      - "traefik.http.routers.redis.entrypoints=weblocal"
       - "traefik.http.routers.redis.rule=Host(`redis.${EXPOSED_HOST}`)"
       - "traefik.http.services.redis.loadbalancer.server.port=6379"
     logging:

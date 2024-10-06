@@ -15,19 +15,10 @@ entryPoints:
           scheme: https
   websecure:
     address: ":443"
-    http:
-      tls:
-        certResolver: letsencrypt
+  weblocal:
+    address: ":11111"
 
-certificatesResolvers:
-  letsencryptstaging:
-    acme:
-      email: u393vy+12c8gljgemypk@sharklasers.com
-      storage: acmestaging.json
-      httpChallenge:
-        # used during the challenge
-        entryPoint: web
-      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+# certificatesResolvers:
 
   letsencrypt:
     acme:
