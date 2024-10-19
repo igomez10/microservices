@@ -19,22 +19,22 @@ entryPoints:
     address: ":11111"
 
 certificatesResolvers:
-  letsencryptstaging:
-    acme:
-      email: u393vy+12c8gljgemypk@sharklasers.com
-      storage: /letsencrypt/acmestaging.json
-      httpChallenge:
-        # used during the challenge
-        entryPoint: web
-      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
-
-  # letsencrypt:
+  # letsencryptstaging:
   #   acme:
   #     email: u393vy+12c8gljgemypk@sharklasers.com
-  #     storage: /letsencrypt/acme.json
+  #     storage: /letsencrypt/acmestaging.json
   #     httpChallenge:
   #       # used during the challenge
   #       entryPoint: web
+  #     caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+  letsencrypt:
+    acme:
+      email: u393vy+12c8gljgemypk@sharklasers.com
+      storage: /letsencrypt/acme.json
+      httpChallenge:
+        # used during the challenge
+        entryPoint: web
 
 providers:
   docker:
