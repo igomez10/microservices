@@ -126,7 +126,7 @@ func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.Imp
 	if err != nil {
 		log.Error().
 			Err(err).
-			Msg("failed to retrieve created role")
+			Msg("failed to retrieve role")
 
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
