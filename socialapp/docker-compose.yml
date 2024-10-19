@@ -30,7 +30,7 @@ services:
       - "/main"
       - "--port=8086"
       - "--propertiesSubdomain=${PROPERTIES_SUBDOMAIN}"
-      - "--urlServiceHost=urlshortener:8089"
+      - "--urlServiceHost=http://urlshortener:8089"
       - "--agentURL=http://tempo:4317"
       - "--urlShortenerSubdomain=${URL_SHORTENER}"
       - "--socialappSubdomain=${SOCIALAPP_SUBDOMAIN}"
