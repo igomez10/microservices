@@ -15,12 +15,13 @@ import (
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // s *AuthenticationService openapi.AuthenticationApiServicer
 type AuthenticationService struct {
 	DB     db.Querier
-	DBConn *pgx.Conn
+	DBConn *pgxpool.Pool
 }
 
 func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.ImplResponse, error) {

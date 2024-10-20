@@ -15,7 +15,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/controller/user"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"go.opentelemetry.io/otel/attribute"
@@ -35,7 +35,7 @@ var gandalf_duration_microseconds = promauto.NewSummaryVec(prometheus.SummaryOpt
 
 type Middleware struct {
 	DB               db.Querier
-	DBConn           *pgx.Conn
+	DBConn           *pgxpool.Pool
 	Cache            *cache.Cache
 	AllowlistedPaths map[string]map[string]bool
 	AllowBasicAuth   bool

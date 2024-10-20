@@ -18,6 +18,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var _ openapi.UserAPIServicer = (*UserApiService)(nil)
@@ -27,7 +28,7 @@ var seedID string
 // s *UserApiService openapi.UserApiServicer
 type UserApiService struct {
 	DB            db.Querier
-	DBConn        *pgx.Conn
+	DBConn        *pgxpool.Pool
 	EventRecorder eventRecorder.EventRecorder
 }
 
