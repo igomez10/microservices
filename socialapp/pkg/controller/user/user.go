@@ -748,6 +748,10 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 		HashedPasswordExpiresAt: createUserReq.HashedPasswordExpiresAt,
 		EmailToken:              createUserReq.EmailToken,
 		EmailVerifiedAt:         createUserReq.EmailVerifiedAt,
+		UpdatedAt: pgtype.Timestamp{
+			Time:  time.Now(),
+			Valid: true,
+		},
 	}
 
 	if err := s.DB.UpdateUser(ctx, tx, params); err != nil {
