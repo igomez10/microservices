@@ -8,7 +8,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
-	"github.com/igomez10/microservices/socialapp/pkg/db"
+	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 

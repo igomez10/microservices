@@ -1,8 +1,8 @@
 package converter
 
 import (
-	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
@@ -11,7 +11,7 @@ func FromDBCmtToAPICmt(comment db.Comment, user db.User) openapi.Comment {
 		Id:        comment.ID,
 		Content:   comment.Content,
 		LikeCount: int64(comment.LikeCount),
-		CreatedAt: comment.CreatedAt,
+		CreatedAt: comment.CreatedAt.Time,
 		Username:  user.Username,
 	}
 
@@ -33,7 +33,7 @@ func FromDBRoleToAPIRole(dbRole db.Role) openapi.Role {
 		Id:          dbRole.ID,
 		Name:        dbRole.Name,
 		Description: dbRole.Description,
-		CreatedAt:   dbRole.CreatedAt,
+		CreatedAt:   dbRole.CreatedAt.Time,
 	}
 
 	return apiRole
@@ -45,7 +45,7 @@ func FromDBUserToAPIUser(u db.User) openapi.User {
 		FirstName: u.FirstName,
 		LastName:  u.LastName,
 		Email:     u.Email,
-		CreatedAt: u.CreatedAt,
+		CreatedAt: u.CreatedAt.Time,
 	}
 
 	return apiUser
@@ -56,7 +56,7 @@ func FromDBScopeToAPIScope(dbScope db.Scope) openapi.Scope {
 		Id:          dbScope.ID,
 		Name:        dbScope.Name,
 		Description: dbScope.Description,
-		CreatedAt:   dbScope.CreatedAt,
+		CreatedAt:   dbScope.CreatedAt.Time,
 	}
 
 	return apiScope
@@ -66,8 +66,8 @@ func FromDBUrlToAPIUrl(dbUrl db.Url) openapi.Url {
 	apiUrl := openapi.Url{
 		Alias:     dbUrl.Alias,
 		Url:       dbUrl.Url,
-		CreatedAt: dbUrl.CreatedAt,
-		UpdatedAt: dbUrl.UpdatedAt,
+		CreatedAt: dbUrl.CreatedAt.Time,
+		UpdatedAt: dbUrl.UpdatedAt.Time,
 	}
 
 	return apiUrl

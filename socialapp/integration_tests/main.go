@@ -1305,10 +1305,10 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 		// delete scope
 		res, err := apiClient.ScopeAPI.DeleteScope(oauth2Ctx, int32(*cretedScope.Id)).Execute()
 		if err != nil {
-			err = fmt.Errorf("Error when calling `ScopeAPI.DeleteScope`: %v", err)
+			log.Err(err).Msg("Error when calling `ScopeAPI.DeleteScope`")
 		}
 		if res.StatusCode != http.StatusOK {
-			err = fmt.Errorf("Expected status code 204, got %d", res.StatusCode)
+			log.Err(err).Msg("Expected status code 204, got %d")
 		}
 	}()
 
@@ -1332,10 +1332,10 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 		// delete role
 		res, err := apiClient.RoleAPI.DeleteRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
 		if err != nil {
-			err = fmt.Errorf("Error when calling `RoleAPI.DeleteRole`: %v", err)
+			log.Err(err).Msg("Error when calling `RoleAPI.DeleteRole`")
 		}
 		if res.StatusCode != http.StatusOK {
-			err = fmt.Errorf("Expected status code 204, got %d", res.StatusCode)
+			log.Err(err).Msgf("Expected status code 200, got %d", res.StatusCode)
 		}
 	}()
 

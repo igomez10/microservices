@@ -8,18 +8,16 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
-	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgx/v5"
 )
 
 // s *RoleApiService openapi.RoleApiServicer
 type RoleApiService struct {
-	DB        db.Querier
-	DBConn    db.DBTX
-	DBPGX     dbpgx.Querier
-	DBPGXConn dbpgx.DBTX
+	DB     dbpgx.Querier
+	DBConn dbpgx.DBTX
 }
 
 func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (openapi.ImplResponse, error) {
@@ -126,22 +124,7 @@ func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.Imp
 		Int("role_id", int(roleID)).
 		Logger()
 
-	// role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
-	// if err != nil {
-	// 	log.Error().
-	// 		Err(err).
-	// 		Msg("failed to retrieve role")
-
-	// 	return openapi.ImplResponse{
-	// 		Code: http.StatusNotFound,
-	// 		Body: openapi.Error{
-	// 			Code:    http.StatusNotFound,
-	// 			Message: "role not found",
-	// 		},
-	// 	}, nil
-	// }
-
-	role, err := s.DBPGX.GetRole(ctx, s.DBPGXConn, int64(roleID))
+	role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
 	if err != nil {
 		switch err {
 		case pgx.ErrNoRows:
@@ -190,7 +173,7 @@ func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int3
 		limit = 20
 	}
 
-	roles, err := s.DB.ListRoles(ctx, s.DBConn, db.ListRolesParams{
+	roles, err := s.DB.ListRoles(ctx, s.DBConn, dbpgx.ListRolesParams{
 		Limit:  limit,
 		Offset: offset,
 	})
@@ -210,7 +193,7 @@ func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int3
 
 	apiRoles := make([]openapi.Role, len(roles))
 	for i, role := range roles {
-		apiRoles[i] = converter.FromDBRoleToAPIRole(role)
+		apiRoles[i] = converter.FromPGXDBRoleToAPIRole(role)
 	}
 
 	return openapi.ImplResponse{
@@ -231,17 +214,29 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 	// get role from db
 	role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
 	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("failed to retrieve role")
+		switch err {
+		case pgx.ErrNoRows:
+			// return 404 if role not found
+			return openapi.ImplResponse{
+				Code: http.StatusNotFound,
+				Body: openapi.Error{
+					Code:    http.StatusNotFound,
+					Message: "role not found",
+				},
+			}, nil
+		default:
+			log.Error().
+				Err(err).
+				Msg("failed to retrieve role")
 
-		return openapi.ImplResponse{
-			Code: http.StatusNotFound,
-			Body: openapi.Error{
-				Code:    http.StatusNotFound,
-				Message: "role not found",
-			},
-		}, nil
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Code:    http.StatusInternalServerError,
+					Message: "failed to retrieve role",
+				},
+			}, nil
+		}
 	}
 
 	params := db.UpdateRoleParams{
@@ -251,7 +246,7 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 	}
 
 	// update role
-	if err = s.DB.UpdateRole(ctx, s.DBConn, params); err != nil {
+	if err := s.DB.UpdateRole(ctx, s.DBConn, params); err != nil {
 		log.Error().
 			Err(err).
 			Int("role_id", int(roleID)).
@@ -283,7 +278,7 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 
 	return openapi.ImplResponse{
 		Code: http.StatusOK,
-		Body: converter.FromDBRoleToAPIRole(role),
+		Body: converter.FromPGXDBRoleToAPIRole(role),
 	}, nil
 }
 

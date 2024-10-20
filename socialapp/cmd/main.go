@@ -5,7 +5,6 @@ import (
 	_ "net/http/pprof"
 
 	"context"
-	"database/sql"
 	"encoding/base64"
 	"flag"
 	"fmt"
@@ -38,7 +37,6 @@ import (
 	"github.com/igomez10/microservices/socialapp/pkg/controller/scope"
 	socialappurl "github.com/igomez10/microservices/socialapp/pkg/controller/url"
 	"github.com/igomez10/microservices/socialapp/pkg/controller/user"
-	"github.com/igomez10/microservices/socialapp/pkg/db"
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	urlClient "github.com/igomez10/microservices/urlshortener/generated/clients/go/client"
@@ -65,7 +63,7 @@ type Configuration struct {
 	logLevel            zerolog.Level
 	logDestination      io.Writer
 	dbConnections       *ForcedConnectionPool
-	queries             *db.Queries
+	queries             *dbpgx.Queries
 	cache               *cache.Cache
 	propertiesSubdomain *url.URL
 	newRelicApp         *newrelic.Application
@@ -192,7 +190,13 @@ func main() {
 	// force creation of 8 connections, one per service
 	connections := CreateDBPools(os.Getenv("DATABASE_URL"), 1)
 
-	queries := db.New()
+	pgxConn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to database")
+	}
+	defer pgxConn.Close(context.Background())
+
+	queries := dbpgx.New()
 
 	redisOpts, err := redis.ParseURL(os.Getenv("REDIS_URL"))
 	if err != nil {
@@ -339,20 +343,10 @@ func run(config Configuration) {
 	}
 	AuthApiController := openapi.NewAuthenticationAPIController(AuthApiService)
 
-	// urlExample := "postgres://username:password@localhost:5432/database_name"
-	pgxConn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to connect to database")
-	}
-	defer pgxConn.Close(context.Background())
-
-	q := dbpgx.New()
 	// Role service
 	RoleAPIService := &role.RoleApiService{
-		DB:        config.queries,
-		DBConn:    config.dbConnections.GetPool(),
-		DBPGX:     q,
-		DBPGXConn: pgxConn,
+		DB:     config.queries,
+		DBConn: config.dbConnections.GetPool(),
 	}
 	RoleAPIController := openapi.NewRoleAPIController(RoleAPIService)
 
@@ -364,20 +358,15 @@ func run(config Configuration) {
 	ScopeAPIController := openapi.NewScopeAPIController(ScopeAPIService)
 
 	// URL service
-	URLAPIService := &socialappurl.URLApiService{
-		DB:     config.queries,
-		DBConn: config.dbConnections.GetPool(),
-	}
+	uc := urlClient.NewConfiguration()
+	uc.Host = config.urlService.Host
+	uc.Scheme = config.urlService.Scheme
+	uc.HTTPClient = http.DefaultClient
+	uc.UserAgent = config.appName
+	urlServiceClient := urlClient.NewAPIClient(uc)
 
-	if config.urlService != nil {
-		uc := urlClient.NewConfiguration()
-		uc.Host = config.urlService.Host
-		uc.Scheme = config.urlService.Scheme
-		uc.HTTPClient = http.DefaultClient
-		uc.UserAgent = config.appName
-		urlServiceClient := urlClient.NewAPIClient(uc)
-		URLAPIService.Client = urlServiceClient
-		URLAPIService.UseURLShortenerService = true
+	URLAPIService := &socialappurl.URLApiService{
+		Client: urlServiceClient,
 	}
 
 	URLAPIController := openapi.NewURLAPIController(URLAPIService)
@@ -574,9 +563,10 @@ func run(config Configuration) {
 // CreateDBPools creates a pool of connections to the database, in go's implementation of sql, the sql.DB is a connection pool
 // but we want to manually control the minimum number of connections to the database
 func CreateDBPools(databaseURL string, numPools int) *ForcedConnectionPool {
-	pools := make([]*sql.DB, 0, numPools)
+	pools := make([]*pgx.Conn, 0, numPools)
 	for i := 0; i < numPools; i++ {
-		dbConn, err := sql.Open("nrpostgres", databaseURL)
+		dbConn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+		// dbConn, err := sql.Open("nrpostgres", databaseURL)
 		if err != nil {
 			log.Fatal().Err(err)
 		}
@@ -591,7 +581,7 @@ func CreateDBPools(databaseURL string, numPools int) *ForcedConnectionPool {
 
 		pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		if err := dbConn.PingContext(pingCtx); err != nil {
+		if err := dbConn.Ping(pingCtx); err != nil {
 			log.Fatal().Err(err).Msg("failed to ping database, shutting down")
 		}
 
@@ -609,12 +599,12 @@ func CreateDBPools(databaseURL string, numPools int) *ForcedConnectionPool {
 
 // ForcedConnectionPool is a wrapper around native Go sql.DB, this allows us to force the minium number of connections
 type ForcedConnectionPool struct {
-	connections       []*sql.DB
+	connections       []*pgx.Conn
 	numPools          int
 	currentRoundRobin int
 }
 
-func (f *ForcedConnectionPool) GetPool() *sql.DB {
+func (f *ForcedConnectionPool) GetPool() *pgx.Conn {
 	// round robin
 	pool := f.connections[f.currentRoundRobin]
 	f.currentRoundRobin += 1
@@ -625,6 +615,6 @@ func (f *ForcedConnectionPool) GetPool() *sql.DB {
 
 func (f *ForcedConnectionPool) Close() {
 	for _, conn := range f.connections {
-		conn.Close()
+		conn.Close(context.Background())
 	}
 }

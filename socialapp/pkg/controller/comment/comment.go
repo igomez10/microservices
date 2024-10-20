@@ -8,15 +8,16 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
-	"github.com/igomez10/microservices/socialapp/pkg/db"
+	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/rs/zerolog/log"
 )
 
 // s *CommentService openapi.CommentApiServicer
 type CommentService struct {
-	DB     db.Querier
-	DBConn db.DBTX
+	DB     dbpgx.Querier
+	DBConn dbpgx.DBTX
 }
 
 func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comment) (openapi.ImplResponse, error) {
