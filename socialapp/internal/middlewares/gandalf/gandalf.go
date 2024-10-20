@@ -3,6 +3,7 @@ package gandalf
 import (
 	"bytes"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/pkg/controller/user"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -77,34 +79,46 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 					gandalf_token_cache.WithLabelValues("token", "miss").Inc()
 					// token not in cache, get from db
 					dbtoken, err := m.DB.GetToken(r.Context(), m.DBConn, givenToken)
-					switch err {
-					case nil:
-						token = dbtoken
-						// save token in cache
-						buf := &bytes.Buffer{}
-						encoder := gob.NewEncoder(buf)
-						if err := encoder.Encode(token); err != nil {
-							log.Error().
-								Err(err).
-								Str("middleware", "gandalf").
-								Msg("Failed to marshal token")
-						} else {
-							m.Cache.Client.Set(r.Context(), "token_"+givenToken, buf.Bytes(), time.Hour*1)
+					if err != nil {
+						var pgErr *pgconn.PgError
+						if errors.As(err, &pgErr) {
+							switch pgErr {
+							case pgx.ErrNoRows:
+								log.Error().
+									Err(err).
+									Msg("Token not found")
+								w.WriteHeader(http.StatusUnauthorized)
+								w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
+								return
+							default:
+								log.Error().
+									Err(err).
+									Msg("Error while getting token")
+								w.WriteHeader(http.StatusInternalServerError)
+								w.Write([]byte(`{"code": 500, "message": "Error while getting token"}`))
+								return
+							}
 						}
-					case pgx.ErrNoRows:
-						log.Error().
-							Err(err).
-							Msg("Token not found")
-						w.WriteHeader(http.StatusUnauthorized)
-						w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
-						return
-					default:
+
 						log.Error().
 							Err(err).
 							Msg("Error while getting token")
 						w.WriteHeader(http.StatusInternalServerError)
 						w.Write([]byte(`{"code": 500, "message": "Error while getting token"}`))
 						return
+					}
+
+					token = dbtoken
+					// save token in cache
+					buf := &bytes.Buffer{}
+					encoder := gob.NewEncoder(buf)
+					if err := encoder.Encode(token); err != nil {
+						log.Error().
+							Err(err).
+							Str("middleware", "gandalf").
+							Msg("Failed to marshal token")
+					} else {
+						m.Cache.Client.Set(r.Context(), "token_"+givenToken, buf.Bytes(), time.Hour*1)
 					}
 				} else {
 					// token found in cache
