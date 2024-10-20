@@ -81,7 +81,7 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (opena
 	}
 
 	deleteErr := s.DB.DeleteScope(ctx, s.DBConn, scope.ID)
-	if err != nil {
+	if deleteErr != nil {
 		log.Error().
 			Err(deleteErr).
 			Int("scope_id", int(scopeID)).
