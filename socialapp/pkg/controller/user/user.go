@@ -3,7 +3,6 @@ package user
 import (
 	"context"
 	"crypto/sha256"
-	"database/sql"
 	"encoding/base64"
 	"net/http"
 	"strings"
@@ -246,7 +245,7 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string, l
 	dbuser, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
 		switch errGetUser {
-		case sql.ErrNoRows:
+		case pgx.ErrNoRows:
 			return openapi.Response(http.StatusNotFound, openapi.Error{
 				Code:    http.StatusNotFound,
 				Message: "User not found",
@@ -348,7 +347,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	existingDBUser, err := s.DB.GetUserByUsername(ctx, tx, existingUsername)
 	if err != nil {
 		switch err {
-		case sql.ErrNoRows:
+		case pgx.ErrNoRows:
 			return openapi.Response(http.StatusNotFound, openapi.Error{
 				Code:    http.StatusNotFound,
 				Message: "User not found",

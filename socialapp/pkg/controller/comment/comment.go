@@ -11,6 +11,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
+	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
 )
 
@@ -102,13 +103,21 @@ func (s *CommentService) GetUserFeed(ctx context.Context) (openapi.ImplResponse,
 
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
-		log.Error().
-			Err(errGetUser).
-			Msg("Error getting user")
-		return openapi.Response(http.StatusInternalServerError, openapi.Error{
-			Code:    http.StatusInternalServerError,
-			Message: "Internal server error",
-		}), nil
+		switch errGetUser {
+		case pgx.ErrNoRows:
+			return openapi.Response(http.StatusNotFound, openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "User not found",
+			}), nil
+		default:
+			log.Error().
+				Err(errGetUser).
+				Msg("Error getting user")
+			return openapi.Response(http.StatusInternalServerError, openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Internal server error",
+			}), nil
+		}
 	}
 
 	// get followed users

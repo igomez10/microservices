@@ -2,7 +2,6 @@ package gandalf
 
 import (
 	"bytes"
-	"database/sql"
 	"encoding/gob"
 	"fmt"
 	"net/http"
@@ -156,7 +155,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 							m.Cache.Client.Set(r.Context(), "token_to_scopes_"+givenToken, buf.Bytes(), time.Hour*1)
 						}
 
-					case sql.ErrNoRows:
+					case pgx.ErrNoRows:
 						log.Error().
 							Err(err).
 							Msg("Token scopes not found")
@@ -236,7 +235,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				switch err {
 				case nil:
 					// exit switch
-				case sql.ErrNoRows:
+				case pgx.ErrNoRows:
 					log.Error().
 						Err(err).
 						Str("username", username).
@@ -278,7 +277,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				switch err {
 				case nil:
 					// exit switch
-				case sql.ErrNoRows:
+				case pgx.ErrNoRows:
 					// no roles found
 				default:
 					log.Error().
@@ -300,7 +299,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 					switch err {
 					case nil:
 						// exit switch
-					case sql.ErrNoRows:
+					case pgx.ErrNoRows:
 						// no scopes found
 					default:
 						log.Error().
