@@ -49,14 +49,13 @@ func (s *UserApiService) CreateUser(ctx context.Context, createUserReq openapi.C
 	// validate we dont have a user with the same username that is not deleted
 	// start transaction
 	tx, err := s.DBConn.BeginTx(ctx, pgx.TxOptions{})
-	defer tx.Rollback(ctx)
-
 	if err != nil {
 		log.Error().
 			Err(err).
 			Msg("Error starting transaction")
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
+	defer tx.Rollback(ctx)
 
 	if _, err := s.DB.GetUserByUsername(ctx, tx, createUserReq.Username); err == nil {
 		log.Error().
@@ -420,6 +419,10 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 		EmailToken:              existingDBUser.EmailToken,
 		EmailVerifiedAt:         existingDBUser.EmailVerifiedAt,
 		Salt:                    existingDBUser.Salt,
+		UpdatedAt: pgtype.Timestamp{
+			Time:  time.Now(),
+			Valid: true,
+		},
 	}
 
 	log.Debug().Msgf("UpdateUserByUsernameParams: \n%+v\n", params)
