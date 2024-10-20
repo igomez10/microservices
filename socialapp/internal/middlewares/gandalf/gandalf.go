@@ -15,6 +15,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/controller/user"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -91,7 +92,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 						} else {
 							m.Cache.Client.Set(r.Context(), "token_"+givenToken, buf.Bytes(), time.Hour*1)
 						}
-					case sql.ErrNoRows:
+					case pgx.ErrNoRows:
 						log.Error().
 							Err(err).
 							Msg("Token not found")
