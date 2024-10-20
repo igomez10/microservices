@@ -9,13 +9,17 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/converter"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
+	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
+	"github.com/jackc/pgx/v5"
 )
 
 // s *RoleApiService openapi.RoleApiServicer
 type RoleApiService struct {
-	DB     db.Querier
-	DBConn db.DBTX
+	DB        db.Querier
+	DBConn    db.DBTX
+	DBPGX     dbpgx.Querier
+	DBPGXConn dbpgx.DBTX
 }
 
 func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (openapi.ImplResponse, error) {
@@ -122,22 +126,49 @@ func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.Imp
 		Int("role_id", int(roleID)).
 		Logger()
 
-	role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
-	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("failed to retrieve role")
+	// role, err := s.DB.GetRole(ctx, s.DBConn, int64(roleID))
+	// if err != nil {
+	// 	log.Error().
+	// 		Err(err).
+	// 		Msg("failed to retrieve role")
 
-		return openapi.ImplResponse{
-			Code: http.StatusNotFound,
-			Body: openapi.Error{
-				Code:    http.StatusNotFound,
-				Message: "role not found",
-			},
-		}, nil
+	// 	return openapi.ImplResponse{
+	// 		Code: http.StatusNotFound,
+	// 		Body: openapi.Error{
+	// 			Code:    http.StatusNotFound,
+	// 			Message: "role not found",
+	// 		},
+	// 	}, nil
+	// }
+
+	role, err := s.DBPGX.GetRole(ctx, s.DBPGXConn, int64(roleID))
+	if err != nil {
+		switch err {
+		case pgx.ErrNoRows:
+			// return 404 if role not found
+			return openapi.ImplResponse{
+				Code: http.StatusNotFound,
+				Body: openapi.Error{
+					Code:    http.StatusNotFound,
+					Message: "role not found",
+				},
+			}, nil
+
+		default:
+			log.Error().
+				Err(err).
+				Msg("failed to retrieve role")
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Code:    http.StatusInternalServerError,
+					Message: "failed to retrieve role",
+				},
+			}, nil
+		}
 	}
 
-	apiRole := converter.FromDBRoleToAPIRole(role)
+	apiRole := converter.FromPGXDBRoleToAPIRole(role)
 
 	return openapi.ImplResponse{
 		Code: http.StatusOK,

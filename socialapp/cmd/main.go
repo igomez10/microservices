@@ -39,8 +39,10 @@ import (
 	socialappurl "github.com/igomez10/microservices/socialapp/pkg/controller/url"
 	"github.com/igomez10/microservices/socialapp/pkg/controller/user"
 	"github.com/igomez10/microservices/socialapp/pkg/db"
+	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	urlClient "github.com/igomez10/microservices/urlshortener/generated/clients/go/client"
+	"github.com/jackc/pgx/v5"
 	_ "github.com/lib/pq"
 	_ "github.com/newrelic/go-agent/v3/integrations/nrpq"
 	"github.com/newrelic/go-agent/v3/newrelic"
@@ -337,10 +339,20 @@ func run(config Configuration) {
 	}
 	AuthApiController := openapi.NewAuthenticationAPIController(AuthApiService)
 
+	// urlExample := "postgres://username:password@localhost:5432/database_name"
+	pgxConn, err := pgx.Connect(context.Background(), os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to database")
+	}
+	defer pgxConn.Close(context.Background())
+
+	q := dbpgx.New()
 	// Role service
 	RoleAPIService := &role.RoleApiService{
-		DB:     config.queries,
-		DBConn: config.dbConnections.GetPool(),
+		DB:        config.queries,
+		DBConn:    config.dbConnections.GetPool(),
+		DBPGX:     q,
+		DBPGXConn: pgxConn,
 	}
 	RoleAPIController := openapi.NewRoleAPIController(RoleAPIService)
 
@@ -539,7 +551,7 @@ func run(config Configuration) {
 			authKibanaRouter.Router.ServeHTTP(w, r)
 		case config.propertiesSubdomain.Host:
 			propertiesProxy.Router.ServeHTTP(w, r)
-		case config.socialappSubdomain, config.socialappSubdomain + ":80", config.socialappSubdomain + ":443":
+		case config.socialappSubdomain, config.socialappSubdomain + ":80", config.socialappSubdomain + ":8085", config.socialappSubdomain + ":443":
 			socialappRouter.Router.ServeHTTP(w, r)
 		case config.urlShortenerSubdomain:
 			urlshortenerProxy.Router.ServeHTTP(w, r)

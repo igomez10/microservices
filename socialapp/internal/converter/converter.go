@@ -2,6 +2,7 @@ package converter
 
 import (
 	"github.com/igomez10/microservices/socialapp/pkg/db"
+	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
@@ -15,6 +16,16 @@ func FromDBCmtToAPICmt(comment db.Comment, user db.User) openapi.Comment {
 	}
 
 	return cmnt
+}
+func FromPGXDBRoleToAPIRole(dbRole dbpgx.Role) openapi.Role {
+	apiRole := openapi.Role{
+		Id:          dbRole.ID,
+		Name:        dbRole.Name,
+		Description: dbRole.Description,
+		CreatedAt:   dbRole.CreatedAt.Time,
+	}
+
+	return apiRole
 }
 
 func FromDBRoleToAPIRole(dbRole db.Role) openapi.Role {

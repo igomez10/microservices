@@ -17,7 +17,7 @@ sql:
     engine: "postgresql"
     gen:
       go:
-        package: "db"
+        package: "dbpgx"
         out: "../pkg/dbpgx"
         sql_package: "pgx/v5"
         emit_interface: true
