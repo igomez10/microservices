@@ -345,21 +345,27 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	}
 
 	// get the user to update
-	existingUser, err := s.DB.GetUserByUsername(ctx, tx, existingUsername)
+	existingDBUser, err := s.DB.GetUserByUsername(ctx, tx, existingUsername)
 	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Error getting user")
-		return openapi.ImplResponse{
-			Code: http.StatusNotFound,
-			Body: openapi.Error{
+		switch err {
+		case sql.ErrNoRows:
+			return openapi.Response(http.StatusNotFound, openapi.Error{
 				Code:    http.StatusNotFound,
 				Message: "User not found",
-			},
-		}, nil
+			}), nil
+
+		default:
+			log.Error().
+				Err(err).
+				Msg("Error getting user")
+			return openapi.Response(http.StatusInternalServerError, openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Error getting user",
+			}), nil
+		}
 	}
 
-	if newUserData.Username != "" && newUserData.Username != existingUser.Username {
+	if newUserData.Username != "" && newUserData.Username != existingDBUser.Username {
 		// validate we dont have a user with the same username that is not deleted
 		noCaseUsername := strings.ToLower(newUserData.Username)
 		if _, err := s.DB.GetUserByUsername(ctx, tx, noCaseUsername); err == nil {
@@ -375,10 +381,10 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 				},
 			}, nil
 		}
-		existingUser.Username = newUserData.Username
+		existingDBUser.Username = newUserData.Username
 	}
 
-	if newUserData.Email != "" && newUserData.Email != existingUser.Email {
+	if newUserData.Email != "" && newUserData.Email != existingDBUser.Email {
 		// validate we dont have a user with the same email that is not deleted
 		noCaseEmail := strings.ToLower(newUserData.Email)
 		if _, err := s.DB.GetUserByEmail(ctx, tx, noCaseEmail); err == nil {
@@ -393,22 +399,27 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 				},
 			}, nil
 		}
-		existingUser.Email = newUserData.Email
+		existingDBUser.Email = newUserData.Email
 	}
 
 	if newUserData.FirstName != "" {
-		existingUser.FirstName = newUserData.FirstName
+		existingDBUser.FirstName = newUserData.FirstName
 	}
 	if newUserData.LastName != "" {
-		existingUser.LastName = newUserData.LastName
+		existingDBUser.LastName = newUserData.LastName
 	}
 
 	params := db.UpdateUserByUsernameParams{
-		OldUsername: existingUsername,
-		NewUsername: newUserData.Username,
-		FirstName:   newUserData.FirstName,
-		LastName:    newUserData.LastName,
-		Email:       newUserData.Email,
+		OldUsername:             existingUsername,
+		NewUsername:             newUserData.Username,
+		FirstName:               newUserData.FirstName,
+		LastName:                newUserData.LastName,
+		Email:                   newUserData.Email,
+		HashedPassword:          existingDBUser.HashedPassword,
+		HashedPasswordExpiresAt: existingDBUser.HashedPasswordExpiresAt,
+		EmailToken:              existingDBUser.EmailToken,
+		EmailVerifiedAt:         existingDBUser.EmailVerifiedAt,
+		Salt:                    existingDBUser.Salt,
 	}
 
 	log.Debug().Msgf("UpdateUserByUsernameParams: \n%+v\n", params)
@@ -427,7 +438,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	}
 
 	// get the updated user
-	updatedUser, err := s.DB.GetUserByUsername(ctx, tx, existingUser.Username)
+	updatedUser, err := s.DB.GetUserByUsername(ctx, tx, existingDBUser.Username)
 	if err != nil {
 		log.Error().
 			Err(err).
