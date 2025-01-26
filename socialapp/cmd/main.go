@@ -342,8 +342,6 @@ func run(_ context.Context, config Configuration) {
 
 	// Auth service
 	AuthApiService := &authentication.AuthenticationService{
-		DB:        config.queries,
-		DBConn:    config.connections.GetPool(),
 		JWTSecret: config.jwtSecret,
 	}
 	AuthApiController := openapi.NewAuthenticationAPIController(AuthApiService)

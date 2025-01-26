@@ -1,11 +1,8 @@
 package gandalf
 
 import (
-	"bytes"
-	"encoding/gob"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -72,208 +69,37 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 			authHeader := r.Header.Get("Authorization")
 			if strings.HasPrefix(authHeader, "Bearer ") {
 				givenToken := strings.TrimPrefix(authHeader, "Bearer ")
-				if strings.Contains(givenToken, ".") {
-					token, err := jwt.NewTokenFromString(givenToken, m.JWTSecret)
-					if err != nil {
-						log.Error().
-							Err(err).
-							Str("token", givenToken).
-							Msg("Failed to parse token")
-						w.WriteHeader(http.StatusUnauthorized)
-						w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
-						return
-					}
-
-					if token.Expires.Before(time.Now()) || token.NotBefore.After(time.Now()) {
-						log.Error().
-							Str("token", givenToken).
-							Msg("Token invalid")
-						w.WriteHeader(http.StatusUnauthorized)
-						w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
-						return
-					}
-
-					// add scopes to request context
-					scopes := map[string]bool{}
-					for i := range token.Scopes {
-						scopes[token.Scopes[i]] = true
-					}
-					r = contexthelper.SetRequestedScopesInContext(r, scopes)
-
-					// add username to request context
-					r = contexthelper.SetUsernameInContext(r, token.Username)
-
-					authResult = "passed_with_jwt"
-				} else {
-					var token db.Token
-					// check token in cache
-					ctxDBToken, spanScopes := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.cache.get_token")
-					cachedTokenBytes, err := m.Cache.Client.Get(ctxDBToken, "token_"+givenToken).Result()
-					spanScopes.End()
-					if err != nil {
-						gandalf_token_cache.WithLabelValues("token", "miss").Inc()
-						// token not in cache, get from db
-						ctx, dbSpan := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.db.get_token")
-						dbtoken, err := m.DB.GetToken(ctx, m.DBConn, givenToken)
-						dbSpan.End()
-						switch err {
-						case nil:
-							token = dbtoken
-							// save token in cache
-							buf := &bytes.Buffer{}
-							encoder := gob.NewEncoder(buf)
-							if err := encoder.Encode(token); err != nil {
-								log.Error().
-									Err(err).
-									Str("middleware", "gandalf").
-									Msg("Failed to marshal token")
-							} else {
-								ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.cache.set_token")
-								m.Cache.Client.Set(ctx, "token_"+givenToken, buf.Bytes(), time.Hour*1)
-								span.End()
-							}
-						case pgx.ErrNoRows:
-							log.Error().
-								Err(err).
-								Msg("Token not found")
-							w.WriteHeader(http.StatusUnauthorized)
-							w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
-							return
-						default:
-							log.Error().
-								Err(err).
-								Str("error type", fmt.Sprintf("%T", err)).
-								Msg("Error while getting token")
-							w.WriteHeader(http.StatusInternalServerError)
-							w.Write([]byte(`{"code": 500, "message": "Error while getting token"}`))
-							return
-						}
-					} else {
-						// token found in cache
-						gandalf_token_cache.WithLabelValues("token", "hit").Inc()
-						b := bytes.Buffer{}
-						b.Write([]byte(cachedTokenBytes))
-						d := gob.NewDecoder(&b)
-						if err := d.Decode(&token); err != nil {
-							log.Error().
-								Err(err).
-								Str("middleware", "gandalf").
-								Msg("Failed to unmarshal token stored in cache")
-							w.WriteHeader(http.StatusInternalServerError)
-							w.Write([]byte(`{"code": 500, "message": "Error while getting token"}`))
-							return
-						}
-					}
-
-					if time.Now().After(token.ValidUntil.Time) {
-						log.Error().
-							Err(err).
-							Msg("Token expired")
-						w.WriteHeader(http.StatusUnauthorized)
-						w.Write([]byte(`{"code": 401, "message": "Token expired"}`))
-						return
-					}
-
-					// get token scopes
-					var scopes []db.Scope
-					// check scopes in cache
-					ctxScopes, spanScopes := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.cache.get_scopes")
-					cachedScopes, err := m.Cache.Client.Get(ctxScopes, "token_to_scopes_"+givenToken).Result()
-					spanScopes.End()
-					if err != nil {
-						gandalf_token_cache.WithLabelValues("scopes", "miss").Inc()
-						// scopes not in cache, get from db
-						ctxscopes, spanScopes := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.db.get_token_scopes")
-						dbTokenScopes, err := m.DB.GetTokenScopes(ctxscopes, m.DBConn, token.ID)
-						spanScopes.End()
-						switch err {
-						case nil:
-							scopes = dbTokenScopes
-							// save scopes in cache
-							buf := &bytes.Buffer{}
-							encoder := gob.NewEncoder(buf)
-							if err := encoder.Encode(scopes); err != nil {
-								log.Error().
-									Err(err).
-									Str("middleware", "gandalf").
-									Msg("Failed to marshal scopes")
-							} else {
-								ctx, setScopesSpan := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.cache.set_scopes")
-								m.Cache.Client.Set(ctx, "token_to_scopes_"+givenToken, buf.Bytes(), time.Hour*1)
-								setScopesSpan.End()
-							}
-
-						case pgx.ErrNoRows:
-							log.Error().
-								Err(err).
-								Msg("Token scopes not found")
-							w.WriteHeader(http.StatusUnauthorized)
-							w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
-							return
-						default:
-							log.Error().Err(err).Msg("Error while getting token scopes")
-							http.Error(w, "Error while getting token scopes", http.StatusInternalServerError)
-							w.Write([]byte(`{"code": 500, "message": "Error while getting token scopes"}`))
-							return
-						}
-					} else {
-						gandalf_token_cache.WithLabelValues("scopes", "hit").Inc()
-						// scopes found in cache
-						b := bytes.Buffer{}
-						b.Write([]byte(cachedScopes))
-						d := gob.NewDecoder(&b)
-						if err := d.Decode(&scopes); err != nil {
-							log.Error().
-								Err(err).
-								Str("middleware", "gandalf").
-								Msg("Failed to unmarshal token scopes")
-							w.WriteHeader(http.StatusInternalServerError)
-							w.Write([]byte(`{"code": 500, "message": "Error while getting token scopes"}`))
-							return
-						}
-					}
-
-					scopesMap := map[string]bool{}
-					for i := range scopes {
-						scopesMap[scopes[i].Name] = true
-					}
-
-					// add scopes to request context
-					r = contexthelper.SetRequestedScopesInContext(r, scopesMap)
-					// check user in cache
-					var username string
-					cacheKey := "userid_to_username" + strconv.Itoa(int(token.UserID))
-					ctx, getUserCacheSpan := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.cache.get_username")
-					cached_username, err := m.Cache.Client.Get(ctx, cacheKey).Result()
-					getUserCacheSpan.End()
-					if err != nil {
-						gandalf_token_cache.WithLabelValues("user", "miss").Inc()
-						// user not in cache, get from db
-						ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.db.get_user")
-						usr, err := m.DB.GetUserByID(ctx, m.DBConn, token.UserID)
-						span.End()
-						if err != nil {
-							log.Error().
-								Err(err).
-								Int64("userID", token.UserID).
-								Msg("Failed to get user from token")
-							w.WriteHeader(http.StatusInternalServerError)
-							w.Write([]byte(`{"code": 500, "message": "Failed to get user from token"}`))
-							return
-						}
-						username = usr.Username
-						// store it in cache
-						dbCtx, dbUserSpan := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.cache.set_username")
-						m.Cache.Client.Set(dbCtx, cacheKey, username, time.Minute*10)
-						dbUserSpan.End()
-					} else {
-						gandalf_token_cache.WithLabelValues("user", "hit").Inc()
-						username = cached_username
-					}
-
-					r = contexthelper.SetUsernameInContext(r, username)
-					authResult = "passed_with_bearer"
+				token, err := jwt.NewTokenFromString(givenToken, m.JWTSecret)
+				if err != nil {
+					log.Error().
+						Err(err).
+						Str("token", givenToken).
+						Msg("Failed to parse token")
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
+					return
 				}
+
+				if token.Expires.Before(time.Now()) || token.NotBefore.After(time.Now()) {
+					log.Error().
+						Str("token", givenToken).
+						Msg("Token invalid")
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
+					return
+				}
+
+				// add scopes to request context
+				scopes := map[string]bool{}
+				for i := range token.Scopes {
+					scopes[token.Scopes[i]] = true
+				}
+				r = contexthelper.SetRequestedScopesInContext(r, scopes)
+
+				// add username to request context
+				r = contexthelper.SetUsernameInContext(r, token.Username)
+
+				authResult = "passed_with_jwt"
 			} else if m.AllowBasicAuth || (strings.HasPrefix(authHeader, "Basic ") && r.URL.Path == m.AuthEndpoint) {
 				// check grant type is client_credentials
 				username, password, ok := r.BasicAuth()
