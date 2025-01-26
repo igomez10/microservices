@@ -8,8 +8,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
+	socialappjwt "github.com/igomez10/microservices/socialapp/internal/jwt"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
@@ -18,10 +20,13 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+var _ openapi.AuthenticationAPIServicer = (*AuthenticationService)(nil)
+
 // s *AuthenticationService openapi.AuthenticationApiServicer
 type AuthenticationService struct {
-	DB     db.Querier
-	DBConn *pgxpool.Pool
+	DB        db.Querier
+	DBConn    *pgxpool.Pool
+	JWTSecret string
 }
 
 func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.ImplResponse, error) {
@@ -49,6 +54,47 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 			Body: openapi.Error{
 				Code:    http.StatusUnauthorized,
 				Message: fmt.Errorf("failed to resolve scopes").Error(),
+			},
+		}, nil
+	}
+
+	jwtEnabled := true
+	if jwtEnabled {
+		scopes := make([]string, 0, len(requestedScopes))
+		for scope := range requestedScopes {
+			scopes = append(scopes, scope)
+		}
+
+		newtoken := socialappjwt.SocialAPPToken{
+			Username:  username,
+			Scopes:    scopes,
+			Audience:  jwt.ClaimStrings{"socialapp"},
+			Issuer:    "socialapp",
+			Expires:   jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Subject:   "socialapp",
+		}
+
+		stringToken, err := socialappjwt.TokenToString(&newtoken, []byte(s.JWTSecret))
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to create token")
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Code:    http.StatusInternalServerError,
+					Message: fmt.Errorf("failed to create token").Error(),
+				},
+			}, nil
+		}
+
+		return openapi.ImplResponse{
+			Code: http.StatusOK,
+			Body: openapi.AccessToken{
+				AccessToken: stringToken,
+				Scopes:      scopes,
+				ExpiresIn:   int32(time.Until(newtoken.Expires.Time).Seconds()),
+				TokenType:   "Bearer",
 			},
 		}, nil
 	}

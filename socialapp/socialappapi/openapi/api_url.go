@@ -128,7 +128,7 @@ func (c *URLAPIController) GetUrlData(w http.ResponseWriter, r *http.Request) {
 
 // CreateUrl - Create a new url
 func (c *URLAPIController) CreateUrl(w http.ResponseWriter, r *http.Request) {
-	urlParam := Url{}
+	var urlParam Url
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&urlParam); err != nil {

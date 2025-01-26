@@ -77,6 +77,7 @@ type Configuration struct {
 	urlShortenerSubdomain string
 	socialappSubdomain    string
 	instanceID            string
+	jwtSecret             string
 }
 
 func main() {
@@ -92,6 +93,7 @@ func main() {
 	urlAgent := flag.String("agentURL", os.Getenv("AGENT_URL"), "Agent URL \"http://localhost:4317\"")
 	urlShortenerSubdomain := flag.String("urlShortenerSubdomain", os.Getenv("URLSHORTENER_SUBDOMAIN"), "URL shortener subdomain")
 	socialappSubdomain := flag.String("socialappSubdomain", os.Getenv("SOCIALAPP_SUBDOMAIN"), "Socialapp subdomain")
+	jwtsecret := flag.String("jwtSecret", os.Getenv("JWT_SECRET"), "JWT secret")
 	flag.Parse()
 
 	instanceID := uuid.NewString()
@@ -285,6 +287,7 @@ func main() {
 		urlShortenerSubdomain: *urlShortenerSubdomain,
 		socialappSubdomain:    *socialappSubdomain,
 		instanceID:            instanceID,
+		jwtSecret:             *jwtsecret,
 	}
 
 	// parse agent url
@@ -339,8 +342,9 @@ func run(_ context.Context, config Configuration) {
 
 	// Auth service
 	AuthApiService := &authentication.AuthenticationService{
-		DB:     config.queries,
-		DBConn: config.connections.GetPool(),
+		DB:        config.queries,
+		DBConn:    config.connections.GetPool(),
+		JWTSecret: config.jwtSecret,
 	}
 	AuthApiController := openapi.NewAuthenticationAPIController(AuthApiService)
 
@@ -394,6 +398,7 @@ func run(_ context.Context, config Configuration) {
 		DBConn:           config.connections.GetPool(),
 		Cache:            config.cache,
 		AllowlistedPaths: socialappAllowlistedPaths,
+		JWTSecret:        config.jwtSecret,
 		AllowBasicAuth:   false,
 		AuthEndpoint:     "/v1/oauth/token",
 	}

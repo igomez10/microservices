@@ -104,7 +104,7 @@ func (c *CommentAPIController) GetComment(w http.ResponseWriter, r *http.Request
 
 // CreateComment - Create a new comment
 func (c *CommentAPIController) CreateComment(w http.ResponseWriter, r *http.Request) {
-	commentParam := Comment{}
+	var commentParam Comment
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&commentParam); err != nil {

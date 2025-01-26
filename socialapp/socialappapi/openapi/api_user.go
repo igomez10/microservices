@@ -197,7 +197,7 @@ func (c *UserAPIController) ListUsers(w http.ResponseWriter, r *http.Request) {
 
 // CreateUser - Create user
 func (c *UserAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
-	createUserRequestParam := CreateUserRequest{}
+	var createUserRequestParam CreateUserRequest
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&createUserRequestParam); err != nil {
@@ -224,7 +224,7 @@ func (c *UserAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // ResetPassword - Reset password
 func (c *UserAPIController) ResetPassword(w http.ResponseWriter, r *http.Request) {
-	resetPasswordRequestParam := ResetPasswordRequest{}
+	var resetPasswordRequestParam ResetPasswordRequest
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&resetPasswordRequestParam); err != nil {
@@ -251,7 +251,7 @@ func (c *UserAPIController) ResetPassword(w http.ResponseWriter, r *http.Request
 
 // ChangePassword - Change password
 func (c *UserAPIController) ChangePassword(w http.ResponseWriter, r *http.Request) {
-	changePasswordRequestParam := ChangePasswordRequest{}
+	var changePasswordRequestParam ChangePasswordRequest
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&changePasswordRequestParam); err != nil {
@@ -432,7 +432,7 @@ func (c *UserAPIController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &RequiredError{"username"}, nil)
 		return
 	}
-	userParam := User{}
+	var userParam User
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&userParam); err != nil {
@@ -498,7 +498,7 @@ func (c *UserAPIController) UpdateRolesForUser(w http.ResponseWriter, r *http.Re
 		c.errorHandler(w, r, &RequiredError{"username"}, nil)
 		return
 	}
-	requestBodyParam := []string{}
+	var requestBodyParam []string
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&requestBodyParam); err != nil && !errors.Is(err, io.EOF) {

@@ -1,9 +1,9 @@
 generate-openapi:
 	set -e
-	openapi-generator-cli version-manager set 7.10.0
+	# openapi-generator version-manager set 7.11.0
 	#  generate server:
 	rm -rf ./socialappapi
-	openapi-generator-cli generate --input-spec openapi.yaml  \
+	openapi-generator generate --input-spec openapi.yaml  \
 	--generator-name go-server \
 	--output socialappapi \
 	--ignore-file-override \
@@ -22,7 +22,8 @@ generate-openapi:
 	mv socialappapi/go socialappapi/openapi
 	
 	# generate go client
-	openapi-generator-cli generate --input-spec openapi.yaml  \
+	rm -rf client
+	openapi-generator generate --input-spec openapi.yaml  \
         --generator-name go \
         --output client \
 		--git-repo-id=microservices/socialapp \
@@ -36,12 +37,14 @@ generate-openapi:
 	rm client/test/* # remove tests in client sdk
 
 	# generate documentation
-	openapi-generator-cli generate -i openapi.yaml  \
+	rm -rf Models
+	openapi-generator generate -i openapi.yaml  \
+	--output Models \
 	--generator-name markdown
 	
 	# generate schema
-	rm -rf mysql-schema
-	openapi-generator-cli generate -i openapi.yaml  \
+	rm -rf generated-schema
+	openapi-generator generate -i openapi.yaml  \
 	--generator-name mysql-schema \
 	--output generated-schema \
 	--additional-properties=namedParametersEnabled=true \
@@ -53,7 +56,7 @@ generate-openapi:
 	
 	# generate cli 
 	rm -rf cli
-	openapi-generator-cli generate --input-spec openapi.yaml \
+	openapi-generator generate --input-spec openapi.yaml \
 		--generator-name bash \
         --output cli \
 		--additional-properties=generateZshCompletion=true \
@@ -61,13 +64,13 @@ generate-openapi:
 
 	# generate jmeter
 	rm -rf jmeter
-	openapi-generator-cli generate --input-spec openapi.yaml \
+	openapi-generator generate --input-spec openapi.yaml \
 		--generator-name jmeter \
 		--output jmeter
 
 	# generate postman collection
 	rm -rf postman
-	openapi-generator-cli generate --input-spec openapi.yaml \
+	openapi-generator generate --input-spec openapi.yaml \
 		--generator-name postman-collection \
 		--output postman
 

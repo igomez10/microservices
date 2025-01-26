@@ -133,7 +133,7 @@ func (c *ScopeAPIController) ListScopes(w http.ResponseWriter, r *http.Request) 
 
 // CreateScope - Create a new scope
 func (c *ScopeAPIController) CreateScope(w http.ResponseWriter, r *http.Request) {
-	scopeParam := Scope{}
+	var scopeParam Scope
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&scopeParam); err != nil {
@@ -188,7 +188,7 @@ func (c *ScopeAPIController) UpdateScope(w http.ResponseWriter, r *http.Request)
 		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
 		return
 	}
-	scopeParam := Scope{}
+	var scopeParam Scope
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&scopeParam); err != nil && !errors.Is(err, io.EOF) {

@@ -12,7 +12,7 @@
             "program": "cmd/main.go",
             "args": [
                 "--port=8085",
-                "--proxy=http://localhost:9091",
+                "--proxy=http://localhost:9191",
                 "--urlServiceHost=http://localhost:8087",
             ],
             "cwd": ".",

@@ -148,7 +148,7 @@ func (c *RoleAPIController) ListRoles(w http.ResponseWriter, r *http.Request) {
 
 // CreateRole - Create a new role
 func (c *RoleAPIController) CreateRole(w http.ResponseWriter, r *http.Request) {
-	roleParam := Role{}
+	var roleParam Role
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&roleParam); err != nil {
@@ -203,7 +203,7 @@ func (c *RoleAPIController) UpdateRole(w http.ResponseWriter, r *http.Request) {
 		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
 		return
 	}
-	roleParam := Role{}
+	var roleParam Role
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&roleParam); err != nil && !errors.Is(err, io.EOF) {
@@ -315,7 +315,7 @@ func (c *RoleAPIController) AddScopeToRole(w http.ResponseWriter, r *http.Reques
 		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
 		return
 	}
-	requestBodyParam := []string{}
+	var requestBodyParam []string
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&requestBodyParam); err != nil {
