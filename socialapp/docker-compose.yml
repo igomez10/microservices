@@ -64,6 +64,8 @@ services:
       - postgres
       - -c
       - wal_level=logical
+      - -c 
+      - max_connections=300
     volumes:
       - ./db/setup:/docker-entrypoint-initdb.d
       - ${DATABASE_DATA_DIR:-db_data}:/var/lib/postgresql/data
