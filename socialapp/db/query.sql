@@ -144,29 +144,6 @@ WHERE id = $1;
 SELECT * FROM credentials
 WHERE public_key = $1 AND deleted_at IS NULL LIMIT 1;
 
--- name: GetToken :one
-SELECT * FROM tokens
-WHERE token = $1 LIMIT 1;
-
--- name: CreateToken :one
-INSERT INTO tokens (
-	token, user_id, valid_until
-) VALUES (
-	$1, $2, $3
-)
-RETURNING *;
-
--- name: DeleteToken :exec
-UPDATE tokens
-SET valid_until = NOW()
-WHERE token = $1 AND NOW() < valid_until;
-
--- name: DeleteAllTokensForUser :exec
-UPDATE tokens
-SET valid_until = NOW()
-WHERE user_id = $1 AND NOW() < valid_until;
-
-
 -- name: GetScope :one
 SELECT * FROM scopes
 WHERE id = $1 AND deleted_at IS NULL LIMIT 1;
@@ -236,26 +213,6 @@ RETURNING *;
 -- name: DeleteRoleScope :exec
 DELETE FROM roles_to_scopes
 WHERE role_id = $1 AND scope_id = $2;
-
--- name: CreateTokenToScope :one
-INSERT INTO tokens_to_scopes (
-	token_id, scope_id
-) VALUES (
-  $1, $2
-)
-RETURNING *;
-
--- name: GetTokenScopes :many
-SELECT
-	s.*
-FROM
-	scopes s
-	INNER JOIN tokens_to_scopes ts ON ts.scope_id = s.id
-	INNER JOIN tokens t ON t.id = ts.token_id
-WHERE
-	t.id = $1
-	AND t.valid_until > NOW()
-	AND s.deleted_at IS NULL;
 
 -- name: CreateUserToRole :one
 INSERT INTO users_to_roles (

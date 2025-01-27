@@ -70,20 +70,6 @@ CREATE INDEX IF NOT EXISTS credentials_user_id_idx ON credentials (user_id);
 CREATE INDEX IF NOT EXISTS credentials_public_key_idx ON credentials (public_key);
 CREATE INDEX IF NOT EXISTS credentials_deleted_at_idx ON credentials (deleted_at);
 
-CREATE SEQUENCE IF NOT EXISTS tokens_id_seq;
-CREATE TABLE IF NOT EXISTS tokens ( -- short term tokens
-	id BIGINT NOT NULL DEFAULT nextval('tokens_id_seq'::regclass) PRIMARY KEY,
-	user_id BIGINT NOT NULL,
-	token VARCHAR(512) NOT NULL UNIQUE,
-	valid_from TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	valid_until TIMESTAMP NOT NULL DEFAULT '2030-01-01 00:00:00',
-    CONSTRAINT tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES "public"."users"("id")
-);
-CREATE INDEX IF NOT EXISTS tokens_user_id_idx ON tokens (user_id);
-CREATE INDEX IF NOT EXISTS tokens_token_idx ON tokens (token);
-CREATE INDEX IF NOT EXISTS tokens_valid_from_idx ON tokens (valid_from);
-CREATE INDEX IF NOT EXISTS tokens_valid_until_idx ON tokens (valid_until);
-
 CREATE SEQUENCE IF NOT EXISTS roles_id_seq;
 CREATE TABLE IF NOT EXISTS roles (
     id BIGINT NOT NULL DEFAULT nextval('roles_id_seq'::regclass) PRIMARY KEY,
@@ -131,19 +117,6 @@ CREATE INDEX IF NOT EXISTS users_to_roles_role_id_idx ON users_to_roles (role_id
 CREATE INDEX IF NOT EXISTS users_to_roles_user_id_idx ON users_to_roles (user_id);
 CREATE INDEX IF NOT EXISTS users_to_roles_role_id_user_id_idx ON users_to_roles (role_id, user_id);
 CREATE INDEX IF NOT EXISTS users_to_roles_user_id_role_id_idx ON users_to_roles (user_id, role_id);
-
-CREATE SEQUENCE IF NOT EXISTS tokens_to_scopes_id_seq;
-CREATE TABLE IF NOT EXISTS  tokens_to_scopes (
-    id BIGINT NOT NULL DEFAULT nextval('tokens_to_scopes_id_seq'::regclass) PRIMARY KEY,
-    token_id BIGINT NOT NULL,
-    scope_id BIGINT NOT NULL,
-    CONSTRAINT tokens_to_scopes_token_id_fkey FOREIGN KEY (token_id) REFERENCES "public"."tokens"("id"),
-    CONSTRAINT tokens_to_scopes_scope_id_fkey FOREIGN KEY (scope_id) REFERENCES "public"."scopes"("id")
-);
-CREATE INDEX IF NOT EXISTS tokens_to_scopes_token_id_idx ON tokens_to_scopes (token_id);
-CREATE INDEX IF NOT EXISTS tokens_to_scopes_scope_id_idx ON tokens_to_scopes (scope_id);
-CREATE INDEX IF NOT EXISTS tokens_to_scopes_token_id_scope_id_idx ON tokens_to_scopes (token_id, scope_id);
-CREATE INDEX IF NOT EXISTS tokens_to_scopes_scope_id_token_id_idx ON tokens_to_scopes (scope_id, token_id);
 
 -- Events table for event sourcing
 CREATE SEQUENCE IF NOT EXISTS events_id_seq;

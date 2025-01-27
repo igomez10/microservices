@@ -768,20 +768,6 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 		}, nil
 	}
 
-	// invalidate existing tokens
-	if err := s.DB.DeleteAllTokensForUser(ctx, tx, createUserReq.ID); err != nil {
-		log.Error().
-			Err(err).
-			Msg("Error deleting existing tokens")
-		return openapi.ImplResponse{
-			Code: http.StatusInternalServerError,
-			Body: openapi.Error{
-				Code:    http.StatusInternalServerError,
-				Message: "Error deleting existing tokens",
-			},
-		}, nil
-	}
-
 	if err := tx.Commit(ctx); err != nil {
 		log.Error().
 			Err(err).
