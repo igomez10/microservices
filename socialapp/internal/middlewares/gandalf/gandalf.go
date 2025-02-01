@@ -119,7 +119,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 				case nil:
 					// exit switch
 				case pgx.ErrNoRows:
-					log.Error().
+					log.Debug().
 						Err(err).
 						Str("username", username).
 						Msg("User not found")
