@@ -216,7 +216,7 @@ func NewMetaRouter() chi.Router {
 
 		// OPENAPI
 		// Expose the api spec via HTTP.
-		r.HandleFunc("/apispec", func(w http.ResponseWriter, r *http.Request) {
+		r.HandleFunc("/openapi.yaml", func(w http.ResponseWriter, r *http.Request) {
 			// send open api file
 			// open api file
 			file := "openapi.yaml"

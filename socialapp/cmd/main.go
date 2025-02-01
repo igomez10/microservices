@@ -387,7 +387,7 @@ func run(_ context.Context, config Configuration) {
 		"/metrics": {
 			"GET": true,
 		},
-		"/apispec": {
+		"/openapi.yaml": {
 			"GET": true,
 		},
 	}

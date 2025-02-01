@@ -1547,7 +1547,7 @@ components:
         username: johndoe
         first_name: John
         last_name: Doe
-        password: Secure123!
+        password: Secure123
         email: johndoe@mail.com
       properties:
         username:
