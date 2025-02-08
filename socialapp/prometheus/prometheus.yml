@@ -42,6 +42,12 @@ scrape_configs:
   #       port: 80
   #       refresh_interval: "30s"
 
+  - job_name: "otel-collector"
+    scrape_interval: 15s
+    static_configs:
+      - targets:
+          - otel-collector:8889
+
   - job_name: "cadvisor"
     scrape_interval: 15s
     dns_sd_configs:

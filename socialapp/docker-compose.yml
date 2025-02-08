@@ -14,7 +14,6 @@ volumes:
   # phlare_data: {}
 
 services:
-
   socialapp:
     deploy:
       replicas: 3
@@ -29,7 +28,7 @@ services:
       - "--port=8086"
       - "--propertiesSubdomain=${PROPERTIES_SUBDOMAIN}"
       - "--urlServiceHost=http://urlshortener:8089"
-      - "--agentURL=http://tempo:4317"
+      - "--agentURL=http://otel-collector:4317"
       - "--urlShortenerSubdomain=${URL_SHORTENER}"
       - "--socialappSubdomain=${SOCIALAPP_SUBDOMAIN}"
     volumes:
@@ -64,7 +63,7 @@ services:
       - postgres
       - -c
       - wal_level=logical
-      - -c 
+      - -c
       - max_connections=300
     volumes:
       - ./db/setup:/docker-entrypoint-initdb.d
@@ -73,7 +72,7 @@ services:
       - "5432:5432"
     restart: always
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "postgres" ]
+      test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -121,7 +120,7 @@ services:
       - ./grafana/config.monitoring
     restart: always
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -361,7 +360,7 @@ services:
     environment:
       "ADD_TEST_JITTER": 1,
       "TEST_SETUP": ${TEST_SETUP},
-      "AGENT_URL": "http://tempo:4317"
+      "AGENT_URL": "http://otel-collector:4317"
     restart: "unless-stopped"
     cpus: 0.5
     mem_limit: 512m
@@ -380,7 +379,7 @@ services:
     environment:
       "ADD_TEST_JITTER": 1,
       "TEST_SETUP": ${TEST_SETUP},
-      "AGENT_URL": "http://tempo:4317"
+      "AGENT_URL": "http://otel-collector:4317"
     restart: "unless-stopped"
     cpus: 0.5
     mem_limit: 512m
@@ -448,7 +447,7 @@ services:
       - database
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8083" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8083"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -496,7 +495,7 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    command: [ "node", "index.js" ]
+    command: ["node", "index.js"]
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:4242/health || exit 1
       interval: 1s
@@ -508,13 +507,8 @@ services:
     image: grafana/tempo:2.6.0
     ports:
       - "3200:3200"
-      - "4317:4317"
-      - "4318:4318"
       - "9411:9411"
-      - "55680:55680"
-      - "55681:55681"
-      - "14250:14250"
-    command: [ "-config.file=/etc/tempo.yaml" ]
+    command: ["-config.file=/etc/tempo.yaml"]
     volumes:
       - "./tempo/tempo.yaml:/etc/tempo.yaml"
     restart: unless-stopped
@@ -526,29 +520,55 @@ services:
         syslog-address: "udp://localhost:53000"
         tag: "tempo"
 
-  alloy:
-    image: grafana/alloy:v1.3.0
+  otel-collector:
+    image: otel/opentelemetry-collector:0.118.0
+    container_name: otel-collector
     ports:
-      - "12347:12345"
-      - "12348:12348"
-      - "6832:6832"
       - "55679:55679"
-      - "51893:51893/udp"
-      - "51893:51893/tcp"
-      - "3100:3100"
+      - "55680:55680"
+      - "55681:55681"
+      - "8889:8889"
+      - "4317:4317"
+      - "4318:4318"
+      - "14250:14250"
     volumes:
-      - "./alloy/config.alloy:/etc/alloy/config.alloy"
-      - "./alloy/endpoints.json:/etc/alloy/endpoints.json"
-    command:
-      - "run"
-      - "--server.http.listen-addr=0.0.0.0:12345"
-      - "--stability.level=public-preview"
-      - "/etc/alloy/config.alloy"
+      - ./otel-collector/config.yaml:/etc/otel-collector/config.yaml
+    command: ["--config", "/etc/otel-collector/config.yaml"]
+    restart: unless-stopped
+    cpus: 2
+    mem_limit: 4096m
+    depends_on:
+      - tempo
+      - prometheus
     logging:
       driver: syslog
       options:
         syslog-address: "udp://localhost:53000"
-        tag: "alloy"
+        tag: "otel-collector"
+
+  # alloy:
+  #   image: grafana/alloy:v1.3.0
+  #   ports:
+  #     - "12347:12345"
+  #     - "12348:12348"
+  #     - "6832:6832"
+  #     - "55679:55679"
+  #     - "51893:51893/udp"
+  #     - "51893:51893/tcp"
+  #     - "3100:3100"
+  #   volumes:
+  #     - "./alloy/config.alloy:/etc/alloy/config.alloy"
+  #     - "./alloy/endpoints.json:/etc/alloy/endpoints.json"
+  #   command:
+  #     - "run"
+  #     - "--server.http.listen-addr=0.0.0.0:12345"
+  #     - "--stability.level=public-preview"
+  #     - "/etc/alloy/config.alloy"
+  #   logging:
+  #     driver: syslog
+  #     options:
+  #       syslog-address: "udp://localhost:53000"
+  #       tag: "alloy"
 
   pyroscope:
     image: grafana/pyroscope:1.6.1
@@ -556,7 +576,7 @@ services:
       JAEGER_AGENT_HOST: tempo
       JAEGER_SAMPLER_TYPE: const
       JAEGER_SAMPLER_PARAM: 1
-    command: [ "-config.file=/etc/pyroscope.yml" ]
+    command: ["-config.file=/etc/pyroscope.yml"]
     ports:
       - "4040:4040"
     volumes:
