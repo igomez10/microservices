@@ -44,12 +44,6 @@ receivers:
             - targets:
                 - elasticsearch-exporter:9114
 
-        - job_name: "alertmanager"
-          scrape_interval: 15s
-          static_configs:
-            - targets:
-                - alertmanager:9093
-
         - job_name: "puttyknife-fr-producer"
           scrape_interval: 15s
           static_configs:
