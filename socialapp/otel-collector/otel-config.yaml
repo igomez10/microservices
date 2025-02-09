@@ -85,6 +85,10 @@ exporters:
       insecure: true
   prometheus:
     endpoint: 0.0.0.0:8889
+  prometheusremotewrite:
+    endpoint: "http://mimir:9009/api/v1/push"
+    tls:
+      insecure: true
 
 service:
   pipelines:
@@ -95,7 +99,7 @@ service:
     metrics:
       receivers: [otlp, prometheus]
       processors: [batch]
-      exporters: [prometheus]
+      exporters: [prometheus, prometheusremotewrite]
     logs:
       receivers: [otlp]
       processors: [batch]

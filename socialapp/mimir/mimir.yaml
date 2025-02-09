@@ -66,7 +66,7 @@ server:
   # Listen on port 9009 for all incoming requests.
   http_listen_port: 9009
   # Log messages at info level.
-  log_level: info
+  log_level: error
 
 # The store gateway block configures gateway storage.
 store_gateway:
@@ -81,5 +81,7 @@ limits:
   # A maximum of 1000000 exemplars in memory at any one time.
   # This setting enables exemplar processing and storage.
   ingestion_rate: 100000
-  max_global_series_per_user: 1000000
+  max_global_series_per_user: 2500000
   max_global_exemplars_per_user: 1000000
+  max_label_names_per_series: 100
+  native_histograms_ingestion_enabled: true

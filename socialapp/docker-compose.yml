@@ -11,6 +11,7 @@ volumes:
   kafka-data3: {}
   portainer_data: {}
   letsencrypt: {}
+  mimir-1-data: {}
   # phlare_data: {}
 
 services:
@@ -593,13 +594,13 @@ services:
     command:
       - "-ingester.native-histograms-ingestion-enabled=true"
       - "-config.file=/etc/mimir.yaml"
-      - "-ingester.max-global-series-per-user=2500000"
     ports:
       - "9009:9009"
     cpus: 2
     mem_limit: 4096m
     volumes:
       - "./mimir/mimir.yaml:/etc/mimir.yaml"
+      - mimir-1-data:/data
     restart: unless-stopped
     logging:
       driver: syslog
