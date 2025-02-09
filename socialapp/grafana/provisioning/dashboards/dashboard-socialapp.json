@@ -63,6 +63,7 @@
   "panels": [
     {
       "datasource": {
+        "default": true,
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
@@ -78,6 +79,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 7,
             "gradientMode": "hue",
@@ -149,15 +151,19 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "builder",
+          "disableTextWrap": false,
+          "editorMode": "code",
           "exemplar": false,
-          "expr": "histogram_quantile($quantile, sum by(handler, method, le) (rate(http_request_duration_seconds_bucket[$min_interval])))",
+          "expr": "histogram_quantile(${quantile:raw}, sum by(handler, method, le, code) (rate(http_request_duration_seconds_bucket[$min_interval])))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
           "instant": false,
           "interval": "",
           "key": "Q-938a118e-b179-4b31-b842-b7a379e8574e-0",
-          "legendFormat": "{{method}} {{handler}}",
+          "legendFormat": "{{method}} {{handler}} {{code}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "p90 by handler",
@@ -180,6 +186,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -302,6 +309,7 @@
     },
     {
       "datasource": {
+        "default": true,
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
@@ -317,6 +325,7 @@
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -355,7 +364,8 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "reqps"
         },
         "overrides": []
       },
@@ -385,11 +395,15 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "code",
-          "expr": "rate(http_request_duration_seconds_count{code=~\"4..\"}[30s])",
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "rate(http_request_duration_seconds_count{code=~\"4..\", exported_instance=\"socialapp.gomezignacio.com:443\"}[$min_interval])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": false,
           "legendFormat": "{{code}} {{handler}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "4XXs by handler",
@@ -397,6 +411,7 @@
     },
     {
       "datasource": {
+        "default": true,
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
@@ -406,11 +421,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -419,6 +436,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -440,14 +458,16 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "s"
         },
         "overrides": []
       },
@@ -477,11 +497,15 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
+          "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "sum(rate(http_request_duration_seconds_count[30s])) by (code)",
+          "expr": "histogram_quantile(${quantile:raw}, sum by(le, handler) (rate(http_request_duration_seconds_bucket{exported_instance=\"socialapp.gomezignacio.com:443\"}[$min_interval])))",
+          "fullMetaSearch": false,
+          "includeNullMetadata": false,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Status codes",
@@ -489,6 +513,7 @@
     },
     {
       "datasource": {
+        "default": true,
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
@@ -498,11 +523,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -511,6 +538,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -528,11 +556,13 @@
             }
           },
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -540,7 +570,7 @@
               }
             ]
           },
-          "unit": "µs"
+          "unit": "s"
         },
         "overrides": []
       },
@@ -571,15 +601,19 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "editorMode": "code",
+          "disableTextWrap": false,
+          "editorMode": "builder",
           "exemplar": false,
-          "expr": "gandalf_duration_microseconds{quantile=\"0.75\"}",
+          "expr": "histogram_quantile(${quantile:raw}, sum by(le, auth_result) (rate(authentication_duration_seconds_bucket{exported_instance=\"socialapp.gomezignacio.com:443\"}[$min_interval])))",
           "format": "time_series",
+          "fullMetaSearch": false,
+          "includeNullMetadata": false,
           "instant": false,
           "key": "Q-b015277c-2e61-46f2-95bf-9d187a66be34-0",
-          "legendFormat": "{{auth_result}} -  quantile:{{quantile}}",
+          "legendFormat": "{{auth_result}}",
           "range": true,
-          "refId": "A"
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Gandalf time spent in authentication",
@@ -596,11 +630,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -609,6 +645,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -630,7 +667,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -691,11 +729,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -704,6 +744,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -725,7 +766,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -777,6 +819,7 @@
     },
     {
       "datasource": {
+        "default": true,
         "type": "prometheus",
         "uid": "PBFA97CFB590B2093"
       },
@@ -786,11 +829,13 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
+            "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
             "gradientMode": "none",
@@ -799,6 +844,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -820,7 +866,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -858,7 +905,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "rate(http_request_duration_seconds_count{code=~\"5..\"}[30s])",
+          "expr": "rate(http_request_duration_seconds_count{code=~\"5..\", exported_instance=\"socialapp.gomezignacio.com:443\"}[$min_interval])\n\n",
           "legendFormat": "{{code}} {{handler}}",
           "range": true,
           "refId": "A"
@@ -868,16 +915,16 @@
       "type": "timeseries"
     }
   ],
-  "refresh": false,
+  "refresh": "",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "5m",
-          "value": "5m"
+          "selected": true,
+          "text": "30m",
+          "value": "30m"
         },
         "hide": 0,
         "includeAll": false,
@@ -895,7 +942,7 @@
             "value": "1m"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "5m",
             "value": "5m"
           },
@@ -905,7 +952,7 @@
             "value": "15m"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "30m",
             "value": "30m"
           },
@@ -913,18 +960,38 @@
             "selected": false,
             "text": "1h",
             "value": "1h"
+          },
+          {
+            "selected": false,
+            "text": "3h",
+            "value": "3h"
+          },
+          {
+            "selected": false,
+            "text": "6h",
+            "value": "6h"
+          },
+          {
+            "selected": false,
+            "text": "12h",
+            "value": "12h"
+          },
+          {
+            "selected": false,
+            "text": "24h",
+            "value": "24h"
           }
         ],
-        "query": "15s, 1m, 5m, 15m, 30m, 1h",
+        "query": "15s, 1m, 5m, 15m, 30m, 1h, 3h, 6h, 12h, 24h",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
       },
       {
         "current": {
-          "selected": false,
-          "text": "0.50",
-          "value": "0.50"
+          "selected": true,
+          "text": "0.75",
+          "value": "0.75"
         },
         "hide": 0,
         "includeAll": false,
@@ -932,12 +999,12 @@
         "name": "quantile",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "0.50",
             "value": "0.50"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "0.75",
             "value": "0.75"
           },
@@ -975,13 +1042,13 @@
     ]
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-12h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Socialapp dashboard",
   "uid": "l1YgmnvVk",
-  "version": 55,
+  "version": 78,
   "weekStart": ""
 }
