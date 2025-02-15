@@ -153,11 +153,12 @@ CREATE INDEX IF NOT EXISTS urls_alias_idx ON urls (alias);
 --  SEEDING DATA
 INSERT INTO users (
     id , username , hashed_password , hashed_password_expires_at , salt , first_name , last_name , email , created_at , updated_at , deleted_at ) 
-VALUES (1, 'admin', 'LPWJbW+u2por79jDW+uClI+VvxrX7HpT5eX53kdNd4U=', '2030-01-01 00:00:00', 'MTUyNzJkYjgtZjVjNi00YjIxLTk3ZDktZDJkMTEzODM5NjQ1', 'first_name', 'last_name', 'email@email.com', '2020-01-01 00:00:00', '2020-01-01 00:00:00', NULL);
+VALUES 
+(1, 'admin', 'LPWJbW+u2por79jDW+uClI+VvxrX7HpT5eX53kdNd4U=', '2030-01-01 00:00:00', 'MTUyNzJkYjgtZjVjNi00YjIxLTk3ZDktZDJkMTEzODM5NjQ1', 'first_name', 'last_name', 'email@email.com', '2020-01-01 00:00:00', '2020-01-01 00:00:00', NULL),
+(2, 'someotheruser', 'LPWJbW+u2por79jDW+uClI+VvxrX7HpT5eX53kdNd4U=', '2030-01-01 00:00:00', 'MTUyNzJkYjgtZjVjNi00YjIxLTk3ZDktZDJkMTEzODM5NjQ1', 'first_name', 'last_name', 'email@email.com', '2020-01-01 00:00:00', '2020-01-01 00:00:00', NULL);
 ALTER SEQUENCE users_id_seq RESTART WITH 2;
 
 INSERT INTO comments (id, content, like_count, created_at, user_id, deleted_at) VALUES
-(1, 'something', 0, '2022-08-20 11:53:21.218349', 1, NULL),
 (1, 'something', 0, '2022-08-20 11:53:21.218349', 1, NULL),
 (2, 'something', 0, '2022-08-20 11:53:21.218349', 1, NULL),
 (3, 'something', 0, '2022-08-20 11:53:21.218349', 1, NULL),
