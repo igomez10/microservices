@@ -68,10 +68,17 @@ datasources:
       graphiteVersion: "1.1"
       tlsAuth: false
       tlsAuthWithCACert: false
-    secureJsonData:
-      tlsCACert: $PROMETHEUS_TLSCACERT
-      tlsClientCert: $PROMETHEUS_TLSCLIENTCERT
-      tlsClientKey: $PROMETHEUS_TLSCLIENTKEY
+  - orgId: 1
+    version: 1
+    name: Mimir
+    type: prometheus
+    access: proxy
+    url: http://mimir:9009/prometheus
+    isDefault: false
+    jsonData:
+      graphiteVersion: "1.1"
+      tlsAuth: false
+      tlsAuthWithCACert: false
 
 allow_embedding: true
 auth.anonymous:

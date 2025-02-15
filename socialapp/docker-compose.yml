@@ -104,7 +104,8 @@ services:
     image: grafana/grafana:11.2.0
     user: "472"
     ports:
-      - 3005:3000
+      - 3000:3000
+    container_name: grafana
     environment:
       - GF_FEATURE_TOGGLES_ENABLE=flameGraph
       - POSTGRESQL_PROPERTIES_PASSWORD=${POSTGRESQL_PROPERTIES_PASSWORD}
@@ -112,8 +113,6 @@ services:
       - GITHUB_ACCESSTOKEN=${GITHUB_ACCESSTOKEN}
       - GF_INSTALL_PLUGINS=redis-app
       - GF_INSTALL_PLUGINS=redis-explorer-app
-    expose:
-      - 3000
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning/:/etc/grafana/provisioning/
@@ -546,30 +545,6 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "otel-collector"
-
-  # alloy:
-  #   image: grafana/alloy:v1.3.0
-  #   ports:
-  #     - "12347:12345"
-  #     - "12348:12348"
-  #     - "6832:6832"
-  #     - "55679:55679"
-  #     - "51893:51893/udp"
-  #     - "51893:51893/tcp"
-  #     - "3100:3100"
-  #   volumes:
-  #     - "./alloy/config.alloy:/etc/alloy/config.alloy"
-  #     - "./alloy/endpoints.json:/etc/alloy/endpoints.json"
-  #   command:
-  #     - "run"
-  #     - "--server.http.listen-addr=0.0.0.0:12345"
-  #     - "--stability.level=public-preview"
-  #     - "/etc/alloy/config.alloy"
-  #   logging:
-  #     driver: syslog
-  #     options:
-  #       syslog-address: "udp://localhost:53000"
-  #       tag: "alloy"
 
   pyroscope:
     image: grafana/pyroscope:1.6.1
