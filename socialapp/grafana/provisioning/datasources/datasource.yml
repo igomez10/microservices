@@ -79,6 +79,17 @@ datasources:
       graphiteVersion: "1.1"
       tlsAuth: false
       tlsAuthWithCACert: false
+  - orgId: 1
+    version: 1
+    name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    isDefault: false
+    jsonData:
+      graphiteVersion: "1.1"
+      tlsAuth: false
+      tlsAuthWithCACert: false
 
 allow_embedding: true
 auth.anonymous:

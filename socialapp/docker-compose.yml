@@ -24,6 +24,8 @@ services:
     networks:
       - elk
       - default
+    ports:
+      - "8086:8086"
     command:
       - "/main"
       - "--port=8086"
@@ -37,6 +39,9 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:password@database:5432/socialapp?sslmode=disable
       REDIS_URL: redis://redis:6379
+      LOCAL_SUBDOMAIN: localhost:8086
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      OTEL_SERVICE_NAME: socialapp
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
@@ -101,7 +106,7 @@ services:
     mem_limit: 512m
 
   grafana:
-    image: grafana/grafana:11.2.0
+    image: grafana/grafana:11.5.1
     user: "472"
     ports:
       - 3000:3000
@@ -537,6 +542,9 @@ services:
     restart: unless-stopped
     cpus: 2
     mem_limit: 4096m
+    networks:
+      - default
+      - elk
     depends_on:
       - tempo
       - prometheus
