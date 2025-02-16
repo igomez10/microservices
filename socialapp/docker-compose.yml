@@ -24,8 +24,6 @@ services:
     networks:
       - elk
       - default
-    ports:
-      - "8086:8086"
     command:
       - "/main"
       - "--port=8086"
