@@ -50,11 +50,12 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
 type Configuration struct {
@@ -234,27 +235,51 @@ func main() {
 	}
 
 	ctx := context.Background()
-	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithInsecure(), otlptracegrpc.WithEndpointURL(*urlAgent))
+
+	exporter, err := otlptracegrpc.New(ctx,
+		otlptracegrpc.WithInsecure(),
+		otlptracegrpc.WithEndpointURL(*urlAgent),
+	)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", *urlAgent)
 	}
+
+	res, err := resource.New(ctx,
+		resource.WithTelemetrySDK(),
+		resource.WithProcessRuntimeDescription(),
+		resource.WithAttributes(attribute.KeyValue{
+			Key:   attribute.Key("instance_id"),
+			Value: attribute.StringValue(instanceID),
+		}),
+	)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create resource")
+	}
+
 	// Create a new tracer provider with a batch span processor and the otlp exporter.
 	tp := trace.NewTracerProvider(
 		trace.WithBatcher(exporter),
-		trace.WithResource(resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceNameKey.String(*appName),
-			attribute.KeyValue{
-				Key:   attribute.Key("instance_id"),
-				Value: attribute.StringValue(instanceID),
-			},
-		// Add more attributes as needed
-		)),
+		trace.WithResource(res),
+	)
+
+	// The OTLP exporter sends data to the OpenTelemetry collector.
+	exp, err := otlpmetricgrpc.New(ctx,
+		otlpmetricgrpc.WithInsecure(),
+		otlpmetricgrpc.WithEndpointURL(*urlAgent),
+	)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create otlp exporter for metrics")
+	}
+
+	metricProvider := metric.NewMeterProvider(
+		metric.WithResource(res),
+		metric.WithReader(metric.NewPeriodicReader(exp)),
 	)
 
 	// Register the tracer provider as the global provider.
-	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	otel.SetTracerProvider(tp)
+	otel.SetMeterProvider(metricProvider)
 
 	// Connect to database
 	// force creation of 8 connections, one per service
@@ -384,9 +409,6 @@ func run(_ context.Context, config Configuration) {
 	}
 
 	socialappAllowlistedPaths := map[string]map[string]bool{
-		"/metrics": {
-			"GET": true,
-		},
 		"/openapi.yaml": {
 			"GET": true,
 		},

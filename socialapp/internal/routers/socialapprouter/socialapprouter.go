@@ -12,11 +12,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/pattern"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/newrelic/go-agent/v3/newrelic"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
-	"github.com/slok/go-http-metrics/metrics/prometheus"
-	metricsMiddleware "github.com/slok/go-http-metrics/middleware"
-	"github.com/slok/go-http-metrics/middleware/std"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
@@ -38,9 +34,6 @@ func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers [
 			w.Write([]byte("OK"))
 		})
 
-		// METRICS
-		r.Handle("/metrics", promhttp.Handler())
-
 		// OPENAPI
 		// Expose the api spec via HTTP.
 		r.HandleFunc("/openapi.yaml", func(w http.ResponseWriter, r *http.Request) {
@@ -60,11 +53,6 @@ func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers [
 	// Main router group for api logic
 	mainRouter.Group(func(r chi.Router) {
 
-		mdlw := metricsMiddleware.New(metricsMiddleware.Config{
-			Recorder: prometheus.NewRecorder(prometheus.Config{}),
-			Service:  "socialapp",
-		})
-
 		for _, api := range routers {
 			for _, route := range api.Routes() {
 				var handler http.Handler
@@ -72,7 +60,6 @@ func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers [
 
 				r.Group(func(r chi.Router) {
 					// use a  custom middleware to record the metrics on the route pattern.
-					r.Use(std.HandlerProvider(route.Pattern, mdlw))
 
 					pattern := pattern.Pattern{Pattern: route.Pattern}
 					r.Use(pattern.Middleware)
@@ -98,7 +85,7 @@ func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers [
 
 					// Add open telemetry traces
 					resourceName := fmt.Sprintf("%s_%s", route.Method, route.Pattern)
-					otelHandler := otelhttp.NewHandler(http.Handler(handler), resourceName)
+					otelHandler := otelhttp.NewHandler(handler, resourceName)
 
 					r.Method(route.Method, route.Pattern, otelHandler)
 				})
