@@ -49,6 +49,10 @@ ping:
   entryPoint: "web"
 
 metrics:
+  otlp:
+    grpc:
+      endpoint: "otel-collector:4317"
+      insecure: true
   prometheus:
     entryPoint: "web"
     addEntryPointsLabels: true
@@ -63,8 +67,9 @@ tracing:
   serviceName: "traefik"
   addInternals: true
   otlp:
-    http:
-      endpoint: "http://tempo:4317"
+    grpc:
+      endpoint: "otel-collector:4317"
+      insecure: true
 
 ## Dynamic configuration
 http:
