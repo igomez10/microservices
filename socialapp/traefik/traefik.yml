@@ -45,6 +45,9 @@ log:
   level: INFO
   format: json
 
+accessLog:
+  format: json
+
 ping:
   entryPoint: "web"
 

@@ -1,6 +1,12 @@
 networks:
   elk:
     name: docker-elk_elk
+  dns:
+    name: dns
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
 
 volumes:
   prometheus_data: {}
@@ -37,17 +43,18 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:password@database:5432/socialapp?sslmode=disable
       REDIS_URL: redis://redis:6379
-      LOCAL_SUBDOMAIN: localhost:8086
+      LOCAL_SUBDOMAIN: socialapp.${EXPOSED_HOST}
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
       OTEL_SERVICE_NAME: socialapp
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.socialapp.entrypoints=websecure"
-      - "traefik.http.routers.socialapp.rule=Host(`socialapp.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.socialapp1.entrypoints=web"
+      - "traefik.http.routers.socialapp1.entrypoints=websecure"
+      - "traefik.http.routers.socialapp1.rule=Host(`socialapp.${EXPOSED_HOST}`)"
       - "traefik.http.services.socialapp.loadbalancer.server.port=8086"
-      - "traefik.http.routers.socialapp.tls=true"
-      - "traefik.http.routers.socialapp.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.socialapp1.tls=true"
+      - "traefik.http.routers.socialapp1.tls.certresolver=letsencrypt"
     depends_on:
       - database
     cpus: 0.5
@@ -209,7 +216,7 @@ services:
         tag: "node-exporter"
 
   inspector:
-    image: ubuntu:latest
+    image: nicolaka/netshoot
     command: sleep infinity
     ports:
       - 1243:1243
@@ -218,6 +225,13 @@ services:
       options:
         syslog-address: "udp://localhost:53000"
         tag: "inspector"
+    networks:
+      - dns
+      - default
+      - elk
+    extra_hosts:
+      - "socialapp.${EXPOSED_HOST}:172.28.0.3"
+      - "whoami.${EXPOSED_HOST}:172.28.0.3"
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
@@ -640,14 +654,12 @@ services:
       - "./traefik/traefik.yml:/etc/traefik/traefik.yml"
     cpus: 1
     mem_limit: 1024m
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.traefik.entrypoints=weblocal"
-      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
     networks:
-      - default
-      - elk
+      dns:
+        ipv4_address: 172.28.0.3
+      default:
+      elk:
+
     logging:
       driver: syslog
       options:
@@ -656,6 +668,7 @@ services:
 
   whoamiinternal:
     image: traefik/whoami
+    container_name: whoamiinternal
     labels:
       - "traefik.http.routers.whoamiinternal.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
       - "traefik.http.services.whoamiinternal.loadbalancer.server.port=80"
@@ -673,12 +686,13 @@ services:
 
   whoami:
     image: traefik/whoami
+    container_name: whoami
     labels:
-      - "traefik.http.routers.whoami.rule=Host(`whoami.${EXPOSED_HOST}`)"
       - "traefik.http.services.whoami.loadbalancer.server.port=80"
-      - "traefik.http.routers.whoami.entrypoints=websecure"
-      - "traefik.http.routers.whoami.tls=true"
-      - "traefik.http.routers.whoami.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.whoamihost.rule=Host(`whoami.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.whoamihost.entrypoints=websecure"
+      - "traefik.http.routers.whoamihost.tls=true"
+      - "traefik.http.routers.whoamihost.tls.certresolver=letsencrypt"
       - "traefik.enable=true"
     cpus: 0.5
     mem_limit: 512m
