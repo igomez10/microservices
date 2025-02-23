@@ -18,7 +18,6 @@ volumes:
   portainer_data: {}
   letsencrypt: {}
   mimir-1-data: {}
-  # phlare_data: {}
 
 services:
   socialapp:
@@ -172,8 +171,6 @@ services:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
     ports:
       - 9093:9093
-    expose:
-      - 9093
     restart: always
     cpus: 2
     mem_limit: 2g
@@ -372,6 +369,7 @@ services:
     build:
       context: .
       dockerfile: Integration.Dockerfile
+    container_name: integration-tests-1
     ports:
       - "45678:45678"
     environment:
@@ -383,52 +381,14 @@ services:
     mem_limit: 512m
     extra_hosts:
       - "socialapp.${EXPOSED_HOST}:172.28.0.3"
+    networks:
+      - default
+      - dns
     logging:
       driver: "syslog"
       options:
         syslog-address: "udp://localhost:53000"
         tag: "integration-tests"
-
-  integration-tests-2:
-    build:
-      context: .
-      dockerfile: Integration.Dockerfile
-    ports:
-      - "45679:45679"
-    environment:
-      "ADD_TEST_JITTER": 1,
-      "TEST_SETUP": ${TEST_SETUP},
-      "AGENT_URL": "http://otel-collector:4317"
-    restart: "unless-stopped"
-    cpus: 0.5
-    mem_limit: 512m
-    extra_hosts:
-      - "socialapp.${EXPOSED_HOST}:172.28.0.3"
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "udp://localhost:53000"
-        tag: "integration-tests"
-
-  # newrelic:
-  #   build:
-  #     context: ./newrelic
-  #   container_name: newrelic
-  #   volumes:
-  #     - "/:/host:ro"
-  #     - "/var/run/docker.sock:/var/run/docker.sock"
-  #   cap_add:
-  #     - SYS_PTRACE
-  #   network_mode: host
-  #   pid: host
-  #   privileged: true
-  #   environment:
-  #     # set host name
-  #     - NRIA_DISPLAY_NAME=ocivm
-  #     - NRIA_OVERRIDE_HOSTNAME_SHORT=true
-  #     - NRIA_LICENSE_KEY=${NEW_RELIC_LICENSE}
-  #     - NEW_RELIC_LOG=stdout
-  #     - NEW_RELIC_LOG_LEVEL=info
 
   elasticsearch-exporter:
     image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
@@ -663,7 +623,6 @@ services:
         ipv4_address: 172.28.0.3
       default:
       elk:
-
     logging:
       driver: syslog
       options:

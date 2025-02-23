@@ -46,7 +46,7 @@ log:
   format: json
 
 accessLog:
-  format: json
+  format: commmon
 
 ping:
   entryPoint: "web"
