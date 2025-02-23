@@ -381,6 +381,8 @@ services:
     restart: "unless-stopped"
     cpus: 0.5
     mem_limit: 512m
+    extra_hosts:
+      - "socialapp.${EXPOSED_HOST}:172.28.0.3"
     logging:
       driver: "syslog"
       options:
@@ -400,6 +402,8 @@ services:
     restart: "unless-stopped"
     cpus: 0.5
     mem_limit: 512m
+    extra_hosts:
+      - "socialapp.${EXPOSED_HOST}:172.28.0.3"
     logging:
       driver: "syslog"
       options:
