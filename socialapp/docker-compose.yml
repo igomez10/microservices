@@ -594,11 +594,6 @@ services:
     mem_limit: 512m
     ports:
       - "6379:6379"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.redis.entrypoints=weblocal"
-      - "traefik.http.routers.redis.rule=Host(`redis.${EXPOSED_HOST}`)"
-      - "traefik.http.services.redis.loadbalancer.server.port=6379"
     logging:
       driver: syslog
       options:

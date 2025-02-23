@@ -56,19 +56,10 @@ metrics:
     grpc:
       endpoint: "otel-collector:4317"
       insecure: true
-  prometheus:
-    entryPoint: "web"
-    addEntryPointsLabels: true
-    addServicesLabels: true
-    buckets:
-      - 0.1
-      - 0.3
-      - 1.2
-      - 5.0
 
 tracing:
   serviceName: "traefik"
-  addInternals: true
+  # addInternals: true
   otlp:
     grpc:
       endpoint: "otel-collector:4317"

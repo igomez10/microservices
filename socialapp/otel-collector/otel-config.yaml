@@ -62,17 +62,6 @@ receivers:
             - targets:
                 - urlshortener:8082
 
-        - job_name: "traefik"
-          scrape_interval: 15s
-          # allow insecure connections
-          scheme: http
-          # ignore certificate errors
-          tls_config:
-            insecure_skip_verify: true
-          static_configs:
-            - targets:
-                - traefik:80
-
 processors:
   batch:
     timeout: 10s
