@@ -66,6 +66,7 @@ services:
 
   database:
     image: postgres:15
+    container_name: database
     environment:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: socialapp
@@ -95,6 +96,7 @@ services:
     mem_limit: 2g
 
   postgres-exporter:
+    container_name: postgres-exporter
     image: quay.io/prometheuscommunity/postgres-exporter
     environment:
       DATA_SOURCE_NAME: "postgresql://postgres:password@database:5432/postgres?sslmode=disable"
@@ -110,11 +112,11 @@ services:
     mem_limit: 512m
 
   grafana:
+    container_name: grafana
     image: grafana/grafana:11.5.1
     user: "472"
     ports:
       - 3000:3000
-    container_name: grafana
     environment:
       - GF_FEATURE_TOGGLES_ENABLE=flameGraph
       - POSTGRESQL_PROPERTIES_PASSWORD=${POSTGRESQL_PROPERTIES_PASSWORD}
@@ -142,6 +144,7 @@ services:
         tag: "grafana"
 
   prometheus:
+    container_name: prometheus
     image: prom/prometheus:v2.50.1
     volumes:
       - ./prometheus/:/etc/prometheus/
@@ -164,6 +167,7 @@ services:
         tag: "prometheus"
 
   alertmanager:
+    container_name: alertmanager
     image: prom/alertmanager:latest
     volumes:
       - ./alertmanager/:/etc/alertmanager/
@@ -181,8 +185,8 @@ services:
         tag: "alertmanager"
 
   node-exporter:
-    image: prom/node-exporter:v1.7.0
     container_name: node-exporter
+    image: prom/node-exporter:v1.7.0
     privileged: true
     restart: unless-stopped
     volumes:
@@ -213,6 +217,7 @@ services:
         tag: "node-exporter"
 
   inspector:
+    container_name: inspector
     image: nicolaka/netshoot
     command: sleep infinity
     ports:
@@ -231,8 +236,8 @@ services:
       - "whoami.${EXPOSED_HOST}:172.28.0.3"
 
   cadvisor:
+    container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:v0.49.1
-    container_name: monitoring_cadvisor
     privileged: true
     restart: unless-stopped
     volumes:
@@ -257,8 +262,8 @@ services:
         tag: "cadvisor"
 
   broker1:
-    image: confluentinc/cp-kafka:latest
     container_name: broker1
+    image: confluentinc/cp-kafka:latest
     ports:
       - "9092:9092"
       - "29092:29092"
@@ -287,8 +292,8 @@ services:
         tag: "broker1"
 
   broker2:
-    image: confluentinc/cp-kafka:latest
     container_name: broker2
+    image: confluentinc/cp-kafka:latest
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_LISTENERS: PLAINTEXT://:9092,KRAFT://:9098,PLAINTEXT_HOST://:29093
@@ -316,8 +321,8 @@ services:
         tag: "broker2"
 
   broker3:
-    image: confluentinc/cp-kafka:latest
     container_name: broker3
+    image: confluentinc/cp-kafka:latest
     ports:
       - "29094:29094"
     environment:
@@ -345,8 +350,8 @@ services:
         tag: "broker3"
 
   kafka-ui:
-    image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
     restart: always
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
@@ -366,10 +371,10 @@ services:
         tag: "kafka-ui"
 
   integration-tests-1:
+    container_name: integration-tests-1
     build:
       context: .
       dockerfile: Integration.Dockerfile
-    container_name: integration-tests-1
     ports:
       - "45678:45678"
     environment:
@@ -391,6 +396,7 @@ services:
         tag: "integration-tests"
 
   elasticsearch-exporter:
+    container_name: elasticsearch-exporter
     image: quay.io/prometheuscommunity/elasticsearch-exporter:latest
     environment:
       ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
@@ -463,6 +469,7 @@ services:
   #       syslog-address: "udp://localhost:53000"
   #       tag: "debezium-ui"
   unleash:
+    container_name: unleash
     image: unleashorg/unleash-server:5
     ports:
       - "4242:4242"
@@ -485,6 +492,7 @@ services:
       start_period: 15s
 
   tempo:
+    container_name: tempo
     image: grafana/tempo:2.6.0
     ports:
       - "3200:3200"
@@ -502,8 +510,8 @@ services:
         tag: "tempo"
 
   otel-collector:
-    image: otel/opentelemetry-collector:0.118.0
     container_name: otel-collector
+    image: otel/opentelemetry-collector:0.118.0
     ports:
       - "55679:55679"
       - "55680:55680"
@@ -531,6 +539,7 @@ services:
         tag: "otel-collector"
 
   pyroscope:
+    container_name: pyroscope
     image: grafana/pyroscope:1.6.1
     environment:
       JAEGER_AGENT_HOST: tempo
@@ -549,6 +558,7 @@ services:
         tag: "pyroscope"
 
   mimir:
+    container_name: mimir
     image: grafana/mimir:2.13.0
     command:
       - "-ingester.native-histograms-ingestion-enabled=true"
@@ -568,12 +578,13 @@ services:
         tag: "mimir"
 
   loki:
+    container_name: loki
     image: grafana/loki:2.9.4
     restart: unless-stopped
 
   portainer:
-    image: portainer/portainer-ce:latest
     container_name: portainer
+    image: portainer/portainer-ce:latest
     ports:
       - "9000:9000"
     volumes:
@@ -589,6 +600,7 @@ services:
         tag: "portainer"
 
   redis:
+    container_name: redis
     image: redis:6.2.6
     cpus: 0.5
     mem_limit: 512m
@@ -601,6 +613,7 @@ services:
         tag: "redis"
 
   traefik:
+    container_name: traefik
     image: traefik:v3.1.4
     ports:
       - "80:80"
@@ -625,8 +638,8 @@ services:
         tag: "traefik"
 
   whoamiinternal:
-    image: traefik/whoami
     container_name: whoamiinternal
+    image: traefik/whoami
     labels:
       - "traefik.http.routers.whoamiinternal.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
       - "traefik.http.services.whoamiinternal.loadbalancer.server.port=80"
@@ -643,8 +656,8 @@ services:
         tag: "whoamiinternal"
 
   whoami:
-    image: traefik/whoami
     container_name: whoami
+    image: traefik/whoami
     labels:
       - "traefik.http.services.whoami.loadbalancer.server.port=80"
       - "traefik.http.routers.whoamihost.rule=Host(`whoami.${EXPOSED_HOST}`)"
