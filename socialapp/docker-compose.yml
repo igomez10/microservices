@@ -33,10 +33,15 @@ services:
       - "/main"
       - "--port=8086"
       - "--propertiesSubdomain=${PROPERTIES_SUBDOMAIN}"
-      - "--urlServiceHost=http://urlshortener:8089"
       - "--agentURL=http://otel-collector:4317"
       - "--urlShortenerSubdomain=${URL_SHORTENER}"
+      - "--urlShortenerURL=http://urlshortener:8089"
       - "--socialappSubdomain=${SOCIALAPP_SUBDOMAIN}"
+      - "--kibanaSubdomain=${KIBANA_SUBDOMAIN}"
+      - "--kibanaURL=http://kibana:5601"
+      - "--puttyknifeDomain=puttyknife-server.${EXPOSED_HOST}"
+      - "--puttyknife-url=http://puttyknife-server:8096"
+      - "--jwtSecret=${JWT_SECRET}"
     volumes:
       - ./openapi.yaml:/openapi.yaml
     environment:
@@ -48,12 +53,23 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.socialapp1.service=socialapp"
       - "traefik.http.routers.socialapp1.entrypoints=web"
       - "traefik.http.routers.socialapp1.entrypoints=websecure"
       - "traefik.http.routers.socialapp1.rule=Host(`socialapp.${EXPOSED_HOST}`)"
       - "traefik.http.services.socialapp.loadbalancer.server.port=8086"
       - "traefik.http.routers.socialapp1.tls=true"
       - "traefik.http.routers.socialapp1.tls.certresolver=letsencrypt"
+
+      # puttynkife-server
+      - "traefik.http.routers.puttyknife-server.service=socialapp"
+      - "traefik.http.routers.puttyknife-server.entrypoints=web"
+      - "traefik.http.routers.puttyknife-server.entrypoints=websecure"
+      - "traefik.http.routers.puttyknife-server.rule=Host(`puttyknife-server.${EXPOSED_HOST}`)"
+      - "traefik.http.services.puttyknife-server.loadbalancer.server.port=8086"
+      - "traefik.http.routers.puttyknife-server.tls=true"
+      - "traefik.http.routers.puttyknife-server.tls.certresolver=letsencrypt"
+
     depends_on:
       - database
     cpus: 0.5

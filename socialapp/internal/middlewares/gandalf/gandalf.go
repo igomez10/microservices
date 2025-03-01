@@ -8,7 +8,6 @@ import (
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/jwt"
-	"github.com/igomez10/microservices/socialapp/internal/middlewares/cache"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/controller/user"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
@@ -36,7 +35,6 @@ var authenticationDuration = promauto.NewHistogramVec(
 type Middleware struct {
 	DB               db.Querier
 	DBConn           *pgxpool.Pool
-	Cache            *cache.Cache
 	JWTSecret        string
 	AllowlistedPaths map[string]map[string]bool
 	AllowBasicAuth   bool

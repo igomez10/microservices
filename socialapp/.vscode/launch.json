@@ -13,7 +13,8 @@
             "args": [
                 "--port=8085",
                 "--proxy=http://localhost:9191",
-                "--urlServiceHost=http://localhost:8087",
+                "--puttyknifeDomain=puttyknife-server.localhostgomezignacio.com",
+                "--puttyknife-url=http://localhost:8096",
             ],
             "cwd": ".",
             "envFile": "${workspaceFolder}/.env"

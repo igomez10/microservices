@@ -2,24 +2,23 @@ package main
 
 import (
 	//  With pprof to enable profiling
-	_ "net/http/pprof"
-
 	"context"
 	"encoding/base64"
-	"flag"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
+	_ "net/http/pprof"
 	"net/url"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/exaring/otelpgx"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/go-chi/cors"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-retryablehttp"
@@ -42,9 +41,9 @@ import (
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	urlClient "github.com/igomez10/microservices/urlshortener/generated/clients/go/client"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jessevdk/go-flags"
 	_ "github.com/lib/pq"
-	_ "github.com/newrelic/go-agent/v3/integrations/nrpq"
-	"github.com/newrelic/go-agent/v3/newrelic"
+	"github.com/rs/cors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -59,56 +58,91 @@ import (
 )
 
 type Configuration struct {
-	appName             string
-	appPort             int
-	proxyURL            string
-	logLevel            zerolog.Level
-	logDestination      io.Writer
-	connections         *ForcedConnectionPool
-	queries             *dbpgx.Queries
-	cache               *cache.Cache
-	propertiesSubdomain *url.URL
-	newRelicApp         *newrelic.Application
-	defaultTimeout      time.Duration
-	agentURL            *url.URL
-	// urlService is the url for the urlshortener service
-	urlService *url.URL
-	// urlshortenerSubdomain := os.Getenv("URLSHORTENER_SUBDOMAIN")
-	// socialappSubdomain := os.Getenv("SOCIALAPP_SUBDOMAIN")
+	appName               string
+	appPort               int
+	proxyURL              string
+	logLevel              zerolog.Level
+	logDestination        io.Writer
+	connections           *ForcedConnectionPool
+	queries               *dbpgx.Queries
+	cache                 *cache.Cache
+	propertiesSubdomain   *url.URL
+	defaultTimeout        time.Duration
+	urlService            *url.URL
 	urlShortenerSubdomain string
 	socialappSubdomain    string
 	instanceID            string
 	jwtSecret             string
+	puttyknifeDomain      string
+	puttyknifeURL         *url.URL
+	KibanaSubdomain       string
+	KibanaURL             string
+	urlShortenerURL       string
+	localSubdomain        string
 }
 
 func main() {
-	appPort := flag.Int("port", 8080, "main port for application")
-	proxyURL := flag.String("proxy", "", "proxy url, \"http://localhost:9091\"")
-	logHost := flag.String("logHost", os.Getenv("LOGSTASH_HOST"), "log host url \"tcp://localhost:5000\"")
-	logLevel := flag.String("logLevel", "info", "log level info/error/warning")
-	appName := flag.String("appName", "socialapp", "name of the app for logs")
-	propertiesSubdomain := flag.String("propertiesSubdomain", os.Getenv("PROPERTIES_SUBDOMAIN"), "Properties subdomain")
-	newRelicLicense := flag.String("newRelicLicense", os.Getenv("NEW_RELIC_LICENSE"), "New relic license API Key")
-	defaultTimeout := flag.Duration("defaultTimeout", 10*time.Second, "Default timeout for requests")
-	urlServiceHost := flag.String("urlServiceHost", os.Getenv("URL_SERVICE_HOST"), "URL service host")
-	urlAgent := flag.String("agentURL", os.Getenv("AGENT_URL"), "Agent URL \"http://localhost:4317\"")
-	urlShortenerSubdomain := flag.String("urlShortenerSubdomain", os.Getenv("URLSHORTENER_SUBDOMAIN"), "URL shortener subdomain")
-	socialappSubdomain := flag.String("socialappSubdomain", os.Getenv("SOCIALAPP_SUBDOMAIN"), "Socialapp subdomain")
-	jwtsecret := flag.String("jwtSecret", os.Getenv("JWT_SECRET"), "JWT secret")
-	flag.Parse()
+	var opts struct {
+		AppName string `short:"n" long:"name" description:"name of the app" default:"socialapp"`
+
+		AppPort int `short:"p" long:"port" description:"main port for application" default:"8080"`
+
+		ProxyHost string `short:"x" long:"proxy" description:"proxy url, \"http://localhost:9091\"" env:"HTTP_PROXY"`
+
+		LogLevel string `short:"l" long:"logLevel" description:"log level info/error/warning" default:"info"`
+
+		LogHost string `long:"logHost" description:"log host url" env:"LOGSTASH_HOST"`
+
+		PropertiesSubdomain string `long:"propertiesSubdomain" description:"Properties subdomain" env:"PROPERTIES_SUBDOMAIN"`
+
+		DefaultTimeout time.Duration `long:"defaultTimeout" description:"Default timeout for requests" default:"10s"`
+
+		AgentURL string `long:"agentURL" description:"Agent URL" default:"http://localhost:4317"`
+
+		DatabaseURL string `long:"databaseURL" description:"Database URL" env:"DATABASE_URL"`
+
+		PuttyknifeDomain string `long:"puttyknifeDomain" description:"Puttyknife domain: puttyknife.{...}.com" env:"PUTTYKNIFE_DOMAIN"`
+
+		PuttyknifeURL string `long:"puttyknife-url" description:"Puttyknife url" env:"PUTTYKNIFE_URL"`
+
+		UrlShortenerSubdomain string `long:"urlShortenerSubdomain" description:"URL shortener subdomain" env:"URLSHORTENER_SUBDOMAIN"`
+
+		URLShortenerURL string `long:"urlShortenerURL" description:"URL shortener URL" env:"URLSHORTENER_URL"`
+
+		SocialappSubdomain string `long:"socialappSubdomain" description:"Socialapp subdomain" env:"SOCIALAPP_SUBDOMAIN"`
+
+		JwtSecret string `long:"jwtSecret" description:"jwt secret" env:"JWT_SECRET"`
+
+		RedisURL string `long:"redisURL" description:"redis url" env:"REDIS_URL"`
+
+		KibanaSubdomain string `long:"kibanaSubdomain" description:"Kibana subdomain" env:"KIBANA_SUBDOMAIN"`
+
+		KibanaURL string `long:"kibanaURL" description:"Kibana URL" env:"KIBANA_URL"`
+
+		LocalSubdomain string `long:"localSubdomain" description:"Local subdomain" env:"LOCAL_SUBDOMAIN" default:"google.com"`
+	}
+
+	_, err := flags.Parse(&opts)
+	if err != nil {
+		panic(err)
+	}
 
 	instanceID := uuid.NewString()
 	log.Info().
-		Str("logHost", *logHost).
-		Str("logLevel", *logLevel).
-		Str("appName", *appName).
-		Str("propertiesSubdomain", *propertiesSubdomain).
-		Str("newRelicLicense", *newRelicLicense).
-		Str("urlServiceHost", *urlServiceHost).
-		Str("agentURL", *urlAgent).
-		Str("urlShortenerSubdomain", *urlShortenerSubdomain).
-		Str("socialappSubdomain", *socialappSubdomain).
+		Str("logHost", opts.LogHost).
+		Str("logLevel", opts.LogLevel).
+		Str("appName", opts.AppName).
+		Str("propertiesSubdomain", opts.PropertiesSubdomain).
+		Str("urlServiceHost", opts.UrlShortenerSubdomain).
+		Str("agentURL", opts.AgentURL).
+		Str("urlShortenerSubdomain", opts.UrlShortenerSubdomain).
+		Str("urlShortenerURL", opts.URLShortenerURL).
+		Str("socialappSubdomain", opts.SocialappSubdomain).
 		Str("instanceID", instanceID).
+		Str("puttyknifeDomain", opts.PuttyknifeDomain).
+		Str("puttyknifeURL", opts.PuttyknifeURL).
+		Str("redisURL", opts.RedisURL).
+		Str("kibanaSubdomain", opts.KibanaSubdomain).
 		Msg("Starting SocialApp")
 
 	// setup retryable http client
@@ -124,7 +158,6 @@ func main() {
 		}
 	}
 
-	retryClient.HTTPClient.Transport = newrelic.NewRoundTripper(http.DefaultTransport)
 	//set max connections age to 10 seconds
 	retryClient.HTTPClient.Transport = &http.Transport{
 		MaxIdleConns:        100,
@@ -162,8 +195,8 @@ func main() {
 	http.DefaultClient = retryClient.StandardClient()
 
 	// Set proxy
-	if proxyURL != nil && *proxyURL != "" {
-		if u, err := url.Parse(*proxyURL); err != nil {
+	if opts.ProxyHost != "" {
+		if u, err := url.Parse(opts.ProxyHost); err != nil {
 			log.Err(err).Msgf("Failed to parse proxy URL")
 		} else {
 			http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(u)}
@@ -171,15 +204,15 @@ func main() {
 	}
 
 	// parse log level
-	parsedLogLevel, err := zerolog.ParseLevel(*logLevel)
+	parsedLogLevel, err := zerolog.ParseLevel(opts.LogLevel)
 	if err != nil {
-		log.Fatal().Err(err).Msgf("Invalid log level, %s", *logLevel)
+		log.Fatal().Err(err).Msgf("Invalid log level, %s", opts.LogLevel)
 	}
 
 	var logDestination io.Writer = os.Stdout
 	// Validate logHost is a url
-	if *logHost != "" && len(*logHost) != 0 {
-		u, err := url.Parse(*logHost)
+	if opts.LogHost != "" {
+		u, err := url.Parse(opts.LogHost)
 		if err != nil {
 			log.Fatal().Err(err).Msgf("failed to parse log host url")
 		}
@@ -194,38 +227,31 @@ func main() {
 
 	// parse properties subdomain
 	var propertiesSubdomainURL *url.URL
-	if len(*propertiesSubdomain) != 0 && *propertiesSubdomain != "" {
-		u, err := url.Parse(*propertiesSubdomain)
+	if len(opts.PropertiesSubdomain) != 0 {
+		u, err := url.Parse(opts.PropertiesSubdomain)
 		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to parse properties subdomain url %s", *propertiesSubdomain)
+			log.Fatal().Err(err).Msgf("failed to parse properties subdomain url %s", opts.PropertiesSubdomain)
 		}
 		propertiesSubdomainURL = u
 	}
 
-	var newrelicApp *newrelic.Application
-	if *newRelicLicense != "" {
-		app, err := newrelic.NewApplication(
-			newrelic.ConfigAppName("socialapp"),
-			newrelic.ConfigLicense(*newRelicLicense),
-			newrelic.ConfigAppLogForwardingEnabled(false),
-			newrelic.ConfigAppLogEnabled(false),
-			newrelic.ConfigDistributedTracerEnabled(false),
-		)
-		if err != nil {
-			log.Fatal().Err(err).Msg("failed to create new relic application")
-		} else {
-			newrelicApp = app
-		}
-	}
-
 	// parse url service host
 	var urlService *url.URL
-	if len(*urlServiceHost) != 0 && *urlServiceHost != "" {
-		u, err := url.Parse(*urlServiceHost)
+	if len(opts.URLShortenerURL) != 0 {
+		u, err := url.Parse(opts.URLShortenerURL)
 		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to parse url service host url %s", *urlServiceHost)
+			log.Fatal().Err(err).Msgf("failed to parse url service host url %s", opts.UrlShortenerSubdomain)
 		}
 		urlService = u
+	}
+
+	var puttyknifeURL *url.URL
+	if len(opts.PuttyknifeURL) != 0 {
+		u, err := url.Parse(opts.PuttyknifeURL)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("failed to parse puttyknife url %s", opts.PuttyknifeURL)
+		}
+		puttyknifeURL = u
 	}
 
 	queries := dbpgx.New()
@@ -238,10 +264,10 @@ func main() {
 
 	exporter, err := otlptracegrpc.New(ctx,
 		otlptracegrpc.WithInsecure(),
-		otlptracegrpc.WithEndpointURL(*urlAgent),
+		otlptracegrpc.WithEndpointURL(opts.AgentURL),
 	)
 	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", *urlAgent)
+		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", opts.AgentURL)
 	}
 
 	res, err := resource.New(ctx,
@@ -265,7 +291,7 @@ func main() {
 	// The OTLP exporter sends data to the OpenTelemetry collector.
 	exp, err := otlpmetricgrpc.New(ctx,
 		otlpmetricgrpc.WithInsecure(),
-		otlpmetricgrpc.WithEndpointURL(*urlAgent),
+		otlpmetricgrpc.WithEndpointURL(opts.AgentURL),
 	)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create otlp exporter for metrics")
@@ -283,9 +309,9 @@ func main() {
 
 	// Connect to database
 	// force creation of 8 connections, one per service
-	connections := CreateDBPools(ctx, os.Getenv("DATABASE_URL"), 5, fmt.Sprintf("%s-%s", *appName, instanceID))
+	connections := CreateDBPools(ctx, opts.DatabaseURL, 5, fmt.Sprintf("%s-%s", opts.AppName, instanceID))
 	defer connections.Close()
-	redisOpts, err := redis.ParseURL(os.Getenv("REDIS_URL"))
+	redisOpts, err := redis.ParseURL(opts.RedisURL)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse redis url")
 	}
@@ -297,42 +323,35 @@ func main() {
 		RedisOpts: redisOpts,
 	})
 	c := Configuration{
-		appPort:               *appPort,
-		proxyURL:              *proxyURL,
+		appPort:               opts.AppPort,
 		logLevel:              parsedLogLevel,
 		logDestination:        logDestination,
-		appName:               *appName,
+		appName:               opts.AppName,
 		connections:           connections,
 		queries:               queries,
 		cache:                 cache,
 		propertiesSubdomain:   propertiesSubdomainURL,
-		newRelicApp:           newrelicApp,
-		defaultTimeout:        *defaultTimeout,
+		defaultTimeout:        opts.DefaultTimeout,
 		urlService:            urlService,
-		urlShortenerSubdomain: *urlShortenerSubdomain,
-		socialappSubdomain:    *socialappSubdomain,
+		puttyknifeDomain:      opts.PuttyknifeDomain,
+		puttyknifeURL:         puttyknifeURL,
+		urlShortenerSubdomain: opts.UrlShortenerSubdomain,
+		socialappSubdomain:    opts.SocialappSubdomain,
 		instanceID:            instanceID,
-		jwtSecret:             *jwtsecret,
+		jwtSecret:             opts.JwtSecret,
+		urlShortenerURL:       opts.UrlShortenerSubdomain,
+		KibanaSubdomain:       opts.KibanaSubdomain,
+		KibanaURL:             opts.KibanaURL,
 	}
 
-	// parse agent url
-	if urlAgent != nil && *urlAgent != "" {
-		u, err := url.Parse(*urlAgent)
-		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to parse agent url %s", *urlAgent)
-		}
-		c.agentURL = u
-	}
-
+	// listen on sigkill or sigint to gracefully shutdown the server
 	signalChan := make(chan os.Signal, 1)
-	go run(ctx, c)
-	select {
-	case s := <-signalChan:
-		log.Info().Msgf("Shutting down: %q", s.String())
-		return
-	}
-}
+	run(ctx, c)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+	<-signalChan
+	fmt.Println("Shutting down")
 
+}
 func run(_ context.Context, config Configuration) {
 	// Setup logger
 	zerolog.SetGlobalLevel(config.logLevel)
@@ -416,7 +435,6 @@ func run(_ context.Context, config Configuration) {
 	socialappAuthenticationMiddleware := gandalf.Middleware{
 		DB:               config.queries,
 		DBConn:           config.connections.GetPool(),
-		Cache:            config.cache,
 		AllowlistedPaths: socialappAllowlistedPaths,
 		JWTSecret:        config.jwtSecret,
 		AllowBasicAuth:   false,
@@ -432,7 +450,8 @@ func run(_ context.Context, config Configuration) {
 		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to open openapi file")
 	}
 
-	kibanaTargetURL, err := url.Parse(os.Getenv("KIBANA_URL"))
+	// kibanaTargetURL, err := url.Parse(os.Getenv("KIBANA_URL"))
+	kibanaTargetURL, err := url.Parse(config.KibanaURL)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse target url")
 	}
@@ -441,7 +460,6 @@ func run(_ context.Context, config Configuration) {
 	kibanaAuthMiddleware := gandalf.Middleware{
 		DB:               config.queries,
 		DBConn:           config.connections.GetPool(),
-		Cache:            config.cache,
 		AllowlistedPaths: map[string]map[string]bool{},
 		AllowBasicAuth:   true,
 		AuthEndpoint:     "/v1/oauth/token",
@@ -460,7 +478,7 @@ func run(_ context.Context, config Configuration) {
 		authorizationRuler.Authorize,
 		middleware.RealIP,
 	}
-	kibanaSubdomain := os.Getenv("KIBANA_SUBDOMAIN")
+	kibanaSubdomain := config.KibanaSubdomain
 	authKibanaRouter := proxyrouter.NewProxyRouter(kibanaTargetURL, kibanaRouterMiddlewares)
 
 	// 2. SocialApp router
@@ -492,10 +510,10 @@ func run(_ context.Context, config Configuration) {
 		middleware.Timeout(config.defaultTimeout),
 		socialappAuthenticationMiddleware.Authenticate,
 		middleware.RealIP,
-		config.cache.Middleware,
+		// config.cache.Middleware,
 	}
 
-	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse, config.newRelicApp)
+	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse, nil)
 
 	propertiesMiddleware := []func(http.Handler) http.Handler{
 		cors.AllowAll().Handler,
@@ -509,11 +527,38 @@ func run(_ context.Context, config Configuration) {
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse properties target url")
 	}
-
 	propertiesProxy := proxyrouter.NewProxyRouter(kibanaTargetURL, propertiesMiddleware)
+	puttyknifeAllowlistedPaths := map[string]map[string]bool{
+		"/openapi.yaml": {
+			"GET": true,
+		},
+	}
+	PuttyKnifeAuthenticationMiddleware := gandalf.Middleware{
+		DB:               config.queries,
+		DBConn:           config.connections.GetPool(),
+		AllowlistedPaths: puttyknifeAllowlistedPaths,
+		JWTSecret:        config.jwtSecret,
+		AllowBasicAuth:   false,
+		AuthEndpoint:     "/v1/oauth/token",
+	}
+	puttyknifeAuthorizationRuler := authorization.Middleware{
+		RequiredScopes: map[string]bool{"puttyknife.properties:read": true},
+	}
+	puttyKnifeMiddlewares := []func(http.Handler) http.Handler{
+		cors.AllowAll().Handler,
+		middleware.Heartbeat("/health"),
+		requestid.Middleware,
+		beacon.Middleware,
+		PuttyKnifeAuthenticationMiddleware.Authenticate,
+		puttyknifeAuthorizationRuler.Authorize,
+		middleware.Recoverer,
+		middleware.Timeout(20 * time.Second),
+		middleware.RealIP,
+	}
+	puttyknifeServerProxy := proxyrouter.NewProxyRouter(config.puttyknifeURL, puttyKnifeMiddlewares)
 
 	// URL shortener
-	urlShortenerURL, err := url.Parse(os.Getenv("URLSHORTENER_URL"))
+	urlShortenerURL, err := url.Parse(config.urlShortenerURL)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse urlshortener target url")
 	}
@@ -529,11 +574,7 @@ func run(_ context.Context, config Configuration) {
 	urlshortenerProxy := proxyrouter.NewProxyRouter(urlShortenerURL, urlshortenerMiddleware)
 
 	// LOCAL
-	localSubdomain := os.Getenv("LOCAL_SUBDOMAIN")
-	if localSubdomain == "" {
-		// default to google.com
-		localSubdomain = "google.com"
-	}
+	localSubdomain := config.localSubdomain
 
 	// 3. Main router for routing to different routers based on subdomain
 	mainRouter := chi.NewRouter()
@@ -572,6 +613,8 @@ func run(_ context.Context, config Configuration) {
 			urlshortenerProxy.Router.ServeHTTP(w, r)
 		case localSubdomain:
 			socialappRouter.Router.ServeHTTP(w, r)
+		case config.puttyknifeDomain:
+			puttyknifeServerProxy.Router.ServeHTTP(w, r)
 		default:
 			message := fmt.Sprintf("Host %q Not found", r.Host)
 			log.Info().Str("Host", r.Host).Msg("Request host invalid Host")
