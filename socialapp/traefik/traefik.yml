@@ -46,6 +46,7 @@ log:
   format: json
 
 accessLog:
+  filePath: "/tmp/access.log"
   format: commmon
 
 ping:
