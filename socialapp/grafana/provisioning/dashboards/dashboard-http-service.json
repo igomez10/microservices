@@ -38,6 +38,7 @@
                 },
                 "datasourceId": 10,
                 "enable": true,
+                "hide": false,
                 "iconColor": "red",
                 "name": "New annotation"
             }
@@ -46,9 +47,113 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
+    "id": 35,
     "links": [],
-    "liveNow": false,
     "panels": [
+        {
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "axisBorderShow": false,
+                        "axisCenteredZero": false,
+                        "axisColorMode": "text",
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "barWidthFactor": 0.6,
+                        "drawStyle": "line",
+                        "fillOpacity": 0,
+                        "gradientMode": "none",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "insertNulls": false,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 0
+            },
+            "id": 16,
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": {
+                    "hideZeros": false,
+                    "mode": "single",
+                    "sort": "none"
+                }
+            },
+            "pluginVersion": "11.5.1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "PBFA97CFB590B2093"
+                    },
+                    "disableTextWrap": false,
+                    "editorMode": "builder",
+                    "exemplar": false,
+                    "expr": "histogram_quantile(0.95, sum by(le, method, pattern, status_code) (rate(http_server_response_duration_milliseconds_bucket[5m])))",
+                    "fullMetaSearch": false,
+                    "includeNullMetadata": false,
+                    "instant": false,
+                    "interval": "",
+                    "legendFormat": "__auto",
+                    "range": true,
+                    "refId": "A",
+                    "useBackend": false
+                }
+            ],
+            "title": "WIP new middleware otel",
+            "type": "timeseries"
+        },
         {
             "datasource": {
                 "type": "prometheus",
@@ -117,7 +222,7 @@
                 "h": 17,
                 "w": 24,
                 "x": 0,
-                "y": 0
+                "y": 8
             },
             "id": 12,
             "options": {
@@ -128,10 +233,12 @@
                     "showLegend": true
                 },
                 "tooltip": {
+                    "hideZeros": false,
                     "mode": "single",
                     "sort": "none"
                 }
             },
+            "pluginVersion": "11.5.1",
             "targets": [
                 {
                     "datasource": {
@@ -220,7 +327,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 17
+                "y": 25
             },
             "id": 9,
             "interval": "$min_interval",
@@ -232,10 +339,12 @@
                     "showLegend": true
                 },
                 "tooltip": {
+                    "hideZeros": false,
                     "mode": "single",
                     "sort": "none"
                 }
             },
+            "pluginVersion": "11.5.1",
             "targets": [
                 {
                     "datasource": {
@@ -316,7 +425,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 17
+                "y": 25
             },
             "id": 5,
             "interval": "$min_interval",
@@ -328,10 +437,12 @@
                     "showLegend": true
                 },
                 "tooltip": {
+                    "hideZeros": false,
                     "mode": "single",
                     "sort": "none"
                 }
             },
+            "pluginVersion": "11.5.1",
             "targets": [
                 {
                     "datasource": {
@@ -412,7 +523,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 25
+                "y": 33
             },
             "id": 1,
             "interval": "$min_interval",
@@ -424,10 +535,12 @@
                     "showLegend": true
                 },
                 "tooltip": {
+                    "hideZeros": false,
                     "mode": "single",
                     "sort": "none"
                 }
             },
+            "pluginVersion": "11.5.1",
             "targets": [
                 {
                     "datasource": {
@@ -512,7 +625,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 25
+                "y": 33
             },
             "id": 15,
             "options": {
@@ -525,10 +638,12 @@
                     "showLegend": true
                 },
                 "tooltip": {
+                    "hideZeros": false,
                     "mode": "single",
                     "sort": "none"
                 }
             },
+            "pluginVersion": "11.5.1",
             "targets": [
                 {
                     "datasource": {
@@ -613,7 +728,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 0,
-                "y": 33
+                "y": 41
             },
             "id": 3,
             "interval": "$min_interval",
@@ -625,10 +740,12 @@
                     "showLegend": true
                 },
                 "tooltip": {
+                    "hideZeros": false,
                     "mode": "single",
                     "sort": "none"
                 }
             },
+            "pluginVersion": "11.5.1",
             "targets": [
                 {
                     "datasource": {
@@ -709,7 +826,7 @@
                 "h": 8,
                 "w": 12,
                 "x": 12,
-                "y": 33
+                "y": 41
             },
             "id": 13,
             "interval": "$min_interval",
@@ -721,10 +838,12 @@
                     "showLegend": true
                 },
                 "tooltip": {
+                    "hideZeros": false,
                     "mode": "single",
                     "sort": "none"
                 }
             },
+            "pluginVersion": "11.5.1",
             "targets": [
                 {
                     "datasource": {
@@ -745,20 +864,18 @@
             "type": "timeseries"
         }
     ],
+    "preload": false,
     "refresh": "",
-    "schemaVersion": 39,
+    "schemaVersion": 40,
     "tags": [],
     "templating": {
         "list": [
             {
                 "current": {
-                    "selected": true,
                     "text": "1m",
                     "value": "1m"
                 },
-                "hide": 0,
                 "includeAll": false,
-                "multi": false,
                 "name": "min_interval",
                 "options": [
                     {
@@ -793,19 +910,14 @@
                     }
                 ],
                 "query": "15s, 1m, 5m, 15m, 30m, 1h",
-                "queryValue": "",
-                "skipUrlSync": false,
                 "type": "custom"
             },
             {
                 "current": {
-                    "selected": false,
                     "text": "0.95",
                     "value": "0.95"
                 },
-                "hide": 0,
                 "includeAll": false,
-                "multi": false,
                 "name": "quantile",
                 "options": [
                     {
@@ -845,11 +957,10 @@
                     }
                 ],
                 "query": "0.50, 0.75, 0.80, 0.85, 0.90, 0.95, 0.99",
-                "queryValue": "",
-                "skipUrlSync": false,
                 "type": "custom"
             },
             {
+                "baseFilters": [],
                 "datasource": {
                     "type": "prometheus",
                     "uid": "PBFA97CFB590B2093"
@@ -865,7 +976,6 @@
                 "hide": 1,
                 "label": "job",
                 "name": "job",
-                "skipUrlSync": false,
                 "type": "adhoc"
             }
         ]
@@ -878,6 +988,6 @@
     "timezone": "",
     "title": "HTTP Service",
     "uid": "l1YgmnvVk",
-    "version": 74,
+    "version": 84,
     "weekStart": ""
 }
