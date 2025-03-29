@@ -8,6 +8,11 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/responseWriter"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/metric"
 )
 
 // Beacon is used to configure a centralized logging platform for the application.
@@ -31,6 +36,51 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 
 		// Handle the request
 		next.ServeHTTP(customW, r)
+
+		attributes := attribute.NewSet(
+			attribute.String("pattern", contexthelper.GetRequestPatternInContext(r.Context())),
+			attribute.String("method", r.Method),
+			attribute.String("remote_addr", r.RemoteAddr),
+			attribute.String("user_agent", r.UserAgent()),
+			attribute.String("request_host", r.Host),
+			attribute.Int("status_code", customW.StatusCode),
+		)
+		hist, err := otel.Meter("beacon").Int64Histogram("http_server_response_duration_milliseconds")
+		if err != nil {
+			log.Error().Err(err).Msg("failed to create histogram in beacon")
+
+		} else {
+			hist.Record(ctx, time.Since(startTime).Milliseconds(), metric.WithAttributeSet(attributes))
+		}
+
+		span.SetAttributes([]attribute.KeyValue{
+			{
+				Key:   "http.method",
+				Value: attribute.StringValue(r.Method),
+			},
+			{
+				Key:   "http.url",
+				Value: attribute.StringValue(r.URL.String()),
+			},
+			{
+				Key:   "http.status_code",
+				Value: attribute.IntValue(customW.StatusCode),
+			},
+			{
+				Key:   "http.user_agent",
+				Value: attribute.StringValue(r.UserAgent()),
+			},
+			{
+				Key:   "http.request_id",
+				Value: attribute.StringValue(r.Header.Get("X-Request-ID")),
+			},
+		}...)
+
+		if customW.StatusCode >= 400 {
+			span.SetStatus(codes.Error, "HTTP error")
+		} else {
+			span.SetStatus(codes.Ok, "HTTP success")
+		}
 
 		// Log the response
 		statusCode := customW.StatusCode
