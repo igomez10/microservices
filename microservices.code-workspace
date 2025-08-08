@@ -29,6 +29,9 @@
 		},
 		{
 			"path": "urlshortener"
+		},
+		{
+			"path": "../microservices-docker-elk"
 		}
 	],
 	"settings": {
