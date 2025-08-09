@@ -90,6 +90,16 @@ datasources:
       graphiteVersion: "1.1"
       tlsAuth: false
       tlsAuthWithCACert: false
+  - orgId: 1
+    version: 1
+    name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    isDefault: false
+    jsonData:
+      tlsAuth: false
+      tlsAuthWithCACert: false
 
 allow_embedding: true
 auth.anonymous:

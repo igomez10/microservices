@@ -527,7 +527,7 @@ services:
 
   otel-collector:
     container_name: otel-collector
-    image: otel/opentelemetry-collector:0.118.0
+    image: otel/opentelemetry-collector-contrib:0.131.0
     ports:
       - "55679:55679"
       - "55680:55680"
@@ -597,6 +597,9 @@ services:
     container_name: loki
     image: grafana/loki:2.9.4
     restart: unless-stopped
+    ports:
+      - "3100:3100"
+    
 
   portainer:
     container_name: portainer

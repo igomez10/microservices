@@ -34,3 +34,4 @@ socialapp/alertmanager/slack_url
 **/__debug_bin*
 
 socialapp/letsencrypt/acme.json
+socialapp/grafana/provisioning/dashboards/puttyknife-private.json
