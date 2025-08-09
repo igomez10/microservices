@@ -44,7 +44,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "urlshortener"
 
 networks:

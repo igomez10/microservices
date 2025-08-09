@@ -77,7 +77,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "socialapp"
 
   database:
@@ -106,7 +106,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "database"
     cpus: 2
     mem_limit: 2g
@@ -122,7 +122,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "postgres-exporter"
     cpus: 0.5
     mem_limit: 512m
@@ -156,7 +156,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "grafana"
 
   prometheus:
@@ -179,7 +179,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "prometheus"
 
   alertmanager:
@@ -197,7 +197,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "alertmanager"
 
   node-exporter:
@@ -229,7 +229,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "node-exporter"
 
   inspector:
@@ -241,7 +241,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "inspector"
     networks:
       - dns
@@ -274,7 +274,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "cadvisor"
 
   broker1:
@@ -304,7 +304,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "broker1"
 
   broker2:
@@ -333,7 +333,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "broker2"
 
   broker3:
@@ -362,7 +362,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "broker3"
 
   kafka-ui:
@@ -383,7 +383,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "kafka-ui"
 
   integration-tests-1:
@@ -408,7 +408,7 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "integration-tests"
 
   elasticsearch-exporter:
@@ -482,7 +482,7 @@ services:
   #   logging:
   #     driver: "syslog"
   #     options:
-  #       syslog-address: "udp://localhost:53000"
+  #       syslog-address: "tcp://localhost:53000"
   #       tag: "debezium-ui"
   unleash:
     container_name: unleash
@@ -522,7 +522,7 @@ services:
     logging:
       driver: syslog
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "tempo"
 
   otel-collector:
@@ -551,7 +551,7 @@ services:
     logging:
       driver: syslog
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "otel-collector"
 
   pyroscope:
@@ -570,7 +570,7 @@ services:
     logging:
       driver: syslog
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "pyroscope"
 
   mimir:
@@ -590,7 +590,7 @@ services:
     logging:
       driver: syslog
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "mimir"
 
   loki:
@@ -615,7 +615,7 @@ services:
     logging:
       driver: syslog
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "portainer"
 
   redis:
@@ -628,7 +628,7 @@ services:
     logging:
       driver: syslog
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "redis"
 
   traefik:
@@ -653,7 +653,7 @@ services:
     logging:
       driver: syslog
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "traefik"
 
   whoamiinternal:
@@ -671,7 +671,7 @@ services:
     logging:
       driver: syslog
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "whoamiinternal"
 
   whoami:
@@ -689,5 +689,5 @@ services:
     logging:
       driver: syslog
       options:
-        syslog-address: "udp://localhost:53000"
+        syslog-address: "tcp://localhost:53000"
         tag: "whoami"
