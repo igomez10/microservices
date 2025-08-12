@@ -248,8 +248,8 @@ services:
       - default
       - elk
     extra_hosts:
-      - "socialapp.${EXPOSED_HOST}:172.28.0.3"
-      - "whoami.${EXPOSED_HOST}:172.28.0.3"
+      - "socialapp.${EXPOSED_HOST}:172.28.0.151"
+      - "whoami.${EXPOSED_HOST}:172.28.0.151"
 
   cadvisor:
     container_name: cadvisor
@@ -401,7 +401,7 @@ services:
     cpus: 0.5
     mem_limit: 512m
     extra_hosts:
-      - "socialapp.${EXPOSED_HOST}:172.28.0.3"
+      - "socialapp.${EXPOSED_HOST}:172.28.0.151"
     networks:
       - default
       - dns
@@ -647,7 +647,7 @@ services:
     mem_limit: 1024m
     networks:
       dns:
-        ipv4_address: 172.28.0.3
+        ipv4_address: 172.28.0.151
       default:
       elk:
     logging:
