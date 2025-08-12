@@ -2,6 +2,7 @@ package beacon
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
@@ -37,10 +38,14 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 		// Handle the request
 		next.ServeHTTP(customW, r)
 
+		remoteIP := "x_socialapp_default_value"
+		if splitted := strings.Split(r.RemoteAddr, ":"); len(splitted) == 2 {
+			remoteIP = splitted[0]
+		}
 		attributes := attribute.NewSet(
 			attribute.String("pattern", contexthelper.GetRequestPatternInContext(r.Context())),
 			attribute.String("method", r.Method),
-			attribute.String("remote_addr", r.RemoteAddr),
+			attribute.String("remote_ip", remoteIP),
 			attribute.String("user_agent", r.UserAgent()),
 			attribute.String("request_host", r.Host),
 			attribute.Int("status_code", customW.StatusCode),
