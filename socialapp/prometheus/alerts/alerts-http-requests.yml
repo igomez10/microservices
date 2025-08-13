@@ -2,7 +2,7 @@ groups:
   - name: HTTPRequests
     rules:
       - alert: HighHTTPErrorRate
-        expr: sum(rate(http_client_status_codes{status_code=~"4.*|5.*"}[5m])) by (host) > 5
+        expr: sum(rate(http_client_status_codes_total{status_code=~"4.*|5.*"}[5m])) by (host) > 5
         for: 10m
         labels:
           severity: page

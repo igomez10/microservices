@@ -105,7 +105,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "builder",
-          "expr": "rate(http_client_status_codes[$__rate_interval])",
+          "expr": "rate(http_client_status_codes_total[$__rate_interval])",
           "legendFormat": " {{host}} {{status_code}}",
           "range": true,
           "refId": "A"
