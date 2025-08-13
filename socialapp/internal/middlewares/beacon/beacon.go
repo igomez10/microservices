@@ -50,7 +50,30 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 			attribute.String("request_host", r.Host),
 			attribute.Int("status_code", customW.StatusCode),
 		)
-		hist, err := otel.Meter("beacon").Int64Histogram("http_server_response_duration_milliseconds")
+		hist, err := otel.Meter("beacon").Int64Histogram("http_server_response_duration_milliseconds",
+			metric.WithExplicitBucketBoundaries([]float64{
+				1,
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				20,
+				50,
+				100,
+				200,
+				300,
+				400,
+				500,
+				1000,
+				2000,
+				5000,
+				10000,
+			}...))
 		if err != nil {
 			log.Error().Err(err).Msg("failed to create histogram in beacon")
 
