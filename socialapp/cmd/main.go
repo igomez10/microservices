@@ -271,8 +271,11 @@ func main() {
 	}
 
 	res, err := resource.New(ctx,
-		resource.WithTelemetrySDK(),
 		resource.WithProcessRuntimeDescription(),
+		resource.WithFromEnv(),      // Reads OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME
+		resource.WithTelemetrySDK(), // SDK info
+		resource.WithContainer(),    // Container info, including container.id
+		resource.WithContainerID(),
 		resource.WithAttributes(attribute.KeyValue{
 			Key:   attribute.Key("instance_id"),
 			Value: attribute.StringValue(instanceID),
@@ -297,7 +300,7 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to create otlp exporter for metrics")
 	}
 
-	metricProvider := metric.NewMeterProvider(
+	meterProvider := metric.NewMeterProvider(
 		metric.WithResource(res),
 		metric.WithReader(metric.NewPeriodicReader(exp)),
 	)
@@ -305,7 +308,7 @@ func main() {
 	// Register the tracer provider as the global provider.
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	otel.SetTracerProvider(tp)
-	otel.SetMeterProvider(metricProvider)
+	otel.SetMeterProvider(meterProvider)
 
 	// Connect to database
 	// force creation of 8 connections, one per service

@@ -74,7 +74,11 @@ exporters:
       insecure: true
   prometheus:
     endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion:
+      enabled: true
   prometheusremotewrite:
+    resource_to_telemetry_conversion:
+      enabled: true
     endpoint: "http://mimir:9009/api/v1/push"
     tls:
       insecure: true

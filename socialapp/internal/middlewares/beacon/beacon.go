@@ -24,6 +24,7 @@ type Beacon struct {
 // the centralized logging platform
 // Middleware function for handling HTTP requests and logging their responses.
 func (b *Beacon) Middleware(next http.Handler) http.Handler {
+	beaconMeter := otel.GetMeterProvider().Meter("beacon")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.beacon")
 		defer span.End()
@@ -50,35 +51,44 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 			attribute.String("request_host", r.Host),
 			attribute.Int("status_code", customW.StatusCode),
 		)
-		hist, err := otel.Meter("beacon").Int64Histogram("http_server_response_duration_milliseconds",
+		hist, err := beaconMeter.Float64Histogram("http_server_response_duration",
 			metric.WithExplicitBucketBoundaries([]float64{
-				1,
-				2,
-				3,
-				4,
-				5,
-				6,
-				7,
-				8,
-				9,
-				10,
-				20,
-				50,
-				100,
-				200,
-				300,
-				400,
-				500,
-				1000,
-				2000,
-				5000,
-				10000,
+				0.001,
+				0.002,
+				0.003,
+				0.004,
+				0.005,
+				0.006,
+				0.007,
+				0.008,
+				0.009,
+				0.010,
+				0.015,
+				0.020,
+				0.025,
+				0.030,
+				0.040,
+				0.050,
+				0.075,
+				0.100,
+				0.150,
+				0.200,
+				0.250,
+				0.300,
+				0.350,
+				0.400,
+				0.500,
+				0.750,
+				1.000,
+				2.000,
+				5.000,
+				10.000,
 			}...))
 		if err != nil {
 			log.Error().Err(err).Msg("failed to create histogram in beacon")
 
 		} else {
-			hist.Record(ctx, time.Since(startTime).Milliseconds(), metric.WithAttributeSet(attributes))
+			hist.Record(ctx, time.Since(startTime).Seconds(), metric.WithAttributeSet(attributes))
 		}
 
 		span.SetAttributes([]attribute.KeyValue{
