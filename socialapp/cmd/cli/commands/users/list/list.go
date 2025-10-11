@@ -80,7 +80,7 @@ func GetCmd() *cli.Command {
 			}
 
 			for i := range us {
-				fmt.Println(us[i].Username)
+				fmt.Println(us[i].Username, us[i].Email, us[i].FirstName, us[i].LastName)
 			}
 			return nil
 		},

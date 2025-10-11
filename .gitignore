@@ -35,3 +35,4 @@ socialapp/alertmanager/slack_url
 
 socialapp/letsencrypt/acme.json
 socialapp/grafana/provisioning/dashboards/puttyknife-private.json
+socialapp/cmd/cli/socialapp-cli

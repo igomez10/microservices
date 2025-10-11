@@ -5,6 +5,7 @@ datasources:
     name: Elasticsearch
     type: elasticsearch
     access: proxy
+    url: http://elasticsearch:9200
   - orgId: 1
     version: 4
     name: GitHub
