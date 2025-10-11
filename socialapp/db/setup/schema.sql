@@ -1,4 +1,4 @@
-
+CREATE DATABASE unleash;
 CREATE DATABASE socialapp;
 
 CREATE SEQUENCE IF NOT EXISTS users_id_seq;
