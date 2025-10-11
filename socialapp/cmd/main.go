@@ -83,43 +83,25 @@ type Configuration struct {
 
 func main() {
 	var opts struct {
-		AppName string `short:"n" long:"name" description:"name of the app" default:"socialapp"`
-
-		AppPort int `short:"p" long:"port" description:"main port for application" default:"8080"`
-
-		ProxyHost string `short:"x" long:"proxy" description:"proxy url, \"http://localhost:9091\"" env:"HTTP_PROXY"`
-
-		LogLevel string `short:"l" long:"logLevel" description:"log level info/error/warning" default:"info"`
-
-		LogHost string `long:"logHost" description:"log host url" env:"LOGSTASH_HOST"`
-
-		PropertiesSubdomain string `long:"propertiesSubdomain" description:"Properties subdomain" env:"PROPERTIES_SUBDOMAIN"`
-
-		DefaultTimeout time.Duration `long:"defaultTimeout" description:"Default timeout for requests" default:"10s"`
-
-		AgentURL string `long:"agentURL" description:"Agent URL" default:"http://localhost:4317"`
-
-		DatabaseURL string `long:"databaseURL" description:"Database URL" env:"DATABASE_URL"`
-
-		PuttyknifeDomain string `long:"puttyknifeDomain" description:"Puttyknife domain: puttyknife.{...}.com" env:"PUTTYKNIFE_DOMAIN"`
-
-		PuttyknifeURL string `long:"puttyknife-url" description:"Puttyknife url" env:"PUTTYKNIFE_URL"`
-
-		UrlShortenerSubdomain string `long:"urlShortenerSubdomain" description:"URL shortener subdomain" env:"URLSHORTENER_SUBDOMAIN"`
-
-		URLShortenerURL string `long:"urlShortenerURL" description:"URL shortener URL" env:"URLSHORTENER_URL"`
-
-		SocialappSubdomain string `long:"socialappSubdomain" description:"Socialapp subdomain" env:"SOCIALAPP_SUBDOMAIN"`
-
-		JwtSecret string `long:"jwtSecret" description:"jwt secret" env:"JWT_SECRET"`
-
-		RedisURL string `long:"redisURL" description:"redis url" env:"REDIS_URL"`
-
-		KibanaSubdomain string `long:"kibanaSubdomain" description:"Kibana subdomain" env:"KIBANA_SUBDOMAIN"`
-
-		KibanaURL string `long:"kibanaURL" description:"Kibana URL" env:"KIBANA_URL"`
-
-		LocalSubdomain string `long:"localSubdomain" description:"Local subdomain" env:"LOCAL_SUBDOMAIN" default:"google.com"`
+		AppName               string        `short:"n" long:"name" description:"name of the app" default:"socialapp"`
+		AppPort               int           `short:"p" long:"port" description:"main port for application" default:"8080"`
+		ProxyHost             string        `short:"x" long:"proxy" description:"proxy url, \"http://localhost:9091\"" env:"HTTP_PROXY"`
+		LogLevel              string        `short:"l" long:"logLevel" description:"log level info/error/warning" default:"info"`
+		LogHost               string        `long:"logHost" description:"log host url" env:"LOGSTASH_HOST"`
+		PropertiesSubdomain   string        `long:"propertiesSubdomain" description:"Properties subdomain" env:"PROPERTIES_SUBDOMAIN"`
+		DefaultTimeout        time.Duration `long:"defaultTimeout" description:"Default timeout for requests" default:"10s"`
+		AgentURL              string        `long:"agentURL" description:"Agent URL" default:"http://localhost:4317"`
+		DatabaseURL           string        `long:"databaseURL" description:"Database URL" env:"DATABASE_URL"`
+		PuttyknifeDomain      string        `long:"puttyknifeDomain" description:"Puttyknife domain: puttyknife.{...}.com" env:"PUTTYKNIFE_DOMAIN"`
+		PuttyknifeURL         string        `long:"puttyknife-url" description:"Puttyknife url" env:"PUTTYKNIFE_URL"`
+		UrlShortenerSubdomain string        `long:"urlShortenerSubdomain" description:"URL shortener subdomain" env:"URLSHORTENER_SUBDOMAIN"`
+		URLShortenerURL       string        `long:"urlShortenerURL" description:"URL shortener URL" env:"URLSHORTENER_URL"`
+		SocialappSubdomain    string        `long:"socialappSubdomain" description:"Socialapp subdomain" env:"SOCIALAPP_SUBDOMAIN"`
+		JwtSecret             string        `long:"jwtSecret" description:"jwt secret" env:"JWT_SECRET"`
+		RedisURL              string        `long:"redisURL" description:"redis url" env:"REDIS_URL"`
+		KibanaSubdomain       string        `long:"kibanaSubdomain" description:"Kibana subdomain" env:"KIBANA_SUBDOMAIN"`
+		KibanaURL             string        `long:"kibanaURL" description:"Kibana URL" env:"KIBANA_URL"`
+		LocalSubdomain        string        `long:"localSubdomain" description:"Local subdomain" env:"LOCAL_SUBDOMAIN" default:"google.com"`
 	}
 
 	_, err := flags.Parse(&opts)

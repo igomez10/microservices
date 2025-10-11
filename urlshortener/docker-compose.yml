@@ -1,7 +1,10 @@
 services:
   urlshortener:
+    container_name: urlshortener
     build:
       context: .
+    env_file:
+      - .env
       dockerfile: Dockerfile
     command:
       [
@@ -29,10 +32,11 @@ services:
           memory: 128M
       restart_policy:
         condition: on-failure
-
     networks:
       - socialapp_default
     restart: always
+    depends_on:
+      - setup_db
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
       interval: 5s
@@ -43,8 +47,35 @@ services:
     logging:
       driver: "syslog"
       options:
-        syslog-address: "tcp://localhost:53000"
+        syslog-address: "udp://localhost:53000"
         tag: "urlshortener"
+
+  setup_db:
+    image: postgres:15
+    container_name: setup_db
+    env_file:
+      - ./.env
+    volumes:
+      - ./db/setup:/docker-entrypoint-initdb.d
+      - ./init.sh:/init.sh
+    ports:
+      - "5433:5432"
+    networks:
+      - socialapp_default
+    command: [
+        # run ./init.sh to create the database
+        "bash",
+        "-c",
+        "chmod +x /init.sh && /init.sh && sleep 10",
+      ]
+    restart: "no"
+    cpus: 0.5
+    mem_limit: 256m
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "udp://localhost:53000"
+        tag: "setup_db"
 
 networks:
   socialapp_default:

@@ -1,3 +1,18 @@
+compose-all-up:
+	docker compose up -d
+	cd ../urlshortener && docker compose up -d
+	cd ../../docker-elk && docker compose up setup -d
+
+compose-all-down:
+	docker compose down
+	cd ../urlshortener && docker compose down
+	cd ../../docker-elk && docker compose down
+
+compose-prune:
+	docker compose down --volumes  --remove-orphans
+	cd ../urlshortener && docker compose down --volumes --remove-orphans
+	cd ../../docker-elk && docker compose down --volumes  --remove-orphans
+
 generate-openapi:
 	set -e
 	# openapi-generator version-manager set 7.11.0

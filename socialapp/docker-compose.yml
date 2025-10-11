@@ -599,7 +599,6 @@ services:
     restart: unless-stopped
     ports:
       - "3100:3100"
-    
 
   portainer:
     container_name: portainer

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/igomez10/microservices/socialapp/cmd/cli/commands/users"
+	"github.com/igomez10/microservices/socialapp/cmd/cli/commands/list"
 	"github.com/urfave/cli/v3"
 )
 
@@ -16,7 +16,7 @@ func main() {
 		UsageText:             "socialapp-cli [global options] command [command options] [arguments...]",
 		EnableShellCompletion: true,
 		Commands: []*cli.Command{
-			users.GetCmd(),
+			list.GetCmd(),
 		},
 	}
 
