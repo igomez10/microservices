@@ -12,7 +12,7 @@ services:
         "--meta.addr=0.0.0.0",
         "--meta.port=8082",
         "--newrelic-license=${NEWRELIC_LICENSE}",
-        "--agent-url=http://alloy:4317",
+        "--agent-url=http://otel-collector:4317",
       ]
     ports:
       - "8082:8082"
@@ -29,7 +29,6 @@ services:
           memory: 128M
       restart_policy:
         condition: on-failure
-    
 
     networks:
       - socialapp_default
