@@ -4,6 +4,7 @@ setup-init:
 
 compose-all-up:
 	cd ../../docker-elk && docker compose up setup -d
+	cd ../../docker-elk && docker compose up -d
 	docker compose up -d
 	cd ../../puttyknife && docker compose up -d
 	cd ../urlshortener && docker compose up -d
