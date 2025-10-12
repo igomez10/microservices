@@ -848,6 +848,9 @@ services:
     image: traefik/whoami
     labels:
       - "traefik.enable=true"
+      # Middleware for HTTPS redirect
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
       # HTTPS router
       - "traefik.http.routers.whoamiinternal.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
       - "traefik.http.routers.whoamiinternal.entrypoints=websecure"
@@ -872,6 +875,9 @@ services:
     image: traefik/whoami
     labels:
       - "traefik.enable=true"
+      # Middleware for HTTPS redirect
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
       # HTTPS router
       - "traefik.http.routers.whoamihost.rule=Host(`whoami.${EXPOSED_HOST}`)"
       - "traefik.http.routers.whoamihost.entrypoints=websecure"
