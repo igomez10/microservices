@@ -22,11 +22,19 @@ volumes:
   portainer_data: {}
   letsencrypt: {}
   mimir-1-data: {}
+  redis_data: {}
 
 services:
   socialapp:
     deploy:
       replicas: 3
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
     build:
       context: .
       dockerfile: Dockerfile
@@ -47,7 +55,7 @@ services:
       - "--puttyknife-url=http://puttyknife-server:8096"
       - "--jwtSecret=${JWT_SECRET}"
     volumes:
-      - ./openapi.yaml:/openapi.yaml
+      - ./openapi.yaml:/openapi.yaml:ro
     environment:
       DATABASE_URL: postgres://postgres:password@database:5432/socialapp?sslmode=disable
       REDIS_URL: redis://redis:6379
@@ -65,7 +73,7 @@ services:
       - "traefik.http.routers.socialapp1.tls=true"
       - "traefik.http.routers.socialapp1.tls.certresolver=letsencrypt"
 
-      # puttynkife-server
+      # puttyknife-server (fixed typo)
       - "traefik.http.routers.puttyknife-server.service=socialapp"
       - "traefik.http.routers.puttyknife-server.entrypoints=web"
       - "traefik.http.routers.puttyknife-server.entrypoints=websecure"
@@ -75,9 +83,24 @@ services:
       - "traefik.http.routers.puttyknife-server.tls.certresolver=letsencrypt"
 
     depends_on:
-      - database
-    cpus: 0.5
-    mem_limit: 512m
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8086/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     logging:
       driver: "syslog"
       options:
@@ -85,11 +108,13 @@ services:
         tag: "socialapp"
 
   database:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: database
     environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: socialapp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-socialapp}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8"
     command:
       - postgres
       - -c
@@ -97,26 +122,39 @@ services:
       - -c
       - max_connections=300
     volumes:
-      - ./db/setup:/docker-entrypoint-initdb.d
+      - ./db/setup:/docker-entrypoint-initdb.d:ro
       - ${DATABASE_DATA_DIR:-db_data}:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     restart: always
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres"]
-      interval: 5s
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-socialapp}",
+        ]
+      interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     logging:
       driver: "syslog"
       options:
         syslog-address: "tcp://localhost:53000"
         tag: "database"
-    cpus: 2
-    mem_limit: 2g
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "1"
+          memory: 1G
 
   setup:
-    image: nicolaka/netshoot
+    build:
+      context: setup
+      dockerfile: Dockerfile
     container_name: setup
     command: ["sh", "-c", "chmod +x /setup/init.sh && /setup/init.sh"]
     restart: "no"
@@ -127,6 +165,7 @@ services:
       - .env
     volumes:
       - ./setup:/setup
+      - ./db/setup/schema.sql:/schema.sql:ro
 
   postgres-exporter:
     container_name: postgres-exporter
@@ -134,22 +173,31 @@ services:
     environment:
       DATA_SOURCE_NAME: "postgresql://postgres:password@database:5432/postgres?sslmode=disable"
     ports:
-      - 9187:9187
+      - "9187:9187"
     restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
     logging:
       driver: "syslog"
       options:
         syslog-address: "tcp://localhost:53000"
         tag: "postgres-exporter"
-    cpus: 0.5
-    mem_limit: 512m
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
 
   grafana:
     container_name: grafana
     image: grafana/grafana:11.5.1
     user: "472"
     ports:
-      - 3000:3000
+      - "3000:3000"
     environment:
       - GF_FEATURE_TOGGLES_ENABLE=flameGraph
       - POSTGRESQL_PROPERTIES_PASSWORD=${POSTGRESQL_PROPERTIES_PASSWORD}
@@ -164,12 +212,27 @@ services:
       - ./grafana/config.monitoring
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    cpus: 0.5
-    mem_limit: 512m
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/api/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
     logging:
       driver: "syslog"
       options:
@@ -180,7 +243,7 @@ services:
     container_name: prometheus
     image: prom/prometheus:v2.50.1
     volumes:
-      - ./prometheus/:/etc/prometheus/
+      - ./prometheus/:/etc/prometheus/:ro
       - prometheus_data:/prometheus
     command:
       - "--storage.tsdb.retention.size=6GB"
@@ -189,10 +252,32 @@ services:
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
       - "--web.console.templates=/usr/share/prometheus/consoles"
     ports:
-      - 9090:9090
+      - "9090:9090"
     expose:
       - 9090
     restart: always
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9090/-/healthy",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
     logging:
       driver: "syslog"
       options:
@@ -203,14 +288,34 @@ services:
     container_name: alertmanager
     image: prom/alertmanager:latest
     volumes:
-      - ./alertmanager/:/etc/alertmanager/
+      - ./alertmanager/:/etc/alertmanager/:ro
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
     ports:
-      - 9093:9093
+      - "9093:9093"
     restart: always
-    cpus: 2
-    mem_limit: 2g
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9093/-/healthy",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "0.25"
+          memory: 256M
     logging:
       driver: "syslog"
       options:
@@ -219,7 +324,7 @@ services:
 
   node-exporter:
     container_name: node-exporter
-    image: prom/node-exporter:v1.7.0
+    image: prom/node-exporter:v1.8.2
     privileged: true
     restart: unless-stopped
     volumes:
@@ -227,22 +332,26 @@ services:
       - /sys:/host/sys:ro
       - /:/rootfs:ro
       - /etc:/host/etc:ro
-      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
     command:
       - "--path.procfs=/host/proc"
       - "--path.rootfs=/rootfs"
       - "--path.sysfs=/host/sys"
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
-      # enable process collector
       - "--collector.processes"
-      #  enable systemd collector
       - "--collector.systemd"
     expose:
       - 9100
     ports:
-      - 9100:9100
-    cpus: 1
-    mem_limit: 2048m
+      - "9100:9100"
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
     logging:
       driver: "syslog"
       options:
@@ -270,7 +379,7 @@ services:
 
   cadvisor:
     container_name: cadvisor
-    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    image: gcr.io/cadvisor/cadvisor:v0.51.0
     privileged: true
     restart: unless-stopped
     volumes:
@@ -285,9 +394,15 @@ services:
     expose:
       - 8080
     ports:
-      - 8080:8080
-    cpus: 2
-    mem_limit: 4096m
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
     logging:
       driver: "syslog"
       options:
@@ -390,13 +505,22 @@ services:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=broker1:9092,broker2:9092,broker3:9092
     depends_on:
-      - broker1
-      - broker2
-      - broker3
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
     ports:
       - "8095:8080"
-    cpus: 0.5
-    mem_limit: 512m
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
     logging:
       driver: "syslog"
       options:
@@ -448,9 +572,10 @@ services:
     mem_limit: 512m
 
   debezium:
-    image: quay.io/debezium/connect:2.3
+    container_name: debezium
+    image: quay.io/debezium/connect:3.0
     ports:
-      - 8083:8083
+      - "8083:8083"
     environment:
       - BOOTSTRAP_SERVERS=broker1:9092,broker2:9092,broker3:9092
       - GROUP_ID=1
@@ -458,21 +583,32 @@ services:
       - OFFSET_STORAGE_TOPIC=debezium_storage_offsets
       - STATUS_STORAGE_TOPIC=debezium_storage_status
     volumes:
-      - ./debezium/plugins:/kafka/connect/plugins
-      - ./debezium/config:/kafka/connect/config
+      - ./debezium/plugins:/kafka/connect/plugins:ro
+      - ./debezium/config:/kafka/connect/config:ro
     depends_on:
-      - broker1
-      - broker2
-      - broker3
-      - database
+      database:
+        condition: service_healthy
+      broker1:
+        condition: service_healthy
+      broker2:
+        condition: service_healthy
+      broker3:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8083"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    cpus: 2
-    mem_limit: 4096m
+      test: ["CMD", "curl", "-f", "http://localhost:8083/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
     logging:
       driver: "json-file"
       options:
@@ -503,26 +639,45 @@ services:
   #       tag: "debezium-ui"
   unleash:
     container_name: unleash
-    image: unleashorg/unleash-server:5
+    image: unleashorg/unleash-server:6
     ports:
       - "4242:4242"
     environment:
-      # This points Unleash to its backing database (defined in the `db` section below)
-      DATABASE_URL: "postgresql://postgres:password@database:5432/unleash"
-      # Disable SSL for database connections. @chriswk: why do we do this?
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@database:5432/unleash"
       DATABASE_SSL: "false"
-      # Changing log levels:
       LOG_LEVEL: "warn"
+      UNLEASH_URL: "http://unleash:4242"
     depends_on:
       database:
         condition: service_healthy
     command: ["node", "index.js"]
     healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:4242/health || exit 1
-      interval: 1s
-      timeout: 1m
-      retries: 5
-      start_period: 15s
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:4242/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "tcp://localhost:53000"
+        tag: "unleash"
 
   tempo:
     container_name: tempo
@@ -636,11 +791,27 @@ services:
 
   redis:
     container_name: redis
-    image: redis:6.2.6
-    cpus: 0.5
-    mem_limit: 512m
+    image: redis:7.4-alpine
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
     ports:
       - "6379:6379"
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     logging:
       driver: syslog
       options:
