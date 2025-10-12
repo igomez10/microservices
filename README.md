@@ -154,6 +154,8 @@ The project follows a microservices architecture with the following patterns:
    For Socialapp:
    ```bash
    cd socialapp
+   # Set EXPOSED_HOST environment variable (e.g., localhost or your domain)
+   export EXPOSED_HOST=gomezignacio.com
    docker compose up -d
    ```
    
@@ -164,7 +166,8 @@ The project follows a microservices architecture with the following patterns:
    ```
 
 3. **Access the services**
-   - Socialapp: http://localhost (routed via Traefik on port 80)
+   - Socialapp: https://socialapp.${EXPOSED_HOST} (via Traefik with Let's Encrypt SSL)
+   - Socialapp (local dev): Configure `/etc/hosts` to point `socialapp.localhost` to `127.0.0.1`, or run directly without Docker (see Local Development Setup below)
    - URL Shortener: http://localhost:8089
 
 ### Local Development Setup
@@ -174,26 +177,62 @@ Each service has its own development setup. See individual service READMEs for d
 **Socialapp:**
 ```bash
 cd socialapp
+# Set up environment variables
+cp .env.example .env  # Edit .env with your configuration
+
+# Generate code from OpenAPI spec
 make generate-openapi  # Generate API code
 make sqlc-generate     # Generate SQL code
-make build             # Build the service
-make test              # Run tests
+
+# Start local PostgreSQL and Redis if needed
+docker compose up -d database redis
+
+# Run locally (listens on port 8080 by default)
+make start-dev-server  # Uses reflex for hot reload
+
+# Or build and run
+make build
+./cmd/socialapp/socialapp
+
+# Run tests
+make test
 ```
 
 **URL Shortener:**
 ```bash
 cd urlshortener
+# Set up environment variables
+cp .env.example .env  # Edit .env with your configuration
+
+# Generate code from OpenAPI spec
 make generate-openapi  # Generate API code
 make sqlc-generate     # Generate SQL code
-make build             # Build the service
-make test              # Run tests
+
+# Start local PostgreSQL if needed
+docker compose up -d database
+
+# Run locally
+make start-dev-server  # Uses reflex for hot reload
+
+# Or build and run
+make build
+./main --port=8089
+
+# Run tests
+make test
 ```
 
 **Bitcoin Price:**
 ```bash
 cd bitcoinprice
-buffalo dev            # Start development server
-buffalo test           # Run tests
+# Set up Buffalo environment
+export DATABASE_URL="postgres://user:pass@localhost/bitcoinprice_dev?sslmode=disable"
+
+# Run development server
+buffalo dev            # Starts on http://127.0.0.1:3000
+
+# Run tests
+buffalo test
 ```
 
 ## 💻 Development
