@@ -164,8 +164,8 @@ The project follows a microservices architecture with the following patterns:
    ```
 
 3. **Access the services**
-   - Socialapp: http://localhost:8080
-   - URL Shortener: http://localhost:8080
+   - Socialapp: http://localhost (routed via Traefik on port 80)
+   - URL Shortener: http://localhost:8089
 
 ### Local Development Setup
 
