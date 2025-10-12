@@ -11,3 +11,6 @@ curl -X POST "http://elasticsearch:9200/_security/role/logstash_writer" \
       }
     ]
   }'
+
+psql -U postgres -h database -d postgres -c "CREATE DATABASE socialapp;"
+psql -U postgres -h database -d socialapp -f /schema.sql

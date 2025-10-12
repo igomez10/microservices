@@ -86,7 +86,6 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 			}...))
 		if err != nil {
 			log.Error().Err(err).Msg("failed to create histogram in beacon")
-
 		} else {
 			hist.Record(ctx, time.Since(startTime).Seconds(), metric.WithAttributeSet(attributes))
 		}

@@ -56,7 +56,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		if isAllowlisted {
 			span.SetAttributes(attribute.KeyValue{
 				Key:   attribute.Key("allowlisted"),
-				Value: attribute.StringValue(fmt.Sprintf("true")),
+				Value: attribute.StringValue("true"),
 			})
 			r = contexthelper.SetRequestedScopesInContext(r, map[string]bool{})
 			log.Info().

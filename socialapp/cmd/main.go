@@ -601,10 +601,7 @@ func run(_ context.Context, config Configuration) {
 		case config.puttyknifeDomain:
 			puttyknifeServerProxy.Router.ServeHTTP(w, r)
 		default:
-			message := fmt.Sprintf("Host %q Not found", r.Host)
-			log.Info().Str("Host", r.Host).Msg("Request host invalid Host")
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(message))
+			socialappRouter.Router.ServeHTTP(w, r)
 		}
 	})
 
