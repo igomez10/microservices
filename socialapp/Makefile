@@ -1,11 +1,17 @@
+setup-init:
+	docker network create docker-elk_elk
+	docker network create socialapp_default
+
 compose-all-up:
-	docker compose up -d
-	cd ../urlshortener && docker compose up -d
 	cd ../../docker-elk && docker compose up setup -d
+	docker compose up -d
+	cd ../../puttyknife && docker compose up -d
+	cd ../urlshortener && docker compose up -d
 
 compose-all-down:
-	docker compose down
 	cd ../urlshortener && docker compose down
+	cd ../../puttyknife && docker compose down
+	docker compose down
 	cd ../../docker-elk && docker compose down
 
 compose-prune:

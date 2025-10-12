@@ -1,6 +1,5 @@
-#!/bin/bash
 
-curl -X POST "http://localhost:9200/_security/role/logstash_writer" \
+curl -X POST "http://elasticsearch:9200/_security/role/logstash_writer" \
   -H "Content-Type: application/json" \
   -u "elastic:${ELASTIC_PASSWORD}" \
   -d '{

@@ -42,9 +42,8 @@ var opts struct {
 		Addr string `long:"addr" env:"ADDR" default:"localhost" description:"Meta service address"`
 		Port int    `long:"port" env:"PORT" default:"8081" description:"Meta service port"`
 	} `group:"Meta service" namespace:"meta" env-namespace:"META"`
-	NewRelicLicense string `long:"newrelic-license" env:"NEWRELIC_LICENSE" default:"" description:"New relic license"`
-	AgentURL        string `long:"agent-url" env:"AGENT_URL" default:"" description:"Agent URL"`
-	AppName         string `long:"app-name" env:"APP_NAME" default:"urlshortener" description:"Application name"`
+	AgentURL string `long:"agent-url" env:"AGENT_URL" default:"" description:"Agent URL"`
+	AppName  string `long:"app-name" env:"APP_NAME" default:"urlshortener" description:"Application name"`
 }
 
 func main() {

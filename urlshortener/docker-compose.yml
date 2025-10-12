@@ -14,7 +14,6 @@ services:
         "--db-url=${DB_URL}",
         "--meta.addr=0.0.0.0",
         "--meta.port=8082",
-        "--newrelic-license=${NEWRELIC_LICENSE}",
         "--agent-url=http://otel-collector:4317",
       ]
     ports:

@@ -1,12 +1,16 @@
 networks:
   elk:
     name: docker-elk_elk
+    external: true
   dns:
     name: dns
     driver: bridge
     ipam:
       config:
         - subnet: 172.28.0.0/16
+  default:
+    external: true
+    name: socialapp_default
 
 volumes:
   prometheus_data: {}
@@ -110,6 +114,19 @@ services:
         tag: "database"
     cpus: 2
     mem_limit: 2g
+
+  setup:
+    image: nicolaka/netshoot
+    container_name: setup
+    command: ["sh", "-c", "chmod +x /setup/init.sh && /setup/init.sh"]
+    restart: "no"
+    networks:
+      - elk
+      - default
+    env_file:
+      - .env
+    volumes:
+      - ./setup:/setup
 
   postgres-exporter:
     container_name: postgres-exporter
