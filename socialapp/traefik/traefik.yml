@@ -8,11 +8,6 @@ api:
 entryPoints:
   web:
     address: ":80"
-    http:
-      redirections:
-        entryPoint:
-          to: websecure
-          scheme: https
   websecure:
     address: ":443"
   weblocal:
@@ -47,7 +42,7 @@ log:
 
 accessLog:
   filePath: "/tmp/access.log"
-  format: commmon
+  format: common
 
 ping:
   entryPoint: "web"
@@ -68,6 +63,11 @@ tracing:
 
 ## Dynamic configuration
 http:
+  middlewares:
+    https-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
   serversTransports:
     mytransport:
       disableHTTP2: true

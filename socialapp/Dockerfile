@@ -6,6 +6,7 @@ RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o /main cmd/main.go
 
-FROM scratch
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates wget
 COPY --from=builder /main /main
 CMD ["/main"]

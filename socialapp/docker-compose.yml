@@ -65,22 +65,33 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
+      # Middleware for HTTPS redirect
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
+      # HTTPS router
       - "traefik.http.routers.socialapp1.service=socialapp"
-      - "traefik.http.routers.socialapp1.entrypoints=web"
       - "traefik.http.routers.socialapp1.entrypoints=websecure"
       - "traefik.http.routers.socialapp1.rule=Host(`socialapp.${EXPOSED_HOST}`)"
-      - "traefik.http.services.socialapp.loadbalancer.server.port=8086"
       - "traefik.http.routers.socialapp1.tls=true"
       - "traefik.http.routers.socialapp1.tls.certresolver=letsencrypt"
+      # HTTP router with redirect
+      - "traefik.http.routers.socialapp1-http.entrypoints=web"
+      - "traefik.http.routers.socialapp1-http.rule=Host(`socialapp.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.socialapp1-http.middlewares=https-redirect"
+      # Service
+      - "traefik.http.services.socialapp.loadbalancer.server.port=8086"
 
       # puttyknife-server (fixed typo)
+      # HTTPS router
       - "traefik.http.routers.puttyknife-server.service=socialapp"
-      - "traefik.http.routers.puttyknife-server.entrypoints=web"
       - "traefik.http.routers.puttyknife-server.entrypoints=websecure"
       - "traefik.http.routers.puttyknife-server.rule=Host(`puttyknife-server.${EXPOSED_HOST}`)"
-      - "traefik.http.services.puttyknife-server.loadbalancer.server.port=8086"
       - "traefik.http.routers.puttyknife-server.tls=true"
       - "traefik.http.routers.puttyknife-server.tls.certresolver=letsencrypt"
+      # HTTP router with redirect
+      - "traefik.http.routers.puttyknife-server-http.entrypoints=web"
+      - "traefik.http.routers.puttyknife-server-http.rule=Host(`puttyknife-server.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.puttyknife-server-http.middlewares=https-redirect"
 
     depends_on:
       database:
@@ -90,12 +101,8 @@ services:
     healthcheck:
       test:
         [
-          "CMD",
-          "wget",
-          "--no-verbose",
-          "--tries=1",
-          "--spider",
-          "http://localhost:8086/health",
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 -O /dev/null http://localhost:8086/health || exit 1",
         ]
       interval: 30s
       timeout: 10s
@@ -840,12 +847,18 @@ services:
     container_name: whoamiinternal
     image: traefik/whoami
     labels:
+      - "traefik.enable=true"
+      # HTTPS router
       - "traefik.http.routers.whoamiinternal.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.services.whoamiinternal.loadbalancer.server.port=80"
       - "traefik.http.routers.whoamiinternal.entrypoints=websecure"
       - "traefik.http.routers.whoamiinternal.tls=true"
       - "traefik.http.routers.whoamiinternal.tls.certresolver=letsencrypt"
-      - "traefik.enable=true"
+      # HTTP router with redirect
+      - "traefik.http.routers.whoamiinternal-http.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.whoamiinternal-http.entrypoints=web"
+      - "traefik.http.routers.whoamiinternal-http.middlewares=https-redirect"
+      # Service
+      - "traefik.http.services.whoamiinternal.loadbalancer.server.port=80"
     cpus: 0.5
     mem_limit: 512m
     logging:
@@ -858,12 +871,18 @@ services:
     container_name: whoami
     image: traefik/whoami
     labels:
-      - "traefik.http.services.whoami.loadbalancer.server.port=80"
+      - "traefik.enable=true"
+      # HTTPS router
       - "traefik.http.routers.whoamihost.rule=Host(`whoami.${EXPOSED_HOST}`)"
       - "traefik.http.routers.whoamihost.entrypoints=websecure"
       - "traefik.http.routers.whoamihost.tls=true"
       - "traefik.http.routers.whoamihost.tls.certresolver=letsencrypt"
-      - "traefik.enable=true"
+      # HTTP router with redirect
+      - "traefik.http.routers.whoamihost-http.rule=Host(`whoami.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.whoamihost-http.entrypoints=web"
+      - "traefik.http.routers.whoamihost-http.middlewares=https-redirect"
+      # Service
+      - "traefik.http.services.whoami.loadbalancer.server.port=80"
     cpus: 0.5
     mem_limit: 512m
     logging:
