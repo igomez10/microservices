@@ -12,9 +12,10 @@
             "program": "cmd/main.go",
             "args": [
                 "--port=8085",
-                "--proxy=http://localhost:9191",
+                "--proxy=http://localhost:9091",
                 "--puttyknifeDomain=puttyknife-server.localhostgomezignacio.com",
                 "--puttyknife-url=http://localhost:8096",
+                "--urlShortenerURL=http://localhost:9097",
             ],
             "cwd": ".",
             "envFile": "${workspaceFolder}/.env"
@@ -28,9 +29,10 @@
             "args": [],
             "cwd": ".",
             "env": {
-                "TEST_SETUP": "1",
+                "APP_HOST": "http://localhost:8085",
                 "HTTP_PROXY": "http://localhost:9091",
                 "HTTPS_PROXY": "http://localhost:9091",
+                "AGENT_URL": "http://localhost:4317",
             },
             // "envFile": "${workspaceFolder}/.env",
         }

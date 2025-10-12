@@ -35,7 +35,7 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 
 		// check if all required scopes are in token
 		for scopeName := range m.RequiredScopes {
-			if exist := tokenScopes[scopeName]; !exist {
+			if exist := tokenScopes[scopeName]; !exist && scopeName != "noauth" {
 				log.Info().
 					Str("scope", scopeName).
 					Str("tokenScopes", fmt.Sprintf("%v", tokenScopes)).

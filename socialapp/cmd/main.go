@@ -58,18 +58,19 @@ import (
 )
 
 type Configuration struct {
-	appName               string
-	appPort               int
-	proxyURL              string
-	logLevel              zerolog.Level
-	logDestination        io.Writer
-	connections           *ForcedConnectionPool
-	queries               *dbpgx.Queries
-	cache                 *cache.Cache
-	propertiesSubdomain   *url.URL
-	defaultTimeout        time.Duration
-	urlService            *url.URL
+	appName             string
+	appPort             int
+	proxyURL            string
+	logLevel            zerolog.Level
+	logDestination      io.Writer
+	connections         *ForcedConnectionPool
+	queries             *dbpgx.Queries
+	cache               *cache.Cache
+	propertiesSubdomain *url.URL
+	defaultTimeout      time.Duration
+	// urlService            *url.URL
 	urlShortenerSubdomain string
+	urlShortenerURL       *url.URL
 	socialappSubdomain    string
 	instanceID            string
 	jwtSecret             string
@@ -77,7 +78,6 @@ type Configuration struct {
 	puttyknifeURL         *url.URL
 	KibanaSubdomain       string
 	KibanaURL             string
-	urlShortenerURL       string
 	localSubdomain        string
 }
 
@@ -90,7 +90,7 @@ func main() {
 		LogHost               string        `long:"logHost" description:"log host url" env:"LOGSTASH_HOST"`
 		PropertiesSubdomain   string        `long:"propertiesSubdomain" description:"Properties subdomain" env:"PROPERTIES_SUBDOMAIN"`
 		DefaultTimeout        time.Duration `long:"defaultTimeout" description:"Default timeout for requests" default:"10s"`
-		AgentURL              string        `long:"agentURL" description:"Agent URL" default:"http://localhost:4317"`
+		AgentURL              string        `long:"agentURL" description:"Agent URL" default:"http://localhost:4317" env:"AGENT_URL"`
 		DatabaseURL           string        `long:"databaseURL" description:"Database URL" env:"DATABASE_URL"`
 		PuttyknifeDomain      string        `long:"puttyknifeDomain" description:"Puttyknife domain: puttyknife.{...}.com" env:"PUTTYKNIFE_DOMAIN"`
 		PuttyknifeURL         string        `long:"puttyknife-url" description:"Puttyknife url" env:"PUTTYKNIFE_URL"`
@@ -219,13 +219,11 @@ func main() {
 
 	// parse url service host
 	var urlService *url.URL
-	if len(opts.URLShortenerURL) != 0 {
-		u, err := url.Parse(opts.URLShortenerURL)
-		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to parse url service host url %s", opts.UrlShortenerSubdomain)
-		}
-		urlService = u
+	u, err := url.Parse(opts.URLShortenerURL)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to parse url service host url %s", opts.URLShortenerURL)
 	}
+	urlService = u
 
 	var puttyknifeURL *url.URL
 	if len(opts.PuttyknifeURL) != 0 {
@@ -317,14 +315,13 @@ func main() {
 		cache:                 cache,
 		propertiesSubdomain:   propertiesSubdomainURL,
 		defaultTimeout:        opts.DefaultTimeout,
-		urlService:            urlService,
+		urlShortenerSubdomain: opts.UrlShortenerSubdomain,
 		puttyknifeDomain:      opts.PuttyknifeDomain,
 		puttyknifeURL:         puttyknifeURL,
-		urlShortenerSubdomain: opts.UrlShortenerSubdomain,
 		socialappSubdomain:    opts.SocialappSubdomain,
 		instanceID:            instanceID,
 		jwtSecret:             opts.JwtSecret,
-		urlShortenerURL:       opts.UrlShortenerSubdomain,
+		urlShortenerURL:       urlService,
 		KibanaSubdomain:       opts.KibanaSubdomain,
 		KibanaURL:             opts.KibanaURL,
 	}
@@ -391,8 +388,8 @@ func run(_ context.Context, config Configuration) {
 
 	// URL service
 	uc := urlClient.NewConfiguration()
-	uc.Host = config.urlService.Host
-	uc.Scheme = config.urlService.Scheme
+	uc.Host = config.urlShortenerURL.Host
+	uc.Scheme = config.urlShortenerURL.Scheme
 	uc.HTTPClient = http.DefaultClient
 	uc.UserAgent = config.appName
 	urlServiceClient := urlClient.NewAPIClient(uc)
@@ -542,11 +539,6 @@ func run(_ context.Context, config Configuration) {
 	}
 	puttyknifeServerProxy := proxyrouter.NewProxyRouter(config.puttyknifeURL, puttyKnifeMiddlewares)
 
-	// URL shortener
-	urlShortenerURL, err := url.Parse(config.urlShortenerURL)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse urlshortener target url")
-	}
 	urlshortenerMiddleware := []func(http.Handler) http.Handler{
 		cors.AllowAll().Handler,
 		middleware.Heartbeat("/health"),
@@ -556,7 +548,7 @@ func run(_ context.Context, config Configuration) {
 		middleware.Timeout(20 * time.Second),
 		middleware.RealIP,
 	}
-	urlshortenerProxy := proxyrouter.NewProxyRouter(urlShortenerURL, urlshortenerMiddleware)
+	urlshortenerProxy := proxyrouter.NewProxyRouter(config.urlShortenerURL, urlshortenerMiddleware)
 
 	// LOCAL
 	localSubdomain := config.localSubdomain

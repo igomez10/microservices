@@ -1,6 +1,7 @@
 generate-openapi:
 	set -e
 	#  generate server:
+	openapi-generator-cli version-manager set 7.11.0
 	rm -rf ./generated/server
 	openapi-generator-cli generate -i openapi.yaml  \
 	-g go-server \

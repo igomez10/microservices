@@ -82,6 +82,7 @@ func getHTTPClient() *http.Client {
 
 func TestURLLifeCycle(t *testing.T) {
 	Setup()
+	ctx := context.Background()
 	// setup url client
 	urlClientConfiguration := urlClient.NewConfiguration()
 	urlClientConfiguration.Host = "localhost:8089"
@@ -90,10 +91,9 @@ func TestURLLifeCycle(t *testing.T) {
 	urlClnt = urlClient.NewAPIClient(urlClientConfiguration)
 
 	// create url
-	urlAPICtx := context.WithValue(context.Background(), urlClient.ContextServerIndex, CONTEXT_SERVER)
 	alias := fmt.Sprintf("%d", uuid.New().ID())
 	// newURL := urlClient.NewURL("https://www.google.com/", alias)
-	// _, r, err := urlClnt.URLAPI.CreateUrl(urlAPICtx).URL(*newURL).Execute()
+	// _, r, err := urlClnt.URLAPI.CreateUrl(ctx).URL(*newURL).Execute()
 	// if err != nil {
 	// 	t.Errorf("Error when calling `URLAPI.CreateURL`: %v\n", err)
 	// 	t.Errorf("Full HTTP response: %v ", r)
@@ -104,7 +104,7 @@ func TestURLLifeCycle(t *testing.T) {
 	// }
 
 	// // create same url should fail with 409
-	// _, r, err = urlClnt.URLAPI.CreateUrl(urlAPICtx).URL(*newURL).Execute()
+	// _, r, err = urlClnt.URLAPI.CreateUrl(ctx).URL(*newURL).Execute()
 	// if err == nil {
 	// 	t.Errorf("Expected error when calling `URLAPI.CreateURL`, got none")
 	// }
@@ -113,7 +113,7 @@ func TestURLLifeCycle(t *testing.T) {
 	// }
 
 	// get url
-	getUrlRes, err := urlClnt.URLAPI.GetUrl(urlAPICtx, alias).Execute()
+	getUrlRes, err := urlClnt.URLAPI.GetUrl(ctx, alias).Execute()
 	if err != nil {
 		t.Errorf("Error when calling `URLAPI.GetURL`: %v\n", err)
 		t.Errorf("Full HTTP response: %v ", getUrlRes)

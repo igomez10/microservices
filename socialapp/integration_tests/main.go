@@ -32,10 +32,8 @@ var (
 	LOCALHOST_SERVER_URL       = 1
 	LOCALHOST_DEBUG_SERVER_URL = 2
 
-	CONTEXT_SERVER       int
-	apiClient            *client.APIClient
-	ENDPOINT_OAUTH_TOKEN string
-	urlAgent             = flag.String("agentURL", os.Getenv("AGENT_URL"), "Agent URL \"http://localhost:4317\"")
+	apiClient *client.APIClient
+	urlAgent  = flag.String("agentURL", os.Getenv("AGENT_URL"), "Agent URL \"http://localhost:4317\"")
 )
 
 const defaultUsername = "Test-%d1"
@@ -55,6 +53,17 @@ func WithSkipCache() ConfigurationOpts {
 	}
 }
 
+func WithHost(host string) ConfigurationOpts {
+	return func(cfg *client.Configuration) {
+		cfg.Servers = client.ServerConfigurations{
+			{
+				URL:         host,
+				Description: fmt.Sprintf("Passed in constructor: %s", host),
+			},
+		}
+	}
+}
+
 // NewDefaultConfiguration creates a new Configuration with default values, usually we want to set the same default values for all tests
 func NewDefaultConfiguration(opts ...ConfigurationOpts) *client.Configuration {
 	cfg := client.NewConfiguration()
@@ -66,29 +75,20 @@ func NewDefaultConfiguration(opts ...ConfigurationOpts) *client.Configuration {
 }
 
 // add setup function
-func Setup() {
+func Setup() []ConfigurationOpts {
 	//  set the endpoint for the oauth token
-	testSetup := os.Getenv("TEST_SETUP")
-	// if testSetup == "" {
-	// 	testSetup = "LOCALHOST_DEBUG"
-	// }
-
-	switch testSetup {
-	case "LOCALHOST":
-		CONTEXT_SERVER = LOCALHOST_SERVER_URL
-		ENDPOINT_OAUTH_TOKEN = "http://localhost:8085/v1/oauth/token"
-	case "LOCALHOST_DEBUG":
-		CONTEXT_SERVER = LOCALHOST_DEBUG_SERVER_URL
-		ENDPOINT_OAUTH_TOKEN = "http://localhost:8085/v1/oauth/token"
-	default:
-		CONTEXT_SERVER = RENDER_SERVER_URL
-		ENDPOINT_OAUTH_TOKEN = "https://socialapp.gomezignacio.com/v1/oauth/token"
+	testSetup := os.Getenv("APP_HOST")
+	if testSetup == "" {
+		panic("APP_HOST environment variable is not set")
 	}
-
 	// with timestamp and caller
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339, NoColor: false}).
 		With().Caller().Timestamp().Logger()
+	return []ConfigurationOpts{
+		WithHost(testSetup),
+	}
 }
+
 func getHTTPClient() *http.Client {
 	// setup retryable http client
 	retryClient := retryablehttp.NewClient()
@@ -212,17 +212,18 @@ func main() {
 }
 
 func ListUsersLifecycle(ctx context.Context) error {
-	Setup()
 	ctx, span := getTracer().Start(ctx, "ListUsersLifecycle")
 	defer span.End()
 
-	configuration := NewDefaultConfiguration(WithSkipCache())
+	opts := Setup()
+	opts = append(opts, WithSkipCache())
+	configuration := NewDefaultConfiguration(
+		opts...,
+	)
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
-	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
-
 	username1 := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
 	apiClient = client.NewAPIClient(configuration)
@@ -242,16 +243,15 @@ func ListUsersLifecycle(ctx context.Context) error {
 		ClientID:     username1,
 		ClientSecret: password,
 		Scopes:       []string{"socialapp.users.list"},
-		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
-	openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	// List users
-	_, r, err := apiClient.UserAPI.ListUsers(openAPICtx).Limit(10).Offset(0).Execute()
+	_, r, err := apiClient.UserAPI.ListUsers(oauth2Ctx).Limit(10).Offset(0).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `UserAPI.ListUsers`: %v\n %+v\n", err, r)
 	}
@@ -263,16 +263,16 @@ func ListUsersLifecycle(ctx context.Context) error {
 }
 
 func CreateUserLifecycle(ctx context.Context) error {
-	Setup()
 	ctx, span := getTracer().Start(ctx, "CreateUserLifecycle")
 	defer span.End()
-
-	configuration := NewDefaultConfiguration(WithSkipCache())
+	opts := Setup()
+	opts = append(opts, WithSkipCache())
+	configuration := NewDefaultConfiguration(
+		opts...,
+	)
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	noAuthCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
-	noAuthCtx = context.WithValue(noAuthCtx, client.ContextServerIndex, CONTEXT_SERVER)
-
 	apiClient = client.NewAPIClient(configuration)
 
 	username := fmt.Sprintf("Test-%d", time.Now().UnixNano())
@@ -300,7 +300,7 @@ func CreateUserLifecycle(ctx context.Context) error {
 			ClientID:     username,
 			ClientSecret: password,
 			Scopes:       []string{"socialapp.users.read"},
-			TokenURL:     ENDPOINT_OAUTH_TOKEN,
+			TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 		}
 		oauth2Ctx, err := getOuath2Context(noAuthCtx, conf)
 		if err != nil {
@@ -337,7 +337,7 @@ func CreateUserLifecycle(ctx context.Context) error {
 			ClientID:     username,
 			ClientSecret: password,
 			Scopes:       []string{"socialapp.users.update"},
-			TokenURL:     ENDPOINT_OAUTH_TOKEN,
+			TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 		}
 		oauth2Ctx, err := getOuath2Context(noAuthCtx, conf)
 		if err != nil {
@@ -383,18 +383,18 @@ func CreateUserLifecycle(ctx context.Context) error {
 }
 
 func FollowLifeCycle(ctx context.Context) error {
-	Setup()
 	ctx, span := getTracer().Start(ctx, "FollowLifeCycle")
 	defer span.End()
-	// create two users
-	configuration := NewDefaultConfiguration(WithSkipCache())
+	opts := Setup()
+	opts = append(opts, WithSkipCache())
+	configuration := NewDefaultConfiguration(opts...)
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
-	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
 
+	// create two users
 	username1 := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password1 := fmt.Sprintf("TestPassword-%d1", time.Now().UnixNano())
 	email1 := fmt.Sprintf("Test-%d-1@social.com", time.Now().UnixNano())
@@ -434,7 +434,7 @@ func FollowLifeCycle(ctx context.Context) error {
 			"socialapp.follower.read",
 			"socialapp.follower.delete",
 		},
-		TokenURL: ENDPOINT_OAUTH_TOKEN,
+		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 
 	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
@@ -499,17 +499,15 @@ func FollowLifeCycle(ctx context.Context) error {
 }
 
 func GetExpectedFeed(ctx context.Context) error {
-	Setup()
-
 	ctx, span := getTracer().Start(ctx, "GetExpectedFeed")
 	defer span.End()
-
+	opts := Setup()
+	opts = append(opts, WithSkipCache())
 	// create two users
-	configuration := NewDefaultConfiguration(WithSkipCache())
+	configuration := NewDefaultConfiguration(opts...)
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
-	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
 
@@ -557,7 +555,7 @@ func GetExpectedFeed(ctx context.Context) error {
 			"socialapp.comments.create",
 			"socialapp.feed.read",
 		},
-		TokenURL: ENDPOINT_OAUTH_TOKEN,
+		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 
 	oauth2Ctx1, err := getOuath2Context(proxyCtx, conf1)
@@ -587,7 +585,7 @@ func GetExpectedFeed(ctx context.Context) error {
 			"socialapp.comments.create",
 			"socialapp.feed.read",
 		},
-		TokenURL: ENDPOINT_OAUTH_TOKEN,
+		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 
 	oauth2Ctx2, err := getOuath2Context(proxyCtx, conf2)
@@ -646,14 +644,14 @@ func GetExpectedFeed(ctx context.Context) error {
 }
 
 func GetAccessToken(ctx context.Context) error {
-	Setup()
 	ctx, span := getTracer().Start(ctx, "GetAccessToken")
 	defer span.End()
-	configuration := NewDefaultConfiguration(WithSkipCache())
+	opts := Setup()
+	opts = append(opts, WithSkipCache())
+	configuration := NewDefaultConfiguration(opts...)
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
-	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
 
@@ -683,7 +681,7 @@ func GetAccessToken(ctx context.Context) error {
 		ClientID:     username,
 		ClientSecret: password,
 		Scopes:       scopes,
-		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 	oauth2Ctx, err := getOuath2Context(proxyCtx, credConf)
 	if err != nil {
@@ -707,14 +705,14 @@ func GetAccessToken(ctx context.Context) error {
 }
 
 func RegisterUserFlow(ctx context.Context) error {
-	Setup()
 	ctx, span := getTracer().Start(ctx, "RegisterUserFlow")
 	defer span.End()
-	configuration := NewDefaultConfiguration(WithSkipCache())
+	opts := Setup()
+	opts = append(opts, WithSkipCache())
+	configuration := NewDefaultConfiguration(opts...)
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
-	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	apiClient = client.NewAPIClient(configuration)
 
@@ -739,7 +737,7 @@ func RegisterUserFlow(ctx context.Context) error {
 		ClientID:     username1,
 		ClientSecret: password,
 		Scopes:       scopes,
-		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 	if err != nil {
@@ -781,14 +779,14 @@ func RegisterUserFlow(ctx context.Context) error {
 }
 
 func ChangePassword(ctx context.Context) error {
-	Setup()
 	ctx, span := getTracer().Start(ctx, "ChangePassword")
 	defer span.End()
-	configuration := NewDefaultConfiguration(WithSkipCache())
+	opts := Setup()
+	opts = append(opts, WithSkipCache())
+	configuration := NewDefaultConfiguration(opts...)
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
-	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 	scopes := []string{
 		"socialapp.users.read",
 		"socialapp.users.update",
@@ -814,7 +812,7 @@ func ChangePassword(ctx context.Context) error {
 		ClientID:     username,
 		ClientSecret: password,
 		Scopes:       scopes,
-		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 	if err != nil {
@@ -856,7 +854,7 @@ func ChangePassword(ctx context.Context) error {
 			ClientID:     username,
 			ClientSecret: newPassword,
 			Scopes:       scopes,
-			TokenURL:     ENDPOINT_OAUTH_TOKEN,
+			TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 		}
 		newPwdOauth2Ctx, err := getOuath2Context(proxyCtx, newPwdConf)
 		if err != nil {
@@ -881,14 +879,14 @@ func ChangePassword(ctx context.Context) error {
 }
 
 func RoleLifecycle(ctx context.Context) error {
-	Setup()
 	ctx, span := getTracer().Start(ctx, "RoleLifecycle")
 	defer span.End()
-	configuration := NewDefaultConfiguration(WithSkipCache())
+	opts := Setup()
+	opts = append(opts, WithSkipCache())
+	configuration := NewDefaultConfiguration(opts...)
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
-	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 	scopes := []string{
 		"socialapp.roles.read",
 		"socialapp.roles.list",
@@ -922,7 +920,7 @@ func RoleLifecycle(ctx context.Context) error {
 		ClientID:     username,
 		ClientSecret: password,
 		Scopes:       scopes,
-		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 	if err != nil {
@@ -1107,14 +1105,14 @@ func RoleLifecycle(ctx context.Context) error {
 }
 
 func ScopeLifecycle(ctx context.Context) error {
-	Setup()
 	ctx, span := getTracer().Start(ctx, "ScopeLifecycle")
 	defer span.End()
-	configuration := NewDefaultConfiguration(WithSkipCache())
+	opts := Setup()
+	opts = append(opts, WithSkipCache())
+	configuration := NewDefaultConfiguration(opts...)
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
-	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 	scopes := []string{
 		"socialapp.scopes.read",
 		"socialapp.scopes.list",
@@ -1143,7 +1141,7 @@ func ScopeLifecycle(ctx context.Context) error {
 		ClientID:     username,
 		ClientSecret: password,
 		Scopes:       scopes,
-		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 	if err != nil {
@@ -1243,14 +1241,14 @@ func ScopeLifecycle(ctx context.Context) error {
 }
 
 func UserRoleLifeCycle(ctx context.Context) (err error) {
-	Setup()
 	ctx, span := getTracer().Start(ctx, "UserRoleLifeCycle")
 	defer span.End()
-	configuration := NewDefaultConfiguration(WithSkipCache())
+	opts := Setup()
+	opts = append(opts, WithSkipCache())
+	configuration := NewDefaultConfiguration(opts...)
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
-	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 	scopes := []string{
 		"socialapp.scopes.read",
 		"socialapp.scopes.list",
@@ -1283,7 +1281,7 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 		ClientID:     username,
 		ClientSecret: password,
 		Scopes:       scopes,
-		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 	if err != nil {
@@ -1362,15 +1360,14 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 }
 
 func CacheRequestSameUser(ctx context.Context) error {
-	Setup()
 	ctx, span := getTracer().Start(ctx, "CacheRequestSameUser")
 	defer span.End()
-	configuration := client.NewConfiguration()
+	opts := Setup()
+	configuration := NewDefaultConfiguration(opts...)
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
-	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	username1 := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
@@ -1395,18 +1392,17 @@ func CacheRequestSameUser(ctx context.Context) error {
 			"socialapp.feed.read",
 			"socialapp.comments.read",
 		},
-		TokenURL: ENDPOINT_OAUTH_TOKEN,
+		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
-	openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	// List 100 users, different offset on every execution
 	offset := time.Now().UnixNano() % 5000
 	listedUsers, r, err := apiClient.UserAPI.
-		ListUsers(openAPICtx).
+		ListUsers(oauth2Ctx).
 		Limit(5).
 		Offset(int32(offset)).
 		Execute()
@@ -1421,7 +1417,7 @@ func CacheRequestSameUser(ctx context.Context) error {
 	// get user info 5 times
 	for _, currentUser := range listedUsers {
 		for i := 0; i < 50; i++ {
-			_, r, err = apiClient.UserAPI.GetUserByUsername(openAPICtx, currentUser.Username).Execute()
+			_, r, err = apiClient.UserAPI.GetUserByUsername(oauth2Ctx, currentUser.Username).Execute()
 			if err != nil {
 				return fmt.Errorf("Error when calling `UserAPI.GetUser`: %v %v", err, r)
 
@@ -1431,7 +1427,7 @@ func CacheRequestSameUser(ctx context.Context) error {
 			}
 
 			// get user comments
-			_, r, err = apiClient.UserAPI.GetUserComments(openAPICtx, currentUser.Username).Execute()
+			_, r, err = apiClient.UserAPI.GetUserComments(oauth2Ctx, currentUser.Username).Execute()
 			if err != nil {
 				return fmt.Errorf("Error when calling `UserAPI.GetUserComments`: %v %v", err, r)
 
@@ -1441,7 +1437,7 @@ func CacheRequestSameUser(ctx context.Context) error {
 			}
 
 			// get feed
-			_, r, err = apiClient.CommentAPI.GetUserFeed(openAPICtx).Execute()
+			_, r, err = apiClient.CommentAPI.GetUserFeed(oauth2Ctx).Execute()
 			if err != nil {
 				return fmt.Errorf("Error when calling `CommentAPI.GetUserFeed`: %v %v", err, r)
 
@@ -1457,15 +1453,15 @@ func CacheRequestSameUser(ctx context.Context) error {
 }
 
 func URLLifeCycle(ctx context.Context) error {
-	Setup()
 	ctx, span := getTracer().Start(ctx, "URLLifeCycle")
 	defer span.End()
-	configuration := NewDefaultConfiguration(WithSkipCache())
+	opts := Setup()
+	opts = append(opts, WithSkipCache())
+	configuration := NewDefaultConfiguration(opts...)
 	httpClient := getHTTPClient()
 	configuration.HTTPClient = httpClient
 
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
-	proxyCtx = context.WithValue(proxyCtx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	username1 := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
@@ -1485,18 +1481,17 @@ func URLLifeCycle(ctx context.Context) error {
 		ClientID:     username1,
 		ClientSecret: password,
 		Scopes:       []string{"shortly.url.create", "shortly.url.delete"},
-		TokenURL:     ENDPOINT_OAUTH_TOKEN,
+		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 
 	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
-	openAPICtx := context.WithValue(oauth2Ctx, client.ContextServerIndex, CONTEXT_SERVER)
 
 	// create url
 	newURL := client.NewURL("https://www.google.com", fmt.Sprintf("%d", time.Now().Unix()))
-	_, r, err := apiClient.URLAPI.CreateUrl(openAPICtx).URL(*newURL).Execute()
+	_, r, err := apiClient.URLAPI.CreateUrl(oauth2Ctx).URL(*newURL).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `URLAPI.CreateURL`: %v %v", err, r)
 	}
@@ -1516,7 +1511,7 @@ func URLLifeCycle(ctx context.Context) error {
 	}
 
 	// delete url
-	deleteUrlRes, err := apiClient.URLAPI.DeleteUrl(openAPICtx, newURL.Alias).Execute()
+	deleteUrlRes, err := apiClient.URLAPI.DeleteUrl(oauth2Ctx, newURL.Alias).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `URLAPI.DeleteURL`: %v %v", err, deleteUrlRes)
 	}

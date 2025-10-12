@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/igomez10/microservices/socialapp/cmd/cli/commands/get"
 	"github.com/igomez10/microservices/socialapp/cmd/cli/commands/list"
 	"github.com/urfave/cli/v3"
 )
@@ -17,6 +18,7 @@ func main() {
 		EnableShellCompletion: true,
 		Commands: []*cli.Command{
 			list.GetCmd(),
+			get.GetCmd(),
 		},
 	}
 

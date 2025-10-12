@@ -699,7 +699,7 @@ services:
 
   otel-collector:
     container_name: otel-collector
-    image: otel/opentelemetry-collector-contrib:0.131.0
+    image: otel/opentelemetry-collector-contrib:0.137.0
     ports:
       - "55679:55679"
       - "55680:55680"
