@@ -38,7 +38,6 @@ var (
 	urlAgent             = flag.String("agentURL", os.Getenv("AGENT_URL"), "Agent URL \"http://localhost:4317\"")
 )
 
-const appName = "integration-tests-socialapp"
 const defaultUsername = "Test-%d1"
 const defaultPassword = "Password-%d1"
 
