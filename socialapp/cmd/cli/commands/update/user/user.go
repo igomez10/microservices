@@ -1,4 +1,4 @@
-package createuser
+package updateuser
 
 import (
 	"context"
@@ -10,23 +10,17 @@ import (
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/igomez10/microservices/socialapp/cmd/cli/cliflags"
 	"github.com/urfave/cli/v3"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 const defaultHost = "http://localhost:8086"
 
 func GetCmd() *cli.Command {
 	return &cli.Command{
-		Name:  "user",
-		Usage: "create user",
+		Name:      "user",
+		Usage:     "update user by username",
+		ArgsUsage: "<username>",
 		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:    cliflags.UsernameFlag,
-				Aliases: []string{"u"},
-			},
-			&cli.StringFlag{
-				Name:    cliflags.PasswordFlag,
-				Aliases: []string{"p"},
-			},
 			&cli.StringFlag{
 				Name:  cliflags.HostFlag,
 				Value: defaultHost,
@@ -34,6 +28,14 @@ func GetCmd() *cli.Command {
 			&cli.StringFlag{
 				Name:  cliflags.TokenEndpointFlag,
 				Value: fmt.Sprintf("%s/v1/oauth/token", defaultHost),
+			},
+			&cli.StringFlag{
+				Name:    cliflags.UsernameFlag,
+				Aliases: []string{"u"},
+			},
+			&cli.StringFlag{
+				Name:    cliflags.PasswordFlag,
+				Aliases: []string{"p"},
 			},
 			&cli.StringFlag{
 				Name:    cliflags.EmailFlag,
@@ -49,26 +51,29 @@ func GetCmd() *cli.Command {
 			},
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {
-			// tokenendpoint := c.String(cliflags.TokenEndpointFlag)
+			tokenendpoint := c.String(cliflags.TokenEndpointFlag)
 			host := c.String(cliflags.HostFlag)
 			if host != defaultHost && c.String(cliflags.TokenEndpointFlag) == fmt.Sprintf("%s/v1/oauth/token", defaultHost) {
-				// tokenendpoint = fmt.Sprintf("%s/v1/oauth/token", host)
+				tokenendpoint = fmt.Sprintf("%s/v1/oauth/token", host)
 			}
-			username1 := c.String(cliflags.UsernameFlag)
+			username := c.String(cliflags.UsernameFlag)
 			password := c.String(cliflags.PasswordFlag)
 			email := c.String(cliflags.EmailFlag)
 			firstname := c.String(cliflags.FirstNameFlag)
 			lastname := c.String(cliflags.LastNameFlag)
 
-			if username1 == "" {
-				return fmt.Errorf("username is required")
+			if c.Args().Len() < 1 {
+				return fmt.Errorf("username argument is required")
 			}
-			if password == "" {
-				return fmt.Errorf("password is required")
+			targetUsername := c.Args().Get(0)
+
+			oauth2Config := clientcredentials.Config{
+				ClientID:     username,
+				ClientSecret: password,
+				TokenURL:     tokenendpoint,
+				Scopes:       []string{"socialapp.users.update", "socialapp.users.read"},
 			}
-			if email == "" {
-				return fmt.Errorf("email is required")
-			}
+			httpClient := oauth2Config.Client(ctx)
 
 			// Parse the host URL to extract scheme and host separately
 			parsedURL, err := url.Parse(host)
@@ -79,38 +84,39 @@ func GetCmd() *cli.Command {
 			configuration := client.NewConfiguration()
 			configuration.Host = parsedURL.Host
 			configuration.Scheme = parsedURL.Scheme
-			configuration.HTTPClient = http.DefaultClient
+			configuration.HTTPClient = httpClient
 
 			clnt := client.NewAPIClient(configuration)
 
-			req := client.CreateUserRequest{
-				Username: username1,
-				Password: password,
-				Email:    email,
-				FirstName: func() string {
-					if len(firstname) > 0 {
-						return firstname
-					}
-					return "FirstName"
-				}(),
-				LastName: func() string {
-					if len(lastname) > 0 {
-						return lastname
-					}
-					return "LastName"
-				}(),
-			}
-
-			userres, res, err := clnt.UserAPI.CreateUser(ctx).CreateUserRequest(req).Execute()
+			// First, get the existing user to preserve fields not being updated
+			existingUser, _, err := clnt.UserAPI.GetUserByUsername(ctx, targetUsername).Execute()
 			if err != nil {
-				return fmt.Errorf("error when calling `UserAPI.CreateUser`: %v", err)
+				return fmt.Errorf("error getting existing user: %v", err)
 			}
 
-			if res.StatusCode != 200 {
+			// Build the user update request with provided fields, keeping existing values for others
+			userUpdate := *existingUser
+			if email != "" {
+				userUpdate.Email = email
+			}
+			if firstname != "" {
+				userUpdate.FirstName = firstname
+			}
+			if lastname != "" {
+				userUpdate.LastName = lastname
+			}
+
+			user, res, err := clnt.UserAPI.UpdateUser(ctx, targetUsername).User(userUpdate).Execute()
+			if err != nil {
+				fmt.Printf("Full HTTP response: %v\n", res)
+				return fmt.Errorf("error when calling `UserAPI.UpdateUser`: %v", err)
+			}
+
+			if res.StatusCode != http.StatusOK {
 				return fmt.Errorf("expected status code 200, got %d", res.StatusCode)
 			}
 
-			b, err := json.MarshalIndent(userres, "", "  ")
+			b, err := json.MarshalIndent(user, "", "  ")
 			if err != nil {
 				return fmt.Errorf("error marshalling response: %v", err)
 			}
