@@ -90,7 +90,7 @@ func main() {
 		LogHost               string        `long:"logHost" description:"log host url" required:"true" env:"LOGSTASH_HOST"`
 		PropertiesSubdomain   string        `long:"propertiesSubdomain" description:"Properties subdomain" required:"true" env:"PROPERTIES_SUBDOMAIN"`
 		DefaultTimeout        time.Duration `long:"defaultTimeout" description:"Default timeout for requests" default:"10s"`
-		AgentURL              string        `long:"agentURL" description:"Agent URL" required:"true" env:"AGENT_URL"`
+		AgentURL              string        `long:"agentURL" description:"Agent URL" required:"true" env:"OTEL_EXPORTER_OTLP_ENDPOINT"`
 		DatabaseURL           string        `long:"databaseURL" description:"Database URL" required:"true" env:"DATABASE_URL"`
 		PuttyknifeDomain      string        `long:"puttyknifeDomain" description:"Puttyknife domain: puttyknife.{...}.com" required:"true" env:"PUTTYKNIFE_DOMAIN"`
 		PuttyknifeURL         string        `long:"puttyknife-url" description:"Puttyknife url" required:"true" env:"PUTTYKNIFE_URL"`

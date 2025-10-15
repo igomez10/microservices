@@ -28,7 +28,7 @@ import (
 
 var (
 	apiClient *client.APIClient
-	urlAgent  = flag.String("agentURL", os.Getenv("AGENT_URL"), "Agent URL \"http://localhost:4317\"")
+	urlAgent  = flag.String("agentURL", os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT"), "Agent URL \"http://localhost:4317\"")
 )
 
 const defaultUsername = "Test-%d1"
