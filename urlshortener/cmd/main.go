@@ -42,7 +42,7 @@ var opts struct {
 		Addr string `long:"addr" env:"ADDR" default:"localhost" description:"Meta service address"`
 		Port int    `long:"port" env:"PORT" default:"8081" description:"Meta service port"`
 	} `group:"Meta service" namespace:"meta" env-namespace:"META"`
-	AgentURL string `long:"agent-url" env:"AGENT_URL" default:"" description:"Agent URL"`
+	AgentURL string `long:"agent-url" env:"OTEL_EXPORTER_OTLP_ENDPOINT" default:"" description:"Agent URL" required:"true"`
 	AppName  string `long:"app-name" env:"APP_NAME" default:"urlshortener" description:"Application name"`
 }
 
