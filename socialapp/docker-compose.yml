@@ -165,6 +165,8 @@ services:
     container_name: setup
     command: ["sh", "-c", "chmod +x /setup/init.sh && /setup/init.sh"]
     restart: "no"
+    depends_on:
+      - database
     networks:
       - elk
       - default
@@ -539,9 +541,9 @@ services:
     ports:
       - "45678:45678"
     environment:
-      "ADD_TEST_JITTER": 1,
-      "TEST_SETUP": ${TEST_SETUP},
+      "ADD_TEST_JITTER": 1
       "AGENT_URL": "http://otel-collector:4317"
+      "APP_HOST": "https://socialapp.${EXPOSED_HOST}"
     restart: "unless-stopped"
     cpus: 0.5
     mem_limit: 512m

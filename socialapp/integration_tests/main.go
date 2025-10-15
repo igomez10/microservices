@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/igomez10/microservices/socialapp/client"
-	"github.com/newrelic/go-agent/v3/newrelic"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -28,10 +27,6 @@ import (
 )
 
 var (
-	RENDER_SERVER_URL          = 0
-	LOCALHOST_SERVER_URL       = 1
-	LOCALHOST_DEBUG_SERVER_URL = 2
-
 	apiClient *client.APIClient
 	urlAgent  = flag.String("agentURL", os.Getenv("AGENT_URL"), "Agent URL \"http://localhost:4317\"")
 )
@@ -103,21 +98,28 @@ func getHTTPClient() *http.Client {
 		}
 	}
 
-	retryClient.HTTPClient.Transport = newrelic.NewRoundTripper(otelhttp.NewTransport(http.DefaultTransport))
-	retryClient.RetryMax = 10
-	retryClient.HTTPClient.Timeout = 15 * time.Second
-	retryClient.Backoff = retryablehttp.LinearJitterBackoff
-	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
-		// Retry on network errors or 5xx status codes
-		if err != nil {
+	retryClient.ErrorHandler = func(resp *http.Response, err error, numTries int) (*http.Response, error) {
+		log.Err(err).Msgf("error in http request, attempt %d", numTries)
+		return resp, err
+	}
+
+	retryClient.ResponseLogHook = func(_ retryablehttp.Logger, resp *http.Response) {
+		if resp.StatusCode >= 500 {
 			log.Warn().
-				Err(err).
-				Stringer("url", resp.Request.URL).
 				Str("method", resp.Request.Method).
-				Str("status", resp.Status).
-				Int("status_code", resp.StatusCode).
-				Msg("http retry")
-			return true, err
+				Str("url", resp.Request.URL.String()).
+				Int("status", resp.StatusCode).
+				Msgf("http response")
+		}
+	}
+
+	retryClient.HTTPClient.Transport = otelhttp.NewTransport(http.DefaultTransport)
+	retryClient.RetryMax = 10
+	retryClient.HTTPClient.Timeout = 1 * time.Second
+	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
+
+		if resp == nil || resp.Request == nil {
+			return false, err
 		}
 
 		if resp.StatusCode >= http.StatusInternalServerError {
@@ -169,45 +171,71 @@ func main() {
 		),
 	)
 
+	finishedSuccessfully := true
 	if err := ListUsersLifecycle(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error ListUsersLifecycle")
 	}
 	if err := CreateUserLifecycle(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error CreateUserLifecycle")
 	}
 	if err := FollowLifeCycle(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error FollowLifeCycle")
 	}
 	if err := GetExpectedFeed(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error GetExpectedFeed")
 	}
 	if err := GetAccessToken(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error GetAccessToken")
 	}
 	if err := RegisterUserFlow(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error RegisterUserFlow")
 	}
 	if err := ChangePassword(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error ChangePassword")
 	}
 	if err := RoleLifecycle(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error RoleLifecycle")
 	}
 	if err := ScopeLifecycle(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error ScopeLifecycle")
 	}
 	if err := UserRoleLifeCycle(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error UserRoleLifeCycle")
 	}
 	if err := CacheRequestSameUser(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error CacheRequestSameUser")
 	}
 	if err := URLLifeCycle(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error URLLifeCycle")
 	}
 
 	if err := tp.ForceFlush(ctx); err != nil {
+		finishedSuccessfully = false
 		log.Error().Err(err).Msg("error flushing traces")
+	}
+
+	if err := tp.Shutdown(ctx); err != nil {
+		finishedSuccessfully = false
+		log.Error().Err(err).Msg("error shutting down tracer provider")
+	}
+
+	if finishedSuccessfully {
+		log.Info().Msg("All integration tests passed successfully")
+	} else {
+		log.Error().Msg("Some integration tests failed")
+		os.Exit(1)
 	}
 }
 

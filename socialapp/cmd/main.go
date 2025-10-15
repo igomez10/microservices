@@ -74,7 +74,7 @@ type Configuration struct {
 	socialappSubdomain    string
 	instanceID            string
 	jwtSecret             string
-	puttyknifeDomain      string
+	puttyknifeSubDomain   string
 	puttyknifeURL         *url.URL
 	KibanaSubdomain       string
 	KibanaURL             string
@@ -84,24 +84,24 @@ type Configuration struct {
 func main() {
 	var opts struct {
 		AppName               string        `short:"n" long:"name" description:"name of the app" default:"socialapp"`
-		AppPort               int           `short:"p" long:"port" description:"main port for application" default:"8080"`
+		AppPort               int           `short:"p" long:"port" description:"main port for application" default:"8080" env:"PORT"`
 		ProxyHost             string        `short:"x" long:"proxy" description:"proxy url, \"http://localhost:9091\"" env:"HTTP_PROXY"`
-		LogLevel              string        `short:"l" long:"logLevel" description:"log level info/error/warning" default:"info"`
-		LogHost               string        `long:"logHost" description:"log host url" env:"LOGSTASH_HOST"`
-		PropertiesSubdomain   string        `long:"propertiesSubdomain" description:"Properties subdomain" env:"PROPERTIES_SUBDOMAIN"`
+		LogLevel              string        `short:"l" long:"logLevel" description:"log level info/error/warning" default:"info" choice:"info" choice:"error" choice:"debug" choice:"warning" env:"LOG_LEVEL"`
+		LogHost               string        `long:"logHost" description:"log host url" required:"true" env:"LOGSTASH_HOST"`
+		PropertiesSubdomain   string        `long:"propertiesSubdomain" description:"Properties subdomain" required:"true" env:"PROPERTIES_SUBDOMAIN"`
 		DefaultTimeout        time.Duration `long:"defaultTimeout" description:"Default timeout for requests" default:"10s"`
-		AgentURL              string        `long:"agentURL" description:"Agent URL" default:"http://localhost:4317" env:"AGENT_URL"`
-		DatabaseURL           string        `long:"databaseURL" description:"Database URL" env:"DATABASE_URL"`
-		PuttyknifeDomain      string        `long:"puttyknifeDomain" description:"Puttyknife domain: puttyknife.{...}.com" env:"PUTTYKNIFE_DOMAIN"`
-		PuttyknifeURL         string        `long:"puttyknife-url" description:"Puttyknife url" env:"PUTTYKNIFE_URL"`
+		AgentURL              string        `long:"agentURL" description:"Agent URL" required:"true" env:"AGENT_URL"`
+		DatabaseURL           string        `long:"databaseURL" description:"Database URL" required:"true" env:"DATABASE_URL"`
+		PuttyknifeDomain      string        `long:"puttyknifeDomain" description:"Puttyknife domain: puttyknife.{...}.com" required:"true" env:"PUTTYKNIFE_DOMAIN"`
+		PuttyknifeURL         string        `long:"puttyknife-url" description:"Puttyknife url" required:"true" env:"PUTTYKNIFE_URL"`
 		UrlShortenerSubdomain string        `long:"urlShortenerSubdomain" description:"URL shortener subdomain" env:"URLSHORTENER_SUBDOMAIN"`
-		URLShortenerURL       string        `long:"urlShortenerURL" description:"URL shortener URL" env:"URLSHORTENER_URL"`
-		SocialappSubdomain    string        `long:"socialappSubdomain" description:"Socialapp subdomain" env:"SOCIALAPP_SUBDOMAIN"`
-		JwtSecret             string        `long:"jwtSecret" description:"jwt secret" env:"JWT_SECRET"`
-		RedisURL              string        `long:"redisURL" description:"redis url" env:"REDIS_URL"`
-		KibanaSubdomain       string        `long:"kibanaSubdomain" description:"Kibana subdomain" env:"KIBANA_SUBDOMAIN"`
-		KibanaURL             string        `long:"kibanaURL" description:"Kibana URL" env:"KIBANA_URL"`
-		LocalSubdomain        string        `long:"localSubdomain" description:"Local subdomain" env:"LOCAL_SUBDOMAIN" default:"google.com"`
+		URLShortenerURL       string        `long:"urlShortenerURL" description:"URL shortener URL" required:"true" env:"URLSHORTENER_URL"`
+		SocialappSubdomain    string        `long:"socialappSubdomain" description:"Socialapp subdomain" required:"true" env:"SOCIALAPP_SUBDOMAIN"`
+		JwtSecret             string        `long:"jwtSecret" description:"jwt secret" required:"true" env:"JWT_SECRET"`
+		RedisURL              string        `long:"redisURL" description:"redis url" required:"true" env:"REDIS_URL"`
+		KibanaSubdomain       string        `long:"kibanaSubdomain" description:"Kibana subdomain" required:"true" env:"KIBANA_SUBDOMAIN"`
+		KibanaURL             string        `long:"kibanaURL" description:"Kibana URL" required:"true" env:"KIBANA_URL"`
+		LocalSubdomain        string        `long:"localSubdomain" description:"Local subdomain" required:"true" env:"LOCAL_SUBDOMAIN" default:"google.com"`
 	}
 
 	_, err := flags.Parse(&opts)
@@ -316,7 +316,7 @@ func main() {
 		propertiesSubdomain:   propertiesSubdomainURL,
 		defaultTimeout:        opts.DefaultTimeout,
 		urlShortenerSubdomain: opts.UrlShortenerSubdomain,
-		puttyknifeDomain:      opts.PuttyknifeDomain,
+		puttyknifeSubDomain:   opts.PuttyknifeDomain,
 		puttyknifeURL:         puttyknifeURL,
 		socialappSubdomain:    opts.SocialappSubdomain,
 		instanceID:            instanceID,
@@ -590,7 +590,7 @@ func run(_ context.Context, config Configuration) {
 			urlshortenerProxy.Router.ServeHTTP(w, r)
 		case localSubdomain:
 			socialappRouter.Router.ServeHTTP(w, r)
-		case config.puttyknifeDomain:
+		case config.puttyknifeSubDomain:
 			puttyknifeServerProxy.Router.ServeHTTP(w, r)
 		default:
 			socialappRouter.Router.ServeHTTP(w, r)
