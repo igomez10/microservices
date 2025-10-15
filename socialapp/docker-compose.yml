@@ -544,8 +544,8 @@ services:
       - "45678:45678"
     environment:
       "ADD_TEST_JITTER": 1
-      "AGENT_URL": "http://otel-collector:4317"
-      "APP_HOST": "https://socialapp.${EXPOSED_HOST}"
+      "OTEL_EXPORTER_OTLP_ENDPOINT": "http://otel-collector:4317"
+      "APP_HOST": "${TEST_PROTOCOL_SCHEME}://socialapp.${EXPOSED_HOST}"
     restart: "unless-stopped"
     cpus: 0.5
     mem_limit: 512m
