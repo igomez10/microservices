@@ -114,7 +114,7 @@ func getHTTPClient() *http.Client {
 	}
 
 	retryClient.HTTPClient.Transport = otelhttp.NewTransport(http.DefaultTransport)
-	retryClient.RetryMax = 10
+	retryClient.RetryMax = 3
 	retryClient.HTTPClient.Timeout = 1 * time.Second
 	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
 
@@ -258,9 +258,12 @@ func ListUsersLifecycle(ctx context.Context) error {
 
 	if err := func() error {
 		createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
-		_, _, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+		_, res, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 		if err != nil {
 			return fmt.Errorf("Error creating user: %v", err)
+		}
+		if res.StatusCode != http.StatusOK {
+			return fmt.Errorf("Unexpected status code: %d", res.StatusCode)
 		}
 		return nil
 	}(); err != nil {
