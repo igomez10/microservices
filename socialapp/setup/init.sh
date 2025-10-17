@@ -40,5 +40,14 @@ curl -X POST "http://elasticsearch:9200/_security/user/logstash_service_account"
     "roles": ["logstash_writer", "property_writer"]
   }'
 
+
+# change log level to error
+curl -X PUT "elasticsearch:9200/_cluster/settings" -H 'Content-Type: application/json' -d '{
+  "transient": {
+    "logger.org.elasticsearch": "error"
+  }
+}' -u "elastic:${ELASTIC_PASSWORD}"
+
+
 psql -U postgres -h database -d postgres -c "CREATE DATABASE socialapp;"
 psql -U postgres -h database -d socialapp -f /schema.sql
