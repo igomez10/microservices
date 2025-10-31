@@ -59,6 +59,27 @@ import (
 	"go.opentelemetry.io/otel/sdk/trace"
 )
 
+// Configuration constants
+const (
+	DefaultDBMinConns          = 3
+	DefaultDBConnTimeout       = 5 * time.Second
+	DefaultDBPingTimeout       = 5 * time.Second
+	DefaultHTTPTimeout         = 15 * time.Second
+	DefaultRetryMax            = 10
+	DefaultRedisPoolSize       = 10
+	DefaultRedisMinIdleConns   = 10
+	DefaultShutdownTimeout     = 30 * time.Second
+	DefaultMaxIdleConns        = 100
+	DefaultMaxIdleConnsPerHost = 100
+	DefaultIdleConnTimeout     = 120 * time.Second
+	DefaultTLSHandshakeTimeout = 10 * time.Second
+	DefaultResponseTimeout     = 10 * time.Second
+	DefaultExpectContinue      = 10 * time.Second
+	DefaultMiddlewareTimeout   = 20 * time.Second
+	CompressionLevel           = 5
+	DefaultNumDBPools          = 5
+)
+
 type Configuration struct {
 	instanceID            string
 	appName               string
@@ -84,24 +105,44 @@ type Configuration struct {
 }
 
 func main() {
-	ctx := context.Background()
+	// Create cancellable context for graceful shutdown
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	c, shutdown := getConfig(ctx)
 	defer func() {
+		log.Info().Msg("Running shutdown functions")
 		for _, fn := range shutdown {
 			if err := fn(); err != nil {
 				log.Error().Err(err).Msg("failed to shutdown")
 			}
 		}
 	}()
-	// listen on sigkill or sigint to gracefully shutdown the server
-	signalChan := make(chan os.Signal, 1)
-	run(ctx, c)
-	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
-	<-signalChan
-	fmt.Println("Shutting down")
 
+	// Set up signal handling for graceful shutdown
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, syscall.SIGINT, syscall.SIGTERM)
+
+	// Run server in a goroutine
+	serverErrors := make(chan error, 1)
+	go func() {
+		serverErrors <- run(ctx, c)
+	}()
+
+	// Wait for shutdown signal or server error
+	select {
+	case sig := <-signalChan:
+		log.Info().Str("signal", sig.String()).Msg("Received shutdown signal")
+		cancel() // Cancel context to trigger graceful shutdown
+	case err := <-serverErrors:
+		if err != nil {
+			log.Error().Err(err).Msg("Server error")
+		}
+	}
+
+	log.Info().Msg("Main shutdown complete")
 }
-func run(_ context.Context, config Configuration) {
+func run(ctx context.Context, config Configuration) error {
 	// Setup logger
 	zerolog.SetGlobalLevel(config.logLevel)
 	multi := zerolog.MultiLevelWriter(
@@ -225,7 +266,7 @@ func run(_ context.Context, config Configuration) {
 		requestid.Middleware,
 		beacon.Middleware,
 		middleware.Recoverer,
-		middleware.Timeout(20 * time.Second),
+		middleware.Timeout(DefaultMiddlewareTimeout),
 		kibanaAuthMiddleware.Authenticate,
 		authorizationRuler.Authorize,
 		middleware.RealIP,
@@ -250,7 +291,7 @@ func run(_ context.Context, config Configuration) {
 	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
 
 	// compress responses with gzip to save bandwidth
-	compressor := middleware.NewCompressor(5, "application/json", "application/x-yaml", "gzip", "application/json; charset=UTF-8")
+	compressor := middleware.NewCompressor(CompressionLevel, "application/json", "application/x-yaml", "gzip", "application/json; charset=UTF-8")
 
 	socialappMiddlewares := []func(http.Handler) http.Handler{
 		compressor.Handler,
@@ -273,11 +314,8 @@ func run(_ context.Context, config Configuration) {
 		requestid.Middleware,
 		beacon.Middleware,
 		middleware.Recoverer,
-		middleware.Timeout(20 * time.Second),
+		middleware.Timeout(DefaultMiddlewareTimeout),
 		middleware.RealIP,
-	}
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse properties target url")
 	}
 	propertiesProxy := proxyrouter.NewProxyRouter(kibanaTargetURL, propertiesMiddleware)
 	puttyknifeAllowlistedPaths := map[string]map[string]bool{
@@ -304,7 +342,7 @@ func run(_ context.Context, config Configuration) {
 		PuttyKnifeAuthenticationMiddleware.Authenticate,
 		puttyknifeAuthorizationRuler.Authorize,
 		middleware.Recoverer,
-		middleware.Timeout(20 * time.Second),
+		middleware.Timeout(DefaultMiddlewareTimeout),
 		middleware.RealIP,
 	}
 	puttyknifeServerProxy := proxyrouter.NewProxyRouter(config.puttyknifeURL, puttyKnifeMiddlewares)
@@ -315,7 +353,7 @@ func run(_ context.Context, config Configuration) {
 		requestid.Middleware,
 		beacon.Middleware,
 		middleware.Recoverer,
-		middleware.Timeout(20 * time.Second),
+		middleware.Timeout(DefaultMiddlewareTimeout),
 		middleware.RealIP,
 	}
 	urlshortenerProxy := proxyrouter.NewProxyRouter(config.urlShortenerURL, urlshortenerMiddleware)
@@ -367,10 +405,34 @@ func run(_ context.Context, config Configuration) {
 		}
 	})
 
-	log.Info().Msgf("Listening on port %d", config.appPort)
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", config.appPort), mainRouter); err != nil {
-		log.Fatal().Err(err).Msgf("Shutting down")
+	// Create HTTP server with graceful shutdown support
+	server := &http.Server{
+		Addr:    fmt.Sprintf(":%d", config.appPort),
+		Handler: mainRouter,
 	}
+
+	// Start graceful shutdown listener
+	go func() {
+		<-ctx.Done()
+		log.Info().Msg("Context cancelled, starting graceful shutdown")
+
+		// Give server time to finish existing requests
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), DefaultShutdownTimeout)
+		defer cancel()
+
+		if err := server.Shutdown(shutdownCtx); err != nil {
+			log.Error().Err(err).Msg("Server shutdown error")
+		}
+	}()
+
+	log.Info().Msgf("Server listening on port %d", config.appPort)
+	err = server.ListenAndServe()
+	if err != nil && err != http.ErrServerClosed {
+		return fmt.Errorf("server error: %w", err)
+	}
+
+	log.Info().Msg("Server stopped")
+	return nil
 }
 
 // CreateDBPools creates a pool of connections to the database, in go's implementation of sql, the sql.DB is a connection pool
@@ -381,8 +443,8 @@ func CreateDBPools(ctx context.Context, databaseURL string, numPools int, applic
 		log.Fatal().Err(err).Msg("failed to parse database url")
 	}
 
-	config.MinConns = 3
-	config.ConnConfig.ConnectTimeout = 5 * time.Second
+	config.MinConns = DefaultDBMinConns
+	config.ConnConfig.ConnectTimeout = DefaultDBConnTimeout
 	config.ConnConfig.RuntimeParams = map[string]string{
 		"application_name": applicationName,
 	}
@@ -399,7 +461,7 @@ func CreateDBPools(ctx context.Context, databaseURL string, numPools int, applic
 			log.Fatal().Msg("db is nil")
 		}
 
-		pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		pingCtx, cancel := context.WithTimeout(context.Background(), DefaultDBPingTimeout)
 		defer cancel()
 		if err := dbConn.Ping(pingCtx); err != nil {
 			log.Fatal().Err(err).Msg("failed to ping database, shutting down")
@@ -498,17 +560,17 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 
 	//set max connections age to 10 seconds
 	retryClient.HTTPClient.Transport = &http.Transport{
-		MaxIdleConns:        100,
-		MaxIdleConnsPerHost: 100,
-		// IdleConnTmeout is the maximum amount of time an idle (keep-alive) connection will remain idle before closing itself.
-		IdleConnTimeout:       120 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ResponseHeaderTimeout: 10 * time.Second,
-		ExpectContinueTimeout: 10 * time.Second,
+		MaxIdleConns:        DefaultMaxIdleConns,
+		MaxIdleConnsPerHost: DefaultMaxIdleConnsPerHost,
+		// IdleConnTimeout is the maximum amount of time an idle (keep-alive) connection will remain idle before closing itself.
+		IdleConnTimeout:       DefaultIdleConnTimeout,
+		TLSHandshakeTimeout:   DefaultTLSHandshakeTimeout,
+		ResponseHeaderTimeout: DefaultResponseTimeout,
+		ExpectContinueTimeout: DefaultExpectContinue,
 	}
 
-	retryClient.RetryMax = 10
-	retryClient.HTTPClient.Timeout = 15 * time.Second
+	retryClient.RetryMax = DefaultRetryMax
+	retryClient.HTTPClient.Timeout = DefaultHTTPTimeout
 	retryClient.Backoff = retryablehttp.LinearJitterBackoff
 
 	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
@@ -632,10 +694,27 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 	otel.SetTracerProvider(tp)
 	otel.SetMeterProvider(meterProvider)
 
+	// Add tracer provider shutdown
+	shutdown = append(shutdown, func() error {
+		log.Info().Msg("Shutting down tracer provider")
+		return tp.Shutdown(ctx)
+	})
+
+	// Add meter provider shutdown
+	shutdown = append(shutdown, func() error {
+		log.Info().Msg("Shutting down meter provider")
+		return meterProvider.Shutdown(ctx)
+	})
+
 	// Setup OTLP logs exporter
+	// Parse the agent URL to extract host:port for HTTP endpoint
+	agentURL, err := url.Parse(opts.AgentURL)
+	if err != nil {
+		log.Fatal().Err(err).Str("agentURL", opts.AgentURL).Msg("failed to parse agent URL for log exporter")
+	}
 	logExporter, err := otlploghttp.New(ctx,
 		otlploghttp.WithInsecure(),
-		otlploghttp.WithEndpoint("localhost:4318"),
+		otlploghttp.WithEndpoint(agentURL.Host),
 	)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create otlp log exporter")
@@ -654,16 +733,23 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 	})
 
 	// Connect to database
-	// force creation of 8 connections, one per service
-	connections := CreateDBPools(ctx, opts.DatabaseURL, 5, fmt.Sprintf("%s-%s", opts.AppName, instanceID))
-	defer connections.Close()
+	// force creation of multiple connection pools
+	connections := CreateDBPools(ctx, opts.DatabaseURL, DefaultNumDBPools, fmt.Sprintf("%s-%s", opts.AppName, instanceID))
+
+	// Add database connection cleanup to shutdown functions
+	shutdown = append(shutdown, func() error {
+		log.Info().Msg("Shutting down database connections")
+		connections.Close()
+		return nil
+	})
+
 	redisOpts, err := redis.ParseURL(opts.RedisURL)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to parse redis url")
 	}
 
-	redisOpts.PoolSize = 10
-	redisOpts.MinIdleConns = 10
+	redisOpts.PoolSize = DefaultRedisPoolSize
+	redisOpts.MinIdleConns = DefaultRedisMinIdleConns
 
 	cache := cache.NewCache(cache.CacheConfig{
 		RedisOpts: redisOpts,
