@@ -452,7 +452,8 @@ func CreateDBPools(ctx context.Context, databaseURL string, numPools int, applic
 	config.ConnConfig.Tracer = otelpgx.NewTracer(otelpgx.WithTracerProvider(otel.GetTracerProvider()))
 	pools := make([]*pgxpool.Pool, 0, numPools)
 	for i := 0; i < numPools; i++ {
-		dbConn, err := pgxpool.NewWithConfig(ctx, config)
+		// Use context.Background() for pool creation so the pool isn't tied to request context lifecycle
+		dbConn, err := pgxpool.NewWithConfig(context.Background(), config)
 		if err != nil {
 			log.Fatal().Err(err)
 		}
