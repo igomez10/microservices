@@ -24,7 +24,7 @@
             "env": {
                 "APP_HOST": "http://localhost:8086",
             },
-            // "envFile": "${workspaceFolder}/.env",
+            "envFile": "${workspaceFolder}/.env_vscode_debug",
         }
     ]
 }

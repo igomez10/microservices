@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	_ "net/http/pprof"
 	"net/url"
@@ -49,30 +48,32 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
+	sdklog "go.opentelemetry.io/otel/sdk/log"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 type Configuration struct {
-	appName             string
-	appPort             int
-	proxyURL            string
-	logLevel            zerolog.Level
-	logDestination      io.Writer
-	connections         *ForcedConnectionPool
-	queries             *dbpgx.Queries
-	cache               *cache.Cache
-	propertiesSubdomain *url.URL
-	defaultTimeout      time.Duration
-	// urlService            *url.URL
+	instanceID            string
+	appName               string
+	appPort               int
+	proxyURL              string
+	logLevel              zerolog.Level
+	logDestinations       []io.Writer
+	loggerProvider        *sdklog.LoggerProvider
+	connections           *ForcedConnectionPool
+	queries               *dbpgx.Queries
+	cache                 *cache.Cache
+	propertiesSubdomain   *url.URL
+	defaultTimeout        time.Duration
 	urlShortenerSubdomain string
 	urlShortenerURL       *url.URL
 	socialappSubdomain    string
-	instanceID            string
 	jwtSecret             string
 	puttyknifeSubDomain   string
 	puttyknifeURL         *url.URL
@@ -82,250 +83,15 @@ type Configuration struct {
 }
 
 func main() {
-	var opts struct {
-		AppName               string        `short:"n" long:"name" description:"name of the app" default:"socialapp"`
-		AppPort               int           `short:"p" long:"port" description:"main port for application" default:"8080" env:"PORT"`
-		ProxyHost             string        `short:"x" long:"proxy" description:"proxy url, \"http://localhost:9091\"" env:"HTTP_PROXY"`
-		LogLevel              string        `short:"l" long:"logLevel" description:"log level info/error/warning" default:"info" choice:"info" choice:"error" choice:"debug" choice:"warning" env:"LOG_LEVEL"`
-		LogHost               string        `long:"logHost" description:"log host url" required:"true" env:"LOGSTASH_HOST"`
-		PropertiesSubdomain   string        `long:"propertiesSubdomain" description:"Properties subdomain" required:"true" env:"PROPERTIES_SUBDOMAIN"`
-		DefaultTimeout        time.Duration `long:"defaultTimeout" description:"Default timeout for requests" default:"10s"`
-		AgentURL              string        `long:"agentURL" description:"Agent URL" required:"true" env:"OTEL_EXPORTER_OTLP_ENDPOINT"`
-		DatabaseURL           string        `long:"databaseURL" description:"Database URL" required:"true" env:"DATABASE_URL"`
-		PuttyknifeDomain      string        `long:"puttyknifeDomain" description:"Puttyknife domain: puttyknife.{...}.com" required:"true" env:"PUTTYKNIFE_DOMAIN"`
-		PuttyknifeURL         string        `long:"puttyknife-url" description:"Puttyknife url" required:"true" env:"PUTTYKNIFE_URL"`
-		UrlShortenerSubdomain string        `long:"urlShortenerSubdomain" description:"URL shortener subdomain" env:"URLSHORTENER_SUBDOMAIN"`
-		URLShortenerURL       string        `long:"urlShortenerURL" description:"URL shortener URL" required:"true" env:"URLSHORTENER_URL"`
-		SocialappSubdomain    string        `long:"socialappSubdomain" description:"Socialapp subdomain" required:"true" env:"SOCIALAPP_SUBDOMAIN"`
-		JwtSecret             string        `long:"jwtSecret" description:"jwt secret" required:"true" env:"JWT_SECRET"`
-		RedisURL              string        `long:"redisURL" description:"redis url" required:"true" env:"REDIS_URL"`
-		KibanaSubdomain       string        `long:"kibanaSubdomain" description:"Kibana subdomain" required:"true" env:"KIBANA_SUBDOMAIN"`
-		KibanaURL             string        `long:"kibanaURL" description:"Kibana URL" required:"true" env:"KIBANA_URL"`
-		LocalSubdomain        string        `long:"localSubdomain" description:"Local subdomain" required:"true" env:"LOCAL_SUBDOMAIN" default:"google.com"`
-	}
-
-	_, err := flags.Parse(&opts)
-	if err != nil {
-		panic(err)
-	}
-
-	instanceID := uuid.NewString()
-	log.Info().
-		Str("logHost", opts.LogHost).
-		Str("logLevel", opts.LogLevel).
-		Str("appName", opts.AppName).
-		Str("propertiesSubdomain", opts.PropertiesSubdomain).
-		Str("urlServiceHost", opts.UrlShortenerSubdomain).
-		Str("agentURL", opts.AgentURL).
-		Str("urlShortenerSubdomain", opts.UrlShortenerSubdomain).
-		Str("urlShortenerURL", opts.URLShortenerURL).
-		Str("socialappSubdomain", opts.SocialappSubdomain).
-		Str("instanceID", instanceID).
-		Str("puttyknifeDomain", opts.PuttyknifeDomain).
-		Str("puttyknifeURL", opts.PuttyknifeURL).
-		Str("redisURL", opts.RedisURL).
-		Str("kibanaSubdomain", opts.KibanaSubdomain).
-		Msg("Starting SocialApp")
-
-	// setup retryable http client
-	retryClient := retryablehttp.NewClient()
-	retryClient.Logger = nil
-	retryClient.RequestLogHook = func(_ retryablehttp.Logger, req *http.Request, attempt int) {
-		if attempt >= 1 {
-			log.Warn().
-				Str("method", req.Method).
-				Str("url", req.URL.String()).
-				Int("attempt", attempt).
-				Msgf("http retry")
-		}
-	}
-
-	//set max connections age to 10 seconds
-	retryClient.HTTPClient.Transport = &http.Transport{
-		MaxIdleConns:        100,
-		MaxIdleConnsPerHost: 100,
-		// IdleConnTmeout is the maximum amount of time an idle (keep-alive) connection will remain idle before closing itself.
-		IdleConnTimeout:       120 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ResponseHeaderTimeout: 10 * time.Second,
-		ExpectContinueTimeout: 10 * time.Second,
-	}
-
-	retryClient.RetryMax = 10
-	retryClient.HTTPClient.Timeout = 15 * time.Second
-	retryClient.Backoff = retryablehttp.LinearJitterBackoff
-
-	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
-		// Retry on network errors or 5xx status codes
-		if err != nil {
-			log.Warn().
-				Err(err).
-				Stringer("url", resp.Request.URL).
-				Str("method", resp.Request.Method).
-				Str("status", resp.Status).
-				Int("status_code", resp.StatusCode).
-				Msg("http retry")
-			return true, err
-		}
-
-		if resp.StatusCode >= 500 {
-			return true, nil
-		}
-
-		return false, nil
-	}
-	http.DefaultClient = retryClient.StandardClient()
-
-	// Set proxy
-	if opts.ProxyHost != "" {
-		if u, err := url.Parse(opts.ProxyHost); err != nil {
-			log.Err(err).Msgf("Failed to parse proxy URL")
-		} else {
-			http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(u)}
-		}
-	}
-
-	// parse log level
-	parsedLogLevel, err := zerolog.ParseLevel(opts.LogLevel)
-	if err != nil {
-		log.Fatal().Err(err).Msgf("Invalid log level, %s", opts.LogLevel)
-	}
-
-	var logDestination io.Writer = os.Stdout
-	// Validate logHost is a url
-	if opts.LogHost != "" {
-		u, err := url.Parse(opts.LogHost)
-		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to parse log host url")
-		}
-
-		conn, err := net.Dial(u.Scheme, u.Host)
-		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to establish connection with log host")
-		}
-
-		logDestination = conn
-	}
-
-	// parse properties subdomain
-	var propertiesSubdomainURL *url.URL
-	if len(opts.PropertiesSubdomain) != 0 {
-		u, err := url.Parse(opts.PropertiesSubdomain)
-		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to parse properties subdomain url %s", opts.PropertiesSubdomain)
-		}
-		propertiesSubdomainURL = u
-	}
-
-	// parse url service host
-	var urlService *url.URL
-	u, err := url.Parse(opts.URLShortenerURL)
-	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to parse url service host url %s", opts.URLShortenerURL)
-	}
-	urlService = u
-
-	var puttyknifeURL *url.URL
-	if len(opts.PuttyknifeURL) != 0 {
-		u, err := url.Parse(opts.PuttyknifeURL)
-		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to parse puttyknife url %s", opts.PuttyknifeURL)
-		}
-		puttyknifeURL = u
-	}
-
-	queries := dbpgx.New()
-	// setup tracing
-	http.DefaultClient = &http.Client{
-		Transport: otelhttp.NewTransport(http.DefaultTransport),
-	}
-
 	ctx := context.Background()
-
-	exporter, err := otlptracegrpc.New(ctx,
-		otlptracegrpc.WithInsecure(),
-		otlptracegrpc.WithEndpointURL(opts.AgentURL),
-	)
-	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", opts.AgentURL)
-	}
-
-	res, err := resource.New(ctx,
-		resource.WithProcessRuntimeDescription(),
-		resource.WithFromEnv(),      // Reads OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME
-		resource.WithTelemetrySDK(), // SDK info
-		resource.WithContainer(),    // Container info, including container.id
-		resource.WithContainerID(),
-		resource.WithAttributes(attribute.KeyValue{
-			Key:   attribute.Key("instance_id"),
-			Value: attribute.StringValue(instanceID),
-		}),
-	)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to create resource")
-	}
-
-	// Create a new tracer provider with a batch span processor and the otlp exporter.
-	tp := trace.NewTracerProvider(
-		trace.WithBatcher(exporter),
-		trace.WithResource(res),
-	)
-
-	// The OTLP exporter sends data to the OpenTelemetry collector.
-	exp, err := otlpmetricgrpc.New(ctx,
-		otlpmetricgrpc.WithInsecure(),
-		otlpmetricgrpc.WithEndpointURL(opts.AgentURL),
-	)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to create otlp exporter for metrics")
-	}
-
-	meterProvider := metric.NewMeterProvider(
-		metric.WithResource(res),
-		metric.WithReader(metric.NewPeriodicReader(exp)),
-	)
-
-	// Register the tracer provider as the global provider.
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
-	otel.SetTracerProvider(tp)
-	otel.SetMeterProvider(meterProvider)
-
-	// Connect to database
-	// force creation of 8 connections, one per service
-	connections := CreateDBPools(ctx, opts.DatabaseURL, 5, fmt.Sprintf("%s-%s", opts.AppName, instanceID))
-	defer connections.Close()
-	redisOpts, err := redis.ParseURL(opts.RedisURL)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse redis url")
-	}
-
-	redisOpts.PoolSize = 10
-	redisOpts.MinIdleConns = 10
-
-	cache := cache.NewCache(cache.CacheConfig{
-		RedisOpts: redisOpts,
-	})
-	c := Configuration{
-		appPort:               opts.AppPort,
-		logLevel:              parsedLogLevel,
-		logDestination:        logDestination,
-		appName:               opts.AppName,
-		connections:           connections,
-		queries:               queries,
-		cache:                 cache,
-		propertiesSubdomain:   propertiesSubdomainURL,
-		defaultTimeout:        opts.DefaultTimeout,
-		urlShortenerSubdomain: opts.UrlShortenerSubdomain,
-		puttyknifeSubDomain:   opts.PuttyknifeDomain,
-		puttyknifeURL:         puttyknifeURL,
-		socialappSubdomain:    opts.SocialappSubdomain,
-		instanceID:            instanceID,
-		jwtSecret:             opts.JwtSecret,
-		urlShortenerURL:       urlService,
-		KibanaSubdomain:       opts.KibanaSubdomain,
-		KibanaURL:             opts.KibanaURL,
-	}
-
+	c, shutdown := getConfig(ctx)
+	defer func() {
+		for _, fn := range shutdown {
+			if err := fn(); err != nil {
+				log.Error().Err(err).Msg("failed to shutdown")
+			}
+		}
+	}()
 	// listen on sigkill or sigint to gracefully shutdown the server
 	signalChan := make(chan os.Signal, 1)
 	run(ctx, c)
@@ -337,9 +103,14 @@ func main() {
 func run(_ context.Context, config Configuration) {
 	// Setup logger
 	zerolog.SetGlobalLevel(config.logLevel)
-	log.Logger = zerolog.New(config.logDestination)
+	multi := zerolog.MultiLevelWriter(
+		config.logDestinations...,
+	)
 
-	log.Logger = log.With().
+	// Create OTLP hook for zerolog
+
+	log.Logger = zerolog.New(multi).
+		With().
 		Str("app", config.appName).
 		Str("instance", config.instanceID).
 		Timestamp().
@@ -667,4 +438,260 @@ func (f *ForcedConnectionPool) Close() {
 	for _, conn := range f.connections {
 		conn.Close()
 	}
+}
+
+func getConfig(ctx context.Context) (Configuration, []func() error) {
+	var opts struct {
+		AppName               string        `short:"n" long:"name" description:"name of the app" default:"socialapp"`
+		AppPort               int           `short:"p" long:"port" description:"main port for application" default:"8080" env:"PORT"`
+		ProxyHost             string        `short:"x" long:"proxy" description:"proxy url, \"http://localhost:9091\"" env:"HTTP_PROXY"`
+		LogLevel              string        `short:"l" long:"logLevel" description:"log level info/error/warning" default:"info" choice:"info" choice:"error" choice:"debug" choice:"warning" env:"LOG_LEVEL"`
+		LogHost               string        `long:"logHost" description:"log host url" required:"true" env:"LOGSTASH_HOST"`
+		PropertiesSubdomain   string        `long:"propertiesSubdomain" description:"Properties subdomain" required:"true" env:"PROPERTIES_SUBDOMAIN"`
+		DefaultTimeout        time.Duration `long:"defaultTimeout" description:"Default timeout for requests" default:"10s"`
+		AgentURL              string        `long:"agentURL" description:"Agent URL" required:"true" env:"OTEL_EXPORTER_OTLP_ENDPOINT"`
+		DatabaseURL           string        `long:"databaseURL" description:"Database URL" required:"true" env:"DATABASE_URL"`
+		PuttyknifeDomain      string        `long:"puttyknifeDomain" description:"Puttyknife domain: puttyknife.{...}.com" required:"true" env:"PUTTYKNIFE_DOMAIN"`
+		PuttyknifeURL         string        `long:"puttyknife-url" description:"Puttyknife url" required:"true" env:"PUTTYKNIFE_URL"`
+		UrlShortenerSubdomain string        `long:"urlShortenerSubdomain" description:"URL shortener subdomain" env:"URLSHORTENER_SUBDOMAIN"`
+		URLShortenerURL       string        `long:"urlShortenerURL" description:"URL shortener URL" required:"true" env:"URLSHORTENER_URL"`
+		SocialappSubdomain    string        `long:"socialappSubdomain" description:"Socialapp subdomain" required:"true" env:"SOCIALAPP_SUBDOMAIN"`
+		JwtSecret             string        `long:"jwtSecret" description:"jwt secret" required:"true" env:"JWT_SECRET"`
+		RedisURL              string        `long:"redisURL" description:"redis url" required:"true" env:"REDIS_URL"`
+		KibanaSubdomain       string        `long:"kibanaSubdomain" description:"Kibana subdomain" required:"true" env:"KIBANA_SUBDOMAIN"`
+		KibanaURL             string        `long:"kibanaURL" description:"Kibana URL" required:"true" env:"KIBANA_URL"`
+		LocalSubdomain        string        `long:"localSubdomain" description:"Local subdomain" required:"true" env:"LOCAL_SUBDOMAIN" default:"google.com"`
+	}
+
+	shutdown := []func() error{}
+	_, err := flags.Parse(&opts)
+	if err != nil {
+		panic(err)
+	}
+
+	instanceID := uuid.NewString()
+	log.Info().
+		Str("logHost", opts.LogHost).
+		Str("logLevel", opts.LogLevel).
+		Str("appName", opts.AppName).
+		Str("propertiesSubdomain", opts.PropertiesSubdomain).
+		Str("urlServiceHost", opts.UrlShortenerSubdomain).
+		Str("agentURL", opts.AgentURL).
+		Str("urlShortenerSubdomain", opts.UrlShortenerSubdomain).
+		Str("urlShortenerURL", opts.URLShortenerURL).
+		Str("socialappSubdomain", opts.SocialappSubdomain).
+		Str("instanceID", instanceID).
+		Str("puttyknifeDomain", opts.PuttyknifeDomain).
+		Str("puttyknifeURL", opts.PuttyknifeURL).
+		Str("redisURL", opts.RedisURL).
+		Str("kibanaSubdomain", opts.KibanaSubdomain).
+		Msg("Starting SocialApp")
+
+	// setup retryable http client
+	retryClient := retryablehttp.NewClient()
+	retryClient.Logger = nil
+	retryClient.RequestLogHook = func(_ retryablehttp.Logger, req *http.Request, attempt int) {
+		if attempt >= 1 {
+			log.Warn().
+				Str("method", req.Method).
+				Str("url", req.URL.String()).
+				Int("attempt", attempt).
+				Msgf("http retry")
+		}
+	}
+
+	//set max connections age to 10 seconds
+	retryClient.HTTPClient.Transport = &http.Transport{
+		MaxIdleConns:        100,
+		MaxIdleConnsPerHost: 100,
+		// IdleConnTmeout is the maximum amount of time an idle (keep-alive) connection will remain idle before closing itself.
+		IdleConnTimeout:       120 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ResponseHeaderTimeout: 10 * time.Second,
+		ExpectContinueTimeout: 10 * time.Second,
+	}
+
+	retryClient.RetryMax = 10
+	retryClient.HTTPClient.Timeout = 15 * time.Second
+	retryClient.Backoff = retryablehttp.LinearJitterBackoff
+
+	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
+		// Retry on network errors or 5xx status codes
+		if err != nil {
+			log.Warn().
+				Err(err).
+				Stringer("url", resp.Request.URL).
+				Str("method", resp.Request.Method).
+				Str("status", resp.Status).
+				Int("status_code", resp.StatusCode).
+				Msg("http retry")
+			return true, err
+		}
+
+		if resp.StatusCode >= 500 {
+			return true, nil
+		}
+
+		return false, nil
+	}
+	http.DefaultClient = retryClient.StandardClient()
+
+	// Set proxy
+	if opts.ProxyHost != "" {
+		if u, err := url.Parse(opts.ProxyHost); err != nil {
+			log.Err(err).Msgf("Failed to parse proxy URL")
+		} else {
+			http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(u)}
+		}
+	}
+
+	// parse log level
+	parsedLogLevel, err := zerolog.ParseLevel(opts.LogLevel)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("Invalid log level, %s", opts.LogLevel)
+	}
+
+	// Setup log destinations - just stdout for now
+	// Docker's syslog driver will forward these to Loki via OTEL collector
+	var logDestinations []io.Writer = []io.Writer{os.Stdout}
+
+	// parse properties subdomain
+	var propertiesSubdomainURL *url.URL
+	if len(opts.PropertiesSubdomain) != 0 {
+		u, err := url.Parse(opts.PropertiesSubdomain)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("failed to parse properties subdomain url %s", opts.PropertiesSubdomain)
+		}
+		propertiesSubdomainURL = u
+	}
+
+	// parse url service host
+	var urlService *url.URL
+	u, err := url.Parse(opts.URLShortenerURL)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to parse url service host url %s", opts.URLShortenerURL)
+	}
+	urlService = u
+
+	var puttyknifeURL *url.URL
+	if len(opts.PuttyknifeURL) != 0 {
+		u, err := url.Parse(opts.PuttyknifeURL)
+		if err != nil {
+			log.Fatal().Err(err).Msgf("failed to parse puttyknife url %s", opts.PuttyknifeURL)
+		}
+		puttyknifeURL = u
+	}
+
+	queries := dbpgx.New()
+	// setup tracing
+	http.DefaultClient = &http.Client{
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+	}
+
+	exporter, err := otlptracegrpc.New(ctx,
+		otlptracegrpc.WithInsecure(),
+		otlptracegrpc.WithEndpointURL(opts.AgentURL),
+	)
+	if err != nil {
+		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", opts.AgentURL)
+	}
+
+	res, err := resource.New(ctx,
+		resource.WithProcessRuntimeDescription(),
+		resource.WithFromEnv(),      // Reads OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME
+		resource.WithTelemetrySDK(), // SDK info
+		resource.WithContainer(),    // Container info, including container.id
+		resource.WithContainerID(),
+		resource.WithAttributes(attribute.KeyValue{
+			Key:   attribute.Key("instance_id"),
+			Value: attribute.StringValue(instanceID),
+		}),
+	)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create resource")
+	}
+
+	// Create a new tracer provider with a batch span processor and the otlp exporter.
+	tp := trace.NewTracerProvider(
+		trace.WithBatcher(exporter),
+		trace.WithResource(res),
+	)
+
+	// The OTLP exporter sends data to the OpenTelemetry collector.
+	exp, err := otlpmetricgrpc.New(ctx,
+		otlpmetricgrpc.WithInsecure(),
+		otlpmetricgrpc.WithEndpointURL(opts.AgentURL),
+	)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create otlp exporter for metrics")
+	}
+
+	meterProvider := metric.NewMeterProvider(
+		metric.WithResource(res),
+		metric.WithReader(metric.NewPeriodicReader(exp)),
+	)
+
+	// Register the tracer provider as the global provider.
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+	otel.SetTracerProvider(tp)
+	otel.SetMeterProvider(meterProvider)
+
+	// Setup OTLP logs exporter
+	logExporter, err := otlploghttp.New(ctx,
+		otlploghttp.WithInsecure(),
+		otlploghttp.WithEndpoint("localhost:4318"),
+	)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to create otlp log exporter")
+	}
+
+	// Create log provider
+	loggerProvider := sdklog.NewLoggerProvider(
+		sdklog.WithResource(res),
+		sdklog.WithProcessor(sdklog.NewBatchProcessor(logExporter)),
+	)
+
+	// Set as global and add shutdown function
+	shutdown = append(shutdown, func() error {
+		log.Info().Msg("Shutting down log provider")
+		return loggerProvider.Shutdown(ctx)
+	})
+
+	// Connect to database
+	// force creation of 8 connections, one per service
+	connections := CreateDBPools(ctx, opts.DatabaseURL, 5, fmt.Sprintf("%s-%s", opts.AppName, instanceID))
+	defer connections.Close()
+	redisOpts, err := redis.ParseURL(opts.RedisURL)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to parse redis url")
+	}
+
+	redisOpts.PoolSize = 10
+	redisOpts.MinIdleConns = 10
+
+	cache := cache.NewCache(cache.CacheConfig{
+		RedisOpts: redisOpts,
+	})
+	c := Configuration{
+		appPort:               opts.AppPort,
+		logLevel:              parsedLogLevel,
+		logDestinations:       logDestinations,
+		loggerProvider:        loggerProvider,
+		appName:               opts.AppName,
+		connections:           connections,
+		queries:               queries,
+		cache:                 cache,
+		propertiesSubdomain:   propertiesSubdomainURL,
+		defaultTimeout:        opts.DefaultTimeout,
+		urlShortenerSubdomain: opts.UrlShortenerSubdomain,
+		puttyknifeSubDomain:   opts.PuttyknifeDomain,
+		puttyknifeURL:         puttyknifeURL,
+		socialappSubdomain:    opts.SocialappSubdomain,
+		instanceID:            instanceID,
+		jwtSecret:             opts.JwtSecret,
+		urlShortenerURL:       urlService,
+		KibanaSubdomain:       opts.KibanaSubdomain,
+		KibanaURL:             opts.KibanaURL,
+	}
+	return c, shutdown
 }
