@@ -26,8 +26,8 @@ volumes:
 
 services:
   socialapp:
-    ports:
-      - "8086:8086"
+    # ports:
+    #   - "8086:8086"
     deploy:
       replicas: 3
       resources:
