@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -106,8 +107,6 @@ func run(_ context.Context, config Configuration) {
 	multi := zerolog.MultiLevelWriter(
 		config.logDestinations...,
 	)
-
-	// Create OTLP hook for zerolog
 
 	log.Logger = zerolog.New(multi).
 		With().
@@ -410,9 +409,9 @@ func CreateDBPools(ctx context.Context, databaseURL string, numPools int, applic
 	}
 
 	f := &ForcedConnectionPool{
-		numPools:          numPools,
-		connections:       pools,
-		currentRoundRobin: 0,
+		numPools:    numPools,
+		connections: pools,
+		// currentRoundRobin is zero-initialized automatically
 	}
 
 	return f
@@ -422,16 +421,13 @@ func CreateDBPools(ctx context.Context, databaseURL string, numPools int, applic
 type ForcedConnectionPool struct {
 	connections       []*pgxpool.Pool
 	numPools          int
-	currentRoundRobin int
+	currentRoundRobin atomic.Uint32
 }
 
 func (f *ForcedConnectionPool) GetPool() *pgxpool.Pool {
-	// round robin
-	pool := f.connections[f.currentRoundRobin]
-	f.currentRoundRobin += 1
-	f.currentRoundRobin = f.currentRoundRobin % f.numPools
-
-	return pool
+	// round robin with thread-safe atomic operations
+	idx := f.currentRoundRobin.Add(1) - 1 // Add returns the new value, so subtract 1 to get current
+	return f.connections[idx%uint32(f.numPools)]
 }
 
 func (f *ForcedConnectionPool) Close() {
