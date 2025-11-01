@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"net/http"
@@ -113,7 +114,14 @@ func getHTTPClient() *http.Client {
 		}
 	}
 
-	retryClient.HTTPClient.Transport = otelhttp.NewTransport(http.DefaultTransport)
+	// Create a custom transport that skips TLS verification for self-signed certificates
+	customTransport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true, // Skip TLS certificate verification for testing
+		},
+	}
+
+	retryClient.HTTPClient.Transport = otelhttp.NewTransport(customTransport)
 	retryClient.RetryMax = 3
 	retryClient.HTTPClient.Timeout = 1 * time.Second
 	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
