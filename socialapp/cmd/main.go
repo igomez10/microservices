@@ -575,19 +575,22 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 	retryClient.Backoff = retryablehttp.LinearJitterBackoff
 
 	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
-		// Retry on network errors or 5xx status codes
+		// Retry on network errors
 		if err != nil {
 			log.Warn().
 				Err(err).
+				Msg("http retry - network error")
+			return true, err
+		}
+
+		// Retry on 5xx status codes
+		if resp != nil && resp.StatusCode >= 500 {
+			log.Warn().
 				Stringer("url", resp.Request.URL).
 				Str("method", resp.Request.Method).
 				Str("status", resp.Status).
 				Int("status_code", resp.StatusCode).
-				Msg("http retry")
-			return true, err
-		}
-
-		if resp.StatusCode >= 500 {
+				Msg("http retry - 5xx status")
 			return true, nil
 		}
 

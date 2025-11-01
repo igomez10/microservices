@@ -35,7 +35,7 @@ import (
 
 var opts struct {
 	Port       int    `long:"port" env:"PORT" default:"8080" description:"HTTP port"`
-	HTTPAddr   string `long:"http-addr" env:"HTTP_ADDR" defatult:"" description:"HTTP address"`
+	HTTPAddr   string `long:"http-addr" env:"HTTP_ADDR" default:"" description:"HTTP address"`
 	DBURL      string `long:"db-url" env:"DB_URL" default:"postgres://postgres:password@localhost:5432/urlshortener?sslmode=disable" description:"Database URL"`
 	logLevel   string `long:"log-level" env:"LOG_LEVEL" default:"info" description:"Log level"`
 	MetaServer struct {
