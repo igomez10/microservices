@@ -353,6 +353,18 @@ func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scope
 				Err(err).
 				Msg("failed to add scope to role")
 
+			// Check if it's a duplicate key violation
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
+				return openapi.ImplResponse{
+					Code: http.StatusConflict,
+					Body: openapi.Error{
+						Code:    http.StatusConflict,
+						Message: "Scope already added to role",
+					},
+				}, nil
+			}
+
 			return openapi.ImplResponse{
 				Code: http.StatusInternalServerError,
 				Body: openapi.Error{
