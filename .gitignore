@@ -37,3 +37,4 @@ socialapp/letsencrypt/acme.json
 socialapp/grafana/provisioning/dashboards/puttyknife-private.json
 socialapp/cmd/cli/socialapp-cli
 socialapp/.env_vscode_debug
+socialapp/streamlit/__pycache__/api_client.cpython-313.pyc
