@@ -670,7 +670,10 @@ services:
     logging:
       driver: loki
       options:
-        max-size: "10m"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
         # debezium-ui:
         #   image: debezium/debezium-ui:latest
@@ -693,9 +696,6 @@ services:
         #     driver: loki
         #     options:
         #       loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "400"
-        loki-retries: "2"
-        labels: "service_name"
   unleash:
     container_name: unleash
     image: unleashorg/unleash-server:6
