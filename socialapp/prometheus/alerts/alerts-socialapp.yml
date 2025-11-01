@@ -1,0 +1,201 @@
+groups:
+  - name: SocialAppLatency
+    rules:
+      - alert: HighP90Latency
+        expr: histogram_quantile(0.90, sum by(le) (rate(http_server_response_duration_bucket[5m]))) > 0.5
+        for: 5m
+        labels:
+          severity: critical
+          datacenter: socialapp
+        annotations:
+          summary: High P90 latency detected
+          description: "P90 latency is above 0.5 seconds (current value: {{ $value }}s). This indicates the application is responding slowly."
+
+      - alert: HighP99LatencyCritical
+        expr: histogram_quantile(0.99, sum by(le) (rate(http_server_response_duration_bucket[5m]))) > 0.5
+        for: 5m
+        labels:
+          severity: critical
+          datacenter: socialapp
+        annotations:
+          summary: Critical P99 latency detected
+          description: "P99 latency is critically high at {{ $value }}s (threshold: 0.5s). The slowest requests are taking too long."
+
+      - alert: HighP99LatencyWarning
+        expr: histogram_quantile(0.99, sum by(le) (rate(http_server_response_duration_bucket[5m]))) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          datacenter: socialapp
+        annotations:
+          summary: Elevated P99 latency detected
+          description: "P99 latency is elevated at {{ $value }}s (threshold: 0.1s). Monitor for further degradation."
+
+      - alert: HighP50LatencyCritical
+        expr: histogram_quantile(0.50, sum by(le) (rate(http_server_response_duration_bucket[5m]))) > 0.2
+        for: 5m
+        labels:
+          severity: critical
+          datacenter: socialapp
+        annotations:
+          summary: Critical P50 latency detected
+          description: "P50 latency is critically high at {{ $value }}s (threshold: 0.2s). Half of all requests are experiencing high latency."
+
+      - alert: HighP50LatencyWarning
+        expr: histogram_quantile(0.50, sum by(le) (rate(http_server_response_duration_bucket[5m]))) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          datacenter: socialapp
+        annotations:
+          summary: Elevated P50 latency detected
+          description: "P50 latency is elevated at {{ $value }}s (threshold: 0.05s). Half of requests are slower than expected."
+
+      - alert: HighEndpointP99Latency
+        expr: histogram_quantile(0.99, sum by(le, pattern) (rate(http_server_response_duration_bucket[5m]))) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          datacenter: socialapp
+        annotations:
+          summary: High P99 latency on endpoint {{ $labels.pattern }}
+          description: "Endpoint {{ $labels.pattern }} has P99 latency of {{ $value }}s (threshold: 0.5s). Investigate this specific endpoint."
+
+  - name: SocialAppErrorRates
+    rules:
+      - alert: LowSuccessRateCritical
+        expr: (sum(rate(http_server_response_duration_count{status_code=~"2.."}[5m])) / sum(rate(http_server_response_duration_count[5m]))) < 0.90
+        for: 3m
+        labels:
+          severity: critical
+          datacenter: socialapp
+        annotations:
+          summary: Critical success rate drop
+          description: "Success rate is critically low at {{ $value | humanizePercentage }} (threshold: 90%). Immediate investigation required."
+
+      - alert: LowSuccessRateWarning
+        expr: (sum(rate(http_server_response_duration_count{status_code=~"2.."}[5m])) / sum(rate(http_server_response_duration_count[5m]))) < 0.95
+        for: 3m
+        labels:
+          severity: warning
+          datacenter: socialapp
+        annotations:
+          summary: Success rate below normal
+          description: "Success rate is {{ $value | humanizePercentage }} (threshold: 95%). Monitor for error increases."
+
+      - alert: HighClientErrorRateCritical
+        expr: (sum(rate(http_server_response_duration_count{status_code=~"4.."}[5m])) / sum(rate(http_server_response_duration_count[5m]))) > 0.05
+        for: 3m
+        labels:
+          severity: critical
+          datacenter: socialapp
+        annotations:
+          summary: Critical client error rate
+          description: "Client error rate (4xx) is {{ $value | humanizePercentage }} (threshold: 5%). Check for API misuse or validation issues."
+
+      - alert: HighClientErrorRateWarning
+        expr: (sum(rate(http_server_response_duration_count{status_code=~"4.."}[5m])) / sum(rate(http_server_response_duration_count[5m]))) > 0.01
+        for: 3m
+        labels:
+          severity: warning
+          datacenter: socialapp
+        annotations:
+          summary: Elevated client error rate
+          description: "Client error rate (4xx) is {{ $value | humanizePercentage }} (threshold: 1%). Monitor for increasing errors."
+
+      - alert: HighServerErrorRate
+        expr: (sum(rate(http_server_response_duration_count{status_code=~"5.."}[5m])) / sum(rate(http_server_response_duration_count[5m]))) > 0.001
+        for: 2m
+        labels:
+          severity: critical
+          datacenter: socialapp
+        annotations:
+          summary: Server errors detected
+          description: "Server error rate (5xx) is {{ $value | humanizePercentage }} (threshold: 0.1%). Investigate application errors immediately."
+
+      - alert: ServerErrorsByEndpoint
+        expr: sum by(pattern, status_code) (rate(http_server_response_duration_count{status_code=~"5.."}[5m])) > 0.01
+        for: 2m
+        labels:
+          severity: critical
+          datacenter: socialapp
+        annotations:
+          summary: Server errors on endpoint {{ $labels.pattern }}
+          description: "Endpoint {{ $labels.pattern }} is returning {{ $labels.status_code }} errors at {{ $value }} req/s. Immediate investigation required."
+
+  - name: SocialAppTraffic
+    rules:
+      - alert: HighTrafficCritical
+        expr: sum(rate(http_server_response_duration_count[5m])) > 100
+        for: 5m
+        labels:
+          severity: critical
+          datacenter: socialapp
+        annotations:
+          summary: Critical traffic volume
+          description: "Traffic is at {{ $value }} req/s (threshold: 100 req/s). System may be under heavy load or attack."
+
+      - alert: HighTrafficWarning
+        expr: sum(rate(http_server_response_duration_count[5m])) > 50
+        for: 5m
+        labels:
+          severity: warning
+          datacenter: socialapp
+        annotations:
+          summary: High traffic volume
+          description: "Traffic is at {{ $value }} req/s (threshold: 50 req/s). Monitor system resources."
+
+      - alert: NoTraffic
+        expr: sum(rate(http_server_response_duration_count[5m])) == 0
+        for: 5m
+        labels:
+          severity: critical
+          datacenter: socialapp
+        annotations:
+          summary: No traffic detected
+          description: "No HTTP requests received in the last 5 minutes. Service may be down or unreachable."
+
+  - name: SocialAppAuthentication
+    rules:
+      - alert: SlowAuthentication
+        expr: histogram_quantile(0.99, sum by(le, auth_result) (rate(authentication_duration_seconds_bucket[5m]))) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          datacenter: socialapp
+        annotations:
+          summary: Slow authentication detected
+          description: "P99 authentication duration for {{ $labels.auth_result }} is {{ $value }}s (threshold: 0.1s). Authentication is slow."
+
+      - alert: HighAuthFailureRate
+        expr: (sum(rate(authentication_duration_seconds_count{auth_result!="success"}[5m])) / sum(rate(authentication_duration_seconds_count[5m]))) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          datacenter: socialapp
+        annotations:
+          summary: High authentication failure rate
+          description: "Authentication failure rate is {{ $value | humanizePercentage }} (threshold: 5%). Check for credential issues or attacks."
+
+  - name: SocialAppCache
+    rules:
+      - alert: LowCacheHitRate
+        expr: (sum(rate(gandalf_token_cache_total{status="hit"}[5m])) / sum(rate(gandalf_token_cache_total[5m]))) < 0.70
+        for: 5m
+        labels:
+          severity: warning
+          datacenter: socialapp
+        annotations:
+          summary: Low cache hit rate
+          description: "Cache hit rate is {{ $value | humanizePercentage }} (threshold: 70%). Cache may not be effective or cache size may be insufficient."
+
+      - alert: CacheOperationsDown
+        expr: sum(rate(gandalf_token_cache_total[5m])) == 0
+        for: 5m
+        labels:
+          severity: warning
+          datacenter: socialapp
+        annotations:
+          summary: No cache operations detected
+          description: "No cache operations in the last 5 minutes. Cache may be disabled or not functioning."
+
