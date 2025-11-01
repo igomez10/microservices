@@ -18,20 +18,42 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 )
 
-var gandalf_token_cache = promauto.NewCounterVec(prometheus.CounterOpts{
+const (
+	// Authentication results for metrics
+	authResultAllowlisted = "allowlisted"
+	authResultJWT         = "passed_with_jwt"
+	authResultBasic       = "passed_with_basic"
+	authResultNoAuth      = "noauth"
+
+	// HTTP error messages
+	errMsgInvalidBearerToken = `{"code": 401, "message": "Invalid bearer token"}`
+	errMsgInvalidBasicAuth   = `{"code": 401, "message": "Invalid basic auth format"}`
+	errMsgInvalidCredentials = `{"code": 401, "message": "Invalid username or password"}`
+	errMsgErrorGettingUser   = `{"code": 500, "message": "Error while getting user"}`
+	errMsgErrorGettingRoles  = `{"code": 500, "message": "Error while getting user roles"}`
+	errMsgErrorGettingScopes = `{"code": 500, "message": "Error while getting role scopes"}`
+	errMsgScopeNotAllowed    = `{"code": 401, "message": "Scope %q not allowed"}`
+
+	// Scope query limits
+	maxScopesPerRole = 10000
+)
+
+var gandalfTokenCache = promauto.NewCounterVec(prometheus.CounterOpts{
 	Name: "gandalf_token_cache",
-	Help: "The total number of gandalf token cache",
+	Help: "The total number of gandalf token cache operations",
 }, []string{"cache", "status"})
 
-// authentication_duration_seconds is a summary to track the duration of the gandalf.
+// authenticationDuration tracks the duration of authentication operations
 var authenticationDuration = promauto.NewHistogramVec(
 	prometheus.HistogramOpts{
 		Name:    "authentication_duration_seconds",
-		Buckets: prometheus.DefBuckets, // Use default buckets or define your own
+		Help:    "Duration of authentication operations in seconds",
+		Buckets: prometheus.DefBuckets,
 	},
-	[]string{"auth_result"}, // Labels to differentiate metrics by HTTP method and endpoint
+	[]string{"auth_result"},
 )
 
+// Middleware handles authentication for incoming requests
 type Middleware struct {
 	DB               db.Querier
 	DBConn           *pgxpool.Pool
@@ -41,6 +63,7 @@ type Middleware struct {
 	AuthEndpoint     string
 }
 
+// Authenticate is the main authentication middleware
 func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf")
@@ -49,191 +72,325 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		r = r.WithContext(ctx)
 
 		start := time.Now()
-		var authResult string
 		log := contexthelper.GetLoggerInContext(r.Context())
-		// get token from header
-		isAllowlisted := m.AllowlistedPaths[r.URL.Path] != nil && m.AllowlistedPaths[r.URL.Path][r.Method]
-		if isAllowlisted {
-			span.SetAttributes(attribute.KeyValue{
-				Key:   attribute.Key("allowlisted"),
-				Value: attribute.StringValue("true"),
-			})
-			r = contexthelper.SetRequestedScopesInContext(r, map[string]bool{})
-			log.Info().
-				Str("path", r.URL.Path).
-				Str("method", r.Method).
-				Str("middleware", "gandalf").
-				Msg("allowlisted path")
-			authResult = "allowlisted"
-		} else {
-			authHeader := r.Header.Get("Authorization")
-			if strings.HasPrefix(authHeader, "Bearer ") {
-				givenToken := strings.TrimPrefix(authHeader, "Bearer ")
-				token, err := jwt.NewTokenFromString(givenToken, m.JWTSecret)
-				if err != nil {
-					log.Error().
-						Err(err).
-						Str("token", givenToken).
-						Msg("Failed to parse token")
-					w.WriteHeader(http.StatusUnauthorized)
-					w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
-					return
-				}
 
-				if token.Expires.Before(time.Now()) || token.NotBefore.After(time.Now()) {
-					log.Error().
-						Str("token", givenToken).
-						Msg("Token invalid")
-					w.WriteHeader(http.StatusUnauthorized)
-					w.Write([]byte(`{"code": 401, "message": "Invalid bearer token"}`))
-					return
-				}
-
-				// add scopes to request context
-				scopes := map[string]bool{}
-				for i := range token.Scopes {
-					scopes[token.Scopes[i]] = true
-				}
-				r = contexthelper.SetRequestedScopesInContext(r, scopes)
-
-				// add username to request context
-				r = contexthelper.SetUsernameInContext(r, token.Username)
-
-				authResult = "passed_with_jwt"
-			} else if m.AllowBasicAuth || (strings.HasPrefix(authHeader, "Basic ") && r.URL.Path == m.AuthEndpoint) {
-				// check grant type is client_credentials
-				username, password, ok := r.BasicAuth()
-				if !ok {
-					log.Error().
-						Str("username", username).
-						Msg("Basic auth not ok")
-					w.WriteHeader(http.StatusUnauthorized)
-					w.Write([]byte(`{"code": 401, "message": "Invalid basic auth format"}`))
-					return
-				}
-
-				ctx, dbUsernameSpan := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.db.get_user_by_username")
-				usr, err := m.DB.GetUserByUsername(ctx, m.DBConn, username)
-				dbUsernameSpan.End()
-				switch err {
-				case nil:
-					// exit switch
-				case pgx.ErrNoRows:
-					log.Debug().
-						Err(err).
-						Str("username", username).
-						Msg("User not found")
-					w.WriteHeader(http.StatusUnauthorized)
-					w.Write([]byte(`{"code": 401, "message": "Invalid username or password"}`))
-					return
-				default:
-					log.Error().
-						Err(err).
-						Msg("Error while getting user")
-					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(`{"code": 500, "message": "Error while getting user"}`))
-					return
-				}
-
-				encryptedPassword := user.EncryptPassword(password, usr.Salt)
-				if encryptedPassword != usr.HashedPassword {
-					log.Error().
-						Msg("Invalid password")
-					w.WriteHeader(http.StatusUnauthorized)
-					w.Write([]byte(`{"code": 401, "message": "Invalid username or password"}`))
-					return
-				}
-
-				// passed authentication
-				r = contexthelper.SetUsernameInContext(r, usr.Username)
-
-				// get requested scopes
-				requestedScopes := []string{}
-				if len(r.FormValue("scope")) > 0 {
-					requestedScopes = strings.Split(r.FormValue("scope"), " ")
-				}
-
-				// validate every requested scope exists in the DB
-
-				// get user roles from DB
-				ctx, dbRolesSpan := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.db.get_user_roles")
-				roles, err := m.DB.GetUserRoles(ctx, m.DBConn, usr.ID)
-				dbRolesSpan.End()
-				switch err {
-				case nil:
-					// exit switch
-				case pgx.ErrNoRows:
-					// no roles found
-				default:
-					log.Error().
-						Err(err).
-						Msg("Error while getting user roles")
-					w.WriteHeader(http.StatusInternalServerError)
-					w.Write([]byte(`{"code": 500, "message": "Error while getting user roles"}`))
-					return
-				}
-
-				allowedScopes := map[string]db.Scope{}
-				for i := range roles {
-					// get role scopes from DB
-					ctx, dbRoleScopesSpan := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.db.get_role_scopes")
-					scopes, err := m.DB.ListRoleScopes(ctx, m.DBConn, db.ListRoleScopesParams{
-						ID:     roles[i].ID,
-						Limit:  10000,
-						Offset: 0,
-					})
-					dbRoleScopesSpan.End()
-					switch err {
-					case nil:
-						// exit switch
-					case pgx.ErrNoRows:
-						// no scopes found
-					default:
-						log.Error().
-							Err(err).
-							Msg("Error while getting role scopes")
-						w.WriteHeader(http.StatusInternalServerError)
-						w.Write([]byte(`{"code": 500, "message": "Error while getting role scopes"}`))
-						return
-					}
-
-					for j := range scopes {
-						allowedScopes[scopes[j].Name] = scopes[j]
-					}
-				}
-
-				// remove duplicated scopes
-				mapReqScopes := map[string]bool{}
-				for _, scopeName := range requestedScopes {
-					mapReqScopes[scopeName] = true
-				}
-
-				// verify requested scopes are allowed
-				for i := range requestedScopes {
-					if _, exist := allowedScopes[requestedScopes[i]]; !exist {
-						log.Error().
-							Str("scope", requestedScopes[i]).
-							Msg("Scope not allowed")
-						w.WriteHeader(http.StatusUnauthorized)
-						w.Write([]byte(fmt.Sprintf(`{"code": 401, "message": "Scope %q not allowed"}`, requestedScopes[i])))
-						return
-					}
-				}
-
-				r = contexthelper.SetRequestedScopesInContext(r, mapReqScopes)
-				authResult = "passed_with_basic"
-			} else {
-				mapReqScopes := map[string]bool{
-					"noauth": true,
-				}
-				r = contexthelper.SetRequestedScopesInContext(r, mapReqScopes)
-				authResult = "noauth"
-			}
+		// Check if path is allowlisted
+		if m.isPathAllowlisted(r) {
+			m.handleAllowlistedPath(w, r, next, start, span, log)
+			return
 		}
 
-		authenticationDuration.WithLabelValues(authResult).Observe(float64(time.Since(start).Seconds()))
+		// Try Bearer token authentication
+		authHeader := r.Header.Get("Authorization")
+		if strings.HasPrefix(authHeader, "Bearer ") {
+			m.handleBearerAuth(w, r, next, authHeader, start, log)
+			return
+		}
 
-		next.ServeHTTP(w, r)
+		// Try Basic authentication
+		if m.shouldAllowBasicAuth(r, authHeader) {
+			m.handleBasicAuth(w, r, next, start, log)
+			return
+		}
+
+		// No authentication provided - set noauth scope
+		m.handleNoAuth(w, r, next, start)
+	})
+}
+
+// isPathAllowlisted checks if the requested path and method are allowlisted
+func (m *Middleware) isPathAllowlisted(r *http.Request) bool {
+	pathMethods, exists := m.AllowlistedPaths[r.URL.Path]
+	return exists && pathMethods[r.Method]
+}
+
+// shouldAllowBasicAuth determines if basic auth should be allowed for this request
+func (m *Middleware) shouldAllowBasicAuth(r *http.Request, authHeader string) bool {
+	return m.AllowBasicAuth || (strings.HasPrefix(authHeader, "Basic ") && r.URL.Path == m.AuthEndpoint)
+}
+
+// handleAllowlistedPath processes requests to allowlisted paths
+func (m *Middleware) handleAllowlistedPath(w http.ResponseWriter, r *http.Request, next http.Handler, start time.Time, span any, log any) {
+	if s, ok := span.(interface{ SetAttributes(...attribute.KeyValue) }); ok {
+		s.SetAttributes(attribute.Bool("allowlisted", true))
+	}
+
+	r = contexthelper.SetRequestedScopesInContext(r, map[string]bool{})
+
+	if l, ok := log.(interface {
+		Info() interface {
+			Str(string, string) interface {
+				Str(string, string) interface {
+					Str(string, string) interface{ Msg(string) }
+				}
+			}
+		}
+	}); ok {
+		l.Info().Str("path", r.URL.Path).Str("method", r.Method).Str("middleware", "gandalf").Msg("allowlisted path")
+	}
+
+	authenticationDuration.WithLabelValues(authResultAllowlisted).Observe(time.Since(start).Seconds())
+	next.ServeHTTP(w, r)
+}
+
+// handleBearerAuth processes Bearer token authentication
+func (m *Middleware) handleBearerAuth(w http.ResponseWriter, r *http.Request, next http.Handler, authHeader string, start time.Time, log any) {
+	givenToken := strings.TrimPrefix(authHeader, "Bearer ")
+
+	token, err := jwt.NewTokenFromString(givenToken, m.JWTSecret)
+	if err != nil {
+		if l, ok := log.(interface {
+			Error() interface {
+				Err(error) interface {
+					Str(string, string) interface{ Msg(string) }
+				}
+			}
+		}); ok {
+			l.Error().Err(err).Str("token", givenToken).Msg("Failed to parse token")
+		}
+		m.writeUnauthorized(w, errMsgInvalidBearerToken)
+		authenticationDuration.WithLabelValues("failed_jwt").Observe(time.Since(start).Seconds())
+		return
+	}
+
+	if !m.isTokenValid(token) {
+		if l, ok := log.(interface {
+			Error() interface {
+				Str(string, string) interface{ Msg(string) }
+			}
+		}); ok {
+			l.Error().Str("token", givenToken).Msg("Token invalid or expired")
+		}
+		m.writeUnauthorized(w, errMsgInvalidBearerToken)
+		authenticationDuration.WithLabelValues("failed_jwt_expired").Observe(time.Since(start).Seconds())
+		return
+	}
+
+	// Add scopes and username to context
+	scopes := m.convertTokenScopes(token.Scopes)
+	r = contexthelper.SetRequestedScopesInContext(r, scopes)
+	r = contexthelper.SetUsernameInContext(r, token.Username)
+
+	authenticationDuration.WithLabelValues(authResultJWT).Observe(time.Since(start).Seconds())
+	next.ServeHTTP(w, r)
+}
+
+// handleBasicAuth processes Basic authentication
+func (m *Middleware) handleBasicAuth(w http.ResponseWriter, r *http.Request, next http.Handler, start time.Time, log any) {
+	username, password, ok := r.BasicAuth()
+	if !ok {
+		if l, ok := log.(interface {
+			Error() interface {
+				Str(string, string) interface{ Msg(string) }
+			}
+		}); ok {
+			l.Error().Str("username", username).Msg("Basic auth not ok")
+		}
+		m.writeUnauthorized(w, errMsgInvalidBasicAuth)
+		authenticationDuration.WithLabelValues("failed_basic_format").Observe(time.Since(start).Seconds())
+		return
+	}
+
+	// Get user from database
+	usr, err := m.getUserByUsername(r, username, log)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			if l, ok := log.(interface {
+				Debug() interface {
+					Err(error) interface {
+						Str(string, string) interface{ Msg(string) }
+					}
+				}
+			}); ok {
+				l.Debug().Err(err).Str("username", username).Msg("User not found")
+			}
+			m.writeUnauthorized(w, errMsgInvalidCredentials)
+			authenticationDuration.WithLabelValues("failed_basic_user_not_found").Observe(time.Since(start).Seconds())
+			return
+		}
+		if l, ok := log.(interface {
+			Error() interface {
+				Err(error) interface{ Msg(string) }
+			}
+		}); ok {
+			l.Error().Err(err).Msg("Error while getting user")
+		}
+		m.writeInternalError(w, errMsgErrorGettingUser)
+		authenticationDuration.WithLabelValues("failed_basic_db_error").Observe(time.Since(start).Seconds())
+		return
+	}
+
+	// Verify password
+	if !m.verifyPassword(password, usr) {
+		if l, ok := log.(interface {
+			Error() interface{ Msg(string) }
+		}); ok {
+			l.Error().Msg("Invalid password")
+		}
+		m.writeUnauthorized(w, errMsgInvalidCredentials)
+		authenticationDuration.WithLabelValues("failed_basic_invalid_password").Observe(time.Since(start).Seconds())
+		return
+	}
+
+	// Set username in context
+	r = contexthelper.SetUsernameInContext(r, usr.Username)
+
+	// Get and validate scopes
+	requestedScopes := m.parseRequestedScopes(r)
+	allowedScopes, err := m.getAllowedScopes(r, usr.ID, log)
+	if err != nil {
+		m.writeInternalError(w, errMsgErrorGettingScopes)
+		authenticationDuration.WithLabelValues("failed_basic_scopes_error").Observe(time.Since(start).Seconds())
+		return
+	}
+
+	// Validate requested scopes
+	for _, scopeName := range requestedScopes {
+		if _, exists := allowedScopes[scopeName]; !exists {
+			if l, ok := log.(interface {
+				Error() interface {
+					Str(string, string) interface{ Msg(string) }
+				}
+			}); ok {
+				l.Error().Str("scope", scopeName).Msg("Scope not allowed")
+			}
+			m.writeUnauthorized(w, fmt.Sprintf(errMsgScopeNotAllowed, scopeName))
+			authenticationDuration.WithLabelValues("failed_basic_scope_denied").Observe(time.Since(start).Seconds())
+			return
+		}
+	}
+
+	// Convert to map and set in context
+	scopeMap := m.convertScopeSliceToMap(requestedScopes)
+	r = contexthelper.SetRequestedScopesInContext(r, scopeMap)
+
+	authenticationDuration.WithLabelValues(authResultBasic).Observe(time.Since(start).Seconds())
+	next.ServeHTTP(w, r)
+}
+
+// handleNoAuth processes requests without authentication
+func (m *Middleware) handleNoAuth(w http.ResponseWriter, r *http.Request, next http.Handler, start time.Time) {
+	r = contexthelper.SetRequestedScopesInContext(r, map[string]bool{"noauth": true})
+	authenticationDuration.WithLabelValues(authResultNoAuth).Observe(time.Since(start).Seconds())
+	next.ServeHTTP(w, r)
+}
+
+// Helper methods
+
+// isTokenValid checks if a JWT token is valid and not expired
+func (m *Middleware) isTokenValid(token *jwt.SocialAPPToken) bool {
+	now := time.Now()
+	return token.Expires != nil && token.NotBefore != nil &&
+		!token.Expires.Time.Before(now) && !token.NotBefore.Time.After(now)
+}
+
+// convertTokenScopes converts a slice of scopes to a map
+func (m *Middleware) convertTokenScopes(scopes []string) map[string]bool {
+	scopeMap := make(map[string]bool, len(scopes))
+	for _, scope := range scopes {
+		scopeMap[scope] = true
+	}
+	return scopeMap
+}
+
+// getUserByUsername retrieves a user from the database
+func (m *Middleware) getUserByUsername(r *http.Request, username string, log any) (db.User, error) {
+	ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.db.get_user_by_username")
+	defer span.End()
+	return m.DB.GetUserByUsername(ctx, m.DBConn, username)
+}
+
+// verifyPassword checks if the provided password matches the user's hashed password
+func (m *Middleware) verifyPassword(password string, usr db.User) bool {
+	encryptedPassword := user.EncryptPassword(password, usr.Salt)
+	return encryptedPassword == usr.HashedPassword
+}
+
+// parseRequestedScopes extracts requested scopes from the request
+func (m *Middleware) parseRequestedScopes(r *http.Request) []string {
+	scopeStr := r.FormValue("scope")
+	if scopeStr == "" {
+		return []string{}
+	}
+	return strings.Split(scopeStr, " ")
+}
+
+// getAllowedScopes retrieves all scopes allowed for a user based on their roles
+func (m *Middleware) getAllowedScopes(r *http.Request, userID int64, log any) (map[string]db.Scope, error) {
+	ctx, rolesSpan := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.db.get_user_roles")
+	roles, err := m.DB.GetUserRoles(ctx, m.DBConn, userID)
+	rolesSpan.End()
+
+	if err != nil && err != pgx.ErrNoRows {
+		if l, ok := log.(interface {
+			Error() interface {
+				Err(error) interface{ Msg(string) }
+			}
+		}); ok {
+			l.Error().Err(err).Msg("Error while getting user roles")
+		}
+		return nil, err
+	}
+
+	allowedScopes := make(map[string]db.Scope)
+	for _, role := range roles {
+		scopes, err := m.getRoleScopes(r, role.ID, log)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, scope := range scopes {
+			allowedScopes[scope.Name] = scope
+		}
+	}
+
+	return allowedScopes, nil
+}
+
+// getRoleScopes retrieves all scopes for a specific role
+func (m *Middleware) getRoleScopes(r *http.Request, roleID int64, log any) ([]db.Scope, error) {
+	ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.db.get_role_scopes")
+	defer span.End()
+
+	scopes, err := m.DB.ListRoleScopes(ctx, m.DBConn, db.ListRoleScopesParams{
+		ID:     roleID,
+		Limit:  maxScopesPerRole,
+		Offset: 0,
 	})
 
+	if err != nil && err != pgx.ErrNoRows {
+		if l, ok := log.(interface {
+			Error() interface {
+				Err(error) interface{ Msg(string) }
+			}
+		}); ok {
+			l.Error().Err(err).Msg("Error while getting role scopes")
+		}
+		return nil, err
+	}
+
+	return scopes, nil
+}
+
+// convertScopeSliceToMap converts a slice of scope names to a map
+func (m *Middleware) convertScopeSliceToMap(scopes []string) map[string]bool {
+	scopeMap := make(map[string]bool, len(scopes))
+	for _, scope := range scopes {
+		scopeMap[scope] = true
+	}
+	return scopeMap
+}
+
+// HTTP response helpers
+
+// writeUnauthorized writes a 401 Unauthorized response
+func (m *Middleware) writeUnauthorized(w http.ResponseWriter, message string) {
+	w.WriteHeader(http.StatusUnauthorized)
+	w.Write([]byte(message))
+}
+
+// writeInternalError writes a 500 Internal Server Error response
+func (m *Middleware) writeInternalError(w http.ResponseWriter, message string) {
+	w.WriteHeader(http.StatusInternalServerError)
+	w.Write([]byte(message))
 }
