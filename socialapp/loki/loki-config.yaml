@@ -1,0 +1,83 @@
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+  log_level: info
+
+common:
+  instance_addr: 127.0.0.1
+  path_prefix: /loki
+  storage:
+    filesystem:
+      chunks_directory: /loki/chunks
+      rules_directory: /loki/rules
+  replication_factor: 1
+  ring:
+    kvstore:
+      store: inmemory
+
+# Configure the schema and retention
+schema_config:
+  configs:
+    - from: 2020-10-24
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+# Table manager for retention
+table_manager:
+  retention_deletes_enabled: true
+  retention_period: 336h # 14 days (2 weeks) = 14 * 24 hours
+
+# Compactor configuration for cleanup
+compactor:
+  working_directory: /loki/compactor
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
+  delete_request_store: filesystem
+
+# Limits configuration
+limits_config:
+  retention_period: 336h # 14 days (2 weeks)
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h # 7 days
+  ingestion_rate_mb: 16
+  ingestion_burst_size_mb: 32
+  max_cache_freshness_per_query: 10m
+  split_queries_by_interval: 15m
+
+# Query range configuration
+query_range:
+  align_queries_with_step: true
+  max_retries: 5
+  parallelise_shardable_queries: true
+  cache_results: true
+
+# Frontend configuration
+frontend:
+  log_queries_longer_than: 5s
+  compress_responses: true
+
+# Ruler configuration
+ruler:
+  storage:
+    type: local
+    local:
+      directory: /loki/rules
+  rule_path: /loki/rules-temp
+  alertmanager_url: http://alertmanager:9093
+  ring:
+    kvstore:
+      store: inmemory
+  enable_api: true
+  enable_alertmanager_v2: true
+
+# Analytics
+analytics:
+  reporting_enabled: false

@@ -23,6 +23,7 @@ volumes:
   letsencrypt: {}
   mimir-1-data: {}
   redis_data: {}
+  loki_data: {}
 
 services:
   socialapp:
@@ -840,6 +841,20 @@ services:
     restart: unless-stopped
     ports:
       - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    cpus: 1
+    mem_limit: 2048m
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
 
   portainer:
     container_name: portainer
