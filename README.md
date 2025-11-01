@@ -89,7 +89,7 @@ A service for tracking and displaying Bitcoin price information using the Buffal
 
 - **Metrics**: Prometheus, Grafana Mimir
 - **Tracing**: OpenTelemetry, Tempo, Jaeger
-- **Logging**: Logstash, Alloy
+- **Logging**: Logstash
 - **Profiling**: Pyroscope (continuous profiling)
 - **APM**: New Relic
 - **Visualization**: Grafana
@@ -281,7 +281,6 @@ The project includes a comprehensive observability stack:
 ### Logging
 - Structured logging with zerolog
 - Logstash for log aggregation
-- Grafana Alloy for log collection
 
 ### Profiling
 - Pyroscope for continuous profiling
