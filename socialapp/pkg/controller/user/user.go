@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/base64"
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -15,7 +16,9 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
+	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -129,6 +132,19 @@ func (s *UserApiService) CreateUser(ctx context.Context, createUserReq openapi.C
 		log.Error().
 			Err(err).
 			Msg("Error creating user")
+
+		// Check if it's a duplicate key violation
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
+			return openapi.ImplResponse{
+				Code: http.StatusConflict,
+				Body: openapi.Error{
+					Code:    http.StatusConflict,
+					Message: "User already exists",
+				},
+			}, nil
+		}
+
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 

@@ -2,6 +2,7 @@ package scope
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -10,6 +11,8 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 // s *ScopeApiService openapi.ScopeApiServicer
@@ -38,11 +41,23 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 			Err(err).
 			Msg("failed to create scope")
 
+		// Check if it's a duplicate key violation
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
+			return openapi.ImplResponse{
+				Code: http.StatusConflict,
+				Body: openapi.Error{
+					Code:    http.StatusConflict,
+					Message: "Scope already exists",
+				},
+			}, nil
+		}
+
 		return openapi.ImplResponse{
-			Code: http.StatusConflict,
+			Code: http.StatusInternalServerError,
 			Body: openapi.Error{
-				Code:    http.StatusConflict,
-				Message: "scope already exists",
+				Code:    http.StatusInternalServerError,
+				Message: "Failed to create scope",
 			},
 		}, nil
 	}

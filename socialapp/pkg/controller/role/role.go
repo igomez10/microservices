@@ -2,6 +2,7 @@ package role
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -11,7 +12,9 @@ import (
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
+	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 // s *RoleApiService openapi.RoleApiServicer
@@ -39,11 +42,23 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 			Err(err).
 			Msg("failed to create role")
 
+		// Check if it's a duplicate key violation
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
+			return openapi.ImplResponse{
+				Code: http.StatusConflict,
+				Body: openapi.Error{
+					Code:    http.StatusConflict,
+					Message: "Role already exists",
+				},
+			}, nil
+		}
+
 		return openapi.ImplResponse{
-			Code: http.StatusConflict,
+			Code: http.StatusInternalServerError,
 			Body: openapi.Error{
-				Code:    http.StatusConflict,
-				Message: "role already exists",
+				Code:    http.StatusInternalServerError,
+				Message: "Failed to create role",
 			},
 		}, nil
 	}
