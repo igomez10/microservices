@@ -28,8 +28,8 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 			log.Error().
 				Msg("Failed to get token scopes from context")
 
-			w.Write([]byte(`{"code":403,"message":"No scopes in context"}`))
 			w.WriteHeader(http.StatusForbidden)
+			w.Write([]byte(`{"code":403,"message":"No scopes in context"}`))
 			return
 		}
 
