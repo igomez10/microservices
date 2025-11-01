@@ -2,8 +2,6 @@ package responseWriter
 
 import (
 	"net/http"
-
-	"github.com/rs/zerolog/log"
 )
 
 // custom response writer for capturing status code in the response
@@ -25,8 +23,7 @@ func NewCustomResponseWriter(w http.ResponseWriter) *customResponseWriter {
 
 func (lrw *customResponseWriter) WriteHeader(code int) {
 	if lrw.wroteHeader {
-		log.Error().Stack().Msg("WriteHeader called twice")
-		return // Prevent duplicate WriteHeader calls
+		return
 	}
 	lrw.wroteHeader = true
 	lrw.StatusCode = code
@@ -36,6 +33,7 @@ func (lrw *customResponseWriter) WriteHeader(code int) {
 func (lrw *customResponseWriter) Write(b []byte) (int, error) {
 	if !lrw.wroteHeader {
 		lrw.WriteHeader(http.StatusOK)
+		lrw.StatusCode = http.StatusOK
 	}
 	lrw.Body = append(lrw.Body, b...)
 	return lrw.ResponseWriter.Write(b)
