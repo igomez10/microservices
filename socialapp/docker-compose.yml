@@ -113,10 +113,20 @@ services:
       retries: 3
       start_period: 40s
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "socialapp"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1s"
+        labels: "service_name,instance_id"
+        loki-relabel-config: |
+          - action: labelmap
+            regex: compose_(service|project)
+          - action: replace
+            source_labels: ["compose_service"]
+            target_label: "service_name"
 
   database:
     image: postgres:15-alpine
@@ -149,10 +159,20 @@ services:
       retries: 5
       start_period: 10s
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "database"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1s"
+        labels: "service_name,instance_id"
+        loki-relabel-config: |
+          - action: labelmap
+            regex: compose_(service|project)
+          - action: replace
+            source_labels: ["compose_service"]
+            target_label: "service_name"
     deploy:
       resources:
         limits:
@@ -192,10 +212,12 @@ services:
       database:
         condition: service_healthy
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "postgres-exporter"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
     deploy:
       resources:
         limits:
@@ -247,10 +269,12 @@ services:
           cpus: "0.25"
           memory: 256M
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "grafana"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   prometheus:
     container_name: prometheus
@@ -292,10 +316,12 @@ services:
           cpus: "0.5"
           memory: 512M
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "prometheus"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   alertmanager:
     container_name: alertmanager
@@ -330,10 +356,12 @@ services:
           cpus: "0.25"
           memory: 256M
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "alertmanager"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   node-exporter:
     container_name: node-exporter
@@ -366,10 +394,12 @@ services:
           cpus: "0.1"
           memory: 128M
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "node-exporter"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   inspector:
     container_name: inspector
@@ -378,10 +408,12 @@ services:
     ports:
       - 1243:1243
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "inspector"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
     networks:
       - dns
       - default
@@ -417,10 +449,12 @@ services:
           cpus: "0.5"
           memory: 512M
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "cadvisor"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   broker1:
     container_name: broker1
@@ -447,10 +481,12 @@ services:
     cpus: 2
     mem_limit: 4096m
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "broker1"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   broker2:
     container_name: broker2
@@ -476,10 +512,12 @@ services:
     cpus: 2
     mem_limit: 4096m
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "broker2"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   broker3:
     container_name: broker3
@@ -505,10 +543,12 @@ services:
     cpus: 2
     mem_limit: 4096m
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "broker3"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   kafka-ui:
     container_name: kafka-ui
@@ -532,35 +572,47 @@ services:
           cpus: "0.25"
           memory: 256M
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "kafka-ui"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   integration-tests-1:
-    container_name: integration-tests-1
+    # container_name: integration-tests-1
     build:
       context: .
       dockerfile: Integration.Dockerfile
-    ports:
-      - "45678:45678"
+    # ports:
+    #   - "45678:45678"
     environment:
       "ADD_TEST_JITTER": 1
       "OTEL_EXPORTER_OTLP_ENDPOINT": "http://otel-collector:4317"
       "APP_HOST": "${TEST_PROTOCOL_SCHEME}://socialapp.${EXPOSED_HOST}"
     restart: "unless-stopped"
-    cpus: 0.5
-    mem_limit: 512m
+    cpus: 2
+    mem_limit: 4096m
     extra_hosts:
       - "socialapp.${EXPOSED_HOST}:172.28.0.151"
     networks:
       - default
       - dns
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "integration-tests"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1s"
+        labels: "service_name,instance_id"
+        loki-relabel-config: |
+          - action: labelmap
+            regex: compose_(service|project)
+          - action: replace
+            source_labels: ["compose_service"]
+            target_label: "service_name"
 
   elasticsearch-exporter:
     container_name: elasticsearch-exporter
@@ -616,33 +668,34 @@ services:
           cpus: "0.5"
           memory: 512M
     logging:
-      driver: "json-file"
+      driver: loki
       options:
         max-size: "10m"
-        tag: "debezium"
 
-  # debezium-ui:
-  #   image: debezium/debezium-ui:latest
-  #   container_name: debezium-ui
-  #   ports:
-  #     - "8084:8080"
-  #   environment:
-  #     - KAFKA_CONNECT_URIS=http://debezium:8083
-  #   depends_on:
-  #     - debezium
-  #   restart: always
-  #   healthcheck:
-  #     test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 5
-  #   cpus: 1
-  #   mem_limit: 1024m
-  #   logging:
-  #     driver: "syslog"
-  #     options:
-  #       syslog-address: "tcp://localhost:53000"
-  #       tag: "debezium-ui"
+        # debezium-ui:
+        #   image: debezium/debezium-ui:latest
+        #   container_name: debezium-ui
+        #   ports:
+        #     - "8084:8080"
+        #   environment:
+        #     - KAFKA_CONNECT_URIS=http://debezium:8083
+        #   depends_on:
+        #     - debezium
+        #   restart: always
+        #   healthcheck:
+        #     test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
+        #     interval: 5s
+        #     timeout: 5s
+        #     retries: 5
+        #   cpus: 1
+        #   mem_limit: 1024m
+        #   logging:
+        #     driver: loki
+        #     options:
+        #       loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
   unleash:
     container_name: unleash
     image: unleashorg/unleash-server:6
@@ -680,10 +733,12 @@ services:
           cpus: "0.25"
           memory: 256M
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "unleash"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   tempo:
     container_name: tempo
@@ -698,10 +753,12 @@ services:
     cpus: 2
     mem_limit: 4096m
     logging:
-      driver: syslog
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "tempo"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   otel-collector:
     container_name: otel-collector
@@ -727,10 +784,12 @@ services:
       - tempo
       - prometheus
     logging:
-      driver: syslog
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "otel-collector"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   pyroscope:
     container_name: pyroscope
@@ -746,10 +805,12 @@ services:
       - ./pyroscope/pyroscope.yml:/etc/pyroscope.yml
     restart: unless-stopped
     logging:
-      driver: syslog
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "pyroscope"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   mimir:
     container_name: mimir
@@ -766,14 +827,16 @@ services:
       - mimir-1-data:/data
     restart: unless-stopped
     logging:
-      driver: syslog
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "mimir"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   loki:
     container_name: loki
-    image: grafana/loki:2.9.4
+    image: grafana/loki:3.5.7
     restart: unless-stopped
     ports:
       - "3100:3100"
@@ -790,10 +853,12 @@ services:
     mem_limit: 512m
     restart: always
     logging:
-      driver: syslog
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "portainer"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   redis:
     container_name: redis
@@ -819,10 +884,12 @@ services:
       retries: 3
       start_period: 10s
     logging:
-      driver: syslog
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "redis"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   traefik:
     container_name: traefik
@@ -844,10 +911,20 @@ services:
       default:
       elk:
     logging:
-      driver: syslog
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "traefik"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1s"
+        labels: "service_name,instance_id"
+        loki-relabel-config: |
+          - action: labelmap
+            regex: compose_(service|project)
+          - action: replace
+            source_labels: ["compose_service"]
+            target_label: "service_name"
 
   whoamiinternal:
     container_name: whoamiinternal
@@ -871,10 +948,12 @@ services:
     cpus: 0.5
     mem_limit: 512m
     logging:
-      driver: syslog
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "whoamiinternal"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   whoami:
     container_name: whoami
@@ -898,7 +977,9 @@ services:
     cpus: 0.5
     mem_limit: 512m
     logging:
-      driver: syslog
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "whoami"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
