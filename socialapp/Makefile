@@ -100,6 +100,11 @@ generate-openapi:
 
 sqlc-generate:
 	sqlc generate --file db/sqlc.yaml
+
+generate-scopes:
+	cd tools/scopegen && go run main.go -input ../../openapi.yaml -output ../../pkg/scopes/scopes.go
+	go fmt ./pkg/scopes/...
+	goimports -w ./pkg/scopes/
 	
 compose-up:
 	docker compose down && docker-compose up
