@@ -1,10 +1,15 @@
 FROM golang AS builder
-WORKDIR /go/src/github.com/igomez10/microservices
+WORKDIR /app
 COPY go.mod .
 COPY go.sum .
-RUN go get -d -v ./...
-RUN go install -v ./...
-COPY ./integration_tests ./integration_tests
-COPY ./client ./client
-RUN go build -o /go/src/github.com/igomez10/microservices/app ./integration_tests
-CMD ["/go/src/github.com/igomez10/microservices/app"]
+RUN go mod download
+RUN go mod tidy
+COPY . .
+RUN go build -o app ./integration_tests
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+COPY --from=builder /app/app .
+CMD ["./app"]
+
