@@ -9,3 +9,33 @@ groups:
         annotations:
           summary: High error rate in processing property
           description: "{{ $labels.application_name }} has a high error rate ({{ $value }} errors/second) over the last 10 minutes."
+
+      - alert: NoPropertiesCreated
+        expr: |
+          (
+            (time() - (max(property_created) > 0)) > 10800
+            or
+            absent_over_time(property_created[3h])
+          )
+        for: 5m
+        labels:
+          severity: critical
+          application: puttyknife
+        annotations:
+          summary: "No properties have been created in the last 3 hours"
+          description: "The puttyknife application ({{ $labels.application_name }}) has not created any new properties in the last 3 hours. This may indicate that the data source is down or the scraper has stopped working."
+
+      - alert: NoPropertiesUpdated
+        expr: |
+          (
+            (time() - (max(property_updated) > 0)) > 10800
+            or
+            absent_over_time(property_updated[3h])
+          )
+        for: 5m
+        labels:
+          severity: critical
+          application: puttyknife
+        annotations:
+          summary: "No properties have been updated in the last 3 hours"
+          description: "The puttyknife application ({{ $labels.application_name }}) has not updated any existing properties in the last 3 hours. This may indicate that the data source is not returning previously seen properties or the scraper has stopped working."
