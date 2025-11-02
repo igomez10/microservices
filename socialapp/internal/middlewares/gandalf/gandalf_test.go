@@ -16,6 +16,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	socialappjwt "github.com/igomez10/microservices/socialapp/internal/jwt"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	"github.com/igomez10/microservices/socialapp/pkg/scopes"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -178,11 +179,11 @@ func (m *mockDB) UpdateUserByUsername(ctx context.Context, dbtx db.DBTX, arg db.
 func TestJWTParsing(t *testing.T) {
 	hmacSampleSecret := []byte("secret")
 	username := "ignacio"
-	scopes := []string{"read", "write"}
+	tokenScopes := []string{scopes.SocialappUsersList.String(), scopes.SocialappUsersRead.String()}
 
 	jwtToken := &socialappjwt.SocialAPPToken{
 		Username:  username,
-		Scopes:    scopes,
+		Scopes:    tokenScopes,
 		Audience:  jwt.ClaimStrings{"aud1", "aud2"},
 		Expires:   jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 		IssuedAt:  jwt.NewNumericDate(time.Now().UTC()),
@@ -306,21 +307,32 @@ func TestAuthenticate_BearerToken(t *testing.T) {
 		expectedScopes []string
 	}{
 		{
-			name: "Valid bearer token",
+			name: "Valid bearer token with valid scopes",
 			token: &socialappjwt.SocialAPPToken{
 				Username:  "testuser",
-				Scopes:    []string{"read", "write"},
+				Scopes:    []string{scopes.SocialappUsersList.String(), scopes.SocialappUsersRead.String()},
 				Expires:   jwt.NewNumericDate(time.Now().Add(time.Hour)),
 				NotBefore: jwt.NewNumericDate(time.Now().Add(-time.Minute)),
 			},
 			expectedStatus: http.StatusOK,
-			expectedScopes: []string{"read", "write"},
+			expectedScopes: []string{scopes.SocialappUsersList.String(), scopes.SocialappUsersRead.String()},
+		},
+		{
+			name: "Token with invalid scopes are filtered out",
+			token: &socialappjwt.SocialAPPToken{
+				Username:  "testuser",
+				Scopes:    []string{"invalid.scope", "another.invalid"},
+				Expires:   jwt.NewNumericDate(time.Now().Add(time.Hour)),
+				NotBefore: jwt.NewNumericDate(time.Now().Add(-time.Minute)),
+			},
+			expectedStatus: http.StatusOK,
+			expectedScopes: []string{}, // Invalid scopes are filtered
 		},
 		{
 			name: "Expired token",
 			token: &socialappjwt.SocialAPPToken{
 				Username:  "testuser",
-				Scopes:    []string{"read"},
+				Scopes:    []string{scopes.SocialappUsersRead.String()},
 				Expires:   jwt.NewNumericDate(time.Now().Add(-time.Hour)),
 				NotBefore: jwt.NewNumericDate(time.Now().Add(-2 * time.Hour)),
 			},
@@ -330,7 +342,7 @@ func TestAuthenticate_BearerToken(t *testing.T) {
 			name: "Token not yet valid",
 			token: &socialappjwt.SocialAPPToken{
 				Username:  "testuser",
-				Scopes:    []string{"read"},
+				Scopes:    []string{scopes.SocialappUsersRead.String()},
 				Expires:   jwt.NewNumericDate(time.Now().Add(time.Hour)),
 				NotBefore: jwt.NewNumericDate(time.Now().Add(time.Hour)),
 			},
@@ -352,12 +364,12 @@ func TestAuthenticate_BearerToken(t *testing.T) {
 
 			handler := middleware.Authenticate(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if tt.expectedStatus == http.StatusOK {
-					scopes, ok := contexthelper.GetRequestedScopesInContext(r.Context())
+					tokenScopes, ok := contexthelper.GetRequestedScopesInContext(r.Context())
 					if !ok {
 						t.Error("Expected scopes in context")
 					}
 					for _, expectedScope := range tt.expectedScopes {
-						if !scopes[expectedScope] {
+						if !tokenScopes[expectedScope] {
 							t.Errorf("Expected scope %s in context", expectedScope)
 						}
 					}
@@ -424,8 +436,8 @@ func TestAuthenticate_BasicAuth_Success(t *testing.T) {
 	}
 
 	testScopes := []db.Scope{
-		{ID: 1, Name: "read"},
-		{ID: 2, Name: "write"},
+		{ID: 1, Name: scopes.SocialappUsersList.String()},
+		{ID: 2, Name: scopes.SocialappUsersRead.String()},
 	}
 
 	mockDBInstance := &mockDB{
@@ -464,19 +476,19 @@ func TestAuthenticate_BasicAuth_Success(t *testing.T) {
 			t.Errorf("Expected username %s, got %s", testUser.Username, username)
 		}
 
-		scopes, ok := contexthelper.GetRequestedScopesInContext(r.Context())
+		tokenScopes, ok := contexthelper.GetRequestedScopesInContext(r.Context())
 		if !ok {
 			t.Error("Expected scopes in context")
 		}
-		if !scopes["read"] {
-			t.Error("Expected 'read' scope in context")
+		if !tokenScopes[scopes.SocialappUsersList.String()] {
+			t.Error("Expected 'socialapp.users.list' scope in context")
 		}
 
 		w.WriteHeader(http.StatusOK)
 	}))
 
 	form := url.Values{}
-	form.Add("scope", "read write")
+	form.Add("scope", scopes.SocialappUsersList.String()+" "+scopes.SocialappUsersRead.String())
 	req := httptest.NewRequest("POST", "/auth", strings.NewReader(form.Encode()))
 	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -650,25 +662,29 @@ func TestConvertTokenScopes(t *testing.T) {
 		expected map[string]bool
 	}{
 		{
-			name:   "Multiple scopes",
-			scopes: []string{"read", "write", "delete"},
+			name:   "Valid scopes from API spec",
+			scopes: []string{scopes.SocialappUsersList.String(), scopes.SocialappUsersRead.String()},
 			expected: map[string]bool{
-				"read":   true,
-				"write":  true,
-				"delete": true,
+				scopes.SocialappUsersList.String(): true,
+				scopes.SocialappUsersRead.String(): true,
+			},
+		},
+		{
+			name:     "Invalid scopes are filtered out",
+			scopes:   []string{"invalid.scope", "another.invalid"},
+			expected: map[string]bool{},
+		},
+		{
+			name:   "Mixed valid and invalid scopes",
+			scopes: []string{scopes.SocialappUsersList.String(), "invalid.scope"},
+			expected: map[string]bool{
+				scopes.SocialappUsersList.String(): true,
 			},
 		},
 		{
 			name:     "Empty scopes",
 			scopes:   []string{},
 			expected: map[string]bool{},
-		},
-		{
-			name:   "Single scope",
-			scopes: []string{"read"},
-			expected: map[string]bool{
-				"read": true,
-			},
 		},
 	}
 
@@ -691,24 +707,40 @@ func TestParseRequestedScopes(t *testing.T) {
 	middleware := &Middleware{}
 
 	tests := []struct {
-		name     string
-		scope    string
-		expected []string
+		name        string
+		scope       string
+		expected    []string
+		expectError bool
 	}{
 		{
-			name:     "Multiple scopes",
-			scope:    "read write delete",
-			expected: []string{"read", "write", "delete"},
+			name:        "Valid scopes from API spec",
+			scope:       scopes.SocialappUsersList.String() + " " + scopes.SocialappUsersRead.String(),
+			expected:    []string{scopes.SocialappUsersList.String(), scopes.SocialappUsersRead.String()},
+			expectError: false,
 		},
 		{
-			name:     "Single scope",
-			scope:    "read",
-			expected: []string{"read"},
+			name:        "Single valid scope",
+			scope:       scopes.SocialappUsersList.String(),
+			expected:    []string{scopes.SocialappUsersList.String()},
+			expectError: false,
 		},
 		{
-			name:     "Empty scope",
-			scope:    "",
-			expected: []string{},
+			name:        "Empty scope",
+			scope:       "",
+			expected:    []string{},
+			expectError: false,
+		},
+		{
+			name:        "Invalid scope returns error",
+			scope:       "invalid.scope",
+			expected:    nil,
+			expectError: true,
+		},
+		{
+			name:        "Mixed valid and invalid scopes returns error",
+			scope:       scopes.SocialappUsersList.String() + " invalid.scope",
+			expected:    nil,
+			expectError: true,
 		},
 	}
 
@@ -721,7 +753,18 @@ func TestParseRequestedScopes(t *testing.T) {
 			req := httptest.NewRequest("POST", "/test", strings.NewReader(form.Encode()))
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-			result := middleware.parseRequestedScopes(req)
+			result, err := middleware.parseRequestedScopes(req)
+
+			if tt.expectError {
+				if err == nil {
+					t.Error("Expected error but got none")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("Expected no error, got %v", err)
+			}
 
 			if len(result) != len(tt.expected) {
 				t.Errorf("Expected %d scopes, got %d", len(tt.expected), len(result))

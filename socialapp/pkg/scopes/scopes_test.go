@@ -112,38 +112,38 @@ func TestScopeDescription(t *testing.T) {
 
 func TestFromString(t *testing.T) {
 	tests := []struct {
-		name         string
-		input        string
+		name          string
+		input         string
 		expectedScope Scope
 		expectedValid bool
 	}{
 		{
-			name:         "valid scope - socialapp.users.list",
-			input:        "socialapp.users.list",
+			name:          "valid scope - socialapp.users.list",
+			input:         "socialapp.users.list",
 			expectedScope: SocialappUsersList,
 			expectedValid: true,
 		},
 		{
-			name:         "valid scope - shortly.url.create",
-			input:        "shortly.url.create",
+			name:          "valid scope - shortly.url.create",
+			input:         "shortly.url.create",
 			expectedScope: ShortlyUrlCreate,
 			expectedValid: true,
 		},
 		{
-			name:         "invalid scope - empty",
-			input:        "",
+			name:          "invalid scope - empty",
+			input:         "",
 			expectedScope: Scope(""),
 			expectedValid: false,
 		},
 		{
-			name:         "invalid scope - non-existent",
-			input:        "invalid.scope",
+			name:          "invalid scope - non-existent",
+			input:         "invalid.scope",
 			expectedScope: Scope("invalid.scope"),
 			expectedValid: false,
 		},
 		{
-			name:         "invalid scope - typo",
-			input:        "socialapp.users.lists",
+			name:          "invalid scope - typo",
+			input:         "socialapp.users.lists",
 			expectedScope: Scope("socialapp.users.lists"),
 			expectedValid: false,
 		},
@@ -252,9 +252,9 @@ func TestStringConversion(t *testing.T) {
 
 func TestAllScopesCount(t *testing.T) {
 	// This test will need to be updated when scopes are added/removed
-	// Currently there are 31 scopes in the OpenAPI spec
+	// Currently there are 37 scopes in the OpenAPI spec
 	scopes := AllScopes()
-	expectedCount := 31 // Update this if scopes are added/removed in openapi.yaml
+	expectedCount := 37 // Update this if scopes are added/removed in openapi.yaml
 
 	if len(scopes) != expectedCount {
 		t.Errorf("AllScopes() returned %d scopes, expected %d. If scopes were added/removed in openapi.yaml, update this test.", len(scopes), expectedCount)
@@ -280,4 +280,3 @@ func BenchmarkScopeString(b *testing.B) {
 		_ = scope.String()
 	}
 }
-

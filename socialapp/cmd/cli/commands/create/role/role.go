@@ -10,6 +10,7 @@ import (
 
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/igomez10/microservices/socialapp/cmd/cli/cliflags"
+	"github.com/igomez10/microservices/socialapp/pkg/scopes"
 	"github.com/urfave/cli/v3"
 	"golang.org/x/oauth2/clientcredentials"
 )
@@ -70,12 +71,12 @@ func GetCmd() *cli.Command {
 				return fmt.Errorf("error parsing host URL: %v", err)
 			}
 
-			oauthConfig := clientcredentials.Config{
-				ClientID:     username,
-				ClientSecret: password,
-				TokenURL:     tokenEndpoint,
-				Scopes:       []string{"socialapp.roles.create"},
-			}
+		oauthConfig := clientcredentials.Config{
+			ClientID:     username,
+			ClientSecret: password,
+			TokenURL:     tokenEndpoint,
+			Scopes:       []string{scopes.SocialappRolesCreate.String()},
+		}
 
 			httpClient := oauthConfig.Client(ctx)
 

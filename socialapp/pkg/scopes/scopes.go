@@ -45,8 +45,23 @@ const (
 	// SocialappCommentsList - List comments
 	SocialappCommentsList Scope = "socialapp.comments.list"
 
+	// SocialappCommentsRead - Read comments
+	SocialappCommentsRead Scope = "socialapp.comments.read"
+
 	// SocialappCommentsUpdate - Update comments
 	SocialappCommentsUpdate Scope = "socialapp.comments.update"
+
+	// SocialappFeedRead - Read user feed
+	SocialappFeedRead Scope = "socialapp.feed.read"
+
+	// SocialappFollowerCreate - Create follower relationship
+	SocialappFollowerCreate Scope = "socialapp.follower.create"
+
+	// SocialappFollowerDelete - Delete follower relationship
+	SocialappFollowerDelete Scope = "socialapp.follower.delete"
+
+	// SocialappFollowerRead - Read follower information
+	SocialappFollowerRead Scope = "socialapp.follower.read"
 
 	// SocialappFollowersList - List followers
 	SocialappFollowersList Scope = "socialapp.followers.list"
@@ -74,6 +89,9 @@ const (
 
 	// SocialappRolesScopesDelete - Delete scopes of a role
 	SocialappRolesScopesDelete Scope = "socialapp.roles.scopes.delete"
+
+	// SocialappRolesScopesList - List scopes of a role
+	SocialappRolesScopesList Scope = "socialapp.roles.scopes.list"
 
 	// SocialappRolesUpdate - Update roles
 	SocialappRolesUpdate Scope = "socialapp.roles.update"
@@ -136,7 +154,17 @@ func AllScopes() []Scope {
 
 		SocialappCommentsList,
 
+		SocialappCommentsRead,
+
 		SocialappCommentsUpdate,
+
+		SocialappFeedRead,
+
+		SocialappFollowerCreate,
+
+		SocialappFollowerDelete,
+
+		SocialappFollowerRead,
 
 		SocialappFollowersList,
 
@@ -155,6 +183,8 @@ func AllScopes() []Scope {
 		SocialappRolesScopesCreate,
 
 		SocialappRolesScopesDelete,
+
+		SocialappRolesScopesList,
 
 		SocialappRolesUpdate,
 
@@ -202,7 +232,17 @@ var scopeMap = map[Scope]string{
 
 	SocialappCommentsList: "List comments",
 
+	SocialappCommentsRead: "Read comments",
+
 	SocialappCommentsUpdate: "Update comments",
+
+	SocialappFeedRead: "Read user feed",
+
+	SocialappFollowerCreate: "Create follower relationship",
+
+	SocialappFollowerDelete: "Delete follower relationship",
+
+	SocialappFollowerRead: "Read follower information",
 
 	SocialappFollowersList: "List followers",
 
@@ -221,6 +261,8 @@ var scopeMap = map[Scope]string{
 	SocialappRolesScopesCreate: "Create scopes of a role",
 
 	SocialappRolesScopesDelete: "Delete scopes of a role",
+
+	SocialappRolesScopesList: "List scopes of a role",
 
 	SocialappRolesUpdate: "Update roles",
 

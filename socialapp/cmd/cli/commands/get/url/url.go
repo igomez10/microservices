@@ -8,6 +8,7 @@ import (
 
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/igomez10/microservices/socialapp/cmd/cli/cliflags"
+	"github.com/igomez10/microservices/socialapp/pkg/scopes"
 	"github.com/urfave/cli/v3"
 	"golang.org/x/oauth2/clientcredentials"
 )
@@ -54,12 +55,12 @@ func GetCmd() *cli.Command {
 				return fmt.Errorf("alias is required")
 			}
 
-			oauth2Config := clientcredentials.Config{
-				ClientID:     username1,
-				ClientSecret: password,
-				TokenURL:     tokenendpoint,
-				Scopes:       []string{"shortly.url.create", "shortly.url.delete"},
-			}
+		oauth2Config := clientcredentials.Config{
+			ClientID:     username1,
+			ClientSecret: password,
+			TokenURL:     tokenendpoint,
+			Scopes:       []string{scopes.ShortlyUrlCreate.String(), scopes.ShortlyUrlDelete.String()},
+		}
 			httpClient := oauth2Config.Client(ctx)
 
 			// Parse the host URL to extract scheme and host separately

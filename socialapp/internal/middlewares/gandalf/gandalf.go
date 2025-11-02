@@ -11,6 +11,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/controller/user"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	"github.com/igomez10/microservices/socialapp/pkg/scopes"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/prometheus/client_golang/prometheus"
@@ -33,6 +34,7 @@ const (
 	errMsgErrorGettingRoles  = `{"code": 500, "message": "Error while getting user roles"}`
 	errMsgErrorGettingScopes = `{"code": 500, "message": "Error while getting role scopes"}`
 	errMsgScopeNotAllowed    = `{"code": 401, "message": "Scope %q not allowed"}`
+	errMsgInvalidScope       = `{"code": 400, "message": "Invalid scope %q: scope is not defined in API specification"}`
 
 	// Scope query limits
 	maxScopesPerRole = 10000
@@ -235,8 +237,24 @@ func (m *Middleware) handleBasicAuth(w http.ResponseWriter, r *http.Request, nex
 	// Set username in context
 	r = contexthelper.SetUsernameInContext(r, usr.Username)
 
-	// Get and validate scopes
-	requestedScopes := m.parseRequestedScopes(r)
+	// Parse and validate requested scopes
+	requestedScopes, err := m.parseRequestedScopes(r)
+	if err != nil {
+		// Invalid scope requested - return 400 Bad Request
+		if l, ok := log.(interface {
+			Error() interface {
+				Err(error) interface{ Msg(string) }
+			}
+		}); ok {
+			l.Error().Err(err).Msg("Invalid scope requested")
+		}
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(fmt.Sprintf(errMsgInvalidScope, err.Error())))
+		authenticationDuration.WithLabelValues("failed_basic_invalid_scope").Observe(time.Since(start).Seconds())
+		return
+	}
+
+	// Get allowed scopes for this user
 	allowedScopes, err := m.getAllowedScopes(r, usr.ID, log)
 	if err != nil {
 		m.writeInternalError(w, errMsgErrorGettingScopes)
@@ -284,11 +302,17 @@ func (m *Middleware) isTokenValid(token *jwt.SocialAPPToken) bool {
 		!token.Expires.Time.Before(now) && !token.NotBefore.Time.After(now)
 }
 
-// convertTokenScopes converts a slice of scopes to a map
-func (m *Middleware) convertTokenScopes(scopes []string) map[string]bool {
-	scopeMap := make(map[string]bool, len(scopes))
-	for _, scope := range scopes {
-		scopeMap[scope] = true
+// convertTokenScopes converts and validates a slice of scopes to a map.
+// Only scopes that are defined in the API specification are included.
+func (m *Middleware) convertTokenScopes(tokenScopes []string) map[string]bool {
+	scopeMap := make(map[string]bool, len(tokenScopes))
+	for _, scopeName := range tokenScopes {
+		// Validate that the scope is defined in the API specification
+		if _, valid := scopes.FromString(scopeName); valid {
+			scopeMap[scopeName] = true
+		}
+		// Silently ignore undefined scopes in JWT tokens to maintain backwards compatibility
+		// They simply won't be granted
 	}
 	return scopeMap
 }
@@ -306,13 +330,27 @@ func (m *Middleware) verifyPassword(password string, usr db.User) bool {
 	return encryptedPassword == usr.HashedPassword
 }
 
-// parseRequestedScopes extracts requested scopes from the request
-func (m *Middleware) parseRequestedScopes(r *http.Request) []string {
+// parseRequestedScopes extracts and validates requested scopes from the request.
+// Returns error if any requested scope is not defined in the API specification.
+func (m *Middleware) parseRequestedScopes(r *http.Request) ([]string, error) {
 	scopeStr := r.FormValue("scope")
 	if scopeStr == "" {
-		return []string{}
+		return []string{}, nil
 	}
-	return strings.Split(scopeStr, " ")
+
+	requestedScopes := strings.Split(scopeStr, " ")
+	validScopes := make([]string, 0, len(requestedScopes))
+
+	// Validate that all requested scopes are defined in the API specification
+	for _, scopeName := range requestedScopes {
+		if _, valid := scopes.FromString(scopeName); !valid {
+			// Return error for undefined scope
+			return nil, fmt.Errorf("undefined scope: %s", scopeName)
+		}
+		validScopes = append(validScopes, scopeName)
+	}
+
+	return validScopes, nil
 }
 
 // getAllowedScopes retrieves all scopes allowed for a user based on their roles

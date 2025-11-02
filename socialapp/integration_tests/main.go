@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/igomez10/microservices/socialapp/client"
+	"github.com/igomez10/microservices/socialapp/pkg/scopes"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -281,7 +282,7 @@ func ListUsersLifecycle(ctx context.Context) error {
 	conf := clientcredentials.Config{
 		ClientID:     username1,
 		ClientSecret: password,
-		Scopes:       []string{"socialapp.users.list"},
+		Scopes:       []string{scopes.SocialappUsersList.String()},
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
@@ -338,7 +339,7 @@ func CreateUserLifecycle(ctx context.Context) error {
 		conf := clientcredentials.Config{
 			ClientID:     username,
 			ClientSecret: password,
-			Scopes:       []string{"socialapp.users.read"},
+			Scopes:       []string{scopes.SocialappUsersRead.String()},
 			TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 		}
 		oauth2Ctx, err := getOuath2Context(noAuthCtx, conf)
@@ -375,7 +376,7 @@ func CreateUserLifecycle(ctx context.Context) error {
 		conf := clientcredentials.Config{
 			ClientID:     username,
 			ClientSecret: password,
-			Scopes:       []string{"socialapp.users.update"},
+			Scopes:       []string{scopes.SocialappUsersUpdate.String()},
 			TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 		}
 		oauth2Ctx, err := getOuath2Context(noAuthCtx, conf)
@@ -468,10 +469,10 @@ func FollowLifeCycle(ctx context.Context) error {
 		ClientID:     username1,
 		ClientSecret: password1,
 		Scopes: []string{
-			"socialapp.users.read",
-			"socialapp.follower.create",
-			"socialapp.follower.read",
-			"socialapp.follower.delete",
+			scopes.SocialappUsersRead.String(),
+			scopes.SocialappFollowerCreate.String(),
+			scopes.SocialappFollowerRead.String(),
+			scopes.SocialappFollowerDelete.String(),
 		},
 		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
 	}
@@ -587,12 +588,12 @@ func GetExpectedFeed(ctx context.Context) error {
 		ClientID:     username1,
 		ClientSecret: password1,
 		Scopes: []string{
-			"socialapp.users.read",
-			"socialapp.follower.create",
-			"socialapp.follower.read",
-			"socialapp.follower.delete",
-			"socialapp.comments.create",
-			"socialapp.feed.read",
+			scopes.SocialappUsersRead.String(),
+			scopes.SocialappFollowerCreate.String(),
+			scopes.SocialappFollowerRead.String(),
+			scopes.SocialappFollowerDelete.String(),
+			scopes.SocialappCommentsCreate.String(),
+			scopes.SocialappFeedRead.String(),
 		},
 		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
 	}
@@ -621,8 +622,8 @@ func GetExpectedFeed(ctx context.Context) error {
 		ClientID:     username2,
 		ClientSecret: password2,
 		Scopes: []string{
-			"socialapp.comments.create",
-			"socialapp.feed.read",
+			scopes.SocialappCommentsCreate.String(),
+			scopes.SocialappFeedRead.String(),
 		},
 		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
 	}
@@ -709,12 +710,12 @@ func GetAccessToken(ctx context.Context) error {
 		return err
 	}
 	scopes := []string{
-		"socialapp.users.read",
-		"socialapp.follower.create",
-		"socialapp.follower.read",
-		"socialapp.follower.delete",
-		"socialapp.comments.create",
-		"socialapp.feed.read",
+		scopes.SocialappUsersRead.String(),
+		scopes.SocialappFollowerCreate.String(),
+		scopes.SocialappFollowerRead.String(),
+		scopes.SocialappFollowerDelete.String(),
+		scopes.SocialappCommentsCreate.String(),
+		scopes.SocialappFeedRead.String(),
 	}
 	credConf := clientcredentials.Config{
 		ClientID:     username,
@@ -770,7 +771,7 @@ func RegisterUserFlow(ctx context.Context) error {
 	}
 
 	scopes := []string{
-		"socialapp.users.read",
+		scopes.SocialappUsersRead.String(),
 	}
 	conf := clientcredentials.Config{
 		ClientID:     username1,
@@ -827,8 +828,8 @@ func ChangePassword(ctx context.Context) error {
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	scopes := []string{
-		"socialapp.users.read",
-		"socialapp.users.update",
+		scopes.SocialappUsersRead.String(),
+		scopes.SocialappUsersUpdate.String(),
 	}
 
 	apiClient = client.NewAPIClient(configuration)
@@ -927,16 +928,16 @@ func RoleLifecycle(ctx context.Context) error {
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	scopes := []string{
-		"socialapp.roles.read",
-		"socialapp.roles.list",
-		"socialapp.roles.create",
-		"socialapp.roles.update",
-		"socialapp.roles.delete",
-		"socialapp.scopes.create",
-		"socialapp.roles.scopes.create",
-		"socialapp.roles.scopes.delete",
-		"socialapp.roles.scopes.list",
-		"socialapp.scopes.delete",
+		scopes.SocialappRolesRead.String(),
+		scopes.SocialappRolesList.String(),
+		scopes.SocialappRolesCreate.String(),
+		scopes.SocialappRolesUpdate.String(),
+		scopes.SocialappRolesDelete.String(),
+		scopes.SocialappScopesCreate.String(),
+		scopes.SocialappRolesScopesCreate.String(),
+		scopes.SocialappRolesScopesDelete.String(),
+		scopes.SocialappRolesScopesList.String(),
+		scopes.SocialappScopesDelete.String(),
 	}
 
 	apiClient = client.NewAPIClient(configuration)
@@ -1153,11 +1154,11 @@ func ScopeLifecycle(ctx context.Context) error {
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	scopes := []string{
-		"socialapp.scopes.read",
-		"socialapp.scopes.list",
-		"socialapp.scopes.create",
-		"socialapp.scopes.update",
-		"socialapp.scopes.delete",
+		scopes.SocialappScopesRead.String(),
+		scopes.SocialappScopesList.String(),
+		scopes.SocialappScopesCreate.String(),
+		scopes.SocialappScopesUpdate.String(),
+		scopes.SocialappScopesDelete.String(),
 	}
 
 	apiClient = client.NewAPIClient(configuration)
@@ -1289,15 +1290,15 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 	configuration.HTTPClient = httpClient
 	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
 	scopes := []string{
-		"socialapp.scopes.read",
-		"socialapp.scopes.list",
-		"socialapp.scopes.create",
-		"socialapp.scopes.update",
-		"socialapp.scopes.delete",
-		"socialapp.roles.create",
-		"socialapp.users.roles.update",
-		"socialapp.users.roles.list",
-		"socialapp.roles.delete",
+		scopes.SocialappScopesRead.String(),
+		scopes.SocialappScopesList.String(),
+		scopes.SocialappScopesCreate.String(),
+		scopes.SocialappScopesUpdate.String(),
+		scopes.SocialappScopesDelete.String(),
+		scopes.SocialappRolesCreate.String(),
+		scopes.SocialappUsersRolesUpdate.String(),
+		scopes.SocialappUsersRolesList.String(),
+		scopes.SocialappRolesDelete.String(),
 	}
 
 	apiClient = client.NewAPIClient(configuration)
@@ -1426,10 +1427,10 @@ func CacheRequestSameUser(ctx context.Context) error {
 		ClientID:     username1,
 		ClientSecret: password,
 		Scopes: []string{
-			"socialapp.users.list",
-			"socialapp.users.read",
-			"socialapp.feed.read",
-			"socialapp.comments.read",
+			scopes.SocialappUsersList.String(),
+			scopes.SocialappUsersRead.String(),
+			scopes.SocialappFeedRead.String(),
+			scopes.SocialappCommentsRead.String(),
 		},
 		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
 	}
@@ -1519,7 +1520,7 @@ func URLLifeCycle(ctx context.Context) error {
 	conf := clientcredentials.Config{
 		ClientID:     username1,
 		ClientSecret: password,
-		Scopes:       []string{"shortly.url.create", "shortly.url.delete"},
+		Scopes:       []string{scopes.ShortlyUrlCreate.String(), scopes.ShortlyUrlDelete.String()},
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 
