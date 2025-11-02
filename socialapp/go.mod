@@ -18,7 +18,6 @@ require (
 	github.com/jessevdk/go-flags v1.6.1
 	github.com/lib/pq v1.10.9
 	github.com/newrelic/go-agent/v3 v3.24.1
-	github.com/newrelic/go-agent/v3/integrations/nrredis-v8 v1.0.1
 	github.com/prometheus/client_golang v1.18.0
 	github.com/rs/cors v1.11.1
 	github.com/rs/zerolog v1.30.0
@@ -35,6 +34,7 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v1.38.0
 	go.opentelemetry.io/otel/trace v1.38.0
 	golang.org/x/oauth2 v0.30.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -83,5 +83,4 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250825161204-c5933d9347a5 // indirect
 	google.golang.org/grpc v1.75.0 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
