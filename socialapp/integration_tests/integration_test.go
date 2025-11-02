@@ -15,7 +15,7 @@ func TestMain(m *testing.M) {
 	// add jitter
 	if os.Getenv("ADD_TEST_JITTER") != "" {
 		jitterInSeconds := uuid.New().ID() % 60
-		log.Printf("Adding test jitter of %d seconds", jitterInSeconds)
+		log.Info().Int("jitter_seconds", int(jitterInSeconds)).Msg("Adding test jitter")
 		time.Sleep(time.Duration(jitterInSeconds))
 	}
 

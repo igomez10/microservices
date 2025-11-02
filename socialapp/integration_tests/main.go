@@ -13,7 +13,6 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/igomez10/microservices/socialapp/pkg/scopes"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
@@ -79,8 +78,7 @@ func Setup() []ConfigurationOpts {
 		panic("APP_HOST environment variable is not set")
 	}
 	// with timestamp and caller
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339, NoColor: false}).
-		With().Caller().Timestamp().Logger()
+	log.Logger = log.Output(os.Stderr).With().Caller().Timestamp().Logger()
 	return []ConfigurationOpts{
 		WithHost(testSetup),
 	}
