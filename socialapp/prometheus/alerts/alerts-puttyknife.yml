@@ -13,9 +13,9 @@ groups:
       - alert: NoPropertiesCreated
         expr: |
           (
-            (time() - (max(property_created) > 0)) > 10800
+            (time() - timestamp(max(property_created_total) > 0)) > 10800
             or
-            absent_over_time(property_created[3h])
+            absent_over_time(property_created_total[3h])
           )
         for: 5m
         labels:
@@ -28,9 +28,9 @@ groups:
       - alert: NoPropertiesUpdated
         expr: |
           (
-            (time() - (max(property_updated) > 0)) > 10800
+            (time() - timestamp(max(property_updated_total) > 0)) > 10800
             or
-            absent_over_time(property_updated[3h])
+            absent_over_time(property_updated_total[3h])
           )
         for: 5m
         labels:
