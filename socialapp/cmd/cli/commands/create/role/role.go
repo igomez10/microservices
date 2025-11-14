@@ -71,12 +71,12 @@ func GetCmd() *cli.Command {
 				return fmt.Errorf("error parsing host URL: %v", err)
 			}
 
-		oauthConfig := clientcredentials.Config{
-			ClientID:     username,
-			ClientSecret: password,
-			TokenURL:     tokenEndpoint,
-			Scopes:       []string{scopes.SocialappRolesCreate.String()},
-		}
+			oauthConfig := clientcredentials.Config{
+				ClientID:     username,
+				ClientSecret: password,
+				TokenURL:     tokenEndpoint,
+				Scopes:       []string{scopes.SocialappRolesCreate.String()},
+			}
 
 			httpClient := oauthConfig.Client(ctx)
 

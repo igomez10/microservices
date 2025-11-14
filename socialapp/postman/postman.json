@@ -19,46 +19,48 @@
                             {
                                 "name": "Create a new role",
                                 "request": {
-                                    "method": "POST",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        },
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "{\n \"id\": \"<number>\",\n \"name\": \"<string>\",\n \"description\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/roles",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "roles"
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Create a new role"
-                                }
+    "method": "POST",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n \"id\": \"<number>\",\n \"name\": \"<string>\",\n \"description\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Create a new role"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -69,52 +71,54 @@
                             {
                                 "name": "Returns a list of roles",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/roles",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "roles"
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                            {
-                                                "key": "limit",
-                                                "value": "56",
-                                                "description": "The numbers of roles to return",
-                                                "disabled": true
-                                            },
-                                            {
-                                                "key": "offset",
-                                                "value": "56",
-                                                "description": "The number of items to skip before starting to collect the result",
-                                                "disabled": true
-                                            }
-                                        ]
-                                    },
-                                    "description": "Returns a list of roles"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles"
+    ],
+    "variable": [
+    ],
+    "query": [
+        {
+        "key": "limit",
+        "value": "56",
+        "description": "The numbers of roles to return",
+        "disabled": true
+        },
+        {
+        "key": "offset",
+        "value": "56",
+        "description": "The number of items to skip before starting to collect the result",
+        "disabled": true
+        }
+    ]
+    },
+    "description": "Returns a list of roles"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -125,46 +129,48 @@
                             {
                                 "name": "Delete a role",
                                 "request": {
-                                    "method": "DELETE",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/roles/:id",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "roles",
-                                            ":id"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "id",
-                                                "value": "",
-                                                "description": "id of the role"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Delete a role"
-                                }
+    "method": "DELETE",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles/:id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles",
+        ":id"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "id of the role"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Delete a role"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -175,46 +181,48 @@
                             {
                                 "name": "Returns a role",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/roles/:id",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "roles",
-                                            ":id"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "id",
-                                                "value": "",
-                                                "description": "The id of the role"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Returns a role"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles/:id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles",
+        ":id"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "The id of the role"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Returns a role"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -225,52 +233,54 @@
                             {
                                 "name": "Update a role",
                                 "request": {
-                                    "method": "PUT",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        },
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "{\n \"id\": \"<number>\",\n \"name\": \"<string>\",\n \"description\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/roles/:id",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "roles",
-                                            ":id"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "id",
-                                                "value": "",
-                                                "description": "id of the role"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Update a role"
-                                }
+    "method": "PUT",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n \"id\": \"<number>\",\n \"name\": \"<string>\",\n \"description\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles/:id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles",
+        ":id"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "id of the role"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Update a role"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -281,53 +291,55 @@
                             {
                                 "name": "Add a scope to a role",
                                 "request": {
-                                    "method": "POST",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        },
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "[ \"socialapp.roles.read\", \"socialapp.roles.update\" ]",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/roles/:id/scopes",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "roles",
-                                            ":id",
-                                            "scopes"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "id",
-                                                "value": "",
-                                                "description": "The id of the role"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Add a scope to a role"
-                                }
+    "method": "POST",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "[ \"socialapp.roles.read\", \"socialapp.roles.update\" ]",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles/:id/scopes",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles",
+        ":id",
+        "scopes"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "The id of the role"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Add a scope to a role"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -338,59 +350,61 @@
                             {
                                 "name": "Returns a list of scopes for a role",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/roles/:id/scopes",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "roles",
-                                            ":id",
-                                            "scopes"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "id",
-                                                "value": "",
-                                                "description": "The id of the role"
-                                            }
-                                        ],
-                                        "query": [
-                                            {
-                                                "key": "limit",
-                                                "value": "56",
-                                                "description": "The numbers of scopes to return",
-                                                "disabled": true
-                                            },
-                                            {
-                                                "key": "offset",
-                                                "value": "56",
-                                                "description": "The number of items to skip before starting to collect the result",
-                                                "disabled": true
-                                            }
-                                        ]
-                                    },
-                                    "description": "Returns a list of scopes for a role"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles/:id/scopes",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles",
+        ":id",
+        "scopes"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "The id of the role"
+        }
+    ],
+    "query": [
+        {
+        "key": "limit",
+        "value": "56",
+        "description": "The numbers of scopes to return",
+        "disabled": true
+        },
+        {
+        "key": "offset",
+        "value": "56",
+        "description": "The number of items to skip before starting to collect the result",
+        "disabled": true
+        }
+    ]
+    },
+    "description": "Returns a list of scopes for a role"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -401,53 +415,55 @@
                             {
                                 "name": "Remove a scope from a role",
                                 "request": {
-                                    "method": "DELETE",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/roles/:role_id/scopes/:scope_id",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "roles",
-                                            ":role_id",
-                                            "scopes",
-                                            ":scope_id"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "roleId",
-                                                "value": "",
-                                                "description": "The id of the role"
-                                            },
-                                            {
-                                                "key": "scopeId",
-                                                "value": "",
-                                                "description": "The id of the scope"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Remove a scope from a role"
-                                }
+    "method": "DELETE",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles/:role_id/scopes/:scope_id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles",
+        ":role_id",
+        "scopes",
+        ":scope_id"
+    ],
+    "variable": [
+        {
+        "key": "roleId",
+        "value": "",
+        "description": "The id of the role"
+        },
+        {
+        "key": "scopeId",
+        "value": "",
+        "description": "The id of the scope"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Remove a scope from a role"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         }
@@ -463,46 +479,48 @@
                             {
                                 "name": "Create a new comment",
                                 "request": {
-                                    "method": "POST",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        },
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "{\n \"id\": \"<number>\",\n \"content\": \"<string>\",\n \"like_count\": \"<number>\",\n \"created_at\": \"<string>\",\n \"username\": \"<string>\"\n}",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/comments",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "comments"
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Create a new comment"
-                                }
+    "method": "POST",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n \"id\": \"<number>\",\n \"content\": \"<string>\",\n \"like_count\": \"<number>\",\n \"created_at\": \"<string>\",\n \"username\": \"<string>\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/comments",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "comments"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Create a new comment"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -513,46 +531,48 @@
                             {
                                 "name": "Returns details about a particular comment",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/comments/:id",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "comments",
-                                            ":id"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "id",
-                                                "value": "",
-                                                "description": "ID of the comment"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Returns details about a particular comment"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/comments/:id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "comments",
+        ":id"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "ID of the comment"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Returns details about a particular comment"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -563,40 +583,42 @@
                             {
                                 "name": "Returns a users feed",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/feed",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "feed"
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Returns a users feed"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/feed",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "feed"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Returns a users feed"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         }
@@ -612,39 +634,41 @@
                             {
                                 "name": "Welcome to the Socialapp API",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "text/plain",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            ""
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Welcome to the Socialapp API"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "text/plain",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        ""
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Welcome to the Socialapp API"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -655,46 +679,48 @@
                             {
                                 "name": "Change password",
                                 "request": {
-                                    "method": "POST",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        },
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "{\n \"old_password\": \"<string>\",\n \"new_password\": \"<string>\"\n}",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/password",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "password"
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Change the password of the current user"
-                                }
+    "method": "POST",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n \"old_password\": \"<string>\",\n \"new_password\": \"<string>\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/password",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "password"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Change the password of the current user"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -705,46 +731,48 @@
                             {
                                 "name": "Reset password",
                                 "request": {
-                                    "method": "PUT",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        },
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "{\n \"email\": \"<string>\"\n}",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/password",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "password"
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Reset the password of a user"
-                                }
+    "method": "PUT",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n \"email\": \"<string>\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/password",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "password"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Reset the password of a user"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -755,46 +783,48 @@
                             {
                                 "name": "Create user",
                                 "request": {
-                                    "method": "POST",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        },
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "{\n \"username\": \"<string>\",\n \"password\": \"<string>\",\n \"first_name\": \"<string>\",\n \"last_name\": \"<string>\",\n \"email\": \"<string>\"\n}",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users"
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Create a new user in the system"
-                                }
+    "method": "POST",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n \"username\": \"<string>\",\n \"password\": \"<string>\",\n \"first_name\": \"<string>\",\n \"last_name\": \"<string>\",\n \"email\": \"<string>\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Create a new user in the system"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -805,52 +835,54 @@
                             {
                                 "name": "List users",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users"
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                            {
-                                                "key": "limit",
-                                                "value": "56",
-                                                "description": "Maximum number of users to return",
-                                                "disabled": true
-                                            },
-                                            {
-                                                "key": "offset",
-                                                "value": "56",
-                                                "description": "Pagination offset",
-                                                "disabled": true
-                                            }
-                                        ]
-                                    },
-                                    "description": "List all users in the system (paginated)"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users"
+    ],
+    "variable": [
+    ],
+    "query": [
+        {
+        "key": "limit",
+        "value": "56",
+        "description": "Maximum number of users to return",
+        "disabled": true
+        },
+        {
+        "key": "offset",
+        "value": "56",
+        "description": "Pagination offset",
+        "disabled": true
+        }
+    ]
+    },
+    "description": "List all users in the system (paginated)"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -861,53 +893,55 @@
                             {
                                 "name": "Add a user as a follower",
                                 "request": {
-                                    "method": "POST",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users/:followedUsername/followers/:followerUsername",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users",
-                                            ":followedUsername",
-                                            "followers",
-                                            ":followerUsername"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "followedUsername",
-                                                "value": "",
-                                                "description": "username of the user"
-                                            },
-                                            {
-                                                "key": "followerUsername",
-                                                "value": "",
-                                                "description": "username of the follower"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Add a user as a follower of another user"
-                                }
+    "method": "POST",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users/:followedUsername/followers/:followerUsername",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users",
+        ":followedUsername",
+        "followers",
+        ":followerUsername"
+    ],
+    "variable": [
+        {
+        "key": "followedUsername",
+        "value": "",
+        "description": "username of the user"
+        },
+        {
+        "key": "followerUsername",
+        "value": "",
+        "description": "username of the follower"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Add a user as a follower of another user"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -918,53 +952,55 @@
                             {
                                 "name": "Remove a user as a follower",
                                 "request": {
-                                    "method": "DELETE",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users/:followedUsername/followers/:followerUsername",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users",
-                                            ":followedUsername",
-                                            "followers",
-                                            ":followerUsername"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "followedUsername",
-                                                "value": "",
-                                                "description": "username of the user"
-                                            },
-                                            {
-                                                "key": "followerUsername",
-                                                "value": "",
-                                                "description": "username of the follower"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Remove a user as a follower of another user"
-                                }
+    "method": "DELETE",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users/:followedUsername/followers/:followerUsername",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users",
+        ":followedUsername",
+        "followers",
+        ":followerUsername"
+    ],
+    "variable": [
+        {
+        "key": "followedUsername",
+        "value": "",
+        "description": "username of the user"
+        },
+        {
+        "key": "followerUsername",
+        "value": "",
+        "description": "username of the follower"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Remove a user as a follower of another user"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -975,46 +1011,48 @@
                             {
                                 "name": "Deletes a particular user",
                                 "request": {
-                                    "method": "DELETE",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users/:username",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users",
-                                            ":username"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "username",
-                                                "value": "",
-                                                "description": "username of the user"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Deletes a particular user by username"
-                                }
+    "method": "DELETE",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users/:username",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users",
+        ":username"
+    ],
+    "variable": [
+        {
+        "key": "username",
+        "value": "",
+        "description": "username of the user"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Deletes a particular user by username"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1025,46 +1063,48 @@
                             {
                                 "name": "Get a particular user by username",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users/:username",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users",
-                                            ":username"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "username",
-                                                "value": "",
-                                                "description": "username of the user"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Get a particular user by username"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users/:username",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users",
+        ":username"
+    ],
+    "variable": [
+        {
+        "key": "username",
+        "value": "",
+        "description": "username of the user"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Get a particular user by username"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1075,52 +1115,54 @@
                             {
                                 "name": "Update a user",
                                 "request": {
-                                    "method": "PUT",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        },
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "{\n \"id\": \"<number>\",\n \"username\": \"<string>\",\n \"first_name\": \"<string>\",\n \"last_name\": \"<string>\",\n \"email\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users/:username",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users",
-                                            ":username"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "username",
-                                                "value": "",
-                                                "description": "username of the user"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Update a user by username"
-                                }
+    "method": "PUT",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n \"id\": \"<number>\",\n \"username\": \"<string>\",\n \"first_name\": \"<string>\",\n \"last_name\": \"<string>\",\n \"email\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users/:username",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users",
+        ":username"
+    ],
+    "variable": [
+        {
+        "key": "username",
+        "value": "",
+        "description": "username of the user"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Update a user by username"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1131,59 +1173,61 @@
                             {
                                 "name": "Gets all comments for a user",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users/:username/comments",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users",
-                                            ":username",
-                                            "comments"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "username",
-                                                "value": "",
-                                                "description": "username of the user"
-                                            }
-                                        ],
-                                        "query": [
-                                            {
-                                                "key": "limit",
-                                                "value": "20",
-                                                "description": "How many items to return at one time (max 100)",
-                                                "disabled": true
-                                            },
-                                            {
-                                                "key": "offset",
-                                                "value": "0",
-                                                "description": "The number of items to skip before starting to collect the result set",
-                                                "disabled": true
-                                            }
-                                        ]
-                                    },
-                                    "description": "Gets all comments for a user"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users/:username/comments",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users",
+        ":username",
+        "comments"
+    ],
+    "variable": [
+        {
+        "key": "username",
+        "value": "",
+        "description": "username of the user"
+        }
+    ],
+    "query": [
+        {
+        "key": "limit",
+        "value": "20",
+        "description": "How many items to return at one time (max 100)",
+        "disabled": true
+        },
+        {
+        "key": "offset",
+        "value": "0",
+        "description": "The number of items to skip before starting to collect the result set",
+        "disabled": true
+        }
+    ]
+    },
+    "description": "Gets all comments for a user"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1194,47 +1238,49 @@
                             {
                                 "name": "Get all followers for a user",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users/:username/followers",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users",
-                                            ":username",
-                                            "followers"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "username",
-                                                "value": "",
-                                                "description": "username of the user"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Get all followers for a user"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users/:username/followers",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users",
+        ":username",
+        "followers"
+    ],
+    "variable": [
+        {
+        "key": "username",
+        "value": "",
+        "description": "username of the user"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Get all followers for a user"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1245,47 +1291,49 @@
                             {
                                 "name": "Get all followers for a user",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users/:username/followers",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users",
-                                            ":username",
-                                            "followers"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "username",
-                                                "value": "",
-                                                "description": "username of the user"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Get all followers for a user"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users/:username/followers",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users",
+        ":username",
+        "followers"
+    ],
+    "variable": [
+        {
+        "key": "username",
+        "value": "",
+        "description": "username of the user"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Get all followers for a user"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1296,47 +1344,49 @@
                             {
                                 "name": "Get all followed users for a user",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users/:username/following",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users",
-                                            ":username",
-                                            "following"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "username",
-                                                "value": "",
-                                                "description": "username of the user"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Get all followed users for a user (users that the user is following)"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users/:username/following",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users",
+        ":username",
+        "following"
+    ],
+    "variable": [
+        {
+        "key": "username",
+        "value": "",
+        "description": "username of the user"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Get all followed users for a user (users that the user is following)"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1347,47 +1397,49 @@
                             {
                                 "name": "Get all roles for a user",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users/:username/roles",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users",
-                                            ":username",
-                                            "roles"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "username",
-                                                "value": "",
-                                                "description": "username of the user"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Get all roles for a user"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users/:username/roles",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users",
+        ":username",
+        "roles"
+    ],
+    "variable": [
+        {
+        "key": "username",
+        "value": "",
+        "description": "username of the user"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Get all roles for a user"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1398,53 +1450,55 @@
                             {
                                 "name": "Update all roles for a user",
                                 "request": {
-                                    "method": "PUT",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        },
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "{\n \n}",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/users/:username/roles",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "users",
-                                            ":username",
-                                            "roles"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "username",
-                                                "value": "",
-                                                "description": "username of the user"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Update all roles for a user"
-                                }
+    "method": "PUT",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n \n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/users/:username/roles",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "users",
+        ":username",
+        "roles"
+    ],
+    "variable": [
+        {
+        "key": "username",
+        "value": "",
+        "description": "username of the user"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Update all roles for a user"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         }
@@ -1460,46 +1514,48 @@
                             {
                                 "name": "Create a new scope",
                                 "request": {
-                                    "method": "POST",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        },
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "{\n \"id\": \"<number>\",\n \"name\": \"<string>\",\n \"description\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/scopes",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "scopes"
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Create a new scope"
-                                }
+    "method": "POST",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n \"id\": \"<number>\",\n \"name\": \"<string>\",\n \"description\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/scopes",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "scopes"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Create a new scope"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1510,52 +1566,54 @@
                             {
                                 "name": "Returns a list of scopes",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/scopes",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "scopes"
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                            {
-                                                "key": "limit",
-                                                "value": "56",
-                                                "description": "The numbers of scopes to return",
-                                                "disabled": true
-                                            },
-                                            {
-                                                "key": "offset",
-                                                "value": "56",
-                                                "description": "The number of items to skip before starting to collect the result",
-                                                "disabled": true
-                                            }
-                                        ]
-                                    },
-                                    "description": "Returns a list of scopes"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/scopes",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "scopes"
+    ],
+    "variable": [
+    ],
+    "query": [
+        {
+        "key": "limit",
+        "value": "56",
+        "description": "The numbers of scopes to return",
+        "disabled": true
+        },
+        {
+        "key": "offset",
+        "value": "56",
+        "description": "The number of items to skip before starting to collect the result",
+        "disabled": true
+        }
+    ]
+    },
+    "description": "Returns a list of scopes"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1566,46 +1624,48 @@
                             {
                                 "name": "Delete a scope",
                                 "request": {
-                                    "method": "DELETE",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/scopes/:id",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "scopes",
-                                            ":id"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "id",
-                                                "value": "",
-                                                "description": "id of the scope"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Delete a scope"
-                                }
+    "method": "DELETE",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/scopes/:id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "scopes",
+        ":id"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "id of the scope"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Delete a scope"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1616,46 +1676,48 @@
                             {
                                 "name": "Returns a scope",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/scopes/:id",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "scopes",
-                                            ":id"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "id",
-                                                "value": "",
-                                                "description": "The id of the scope"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Returns a scope"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/scopes/:id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "scopes",
+        ":id"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "The id of the scope"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Returns a scope"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1666,52 +1728,54 @@
                             {
                                 "name": "Update a scope",
                                 "request": {
-                                    "method": "PUT",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        },
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "{\n \"id\": \"<number>\",\n \"name\": \"<string>\",\n \"description\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/scopes/:id",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "scopes",
-                                            ":id"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "id",
-                                                "value": "",
-                                                "description": "id of the scope"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Update a scope"
-                                }
+    "method": "PUT",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n \"id\": \"<number>\",\n \"name\": \"<string>\",\n \"description\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/scopes/:id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "scopes",
+        ":id"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "id of the scope"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Update a scope"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         }
@@ -1727,41 +1791,43 @@
                             {
                                 "name": "Get an access token",
                                 "request": {
-                                    "method": "POST",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/oauth/token",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "oauth",
-                                            "token"
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Get an access token"
-                                }
+    "method": "POST",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/oauth/token",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "oauth",
+        "token"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Get an access token"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         }
@@ -1777,46 +1843,48 @@
                             {
                                 "name": "Create a new url",
                                 "request": {
-                                    "method": "POST",
-                                    "header": [
-                                        {
-                                            "key": "Content-Type",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        },
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "{\n \"url\": \"<string>\",\n \"alias\": \"<string>\",\n \"created_at\": \"<string>\",\n \"updated_at\": \"<string>\",\n \"deleted_at\": \"<string>\"\n}",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/urls",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "urls"
-                                        ],
-                                        "variable": [
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Returns a url"
-                                }
+    "method": "POST",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n \"url\": \"<string>\",\n \"alias\": \"<string>\",\n \"created_at\": \"<string>\",\n \"updated_at\": \"<string>\",\n \"deleted_at\": \"<string>\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/urls",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "urls"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Returns a url"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1827,46 +1895,48 @@
                             {
                                 "name": "Delete a url",
                                 "request": {
-                                    "method": "DELETE",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/urls/:alias",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "urls",
-                                            ":alias"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "alias",
-                                                "value": "",
-                                                "description": "The alias of the url"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Delete a url"
-                                }
+    "method": "DELETE",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/urls/:alias",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "urls",
+        ":alias"
+    ],
+    "variable": [
+        {
+        "key": "alias",
+        "value": "",
+        "description": "The alias of the url"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Delete a url"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1877,46 +1947,48 @@
                             {
                                 "name": "Get a url",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/urls/:alias",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "urls",
-                                            ":alias"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "alias",
-                                                "value": "",
-                                                "description": "The alias of the url"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Returns a url"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/urls/:alias",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "urls",
+        ":alias"
+    ],
+    "variable": [
+        {
+        "key": "alias",
+        "value": "",
+        "description": "The alias of the url"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Returns a url"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         },
@@ -1927,47 +1999,49 @@
                             {
                                 "name": "Returns a url metadata",
                                 "request": {
-                                    "method": "GET",
-                                    "header": [
-                                        {
-                                            "key": "Accept",
-                                            "value": "application/json",
-                                            "description": "",
-                                            "disabled": false
-                                        }
-                                    ],
-                                    "body": {
-                                        "mode": "raw",
-                                        "raw": "",
-                                        "options": {
-                                            "raw": {
-                                                "language": "json"
-                                            }
-                                        }
-                                    },
-                                    "url": {
-                                        "raw": "{{baseUrl}}/v1/urls/:alias/data",
-                                        "host": [
-                                            "{{baseUrl}}"
-                                        ],
-                                        "path": [
-                                            "v1",
-                                            "urls",
-                                            ":alias",
-                                            "data"
-                                        ],
-                                        "variable": [
-                                            {
-                                                "key": "alias",
-                                                "value": "",
-                                                "description": "The alias of the url"
-                                            }
-                                        ],
-                                        "query": [
-                                        ]
-                                    },
-                                    "description": "Returns a url"
-                                }
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/urls/:alias/data",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "urls",
+        ":alias",
+        "data"
+    ],
+    "variable": [
+        {
+        "key": "alias",
+        "value": "",
+        "description": "The alias of the url"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Returns a url"
+}
+                                ,"response": [
+                            ]
                             }
                             ]
                         }

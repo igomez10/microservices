@@ -47,13 +47,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Welcome to the Socialapp API
       tags:
@@ -91,20 +91,20 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: "#/components/schemas/User"
                 type: array
           description: List of all the users
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -119,7 +119,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserRequest'
+              $ref: "#/components/schemas/CreateUserRequest"
         description: Create a new user
         required: true
       responses:
@@ -127,19 +127,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateUserResponse'
+                $ref: "#/components/schemas/CreateUserResponse"
           description: User was created successfully
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       summary: Create user
       tags:
@@ -152,7 +152,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ChangePasswordRequest'
+              $ref: "#/components/schemas/ChangePasswordRequest"
         description: Change password request
         required: true
       responses:
@@ -160,19 +160,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: Password was changed successfully
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -187,7 +187,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ResetPasswordRequest'
+              $ref: "#/components/schemas/ResetPasswordRequest"
         description: Reset password
         required: true
       responses:
@@ -195,19 +195,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: Password was reset successfully
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -225,20 +225,20 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Comment'
+                  $ref: "#/components/schemas/Comment"
                 type: array
           description: Get a users feed
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -290,20 +290,20 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Comment'
+                  $ref: "#/components/schemas/Comment"
                 type: array
           description: User comments
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -331,20 +331,20 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: "#/components/schemas/User"
                 type: array
           description: User followers
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -373,20 +373,20 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: "#/components/schemas/User"
                 type: array
           description: Followed users
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -424,13 +424,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -467,13 +467,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -500,19 +500,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: User was deleted succesfully
         "404":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Username not found
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -538,7 +538,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: Details about a user by ID
           headers:
             x-next:
@@ -551,19 +551,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         "404":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Username not found
         "500":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -588,7 +588,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: "#/components/schemas/User"
         description: Update a user
         required: true
       responses:
@@ -596,19 +596,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
           description: User was updated successfully
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -636,20 +636,20 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Role'
+                  $ref: "#/components/schemas/Role"
                 type: array
           description: Roles for a user
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -689,20 +689,20 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Role'
+                  $ref: "#/components/schemas/Role"
                 type: array
           description: Roles for a user
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -730,7 +730,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Comment'
+                $ref: "#/components/schemas/Comment"
           description: Details about a comment by ID
           headers:
             x-next:
@@ -743,13 +743,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -765,7 +765,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Comment'
+              $ref: "#/components/schemas/Comment"
         description: Create a new comment
         required: true
       responses:
@@ -773,19 +773,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Comment'
+                $ref: "#/components/schemas/Comment"
           description: New comment was created
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -802,19 +802,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AccessToken'
+                $ref: "#/components/schemas/AccessToken"
           description: Access token
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - BasicAuth: []
@@ -853,20 +853,20 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Role'
+                  $ref: "#/components/schemas/Role"
                 type: array
           description: List of roles
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -881,7 +881,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Role'
+              $ref: "#/components/schemas/Role"
         description: Create a new role
         required: true
       responses:
@@ -889,19 +889,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Role'
+                $ref: "#/components/schemas/Role"
           description: New role was created
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -930,13 +930,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -962,19 +962,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Role'
+                $ref: "#/components/schemas/Role"
           description: Role is returned
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -999,26 +999,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Role'
+              $ref: "#/components/schemas/Role"
         description: Update a role
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Role'
+                $ref: "#/components/schemas/Role"
           description: Role was updated
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -1067,20 +1067,20 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Scope'
+                  $ref: "#/components/schemas/Scope"
                 type: array
           description: List of scopes
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -1120,25 +1120,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
         "404":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Role not found
         "400":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Scope not found
       security:
       - OAuth2:
@@ -1176,25 +1176,25 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
         "404":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Role not found
         "400":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Scope not found
       security:
       - OAuth2:
@@ -1234,20 +1234,20 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/Scope'
+                  $ref: "#/components/schemas/Scope"
                 type: array
           description: List of scopes
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -1262,7 +1262,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Scope'
+              $ref: "#/components/schemas/Scope"
         description: Create a new scope
         required: true
       responses:
@@ -1270,19 +1270,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Scope'
+                $ref: "#/components/schemas/Scope"
           description: New scope was created
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -1311,13 +1311,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -1343,19 +1343,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Scope'
+                $ref: "#/components/schemas/Scope"
           description: Scope is returned
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -1380,26 +1380,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Scope'
+              $ref: "#/components/schemas/Scope"
         description: Update a scope
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Scope'
+                $ref: "#/components/schemas/Scope"
           description: Scope was updated
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unexpected error
       security:
       - OAuth2:
@@ -1428,7 +1428,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Url not found
       security:
       - OAuth2:
@@ -1466,7 +1466,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Url not found
       summary: Get a url
       tags:
@@ -1490,13 +1490,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/URL'
+                $ref: "#/components/schemas/URL"
           description: Url is returned
         "404":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Url not found
       summary: Returns a url metadata
       tags:
@@ -1509,7 +1509,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/URL'
+              $ref: "#/components/schemas/URL"
         description: Create a new url
         required: true
       responses:
@@ -1517,19 +1517,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/URL'
+                $ref: "#/components/schemas/URL"
           description: Url is returned
         "401":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Unauthorized
         "409":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
           description: Url already exists
       security:
       - OAuth2:
@@ -1544,7 +1544,7 @@ components:
         username: johndoe
         first_name: John
         last_name: Doe
-        password: Secure123!
+        password: Secure123
         email: johndoe@mail.com
       properties:
         username:
@@ -1772,7 +1772,12 @@ components:
             socialapp.comments.create: Create comments
             socialapp.comments.update: Update comments
             socialapp.comments.delete: Delete comments
+            socialapp.comments.read: Read comments
+            socialapp.feed.read: Read user feed
             socialapp.followers.list: List followers
+            socialapp.follower.create: Create follower relationship
+            socialapp.follower.read: Read follower information
+            socialapp.follower.delete: Delete follower relationship
             socialapp.following.list: List following
             socialapp.roles.list: List roles
             socialapp.roles.create: Create roles
@@ -1785,6 +1790,7 @@ components:
             socialapp.scopes.update: Update scopes
             socialapp.scopes.delete: Delete scopes
             socialapp.roles.list_scopes: List scopes of a role
+            socialapp.roles.scopes.list: List scopes of a role
             socialapp.roles.scopes.create: Create scopes of a role
             socialapp.roles.scopes.delete: Delete scopes of a role
             socialapp.users.roles.list: List roles of a user

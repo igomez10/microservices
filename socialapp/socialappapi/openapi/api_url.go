@@ -53,21 +53,55 @@ func NewURLAPIController(s URLAPIServicer, opts ...URLAPIOption) *URLAPIControll
 func (c *URLAPIController) Routes() Routes {
 	return Routes{
 		"GetUrl": Route{
+			"GetUrl",
 			strings.ToUpper("Get"),
 			"/v1/urls/{alias}",
 			c.GetUrl,
 		},
 		"DeleteUrl": Route{
+			"DeleteUrl",
 			strings.ToUpper("Delete"),
 			"/v1/urls/{alias}",
 			c.DeleteUrl,
 		},
 		"GetUrlData": Route{
+			"GetUrlData",
 			strings.ToUpper("Get"),
 			"/v1/urls/{alias}/data",
 			c.GetUrlData,
 		},
 		"CreateUrl": Route{
+			"CreateUrl",
+			strings.ToUpper("Post"),
+			"/v1/urls",
+			c.CreateUrl,
+		},
+	}
+}
+
+// OrderedRoutes returns all the api routes in a deterministic order for the URLAPIController
+func (c *URLAPIController) OrderedRoutes() []Route {
+	return []Route{
+		Route{
+			"GetUrl",
+			strings.ToUpper("Get"),
+			"/v1/urls/{alias}",
+			c.GetUrl,
+		},
+		Route{
+			"DeleteUrl",
+			strings.ToUpper("Delete"),
+			"/v1/urls/{alias}",
+			c.DeleteUrl,
+		},
+		Route{
+			"GetUrlData",
+			strings.ToUpper("Get"),
+			"/v1/urls/{alias}/data",
+			c.GetUrlData,
+		},
+		Route{
+			"CreateUrl",
 			strings.ToUpper("Post"),
 			"/v1/urls",
 			c.CreateUrl,

@@ -53,16 +53,43 @@ func NewCommentAPIController(s CommentAPIServicer, opts ...CommentAPIOption) *Co
 func (c *CommentAPIController) Routes() Routes {
 	return Routes{
 		"GetUserFeed": Route{
+			"GetUserFeed",
 			strings.ToUpper("Get"),
 			"/v1/feed",
 			c.GetUserFeed,
 		},
 		"GetComment": Route{
+			"GetComment",
 			strings.ToUpper("Get"),
 			"/v1/comments/{id}",
 			c.GetComment,
 		},
 		"CreateComment": Route{
+			"CreateComment",
+			strings.ToUpper("Post"),
+			"/v1/comments",
+			c.CreateComment,
+		},
+	}
+}
+
+// OrderedRoutes returns all the api routes in a deterministic order for the CommentAPIController
+func (c *CommentAPIController) OrderedRoutes() []Route {
+	return []Route{
+		Route{
+			"GetUserFeed",
+			strings.ToUpper("Get"),
+			"/v1/feed",
+			c.GetUserFeed,
+		},
+		Route{
+			"GetComment",
+			strings.ToUpper("Get"),
+			"/v1/comments/{id}",
+			c.GetComment,
+		},
+		Route{
+			"CreateComment",
 			strings.ToUpper("Post"),
 			"/v1/comments",
 			c.CreateComment,

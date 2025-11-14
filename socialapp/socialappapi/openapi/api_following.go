@@ -52,6 +52,19 @@ func NewFollowingAPIController(s FollowingAPIServicer, opts ...FollowingAPIOptio
 func (c *FollowingAPIController) Routes() Routes {
 	return Routes{
 		"GetUserFollowers": Route{
+			"GetUserFollowers",
+			strings.ToUpper("Get"),
+			"/v1/users/{username}/followers",
+			c.GetUserFollowers,
+		},
+	}
+}
+
+// OrderedRoutes returns all the api routes in a deterministic order for the FollowingAPIController
+func (c *FollowingAPIController) OrderedRoutes() []Route {
+	return []Route{
+		Route{
+			"GetUserFollowers",
 			strings.ToUpper("Get"),
 			"/v1/users/{username}/followers",
 			c.GetUserFollowers,

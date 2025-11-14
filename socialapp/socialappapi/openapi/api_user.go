@@ -55,76 +55,187 @@ func NewUserAPIController(s UserAPIServicer, opts ...UserAPIOption) *UserAPICont
 func (c *UserAPIController) Routes() Routes {
 	return Routes{
 		"Welcome": Route{
+			"Welcome",
 			strings.ToUpper("Get"),
 			"/",
 			c.Welcome,
 		},
 		"ListUsers": Route{
+			"ListUsers",
 			strings.ToUpper("Get"),
 			"/v1/users",
 			c.ListUsers,
 		},
 		"CreateUser": Route{
+			"CreateUser",
 			strings.ToUpper("Post"),
 			"/v1/users",
 			c.CreateUser,
 		},
 		"ResetPassword": Route{
+			"ResetPassword",
 			strings.ToUpper("Put"),
 			"/v1/password",
 			c.ResetPassword,
 		},
 		"ChangePassword": Route{
+			"ChangePassword",
 			strings.ToUpper("Post"),
 			"/v1/password",
 			c.ChangePassword,
 		},
 		"GetUserComments": Route{
+			"GetUserComments",
 			strings.ToUpper("Get"),
 			"/v1/users/{username}/comments",
 			c.GetUserComments,
 		},
 		"GetUserFollowers": Route{
+			"GetUserFollowers",
 			strings.ToUpper("Get"),
 			"/v1/users/{username}/followers",
 			c.GetUserFollowers,
 		},
 		"GetFollowingUsers": Route{
+			"GetFollowingUsers",
 			strings.ToUpper("Get"),
 			"/v1/users/{username}/following",
 			c.GetFollowingUsers,
 		},
 		"FollowUser": Route{
+			"FollowUser",
 			strings.ToUpper("Post"),
 			"/v1/users/{followedUsername}/followers/{followerUsername}",
 			c.FollowUser,
 		},
 		"UnfollowUser": Route{
+			"UnfollowUser",
 			strings.ToUpper("Delete"),
 			"/v1/users/{followedUsername}/followers/{followerUsername}",
 			c.UnfollowUser,
 		},
 		"GetUserByUsername": Route{
+			"GetUserByUsername",
 			strings.ToUpper("Get"),
 			"/v1/users/{username}",
 			c.GetUserByUsername,
 		},
 		"UpdateUser": Route{
+			"UpdateUser",
 			strings.ToUpper("Put"),
 			"/v1/users/{username}",
 			c.UpdateUser,
 		},
 		"DeleteUser": Route{
+			"DeleteUser",
 			strings.ToUpper("Delete"),
 			"/v1/users/{username}",
 			c.DeleteUser,
 		},
 		"GetRolesForUser": Route{
+			"GetRolesForUser",
 			strings.ToUpper("Get"),
 			"/v1/users/{username}/roles",
 			c.GetRolesForUser,
 		},
 		"UpdateRolesForUser": Route{
+			"UpdateRolesForUser",
+			strings.ToUpper("Put"),
+			"/v1/users/{username}/roles",
+			c.UpdateRolesForUser,
+		},
+	}
+}
+
+// OrderedRoutes returns all the api routes in a deterministic order for the UserAPIController
+func (c *UserAPIController) OrderedRoutes() []Route {
+	return []Route{
+		Route{
+			"Welcome",
+			strings.ToUpper("Get"),
+			"/",
+			c.Welcome,
+		},
+		Route{
+			"ListUsers",
+			strings.ToUpper("Get"),
+			"/v1/users",
+			c.ListUsers,
+		},
+		Route{
+			"CreateUser",
+			strings.ToUpper("Post"),
+			"/v1/users",
+			c.CreateUser,
+		},
+		Route{
+			"ResetPassword",
+			strings.ToUpper("Put"),
+			"/v1/password",
+			c.ResetPassword,
+		},
+		Route{
+			"ChangePassword",
+			strings.ToUpper("Post"),
+			"/v1/password",
+			c.ChangePassword,
+		},
+		Route{
+			"GetUserComments",
+			strings.ToUpper("Get"),
+			"/v1/users/{username}/comments",
+			c.GetUserComments,
+		},
+		Route{
+			"GetUserFollowers",
+			strings.ToUpper("Get"),
+			"/v1/users/{username}/followers",
+			c.GetUserFollowers,
+		},
+		Route{
+			"GetFollowingUsers",
+			strings.ToUpper("Get"),
+			"/v1/users/{username}/following",
+			c.GetFollowingUsers,
+		},
+		Route{
+			"FollowUser",
+			strings.ToUpper("Post"),
+			"/v1/users/{followedUsername}/followers/{followerUsername}",
+			c.FollowUser,
+		},
+		Route{
+			"UnfollowUser",
+			strings.ToUpper("Delete"),
+			"/v1/users/{followedUsername}/followers/{followerUsername}",
+			c.UnfollowUser,
+		},
+		Route{
+			"GetUserByUsername",
+			strings.ToUpper("Get"),
+			"/v1/users/{username}",
+			c.GetUserByUsername,
+		},
+		Route{
+			"UpdateUser",
+			strings.ToUpper("Put"),
+			"/v1/users/{username}",
+			c.UpdateUser,
+		},
+		Route{
+			"DeleteUser",
+			strings.ToUpper("Delete"),
+			"/v1/users/{username}",
+			c.DeleteUser,
+		},
+		Route{
+			"GetRolesForUser",
+			strings.ToUpper("Get"),
+			"/v1/users/{username}/roles",
+			c.GetRolesForUser,
+		},
+		Route{
+			"UpdateRolesForUser",
 			strings.ToUpper("Put"),
 			"/v1/users/{username}/roles",
 			c.UpdateRolesForUser,

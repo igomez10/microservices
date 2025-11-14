@@ -50,6 +50,19 @@ func NewAuthenticationAPIController(s AuthenticationAPIServicer, opts ...Authent
 func (c *AuthenticationAPIController) Routes() Routes {
 	return Routes{
 		"GetAccessToken": Route{
+			"GetAccessToken",
+			strings.ToUpper("Post"),
+			"/v1/oauth/token",
+			c.GetAccessToken,
+		},
+	}
+}
+
+// OrderedRoutes returns all the api routes in a deterministic order for the AuthenticationAPIController
+func (c *AuthenticationAPIController) OrderedRoutes() []Route {
+	return []Route{
+		Route{
+			"GetAccessToken",
 			strings.ToUpper("Post"),
 			"/v1/oauth/token",
 			c.GetAccessToken,

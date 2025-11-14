@@ -55,41 +55,103 @@ func NewRoleAPIController(s RoleAPIServicer, opts ...RoleAPIOption) *RoleAPICont
 func (c *RoleAPIController) Routes() Routes {
 	return Routes{
 		"ListRoles": Route{
+			"ListRoles",
 			strings.ToUpper("Get"),
 			"/v1/roles",
 			c.ListRoles,
 		},
 		"CreateRole": Route{
+			"CreateRole",
 			strings.ToUpper("Post"),
 			"/v1/roles",
 			c.CreateRole,
 		},
 		"GetRole": Route{
+			"GetRole",
 			strings.ToUpper("Get"),
 			"/v1/roles/{id}",
 			c.GetRole,
 		},
 		"UpdateRole": Route{
+			"UpdateRole",
 			strings.ToUpper("Put"),
 			"/v1/roles/{id}",
 			c.UpdateRole,
 		},
 		"DeleteRole": Route{
+			"DeleteRole",
 			strings.ToUpper("Delete"),
 			"/v1/roles/{id}",
 			c.DeleteRole,
 		},
 		"ListScopesForRole": Route{
+			"ListScopesForRole",
 			strings.ToUpper("Get"),
 			"/v1/roles/{id}/scopes",
 			c.ListScopesForRole,
 		},
 		"AddScopeToRole": Route{
+			"AddScopeToRole",
 			strings.ToUpper("Post"),
 			"/v1/roles/{id}/scopes",
 			c.AddScopeToRole,
 		},
 		"RemoveScopeFromRole": Route{
+			"RemoveScopeFromRole",
+			strings.ToUpper("Delete"),
+			"/v1/roles/{role_id}/scopes/{scope_id}",
+			c.RemoveScopeFromRole,
+		},
+	}
+}
+
+// OrderedRoutes returns all the api routes in a deterministic order for the RoleAPIController
+func (c *RoleAPIController) OrderedRoutes() []Route {
+	return []Route{
+		Route{
+			"ListRoles",
+			strings.ToUpper("Get"),
+			"/v1/roles",
+			c.ListRoles,
+		},
+		Route{
+			"CreateRole",
+			strings.ToUpper("Post"),
+			"/v1/roles",
+			c.CreateRole,
+		},
+		Route{
+			"GetRole",
+			strings.ToUpper("Get"),
+			"/v1/roles/{id}",
+			c.GetRole,
+		},
+		Route{
+			"UpdateRole",
+			strings.ToUpper("Put"),
+			"/v1/roles/{id}",
+			c.UpdateRole,
+		},
+		Route{
+			"DeleteRole",
+			strings.ToUpper("Delete"),
+			"/v1/roles/{id}",
+			c.DeleteRole,
+		},
+		Route{
+			"ListScopesForRole",
+			strings.ToUpper("Get"),
+			"/v1/roles/{id}/scopes",
+			c.ListScopesForRole,
+		},
+		Route{
+			"AddScopeToRole",
+			strings.ToUpper("Post"),
+			"/v1/roles/{id}/scopes",
+			c.AddScopeToRole,
+		},
+		Route{
+			"RemoveScopeFromRole",
 			strings.ToUpper("Delete"),
 			"/v1/roles/{role_id}/scopes/{scope_id}",
 			c.RemoveScopeFromRole,

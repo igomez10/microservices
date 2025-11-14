@@ -12,7 +12,7 @@ To see how to make this your own, look here:
 [README](https://openapi-generator.tech)
 
 - API version: 1.0.0
-- Generator version: 7.11.0
+- Generator version: 7.17.0
 For more information, please visit [https://socialapp.gomezignacio.com](https://socialapp.gomezignacio.com)
 
 

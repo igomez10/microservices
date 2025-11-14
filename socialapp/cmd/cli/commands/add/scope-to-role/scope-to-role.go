@@ -68,12 +68,12 @@ func GetCmd() *cli.Command {
 			username := cmd.String(cliflags.UsernameFlag)
 			password := cmd.String(cliflags.PasswordFlag)
 
-		oauthConfig := clientcredentials.Config{
-			ClientID:     username,
-			ClientSecret: password,
-			TokenURL:     tokenEndpoint,
-			Scopes:       []string{scopes.SocialappRolesUpdate.String()},
-		}
+			oauthConfig := clientcredentials.Config{
+				ClientID:     username,
+				ClientSecret: password,
+				TokenURL:     tokenEndpoint,
+				Scopes:       []string{scopes.SocialappRolesUpdate.String()},
+			}
 
 			httpClient := oauthConfig.Client(ctx)
 

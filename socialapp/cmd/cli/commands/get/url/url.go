@@ -55,12 +55,12 @@ func GetCmd() *cli.Command {
 				return fmt.Errorf("alias is required")
 			}
 
-		oauth2Config := clientcredentials.Config{
-			ClientID:     username1,
-			ClientSecret: password,
-			TokenURL:     tokenendpoint,
-			Scopes:       []string{scopes.ShortlyUrlCreate.String(), scopes.ShortlyUrlDelete.String()},
-		}
+			oauth2Config := clientcredentials.Config{
+				ClientID:     username1,
+				ClientSecret: password,
+				TokenURL:     tokenendpoint,
+				Scopes:       []string{scopes.ShortlyUrlCreate.String(), scopes.ShortlyUrlDelete.String()},
+			}
 			httpClient := oauth2Config.Client(ctx)
 
 			// Parse the host URL to extract scheme and host separately

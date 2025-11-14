@@ -181,7 +181,12 @@ Class | Method | HTTP request | Description
   - **socialapp.comments.create**: Create comments
   - **socialapp.comments.update**: Update comments
   - **socialapp.comments.delete**: Delete comments
+  - **socialapp.comments.read**: Read comments
+  - **socialapp.feed.read**: Read user feed
   - **socialapp.followers.list**: List followers
+  - **socialapp.follower.create**: Create follower relationship
+  - **socialapp.follower.read**: Read follower information
+  - **socialapp.follower.delete**: Delete follower relationship
   - **socialapp.following.list**: List following
   - **socialapp.roles.list**: List roles
   - **socialapp.roles.create**: Create roles
@@ -194,6 +199,7 @@ Class | Method | HTTP request | Description
   - **socialapp.scopes.update**: Update scopes
   - **socialapp.scopes.delete**: Delete scopes
   - **socialapp.roles.list_scopes**: List scopes of a role
+  - **socialapp.roles.scopes.list**: List scopes of a role
   - **socialapp.roles.scopes.create**: Create scopes of a role
   - **socialapp.roles.scopes.delete**: Delete scopes of a role
   - **socialapp.users.roles.list**: List roles of a user

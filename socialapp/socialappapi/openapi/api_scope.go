@@ -55,26 +55,67 @@ func NewScopeAPIController(s ScopeAPIServicer, opts ...ScopeAPIOption) *ScopeAPI
 func (c *ScopeAPIController) Routes() Routes {
 	return Routes{
 		"ListScopes": Route{
+			"ListScopes",
 			strings.ToUpper("Get"),
 			"/v1/scopes",
 			c.ListScopes,
 		},
 		"CreateScope": Route{
+			"CreateScope",
 			strings.ToUpper("Post"),
 			"/v1/scopes",
 			c.CreateScope,
 		},
 		"GetScope": Route{
+			"GetScope",
 			strings.ToUpper("Get"),
 			"/v1/scopes/{id}",
 			c.GetScope,
 		},
 		"UpdateScope": Route{
+			"UpdateScope",
 			strings.ToUpper("Put"),
 			"/v1/scopes/{id}",
 			c.UpdateScope,
 		},
 		"DeleteScope": Route{
+			"DeleteScope",
+			strings.ToUpper("Delete"),
+			"/v1/scopes/{id}",
+			c.DeleteScope,
+		},
+	}
+}
+
+// OrderedRoutes returns all the api routes in a deterministic order for the ScopeAPIController
+func (c *ScopeAPIController) OrderedRoutes() []Route {
+	return []Route{
+		Route{
+			"ListScopes",
+			strings.ToUpper("Get"),
+			"/v1/scopes",
+			c.ListScopes,
+		},
+		Route{
+			"CreateScope",
+			strings.ToUpper("Post"),
+			"/v1/scopes",
+			c.CreateScope,
+		},
+		Route{
+			"GetScope",
+			strings.ToUpper("Get"),
+			"/v1/scopes/{id}",
+			c.GetScope,
+		},
+		Route{
+			"UpdateScope",
+			strings.ToUpper("Put"),
+			"/v1/scopes/{id}",
+			c.UpdateScope,
+		},
+		Route{
+			"DeleteScope",
 			strings.ToUpper("Delete"),
 			"/v1/scopes/{id}",
 			c.DeleteScope,
