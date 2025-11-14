@@ -12,11 +12,9 @@ groups:
 
       - alert: NoPropertiesCreated
         expr: |
-          (
-            (time() - timestamp(max(property_created_total) > 0)) > 10800
-            or
-            absent_over_time(property_created_total[3h])
-          )
+          rate(property_created_total[3h]) == 0
+          or
+          absent_over_time(property_created_total[3h])
         for: 5m
         labels:
           severity: critical
@@ -27,11 +25,9 @@ groups:
 
       - alert: NoPropertiesUpdated
         expr: |
-          (
-            (time() - timestamp(max(property_updated_total) > 0)) > 10800
-            or
-            absent_over_time(property_updated_total[3h])
-          )
+          rate(property_updated_total[3h]) == 0
+          or
+          absent_over_time(property_updated_total[3h])
         for: 5m
         labels:
           severity: critical
