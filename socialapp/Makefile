@@ -23,7 +23,7 @@ compose-prune:
 
 generate-openapi:
 	set -e
-	# openapi-generator version-manager set 7.11.0
+	# openapi-generator-cli version-manager set 7.11.0
 	#  generate server:
 	rm -rf ./socialappapi
 	openapi-generator generate --input-spec openapi.yaml  \
