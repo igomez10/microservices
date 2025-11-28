@@ -44,10 +44,12 @@ services:
     cpus: 0.5
     mem_limit: 256m
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "urlshortener"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
   setup-urlshortener:
     build:
@@ -73,10 +75,12 @@ services:
     cpus: 0.5
     mem_limit: 256m
     logging:
-      driver: "syslog"
+      driver: loki
       options:
-        syslog-address: "tcp://localhost:53000"
-        tag: "setup_db"
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "400"
+        loki-retries: "2"
+        labels: "service_name"
 
 networks:
   socialapp_default:
