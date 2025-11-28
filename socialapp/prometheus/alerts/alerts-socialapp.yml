@@ -198,3 +198,4 @@ groups:
         annotations:
           summary: No cache operations detected
           description: "No cache operations in the last 5 minutes. Cache may be disabled or not functioning."
+
