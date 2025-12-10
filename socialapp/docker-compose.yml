@@ -27,10 +27,10 @@ volumes:
 
 services:
   socialapp:
-    # ports:
-    #   - "8086:8086"
+    ports:
+      - "8086:8086"
     deploy:
-      replicas: 3
+      replicas: 1
       resources:
         limits:
           cpus: "0.5"
@@ -419,6 +419,9 @@ services:
       - dns
       - default
       - elk
+    environment:
+      - SOCIALAPP_HOST=socialapp.${EXPOSED_HOST}
+      - WHOAMI_HOST=whoami.${EXPOSED_HOST}
     extra_hosts:
       - "socialapp.${EXPOSED_HOST}:172.28.0.151"
       - "whoami.${EXPOSED_HOST}:172.28.0.151"
@@ -908,7 +911,7 @@ services:
 
   traefik:
     container_name: traefik
-    image: traefik:v3.1.4
+    image: traefik:v3.6.4
     ports:
       - "80:80"
       - "443:443"
@@ -920,6 +923,8 @@ services:
       - "./traefik/traefik.yml:/etc/traefik/traefik.yml"
     cpus: 1
     mem_limit: 1024m
+    privileged: true
+    restart: always
     networks:
       dns:
         ipv4_address: 172.28.0.151
