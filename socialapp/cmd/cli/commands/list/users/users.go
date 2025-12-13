@@ -4,16 +4,12 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"net/url"
 
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/igomez10/microservices/socialapp/cmd/cli/cliflags"
-	"github.com/igomez10/microservices/socialapp/cmd/cli/pkg/users"
+	"github.com/igomez10/microservices/socialapp/cmd/cli/pkg/auth"
 	"github.com/urfave/cli/v3"
-	"golang.org/x/oauth2/clientcredentials"
 )
-
-const defaultHost = "http://localhost:8086"
 
 func GetCmd() *cli.Command {
 	return &cli.Command{
@@ -21,21 +17,19 @@ func GetCmd() *cli.Command {
 		Usage: "list users",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
+				Name:  cliflags.EnvFlag,
+				Usage: "Environment to use (live, local)",
+				Value: auth.DefaultEnv,
+			},
+			&cli.StringFlag{
 				Name:    cliflags.UsernameFlag,
+				Usage:   "Username for authentication (or set SOCIALAPP_CLI_USERNAME)",
 				Aliases: []string{"u"},
 			},
 			&cli.StringFlag{
 				Name:    cliflags.PasswordFlag,
+				Usage:   "Password for authentication (or set SOCIALAPP_CLI_PASSWORD)",
 				Aliases: []string{"p"},
-			},
-
-			&cli.StringFlag{
-				Name:  cliflags.HostFlag,
-				Value: defaultHost,
-			},
-			&cli.StringFlag{
-				Name:  cliflags.TokenEndpointFlag,
-				Value: fmt.Sprintf("%s/v1/oauth/token", defaultHost),
 			},
 			&cli.IntFlag{
 				Name:    cliflags.PageSizeFlag,
@@ -49,30 +43,35 @@ func GetCmd() *cli.Command {
 			},
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {
-			tokenendpoint := c.String(cliflags.TokenEndpointFlag)
-			host := c.String(cliflags.HostFlag)
-			if host != defaultHost && c.String(cliflags.TokenEndpointFlag) == fmt.Sprintf("%s/v1/oauth/token", defaultHost) {
-				tokenendpoint = fmt.Sprintf("%s/v1/oauth/token", host)
+			envName := auth.ResolveEnvironment(c.String(cliflags.EnvFlag))
+
+			username, password, err := auth.ResolveCredentials(
+				c.String(cliflags.UsernameFlag),
+				c.String(cliflags.PasswordFlag),
+			)
+			if err != nil {
+				return err
 			}
-			username1 := c.String(cliflags.UsernameFlag)
-			password := c.String(cliflags.PasswordFlag)
+
 			pagesize := c.Int(cliflags.PageSizeFlag)
 			offset := c.Int(cliflags.OffsetFlag)
 
-			u, err := url.Parse(host)
+			httpClient, err := auth.GetHTTPClient(ctx, envName, username, password, []string{"socialapp.users.list"})
 			if err != nil {
-				return fmt.Errorf("Error when parsing url: %v", err)
+				return fmt.Errorf("failed to get authenticated client: %w", err)
 			}
 
-			ctx, apiClient := users.GetApiClient(ctx, u)
-
-			conf := clientcredentials.Config{
-				ClientID:     username1,
-				ClientSecret: password,
-				Scopes:       []string{"socialapp.users.list"},
-				TokenURL:     tokenendpoint,
+			host, scheme, err := auth.GetAPIClientConfig(envName)
+			if err != nil {
+				return err
 			}
-			ctx = context.WithValue(ctx, client.ContextOAuth2, conf.TokenSource(ctx))
+
+			configuration := client.NewConfiguration()
+			configuration.Host = host
+			configuration.Scheme = scheme
+			configuration.HTTPClient = httpClient
+
+			apiClient := client.NewAPIClient(configuration)
 
 			us, r, err := apiClient.UserAPI.ListUsers(ctx).
 				Limit(int32(pagesize)).

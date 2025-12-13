@@ -4,16 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/url"
 
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/igomez10/microservices/socialapp/cmd/cli/cliflags"
+	"github.com/igomez10/microservices/socialapp/cmd/cli/pkg/auth"
 	"github.com/igomez10/microservices/socialapp/pkg/scopes"
 	"github.com/urfave/cli/v3"
-	"golang.org/x/oauth2/clientcredentials"
 )
-
-const defaultHost = "http://localhost:8086"
 
 func GetCmd() *cli.Command {
 	return &cli.Command{
@@ -21,57 +18,54 @@ func GetCmd() *cli.Command {
 		Usage: "get url",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
+				Name:  cliflags.EnvFlag,
+				Usage: "Environment to use (live, local)",
+				Value: auth.DefaultEnv,
+			},
+			&cli.StringFlag{
 				Name:    cliflags.AliasFlag,
 				Aliases: []string{"a"},
 			},
 			&cli.StringFlag{
-				Name:  cliflags.HostFlag,
-				Value: defaultHost,
-			},
-			&cli.StringFlag{
-				Name:  cliflags.TokenEndpointFlag,
-				Value: fmt.Sprintf("%s/v1/oauth/token", defaultHost),
-			},
-			&cli.StringFlag{
 				Name:    cliflags.UsernameFlag,
+				Usage:   "Username for authentication (or set SOCIALAPP_CLI_USERNAME)",
 				Aliases: []string{"u"},
 			},
 			&cli.StringFlag{
 				Name:    cliflags.PasswordFlag,
+				Usage:   "Password for authentication (or set SOCIALAPP_CLI_PASSWORD)",
 				Aliases: []string{"p"},
 			},
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {
-			tokenendpoint := c.String(cliflags.TokenEndpointFlag)
-			host := c.String(cliflags.HostFlag)
-			if host != defaultHost && c.String(cliflags.TokenEndpointFlag) == fmt.Sprintf("%s/v1/oauth/token", defaultHost) {
-				tokenendpoint = fmt.Sprintf("%s/v1/oauth/token", host)
-			}
-			username1 := c.String(cliflags.UsernameFlag)
-			password := c.String(cliflags.PasswordFlag)
-			alias := c.String(cliflags.AliasFlag)
+			envName := auth.ResolveEnvironment(c.String(cliflags.EnvFlag))
 
+			username, password, err := auth.ResolveCredentials(
+				c.String(cliflags.UsernameFlag),
+				c.String(cliflags.PasswordFlag),
+			)
+			if err != nil {
+				return err
+			}
+
+			alias := c.String(cliflags.AliasFlag)
 			if alias == "" {
 				return fmt.Errorf("alias is required")
 			}
 
-			oauth2Config := clientcredentials.Config{
-				ClientID:     username1,
-				ClientSecret: password,
-				TokenURL:     tokenendpoint,
-				Scopes:       []string{scopes.ShortlyUrlCreate.String(), scopes.ShortlyUrlDelete.String()},
-			}
-			httpClient := oauth2Config.Client(ctx)
-
-			// Parse the host URL to extract scheme and host separately
-			parsedURL, err := url.Parse(host)
+			httpClient, err := auth.GetHTTPClient(ctx, envName, username, password, []string{scopes.ShortlyUrlCreate.String(), scopes.ShortlyUrlDelete.String()})
 			if err != nil {
-				return fmt.Errorf("error parsing host URL: %v", err)
+				return fmt.Errorf("failed to get authenticated client: %w", err)
+			}
+
+			host, scheme, err := auth.GetAPIClientConfig(envName)
+			if err != nil {
+				return err
 			}
 
 			configuration := client.NewConfiguration()
-			configuration.Host = parsedURL.Host
-			configuration.Scheme = parsedURL.Scheme
+			configuration.Host = host
+			configuration.Scheme = scheme
 			configuration.HTTPClient = httpClient
 
 			clnt := client.NewAPIClient(configuration)

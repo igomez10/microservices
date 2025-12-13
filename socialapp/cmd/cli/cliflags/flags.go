@@ -43,3 +43,11 @@ const ClientIDFlag = "clientid"
 const ClientSecretFlag = "clientsecret"
 const RedirectURIsFlag = "redirecturis"
 const NameFlag = "name"
+
+// Environment flag
+const EnvFlag = "env"
+
+// Environment variable names for CLI configuration
+const EnvVarUsername = "SOCIALAPP_CLI_USERNAME"
+const EnvVarPassword = "SOCIALAPP_CLI_PASSWORD"
+const EnvVarEnvironment = "SOCIALAPP_CLI_ENV"

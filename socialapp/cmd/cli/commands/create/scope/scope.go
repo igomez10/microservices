@@ -6,13 +6,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/igomez10/microservices/socialapp/cmd/cli/cliflags"
+	"github.com/igomez10/microservices/socialapp/cmd/cli/pkg/auth"
 	"github.com/igomez10/microservices/socialapp/pkg/scopes"
 	"github.com/urfave/cli/v3"
-	"golang.org/x/oauth2/clientcredentials"
 )
 
 func GetCmd() *cli.Command {
@@ -21,29 +20,21 @@ func GetCmd() *cli.Command {
 		Usage: "Create a new scope",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:     cliflags.HostFlag,
-				Usage:    "Host of the socialapp API",
-				Value:    "http://localhost:8086",
-				Required: false,
-			},
-			&cli.StringFlag{
-				Name:     cliflags.TokenEndpointFlag,
-				Usage:    "Token endpoint of the socialapp API",
-				Value:    "http://localhost:8086/v1/oauth/token",
+				Name:     cliflags.EnvFlag,
+				Usage:    "Environment to use (live, local)",
+				Value:    auth.DefaultEnv,
 				Required: false,
 			},
 			&cli.StringFlag{
 				Name:     cliflags.UsernameFlag,
 				Aliases:  []string{"u"},
-				Usage:    "Username of the socialapp API",
-				Value:    "admin",
+				Usage:    "Username for authentication (or set SOCIALAPP_CLI_USERNAME)",
 				Required: false,
 			},
 			&cli.StringFlag{
 				Name:     cliflags.PasswordFlag,
 				Aliases:  []string{"p"},
-				Usage:    "Password of the socialapp API",
-				Value:    "admin",
+				Usage:    "Password for authentication (or set SOCIALAPP_CLI_PASSWORD)",
 				Required: false,
 			},
 			&cli.StringFlag{
@@ -58,29 +49,32 @@ func GetCmd() *cli.Command {
 			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			host := cmd.String(cliflags.HostFlag)
-			tokenEndpoint := cmd.String(cliflags.TokenEndpointFlag)
-			username := cmd.String(cliflags.UsernameFlag)
-			password := cmd.String(cliflags.PasswordFlag)
+			envName := auth.ResolveEnvironment(cmd.String(cliflags.EnvFlag))
+
+			username, password, err := auth.ResolveCredentials(
+				cmd.String(cliflags.UsernameFlag),
+				cmd.String(cliflags.PasswordFlag),
+			)
+			if err != nil {
+				return err
+			}
+
 			name := cmd.String("name")
 			description := cmd.String(cliflags.DescriptionFlag)
 
-			oauthConfig := clientcredentials.Config{
-				ClientID:     username,
-				ClientSecret: password,
-				TokenURL:     tokenEndpoint,
-				Scopes:       []string{scopes.SocialappScopesCreate.String()},
+			httpClient, err := auth.GetHTTPClient(ctx, envName, username, password, []string{scopes.SocialappScopesCreate.String()})
+			if err != nil {
+				return fmt.Errorf("failed to get authenticated client: %w", err)
 			}
 
-			httpClient := oauthConfig.Client(ctx)
+			host, scheme, err := auth.GetAPIClientConfig(envName)
+			if err != nil {
+				return err
+			}
 
 			cfg := client.NewConfiguration()
-			parsedURL, err := url.Parse(host)
-			if err != nil {
-				return fmt.Errorf("error parsing host URL: %v", err)
-			}
-			cfg.Host = parsedURL.Host
-			cfg.Scheme = parsedURL.Scheme
+			cfg.Host = host
+			cfg.Scheme = scheme
 			cfg.HTTPClient = httpClient
 
 			apiClient := client.NewAPIClient(cfg)

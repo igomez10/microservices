@@ -5,14 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/igomez10/microservices/socialapp/cmd/cli/cliflags"
+	"github.com/igomez10/microservices/socialapp/cmd/cli/pkg/auth"
 	"github.com/urfave/cli/v3"
 )
-
-const defaultHost = "http://localhost:8086"
 
 func GetCmd() *cli.Command {
 	return &cli.Command{
@@ -20,23 +18,23 @@ func GetCmd() *cli.Command {
 		Usage: "create user",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
+				Name:  cliflags.EnvFlag,
+				Usage: "Environment to use (live, local)",
+				Value: auth.DefaultEnv,
+			},
+			&cli.StringFlag{
 				Name:    cliflags.UsernameFlag,
+				Usage:   "Username for the new user",
 				Aliases: []string{"u"},
 			},
 			&cli.StringFlag{
 				Name:    cliflags.PasswordFlag,
+				Usage:   "Password for the new user",
 				Aliases: []string{"p"},
 			},
 			&cli.StringFlag{
-				Name:  cliflags.HostFlag,
-				Value: defaultHost,
-			},
-			&cli.StringFlag{
-				Name:  cliflags.TokenEndpointFlag,
-				Value: fmt.Sprintf("%s/v1/oauth/token", defaultHost),
-			},
-			&cli.StringFlag{
 				Name:    cliflags.EmailFlag,
+				Usage:   "Email for the new user",
 				Aliases: []string{"e"},
 			},
 			&cli.StringFlag{
@@ -49,18 +47,15 @@ func GetCmd() *cli.Command {
 			},
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {
-			// tokenendpoint := c.String(cliflags.TokenEndpointFlag)
-			host := c.String(cliflags.HostFlag)
-			if host != defaultHost && c.String(cliflags.TokenEndpointFlag) == fmt.Sprintf("%s/v1/oauth/token", defaultHost) {
-				// tokenendpoint = fmt.Sprintf("%s/v1/oauth/token", host)
-			}
-			username1 := c.String(cliflags.UsernameFlag)
+			envName := auth.ResolveEnvironment(c.String(cliflags.EnvFlag))
+
+			username := c.String(cliflags.UsernameFlag)
 			password := c.String(cliflags.PasswordFlag)
 			email := c.String(cliflags.EmailFlag)
 			firstname := c.String(cliflags.FirstNameFlag)
 			lastname := c.String(cliflags.LastNameFlag)
 
-			if username1 == "" {
+			if username == "" {
 				return fmt.Errorf("username is required")
 			}
 			if password == "" {
@@ -70,21 +65,20 @@ func GetCmd() *cli.Command {
 				return fmt.Errorf("email is required")
 			}
 
-			// Parse the host URL to extract scheme and host separately
-			parsedURL, err := url.Parse(host)
+			host, scheme, err := auth.GetAPIClientConfig(envName)
 			if err != nil {
-				return fmt.Errorf("error parsing host URL: %v", err)
+				return err
 			}
 
 			configuration := client.NewConfiguration()
-			configuration.Host = parsedURL.Host
-			configuration.Scheme = parsedURL.Scheme
+			configuration.Host = host
+			configuration.Scheme = scheme
 			configuration.HTTPClient = http.DefaultClient
 
 			clnt := client.NewAPIClient(configuration)
 
 			req := client.CreateUserRequest{
-				Username: username1,
+				Username: username,
 				Password: password,
 				Email:    email,
 				FirstName: func() string {

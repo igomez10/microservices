@@ -5,15 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
 
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/igomez10/microservices/socialapp/cmd/cli/cliflags"
+	"github.com/igomez10/microservices/socialapp/cmd/cli/pkg/auth"
 	"github.com/urfave/cli/v3"
-	"golang.org/x/oauth2/clientcredentials"
 )
-
-const defaultHost = "http://localhost:8086"
 
 func GetCmd() *cli.Command {
 	return &cli.Command{
@@ -22,19 +19,18 @@ func GetCmd() *cli.Command {
 		ArgsUsage: "<username>",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  cliflags.HostFlag,
-				Value: defaultHost,
-			},
-			&cli.StringFlag{
-				Name:  cliflags.TokenEndpointFlag,
-				Value: fmt.Sprintf("%s/v1/oauth/token", defaultHost),
+				Name:  cliflags.EnvFlag,
+				Usage: "Environment to use (live, local)",
+				Value: auth.DefaultEnv,
 			},
 			&cli.StringFlag{
 				Name:    cliflags.UsernameFlag,
+				Usage:   "Username for authentication (or set SOCIALAPP_CLI_USERNAME)",
 				Aliases: []string{"u"},
 			},
 			&cli.StringFlag{
 				Name:    cliflags.PasswordFlag,
+				Usage:   "Password for authentication (or set SOCIALAPP_CLI_PASSWORD)",
 				Aliases: []string{"p"},
 			},
 			&cli.IntFlag{
@@ -49,13 +45,16 @@ func GetCmd() *cli.Command {
 			},
 		},
 		Action: func(ctx context.Context, c *cli.Command) error {
-			tokenendpoint := c.String(cliflags.TokenEndpointFlag)
-			host := c.String(cliflags.HostFlag)
-			if host != defaultHost && c.String(cliflags.TokenEndpointFlag) == fmt.Sprintf("%s/v1/oauth/token", defaultHost) {
-				tokenendpoint = fmt.Sprintf("%s/v1/oauth/token", host)
+			envName := auth.ResolveEnvironment(c.String(cliflags.EnvFlag))
+
+			username, password, err := auth.ResolveCredentials(
+				c.String(cliflags.UsernameFlag),
+				c.String(cliflags.PasswordFlag),
+			)
+			if err != nil {
+				return err
 			}
-			username := c.String(cliflags.UsernameFlag)
-			password := c.String(cliflags.PasswordFlag)
+
 			pagesize := c.Int(cliflags.PageSizeFlag)
 			offset := c.Int(cliflags.OffsetFlag)
 
@@ -64,23 +63,19 @@ func GetCmd() *cli.Command {
 			}
 			targetUsername := c.Args().Get(0)
 
-			oauth2Config := clientcredentials.Config{
-				ClientID:     username,
-				ClientSecret: password,
-				TokenURL:     tokenendpoint,
-				Scopes:       []string{"socialapp.comments.read"},
-			}
-			httpClient := oauth2Config.Client(ctx)
-
-			// Parse the host URL to extract scheme and host separately
-			parsedURL, err := url.Parse(host)
+			httpClient, err := auth.GetHTTPClient(ctx, envName, username, password, []string{"socialapp.comments.read"})
 			if err != nil {
-				return fmt.Errorf("error parsing host URL: %v", err)
+				return fmt.Errorf("failed to get authenticated client: %w", err)
+			}
+
+			host, scheme, err := auth.GetAPIClientConfig(envName)
+			if err != nil {
+				return err
 			}
 
 			configuration := client.NewConfiguration()
-			configuration.Host = parsedURL.Host
-			configuration.Scheme = parsedURL.Scheme
+			configuration.Host = host
+			configuration.Scheme = scheme
 			configuration.HTTPClient = httpClient
 
 			clnt := client.NewAPIClient(configuration)
