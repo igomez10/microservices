@@ -122,7 +122,7 @@ func getHTTPClient() *http.Client {
 
 	retryClient.HTTPClient.Transport = otelhttp.NewTransport(customTransport)
 	retryClient.RetryMax = 3
-	retryClient.HTTPClient.Timeout = 1 * time.Second
+	retryClient.HTTPClient.Timeout = 15 * time.Second
 	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
 
 		if resp == nil || resp.Request == nil {
