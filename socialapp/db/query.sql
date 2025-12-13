@@ -25,6 +25,14 @@ INSERT INTO users (
 )
 RETURNING *;
 
+-- name: CreateUserWithID :one
+INSERT INTO users (
+    id, username, hashed_password, salt, first_name, last_name, email, email_token, email_verified_at
+) VALUES (
+	$1, $2, $3, $4, $5, $6, $7, $8, $9
+)
+RETURNING *;
+
 -- name: UpdateUser :exec
 UPDATE users 
 SET username=$1, hashed_password=$2, hashed_password_expires_at=$3, salt=$4, first_name=$5, last_name=$6, email=$7, email_token=$8, email_verified_at=$9, updated_at=$10
@@ -219,6 +227,14 @@ INSERT INTO users_to_roles (
 	user_id, role_id
 ) VALUES (
 	$1, $2
+)
+RETURNING *;
+
+-- name: CreateUserToRoleWithID :one
+INSERT INTO users_to_roles (
+	id, user_id, role_id
+) VALUES (
+	$1, $2, $3
 )
 RETURNING *;
 

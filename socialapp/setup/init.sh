@@ -50,4 +50,5 @@ curl -X PUT "elasticsearch:9200/_cluster/settings" -H 'Content-Type: application
 
 
 psql -U postgres -h database -d postgres -c "CREATE DATABASE socialapp;"
+psql -U postgres -h database -d postgres -c "CREATE DATABASE unleash;"
 psql -U postgres -h database -d socialapp -f /schema.sql
