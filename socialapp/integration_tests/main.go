@@ -139,7 +139,7 @@ func getHTTPClient() *http.Client {
 	return http.DefaultClient
 }
 
-func getOuath2Context(initialContext context.Context, config clientcredentials.Config) (context.Context, error) {
+func getOAuth2Context(initialContext context.Context, config clientcredentials.Config) (context.Context, error) {
 	tokenSource := config.TokenSource(initialContext)
 	initialContext = context.WithValue(initialContext, client.ContextOAuth2, tokenSource)
 
@@ -283,7 +283,7 @@ func ListUsersLifecycle(ctx context.Context) error {
 		Scopes:       []string{scopes.SocialappUsersList.String()},
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
-	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	oauth2Ctx, err := getOAuth2Context(proxyCtx, conf)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
@@ -340,7 +340,7 @@ func CreateUserLifecycle(ctx context.Context) error {
 			Scopes:       []string{scopes.SocialappUsersRead.String()},
 			TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 		}
-		oauth2Ctx, err := getOuath2Context(noAuthCtx, conf)
+		oauth2Ctx, err := getOAuth2Context(noAuthCtx, conf)
 		if err != nil {
 			return fmt.Errorf("Error getting oauth2 context: %v", err)
 		}
@@ -377,7 +377,7 @@ func CreateUserLifecycle(ctx context.Context) error {
 			Scopes:       []string{scopes.SocialappUsersUpdate.String()},
 			TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 		}
-		oauth2Ctx, err := getOuath2Context(noAuthCtx, conf)
+		oauth2Ctx, err := getOAuth2Context(noAuthCtx, conf)
 		if err != nil {
 			return fmt.Errorf("Error getting oauth2 context: %v", err)
 		}
@@ -475,7 +475,7 @@ func FollowLifeCycle(ctx context.Context) error {
 		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 
-	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	oauth2Ctx, err := getOAuth2Context(proxyCtx, conf)
 
 	// user 1 follows user 2
 	if err := func() error {
@@ -596,7 +596,7 @@ func GetExpectedFeed(ctx context.Context) error {
 		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 
-	oauth2Ctx1, err := getOuath2Context(proxyCtx, conf1)
+	oauth2Ctx1, err := getOAuth2Context(proxyCtx, conf1)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
@@ -626,7 +626,7 @@ func GetExpectedFeed(ctx context.Context) error {
 		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 
-	oauth2Ctx2, err := getOuath2Context(proxyCtx, conf2)
+	oauth2Ctx2, err := getOAuth2Context(proxyCtx, conf2)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
@@ -721,7 +721,7 @@ func GetAccessToken(ctx context.Context) error {
 		Scopes:       scopes,
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
-	oauth2Ctx, err := getOuath2Context(proxyCtx, credConf)
+	oauth2Ctx, err := getOAuth2Context(proxyCtx, credConf)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
@@ -777,7 +777,7 @@ func RegisterUserFlow(ctx context.Context) error {
 		Scopes:       scopes,
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
-	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	oauth2Ctx, err := getOAuth2Context(proxyCtx, conf)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
@@ -852,7 +852,7 @@ func ChangePassword(ctx context.Context) error {
 		Scopes:       scopes,
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
-	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	oauth2Ctx, err := getOAuth2Context(proxyCtx, conf)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
@@ -894,7 +894,7 @@ func ChangePassword(ctx context.Context) error {
 			Scopes:       scopes,
 			TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 		}
-		newPwdOauth2Ctx, err := getOuath2Context(proxyCtx, newPwdConf)
+		newPwdOauth2Ctx, err := getOAuth2Context(proxyCtx, newPwdConf)
 		if err != nil {
 			return fmt.Errorf("Error getting oauth2 context: %v", err)
 		}
@@ -960,7 +960,7 @@ func RoleLifecycle(ctx context.Context) error {
 		Scopes:       scopes,
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
-	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	oauth2Ctx, err := getOAuth2Context(proxyCtx, conf)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
@@ -1181,7 +1181,7 @@ func ScopeLifecycle(ctx context.Context) error {
 		Scopes:       scopes,
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
-	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	oauth2Ctx, err := getOAuth2Context(proxyCtx, conf)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
@@ -1321,7 +1321,7 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 		Scopes:       scopes,
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
-	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	oauth2Ctx, err := getOAuth2Context(proxyCtx, conf)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
@@ -1432,7 +1432,7 @@ func CacheRequestSameUser(ctx context.Context) error {
 		},
 		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
 	}
-	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	oauth2Ctx, err := getOAuth2Context(proxyCtx, conf)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
@@ -1522,7 +1522,7 @@ func URLLifeCycle(ctx context.Context) error {
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 
-	oauth2Ctx, err := getOuath2Context(proxyCtx, conf)
+	oauth2Ctx, err := getOAuth2Context(proxyCtx, conf)
 	if err != nil {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
