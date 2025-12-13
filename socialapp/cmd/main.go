@@ -1,9 +1,7 @@
 package main
 
 import (
-	//  With pprof to enable profiling
 	"context"
-	"encoding/base64"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,34 +14,15 @@ import (
 	"time"
 
 	"github.com/exaring/otelpgx"
-	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/igomez10/microservices/socialapp/internal/authorizationparser"
-	"github.com/igomez10/microservices/socialapp/internal/eventRecorder"
-	"github.com/igomez10/microservices/socialapp/internal/middlewares/authorization"
-	"github.com/igomez10/microservices/socialapp/internal/middlewares/beacon"
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/cache"
-	"github.com/igomez10/microservices/socialapp/internal/middlewares/gandalf"
-	"github.com/igomez10/microservices/socialapp/internal/middlewares/requestid"
-	"github.com/igomez10/microservices/socialapp/internal/routers/proxyrouter"
-	"github.com/igomez10/microservices/socialapp/internal/routers/socialapprouter"
-	"github.com/igomez10/microservices/socialapp/pkg/controller/authentication"
-	"github.com/igomez10/microservices/socialapp/pkg/controller/comment"
-	"github.com/igomez10/microservices/socialapp/pkg/controller/role"
-	"github.com/igomez10/microservices/socialapp/pkg/controller/scope"
-	socialappurl "github.com/igomez10/microservices/socialapp/pkg/controller/url"
-	"github.com/igomez10/microservices/socialapp/pkg/controller/user"
+	"github.com/igomez10/microservices/socialapp/internal/server"
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
-	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
-	urlClient "github.com/igomez10/microservices/urlshortener/generated/clients/go/client"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jessevdk/go-flags"
 	_ "github.com/lib/pq"
-	"github.com/rs/cors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
@@ -75,41 +54,15 @@ const (
 	DefaultTLSHandshakeTimeout = 10 * time.Second
 	DefaultResponseTimeout     = 10 * time.Second
 	DefaultExpectContinue      = 10 * time.Second
-	DefaultMiddlewareTimeout   = 20 * time.Second
-	CompressionLevel           = 5
 	DefaultNumDBPools          = 5
 )
-
-type Configuration struct {
-	instanceID            string
-	appName               string
-	appPort               int
-	proxyURL              string
-	logLevel              zerolog.Level
-	logDestinations       []io.Writer
-	loggerProvider        *sdklog.LoggerProvider
-	connections           *ForcedConnectionPool
-	queries               *dbpgx.Queries
-	cache                 *cache.Cache
-	propertiesSubdomain   *url.URL
-	defaultTimeout        time.Duration
-	urlShortenerSubdomain string
-	urlShortenerURL       *url.URL
-	socialappSubdomain    string
-	jwtSecret             string
-	puttyknifeSubDomain   string
-	puttyknifeURL         *url.URL
-	KibanaSubdomain       string
-	KibanaURL             string
-	localSubdomain        string
-}
 
 func main() {
 	// Create cancellable context for graceful shutdown
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	c, shutdown := getConfig(ctx)
+	config, shutdown := getConfig(ctx)
 	defer func() {
 		log.Info().Msg("Running shutdown functions")
 		for _, fn := range shutdown {
@@ -126,7 +79,7 @@ func main() {
 	// Run server in a goroutine
 	serverErrors := make(chan error, 1)
 	go func() {
-		serverErrors <- run(ctx, c)
+		serverErrors <- run(ctx, config)
 	}()
 
 	// Wait for shutdown signal or server error
@@ -142,273 +95,18 @@ func main() {
 
 	log.Info().Msg("Main shutdown complete")
 }
-func run(ctx context.Context, config Configuration) error {
-	// Setup logger
-	zerolog.SetGlobalLevel(config.logLevel)
-	multi := zerolog.MultiLevelWriter(
-		config.logDestinations...,
-	)
 
-	log.Logger = zerolog.New(multi).
-		With().
-		Str("app", config.appName).
-		Str("instance", config.instanceID).
-		Timestamp().
-		Caller().
-		Logger()
-
-	// EventRecorder for event sourcing
-	eventRecorder := eventRecorder.EventRecorder{
-		DB: config.queries,
-	}
-
-	// Comment service
-	CommentApiService := &comment.CommentService{
-		DB:     config.queries,
-		DBConn: config.connections.GetPool(),
-	}
-	CommentApiController := openapi.NewCommentAPIController(CommentApiService)
-
-	// User service
-	UserApiService := &user.UserApiService{
-		DB:            config.queries,
-		DBConn:        config.connections.GetPool(),
-		EventRecorder: eventRecorder,
-	}
-	UserApiController := openapi.NewUserAPIController(UserApiService)
-
-	// Auth service
-	AuthApiService := &authentication.AuthenticationService{
-		JWTSecret: config.jwtSecret,
-	}
-	AuthApiController := openapi.NewAuthenticationAPIController(AuthApiService)
-
-	// Role service
-	RoleAPIService := &role.RoleApiService{
-		DB:     config.queries,
-		DBConn: config.connections.GetPool(),
-	}
-	RoleAPIController := openapi.NewRoleAPIController(RoleAPIService)
-
-	// Scope service
-	ScopeAPIService := &scope.ScopeApiService{
-		DB:     config.queries,
-		DBConn: config.connections.GetPool(),
-	}
-	ScopeAPIController := openapi.NewScopeAPIController(ScopeAPIService)
-
-	// URL service
-	uc := urlClient.NewConfiguration()
-	uc.Host = config.urlShortenerURL.Host
-	uc.Scheme = config.urlShortenerURL.Scheme
-	uc.HTTPClient = http.DefaultClient
-	uc.UserAgent = config.appName
-	urlServiceClient := urlClient.NewAPIClient(uc)
-
-	URLAPIService := &socialappurl.URLApiService{
-		Client: urlServiceClient,
-	}
-
-	URLAPIController := openapi.NewURLAPIController(URLAPIService)
-
-	routers := []openapi.Router{
-		CommentApiController,
-		UserApiController,
-		AuthApiController,
-		RoleAPIController,
-		ScopeAPIController,
-		URLAPIController,
-	}
-
-	socialappAllowlistedPaths := map[string]map[string]bool{
-		"/openapi.yaml": {
-			"GET": true,
-		},
-	}
-	socialappAuthenticationMiddleware := gandalf.Middleware{
-		DB:               config.queries,
-		DBConn:           config.connections.GetPool(),
-		AllowlistedPaths: socialappAllowlistedPaths,
-		JWTSecret:        config.jwtSecret,
-		AllowBasicAuth:   false,
-		AuthEndpoint:     "/v1/oauth/token",
-	}
-
-	beacon := beacon.Beacon{}
-
-	// open apispec file
-	openAPIPath := "openapi.yaml"
-	openapiFile, err := os.Open(openAPIPath)
+func run(ctx context.Context, config server.Config) error {
+	// Create the router using the server package
+	router, err := server.NewRouter(ctx, config)
 	if err != nil {
-		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to open openapi file")
+		return fmt.Errorf("failed to create router: %w", err)
 	}
-
-	// kibanaTargetURL, err := url.Parse(os.Getenv("KIBANA_URL"))
-	kibanaTargetURL, err := url.Parse(config.KibanaURL)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse target url")
-	}
-
-	// 1. Kibana router (proxy)
-	kibanaAuthMiddleware := gandalf.Middleware{
-		DB:               config.queries,
-		DBConn:           config.connections.GetPool(),
-		AllowlistedPaths: map[string]map[string]bool{},
-		AllowBasicAuth:   true,
-		AuthEndpoint:     "/v1/oauth/token",
-	}
-	authorizationRuler := authorization.Middleware{
-		RequiredScopes: map[string]bool{"kibana:read": true},
-	}
-	kibanaRouterMiddlewares := []func(http.Handler) http.Handler{
-		cors.AllowAll().Handler,
-		middleware.Heartbeat("/health"),
-		requestid.Middleware,
-		beacon.Middleware,
-		middleware.Recoverer,
-		middleware.Timeout(DefaultMiddlewareTimeout),
-		kibanaAuthMiddleware.Authenticate,
-		authorizationRuler.Authorize,
-		middleware.RealIP,
-	}
-	kibanaSubdomain := config.KibanaSubdomain
-	authKibanaRouter := proxyrouter.NewProxyRouter(kibanaTargetURL, kibanaRouterMiddlewares)
-
-	// 2. SocialApp router
-	// read api spec
-	content, err := io.ReadAll(io.Reader(openapiFile))
-	if err != nil {
-		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to read openapi file")
-	}
-	openapiFile.Close()
-
-	// parse api spec
-	doc, err := openapi3.NewLoader().LoadFromData(content)
-	if err != nil {
-		log.Fatal().Err(err)
-	}
-
-	authorizationParse := authorizationparser.FromOpenAPIToEndpointScopes(doc)
-
-	// compress responses with gzip to save bandwidth
-	compressor := middleware.NewCompressor(CompressionLevel, "application/json", "application/x-yaml", "gzip", "application/json; charset=UTF-8")
-
-	socialappMiddlewares := []func(http.Handler) http.Handler{
-		compressor.Handler,
-		cors.AllowAll().Handler,
-		middleware.Heartbeat("/health"),
-		requestid.Middleware,
-		beacon.Middleware,
-		middleware.Recoverer,
-		middleware.Timeout(config.defaultTimeout),
-		socialappAuthenticationMiddleware.Authenticate,
-		middleware.RealIP,
-		// config.cache.Middleware,
-	}
-
-	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse, nil)
-
-	propertiesMiddleware := []func(http.Handler) http.Handler{
-		cors.AllowAll().Handler,
-		middleware.Heartbeat("/health"),
-		requestid.Middleware,
-		beacon.Middleware,
-		middleware.Recoverer,
-		middleware.Timeout(DefaultMiddlewareTimeout),
-		middleware.RealIP,
-	}
-	propertiesProxy := proxyrouter.NewProxyRouter(kibanaTargetURL, propertiesMiddleware)
-	puttyknifeAllowlistedPaths := map[string]map[string]bool{
-		"/openapi.yaml": {
-			"GET": true,
-		},
-	}
-	PuttyKnifeAuthenticationMiddleware := gandalf.Middleware{
-		DB:               config.queries,
-		DBConn:           config.connections.GetPool(),
-		AllowlistedPaths: puttyknifeAllowlistedPaths,
-		JWTSecret:        config.jwtSecret,
-		AllowBasicAuth:   false,
-		AuthEndpoint:     "/v1/oauth/token",
-	}
-	puttyknifeAuthorizationRuler := authorization.Middleware{
-		RequiredScopes: map[string]bool{"puttyknife.properties:read": true},
-	}
-	puttyKnifeMiddlewares := []func(http.Handler) http.Handler{
-		cors.AllowAll().Handler,
-		middleware.Heartbeat("/health"),
-		requestid.Middleware,
-		beacon.Middleware,
-		PuttyKnifeAuthenticationMiddleware.Authenticate,
-		puttyknifeAuthorizationRuler.Authorize,
-		middleware.Recoverer,
-		middleware.Timeout(DefaultMiddlewareTimeout),
-		middleware.RealIP,
-	}
-	puttyknifeServerProxy := proxyrouter.NewProxyRouter(config.puttyknifeURL, puttyKnifeMiddlewares)
-
-	urlshortenerMiddleware := []func(http.Handler) http.Handler{
-		cors.AllowAll().Handler,
-		middleware.Heartbeat("/health"),
-		requestid.Middleware,
-		beacon.Middleware,
-		middleware.Recoverer,
-		middleware.Timeout(DefaultMiddlewareTimeout),
-		middleware.RealIP,
-	}
-	urlshortenerProxy := proxyrouter.NewProxyRouter(config.urlShortenerURL, urlshortenerMiddleware)
-
-	// LOCAL
-	localSubdomain := config.localSubdomain
-
-	// 3. Main router for routing to different routers based on subdomain
-	mainRouter := chi.NewRouter()
-	mainRouter.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
-		log.Info().Str("host", r.Host).
-			Str("path", r.URL.Path).
-			Msg("Request host")
-
-		switch r.Host {
-		case kibanaSubdomain:
-			// check for auth cookie
-			if cookie, err := r.Cookie("kibanaauthtoken"); err != nil {
-				usr, pwd, ok := r.BasicAuth()
-				if !ok {
-					w.Header().Set("WWW-Authenticate", `Basic realm="`+"Please enter your username and password for this site"+`"`)
-					w.WriteHeader(http.StatusUnauthorized)
-					w.Write([]byte("Unauthorized.\n"))
-					return
-				} else {
-					// add form value to body
-					r.Header.Add("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(usr+":"+pwd)))
-				}
-				log.Warn().Err(err).Msg("failed to get auth cookie")
-			} else {
-				r.Header.Add("Authorization", "Bearer "+cookie.Value)
-			}
-
-			r.Form = url.Values{}
-			r.Form.Set("scope", "kibana:read")
-			authKibanaRouter.Router.ServeHTTP(w, r)
-		case config.propertiesSubdomain.Host:
-			propertiesProxy.Router.ServeHTTP(w, r)
-		case config.socialappSubdomain, config.socialappSubdomain + ":80", config.socialappSubdomain + ":8085", config.socialappSubdomain + ":443":
-			socialappRouter.Router.ServeHTTP(w, r)
-		case config.urlShortenerSubdomain:
-			urlshortenerProxy.Router.ServeHTTP(w, r)
-		case localSubdomain:
-			socialappRouter.Router.ServeHTTP(w, r)
-		case config.puttyknifeSubDomain:
-			puttyknifeServerProxy.Router.ServeHTTP(w, r)
-		default:
-			socialappRouter.Router.ServeHTTP(w, r)
-		}
-	})
 
 	// Create HTTP server with graceful shutdown support
-	server := &http.Server{
-		Addr:    fmt.Sprintf(":%d", config.appPort),
-		Handler: mainRouter,
+	httpServer := &http.Server{
+		Addr:    fmt.Sprintf(":%d", config.AppPort),
+		Handler: router,
 	}
 
 	// Start graceful shutdown listener
@@ -420,13 +118,13 @@ func run(ctx context.Context, config Configuration) error {
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), DefaultShutdownTimeout)
 		defer cancel()
 
-		if err := server.Shutdown(shutdownCtx); err != nil {
+		if err := httpServer.Shutdown(shutdownCtx); err != nil {
 			log.Error().Err(err).Msg("Server shutdown error")
 		}
 	}()
 
-	log.Info().Msgf("Server listening on port %d", config.appPort)
-	err = server.ListenAndServe()
+	log.Info().Msgf("Server listening on port %d", config.AppPort)
+	err = httpServer.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		return fmt.Errorf("server error: %w", err)
 	}
@@ -435,8 +133,7 @@ func run(ctx context.Context, config Configuration) error {
 	return nil
 }
 
-// CreateDBPools creates a pool of connections to the database, in go's implementation of sql, the sql.DB is a connection pool
-// but we want to manually control the minimum number of connections to the database
+// CreateDBPools creates a pool of connections to the database
 func CreateDBPools(ctx context.Context, databaseURL string, numPools int, applicationName string) *ForcedConnectionPool {
 	config, err := pgxpool.ParseConfig(databaseURL)
 	if err != nil {
@@ -474,13 +171,12 @@ func CreateDBPools(ctx context.Context, databaseURL string, numPools int, applic
 	f := &ForcedConnectionPool{
 		numPools:    numPools,
 		connections: pools,
-		// currentRoundRobin is zero-initialized automatically
 	}
 
 	return f
 }
 
-// ForcedConnectionPool is a wrapper around native Go sql.DB, this allows us to force the minium number of connections
+// ForcedConnectionPool is a wrapper around native Go sql.DB, this allows us to force the minimum number of connections
 type ForcedConnectionPool struct {
 	connections       []*pgxpool.Pool
 	numPools          int
@@ -489,7 +185,7 @@ type ForcedConnectionPool struct {
 
 func (f *ForcedConnectionPool) GetPool() *pgxpool.Pool {
 	// round robin with thread-safe atomic operations
-	idx := f.currentRoundRobin.Add(1) - 1 // Add returns the new value, so subtract 1 to get current
+	idx := f.currentRoundRobin.Add(1) - 1
 	return f.connections[idx%uint32(f.numPools)]
 }
 
@@ -499,7 +195,7 @@ func (f *ForcedConnectionPool) Close() {
 	}
 }
 
-func getConfig(ctx context.Context) (Configuration, []func() error) {
+func getConfig(ctx context.Context) (server.Config, []func() error) {
 	var opts struct {
 		AppName               string        `short:"n" long:"name" description:"name of the app" default:"socialapp"`
 		AppPort               int           `short:"p" long:"port" description:"main port for application" default:"8080" env:"PORT"`
@@ -546,7 +242,7 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 		Str("kibanaSubdomain", opts.KibanaSubdomain).
 		Msg("Starting SocialApp")
 
-	// setup retryable http client
+	// Setup retryable http client
 	retryClient := retryablehttp.NewClient()
 	retryClient.Logger = nil
 	retryClient.RequestLogHook = func(_ retryablehttp.Logger, req *http.Request, attempt int) {
@@ -559,11 +255,9 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 		}
 	}
 
-	//set max connections age to 10 seconds
 	retryClient.HTTPClient.Transport = &http.Transport{
-		MaxIdleConns:        DefaultMaxIdleConns,
-		MaxIdleConnsPerHost: DefaultMaxIdleConnsPerHost,
-		// IdleConnTimeout is the maximum amount of time an idle (keep-alive) connection will remain idle before closing itself.
+		MaxIdleConns:          DefaultMaxIdleConns,
+		MaxIdleConnsPerHost:   DefaultMaxIdleConnsPerHost,
 		IdleConnTimeout:       DefaultIdleConnTimeout,
 		TLSHandshakeTimeout:   DefaultTLSHandshakeTimeout,
 		ResponseHeaderTimeout: DefaultResponseTimeout,
@@ -575,15 +269,10 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 	retryClient.Backoff = retryablehttp.LinearJitterBackoff
 
 	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
-		// Retry on network errors
 		if err != nil {
-			log.Warn().
-				Err(err).
-				Msg("http retry - network error")
+			log.Warn().Err(err).Msg("http retry - network error")
 			return true, err
 		}
-
-		// Retry on 5xx status codes
 		if resp != nil && resp.StatusCode >= 500 {
 			log.Warn().
 				Stringer("url", resp.Request.URL).
@@ -593,7 +282,6 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 				Msg("http retry - 5xx status")
 			return true, nil
 		}
-
 		return false, nil
 	}
 	http.DefaultClient = retryClient.StandardClient()
@@ -607,17 +295,16 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 		}
 	}
 
-	// parse log level
+	// Parse log level
 	parsedLogLevel, err := zerolog.ParseLevel(opts.LogLevel)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("Invalid log level, %s", opts.LogLevel)
 	}
 
-	// Setup log destinations - just stdout for now
-	// Docker's syslog driver will forward these to Loki via OTEL collector
+	// Setup log destinations
 	var logDestinations []io.Writer = []io.Writer{os.Stdout}
 
-	// parse properties subdomain
+	// Parse properties subdomain
 	var propertiesSubdomainURL *url.URL
 	if len(opts.PropertiesSubdomain) != 0 {
 		u, err := url.Parse(opts.PropertiesSubdomain)
@@ -627,13 +314,11 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 		propertiesSubdomainURL = u
 	}
 
-	// parse url service host
-	var urlService *url.URL
-	u, err := url.Parse(opts.URLShortenerURL)
+	// Parse url service host
+	urlService, err := url.Parse(opts.URLShortenerURL)
 	if err != nil {
 		log.Fatal().Err(err).Msgf("failed to parse url service host url %s", opts.URLShortenerURL)
 	}
-	urlService = u
 
 	var puttyknifeURL *url.URL
 	if len(opts.PuttyknifeURL) != 0 {
@@ -645,7 +330,8 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 	}
 
 	queries := dbpgx.New()
-	// setup tracing
+
+	// Setup tracing
 	http.DefaultClient = &http.Client{
 		Transport: otelhttp.NewTransport(http.DefaultTransport),
 	}
@@ -660,9 +346,9 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 
 	res, err := resource.New(ctx,
 		resource.WithProcessRuntimeDescription(),
-		resource.WithFromEnv(),      // Reads OTEL_RESOURCE_ATTRIBUTES and OTEL_SERVICE_NAME
-		resource.WithTelemetrySDK(), // SDK info
-		resource.WithContainer(),    // Container info, including container.id
+		resource.WithFromEnv(),
+		resource.WithTelemetrySDK(),
+		resource.WithContainer(),
 		resource.WithContainerID(),
 		resource.WithAttributes(attribute.KeyValue{
 			Key:   attribute.Key("instance_id"),
@@ -673,13 +359,11 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 		log.Fatal().Err(err).Msg("failed to create resource")
 	}
 
-	// Create a new tracer provider with a batch span processor and the otlp exporter.
 	tp := trace.NewTracerProvider(
 		trace.WithBatcher(exporter),
 		trace.WithResource(res),
 	)
 
-	// The OTLP exporter sends data to the OpenTelemetry collector.
 	exp, err := otlpmetricgrpc.New(ctx,
 		otlpmetricgrpc.WithInsecure(),
 		otlpmetricgrpc.WithEndpointURL(opts.AgentURL),
@@ -693,25 +377,21 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 		metric.WithReader(metric.NewPeriodicReader(exp)),
 	)
 
-	// Register the tracer provider as the global provider.
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	otel.SetTracerProvider(tp)
 	otel.SetMeterProvider(meterProvider)
 
-	// Add tracer provider shutdown
 	shutdown = append(shutdown, func() error {
 		log.Info().Msg("Shutting down tracer provider")
 		return tp.Shutdown(ctx)
 	})
 
-	// Add meter provider shutdown
 	shutdown = append(shutdown, func() error {
 		log.Info().Msg("Shutting down meter provider")
 		return meterProvider.Shutdown(ctx)
 	})
 
 	// Setup OTLP logs exporter
-	// Parse the agent URL to extract host:port for HTTP endpoint
 	agentURL, err := url.Parse(opts.AgentURL)
 	if err != nil {
 		log.Fatal().Err(err).Str("agentURL", opts.AgentURL).Msg("failed to parse agent URL for log exporter")
@@ -724,23 +404,19 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 		log.Fatal().Err(err).Msg("failed to create otlp log exporter")
 	}
 
-	// Create log provider
 	loggerProvider := sdklog.NewLoggerProvider(
 		sdklog.WithResource(res),
 		sdklog.WithProcessor(sdklog.NewBatchProcessor(logExporter)),
 	)
 
-	// Set as global and add shutdown function
 	shutdown = append(shutdown, func() error {
 		log.Info().Msg("Shutting down log provider")
 		return loggerProvider.Shutdown(ctx)
 	})
 
 	// Connect to database
-	// force creation of multiple connection pools
 	connections := CreateDBPools(ctx, opts.DatabaseURL, DefaultNumDBPools, fmt.Sprintf("%s-%s", opts.AppName, instanceID))
 
-	// Add database connection cleanup to shutdown functions
 	shutdown = append(shutdown, func() error {
 		log.Info().Msg("Shutting down database connections")
 		connections.Close()
@@ -755,29 +431,40 @@ func getConfig(ctx context.Context) (Configuration, []func() error) {
 	redisOpts.PoolSize = DefaultRedisPoolSize
 	redisOpts.MinIdleConns = DefaultRedisMinIdleConns
 
-	cache := cache.NewCache(cache.CacheConfig{
+	cacheMiddleware := cache.NewCache(cache.CacheConfig{
 		RedisOpts: redisOpts,
 	})
-	c := Configuration{
-		appPort:               opts.AppPort,
-		logLevel:              parsedLogLevel,
-		logDestinations:       logDestinations,
-		loggerProvider:        loggerProvider,
-		appName:               opts.AppName,
-		connections:           connections,
-		queries:               queries,
-		cache:                 cache,
-		propertiesSubdomain:   propertiesSubdomainURL,
-		defaultTimeout:        opts.DefaultTimeout,
-		urlShortenerSubdomain: opts.UrlShortenerSubdomain,
-		puttyknifeSubDomain:   opts.PuttyknifeDomain,
-		puttyknifeURL:         puttyknifeURL,
-		socialappSubdomain:    opts.SocialappSubdomain,
-		instanceID:            instanceID,
-		jwtSecret:             opts.JwtSecret,
-		urlShortenerURL:       urlService,
+
+	// Read OpenAPI spec file
+	openAPIPath := "openapi.yaml"
+	openAPIContent, err := os.ReadFile(openAPIPath)
+	if err != nil {
+		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to read openapi file")
+	}
+
+	config := server.Config{
+		InstanceID:            instanceID,
+		AppName:               opts.AppName,
+		AppPort:               opts.AppPort,
+		LogLevel:              parsedLogLevel,
+		LogDestinations:       logDestinations,
+		LoggerProvider:        loggerProvider,
+		DBPool:                connections.GetPool(),
+		Queries:               queries,
+		Cache:                 cacheMiddleware,
+		PropertiesSubdomain:   propertiesSubdomainURL,
+		DefaultTimeout:        opts.DefaultTimeout,
+		URLShortenerSubdomain: opts.UrlShortenerSubdomain,
+		URLShortenerURL:       urlService,
+		SocialappSubdomain:    opts.SocialappSubdomain,
+		JWTSecret:             opts.JwtSecret,
+		PuttyknifeSubDomain:   opts.PuttyknifeDomain,
+		PuttyknifeURL:         puttyknifeURL,
 		KibanaSubdomain:       opts.KibanaSubdomain,
 		KibanaURL:             opts.KibanaURL,
+		LocalSubdomain:        opts.LocalSubdomain,
+		OpenAPIContent:        openAPIContent,
 	}
-	return c, shutdown
+
+	return config, shutdown
 }
