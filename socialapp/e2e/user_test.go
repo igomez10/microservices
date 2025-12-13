@@ -536,3 +536,86 @@ func TestCreateUser_MultipleUsers(t *testing.T) {
 	// All users should have unique IDs
 	assert.Len(t, createdIDs, len(users), "Expected %d unique IDs", len(users))
 }
+
+// TestCreateUser_SnowflakeIDReturned verifies that created users have valid snowflake IDs
+func TestCreateUser_SnowflakeIDReturned(t *testing.T) {
+	env := setupTestEnv(t)
+	defer teardownTestEnv(t, env)
+
+	createUserReq := openapi.CreateUserRequest{
+		Username:  "snowflakeuser",
+		Password:  "TestPassword123!",
+		FirstName: "Snowflake",
+		LastName:  "User",
+		Email:     "snowflake@example.com",
+	}
+
+	body, err := json.Marshal(createUserReq)
+	require.NoError(t, err)
+
+	resp, err := http.Post(
+		env.BaseURL+"/v1/users",
+		"application/json",
+		bytes.NewReader(body),
+	)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode, "Failed: %s", string(respBody))
+
+	var createUserResp openapi.CreateUserResponse
+	err = json.Unmarshal(respBody, &createUserResp)
+	require.NoError(t, err)
+
+	// Verify the ID is a valid positive int64 (snowflake IDs are positive)
+	assert.True(t, createUserResp.Id > 0, "Snowflake ID should be positive, got %d", createUserResp.Id)
+
+	// Snowflake IDs are typically large numbers (> 1 million due to timestamp component)
+	// The epoch is 2020-01-01, so any ID generated after that will be substantial
+	assert.True(t, createUserResp.Id > 1000000, "Snowflake ID should be a large number, got %d", createUserResp.Id)
+}
+
+// TestCreateUser_IDsMonotonicallyIncreasing verifies that IDs are monotonically increasing
+func TestCreateUser_IDsMonotonicallyIncreasing(t *testing.T) {
+	env := setupTestEnv(t)
+	defer teardownTestEnv(t, env)
+
+	var previousID int64 = 0
+
+	for i := 0; i < 5; i++ {
+		createUserReq := openapi.CreateUserRequest{
+			Username:  fmt.Sprintf("monotonicuser%d", i),
+			Password:  "TestPassword123!",
+			FirstName: "Monotonic",
+			LastName:  fmt.Sprintf("User%d", i),
+			Email:     fmt.Sprintf("monotonic%d@example.com", i),
+		}
+
+		body, err := json.Marshal(createUserReq)
+		require.NoError(t, err)
+
+		resp, err := http.Post(
+			env.BaseURL+"/v1/users",
+			"application/json",
+			bytes.NewReader(body),
+		)
+		require.NoError(t, err)
+
+		respBody, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		require.NoError(t, err)
+
+		require.Equal(t, http.StatusOK, resp.StatusCode, "Failed: %s", string(respBody))
+
+		var createUserResp openapi.CreateUserResponse
+		err = json.Unmarshal(respBody, &createUserResp)
+		require.NoError(t, err)
+
+		// Verify IDs are monotonically increasing
+		assert.True(t, createUserResp.Id > previousID,
+			"ID should be greater than previous: got %d, previous was %d", createUserResp.Id, previousID)
+		previousID = createUserResp.Id
+	}
+}

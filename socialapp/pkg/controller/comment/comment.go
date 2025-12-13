@@ -10,6 +10,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	"github.com/igomez10/microservices/socialapp/pkg/snowflake"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
@@ -17,8 +18,9 @@ import (
 
 // s *CommentService openapi.CommentApiServicer
 type CommentService struct {
-	DB     dbpgx.Querier
-	DBConn dbpgx.DBTX
+	DB                 dbpgx.Querier
+	DBConn             dbpgx.DBTX
+	SnowflakeGenerator snowflake.IDGenerator
 }
 
 func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comment) (openapi.ImplResponse, error) {
@@ -47,12 +49,23 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 		}
 	}
 
-	params := db.CreateCommentForUserParams{
+	// Generate snowflake ID for the comment
+	commentID, err := s.SnowflakeGenerator.NextID()
+	if err != nil {
+		log.Error().Err(err).Msg("Error generating snowflake ID for comment")
+		return openapi.Response(http.StatusInternalServerError, openapi.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}), nil
+	}
+
+	params := db.CreateCommentForUserWithIDParams{
+		ID:       commentID,
 		Username: comment.Username,
 		Content:  comment.Content,
 	}
 
-	createdComment, err := s.DB.CreateCommentForUser(ctx, s.DBConn, params)
+	createdComment, err := s.DB.CreateCommentForUserWithID(ctx, s.DBConn, params)
 	if err != nil {
 		log.Error().Err(err).Msg("Error creating comment")
 		return openapi.Response(http.StatusNotFound, openapi.Error{

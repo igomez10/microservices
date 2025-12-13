@@ -82,7 +82,7 @@ func GetCmd() *cli.Command {
 
 			apiClient := client.NewAPIClient(cfg)
 
-			scope, httpResponse, err := apiClient.ScopeAPI.GetScope(ctx, int32(scopeID)).Execute()
+			scope, httpResponse, err := apiClient.ScopeAPI.GetScope(ctx, scopeID).Execute()
 			if err != nil {
 				if httpResponse != nil && httpResponse.Body != nil {
 					bodyBytes, _ := io.ReadAll(httpResponse.Body)

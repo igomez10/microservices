@@ -99,7 +99,7 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | id of the scope
+	id := int64(123) // int64 | id of the scope
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -117,7 +117,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | id of the scope | 
+**id** | **int64** | id of the scope | 
 
 ### Other Parameters
 
@@ -167,7 +167,7 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | The id of the scope
+	id := int64(123) // int64 | The id of the scope
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -187,7 +187,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | The id of the scope | 
+**id** | **int64** | The id of the scope | 
 
 ### Other Parameters
 
@@ -305,7 +305,7 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | id of the scope
+	id := int64(123) // int64 | id of the scope
 	scope := *openapiclient.NewScope("Name_example", "Description_example") // Scope | Update a scope (optional)
 
 	configuration := openapiclient.NewConfiguration()
@@ -326,7 +326,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | id of the scope | 
+**id** | **int64** | id of the scope | 
 
 ### Other Parameters
 

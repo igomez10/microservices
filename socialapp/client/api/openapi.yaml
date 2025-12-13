@@ -921,6 +921,7 @@ paths:
         name: id
         required: true
         schema:
+          format: int64
           type: integer
         style: simple
       responses:
@@ -955,6 +956,7 @@ paths:
         name: id
         required: true
         schema:
+          format: int64
           type: integer
         style: simple
       responses:
@@ -993,6 +995,7 @@ paths:
         name: id
         required: true
         schema:
+          format: int64
           type: integer
         style: simple
       requestBody:
@@ -1038,6 +1041,7 @@ paths:
         name: id
         required: true
         schema:
+          format: int64
           type: integer
         style: simple
       - description: The numbers of scopes to return
@@ -1099,6 +1103,7 @@ paths:
         name: id
         required: true
         schema:
+          format: int64
           type: integer
         style: simple
       requestBody:
@@ -1158,6 +1163,7 @@ paths:
         name: role_id
         required: true
         schema:
+          format: int64
           type: integer
         style: simple
       - description: The id of the scope
@@ -1167,6 +1173,7 @@ paths:
         name: scope_id
         required: true
         schema:
+          format: int64
           type: integer
         style: simple
       responses:
@@ -1302,6 +1309,7 @@ paths:
         name: id
         required: true
         schema:
+          format: int64
           type: integer
         style: simple
       responses:
@@ -1336,6 +1344,7 @@ paths:
         name: id
         required: true
         schema:
+          format: int64
           type: integer
         style: simple
       responses:
@@ -1374,6 +1383,7 @@ paths:
         name: id
         required: true
         schema:
+          format: int64
           type: integer
         style: simple
       requestBody:

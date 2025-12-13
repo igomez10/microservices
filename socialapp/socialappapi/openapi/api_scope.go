@@ -201,9 +201,9 @@ func (c *ScopeAPIController) CreateScope(w http.ResponseWriter, r *http.Request)
 
 // GetScope - Returns a scope
 func (c *ScopeAPIController) GetScope(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseNumericParameter[int32](
+	idParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "id"),
-		WithRequire[int32](parseInt32),
+		WithRequire[int64](parseInt64),
 	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
@@ -221,9 +221,9 @@ func (c *ScopeAPIController) GetScope(w http.ResponseWriter, r *http.Request) {
 
 // UpdateScope - Update a scope
 func (c *ScopeAPIController) UpdateScope(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseNumericParameter[int32](
+	idParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "id"),
-		WithRequire[int32](parseInt32),
+		WithRequire[int64](parseInt64),
 	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
@@ -256,9 +256,9 @@ func (c *ScopeAPIController) UpdateScope(w http.ResponseWriter, r *http.Request)
 
 // DeleteScope - Delete a scope
 func (c *ScopeAPIController) DeleteScope(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseNumericParameter[int32](
+	idParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "id"),
-		WithRequire[int32](parseInt32),
+		WithRequire[int64](parseInt64),
 	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)

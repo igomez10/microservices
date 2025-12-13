@@ -80,6 +80,15 @@ func getHost(u *url.URL) string {
 	return u.Host
 }
 
+// createServiceGenerator creates a snowflake generator with a unique node ID
+// derived from hostname and service name combination
+func createServiceGenerator(hostname, serviceName string) (*snowflake.Generator, error) {
+	h := fnv.New32a()
+	h.Write([]byte(hostname + "-" + serviceName))
+	nodeID := int64(h.Sum32() % 1024)
+	return snowflake.NewGenerator(nodeID)
+}
+
 // NewRouter creates and configures the main chi router
 func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 	// Setup logger
@@ -94,38 +103,58 @@ func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 		Caller().
 		Logger()
 
-	// EventRecorder for event sourcing
-	eventRec := eventRecorder.EventRecorder{
-		DB: config.Queries,
-	}
-
-	// Comment service
-	commentApiService := &comment.CommentService{
-		DB:     config.Queries,
-		DBConn: config.DBPool,
-	}
-	commentApiController := openapi.NewCommentAPIController(commentApiService)
-
-	// Snowflake ID generator - node ID derived from hostname hash
+	// Get hostname for snowflake node ID generation
 	hostname, err := os.Hostname()
 	if err != nil {
 		return nil, err
 	}
-	h := fnv.New32a()
-	h.Write([]byte(hostname))
-	nodeID := int64(h.Sum32() % 1024)
 
-	snowflakeGen, err := snowflake.NewGenerator(nodeID)
+	// Create separate snowflake generators for each service
+	userSnowflakeGen, err := createServiceGenerator(hostname, "user")
 	if err != nil {
 		return nil, err
 	}
+	commentSnowflakeGen, err := createServiceGenerator(hostname, "comment")
+	if err != nil {
+		return nil, err
+	}
+	roleSnowflakeGen, err := createServiceGenerator(hostname, "role")
+	if err != nil {
+		return nil, err
+	}
+	scopeSnowflakeGen, err := createServiceGenerator(hostname, "scope")
+	if err != nil {
+		return nil, err
+	}
+	eventSnowflakeGen, err := createServiceGenerator(hostname, "event")
+	if err != nil {
+		return nil, err
+	}
+
+	log.Info().
+		Str("hostname", hostname).
+		Msg("Initialized snowflake generators for all services")
+
+	// EventRecorder for event sourcing
+	eventRec := eventRecorder.EventRecorder{
+		DB:                 config.Queries,
+		SnowflakeGenerator: eventSnowflakeGen,
+	}
+
+	// Comment service
+	commentApiService := &comment.CommentService{
+		DB:                 config.Queries,
+		DBConn:             config.DBPool,
+		SnowflakeGenerator: commentSnowflakeGen,
+	}
+	commentApiController := openapi.NewCommentAPIController(commentApiService)
 
 	// User service
 	userApiService := &user.UserApiService{
 		DB:                 config.Queries,
 		DBConn:             config.DBPool,
 		EventRecorder:      eventRec,
-		SnowflakeGenerator: snowflakeGen,
+		SnowflakeGenerator: userSnowflakeGen,
 	}
 	userApiController := openapi.NewUserAPIController(userApiService)
 
@@ -137,15 +166,17 @@ func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 
 	// Role service
 	roleAPIService := &role.RoleApiService{
-		DB:     config.Queries,
-		DBConn: config.DBPool,
+		DB:                 config.Queries,
+		DBConn:             config.DBPool,
+		SnowflakeGenerator: roleSnowflakeGen,
 	}
 	roleAPIController := openapi.NewRoleAPIController(roleAPIService)
 
 	// Scope service
 	scopeAPIService := &scope.ScopeApiService{
-		DB:     config.Queries,
-		DBConn: config.DBPool,
+		DB:                 config.Queries,
+		DBConn:             config.DBPool,
+		SnowflakeGenerator: scopeSnowflakeGen,
 	}
 	scopeAPIController := openapi.NewScopeAPIController(scopeAPIService)
 

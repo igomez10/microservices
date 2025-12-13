@@ -293,6 +293,11 @@ INSERT INTO roles (name, description)
 VALUES ($1, $2)
 RETURNING *;
 
+-- name: CreateRoleWithID :one
+INSERT INTO roles (id, name, description) 
+VALUES ($1, $2, $3)
+RETURNING *;
+
 -- name: UpdateRole :exec
 UPDATE roles 
 SET name = $1, description = $2

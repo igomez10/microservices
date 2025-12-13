@@ -237,9 +237,9 @@ func (c *RoleAPIController) CreateRole(w http.ResponseWriter, r *http.Request) {
 
 // GetRole - Returns a role
 func (c *RoleAPIController) GetRole(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseNumericParameter[int32](
+	idParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "id"),
-		WithRequire[int32](parseInt32),
+		WithRequire[int64](parseInt64),
 	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
@@ -257,9 +257,9 @@ func (c *RoleAPIController) GetRole(w http.ResponseWriter, r *http.Request) {
 
 // UpdateRole - Update a role
 func (c *RoleAPIController) UpdateRole(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseNumericParameter[int32](
+	idParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "id"),
-		WithRequire[int32](parseInt32),
+		WithRequire[int64](parseInt64),
 	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
@@ -292,9 +292,9 @@ func (c *RoleAPIController) UpdateRole(w http.ResponseWriter, r *http.Request) {
 
 // DeleteRole - Delete a role
 func (c *RoleAPIController) DeleteRole(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseNumericParameter[int32](
+	idParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "id"),
-		WithRequire[int32](parseInt32),
+		WithRequire[int64](parseInt64),
 	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
@@ -317,9 +317,9 @@ func (c *RoleAPIController) ListScopesForRole(w http.ResponseWriter, r *http.Req
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	idParam, err := parseNumericParameter[int32](
+	idParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "id"),
-		WithRequire[int32](parseInt32),
+		WithRequire[int64](parseInt64),
 	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
@@ -369,9 +369,9 @@ func (c *RoleAPIController) ListScopesForRole(w http.ResponseWriter, r *http.Req
 
 // AddScopeToRole - Add a scope to a role
 func (c *RoleAPIController) AddScopeToRole(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseNumericParameter[int32](
+	idParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "id"),
-		WithRequire[int32](parseInt32),
+		WithRequire[int64](parseInt64),
 	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
@@ -396,17 +396,17 @@ func (c *RoleAPIController) AddScopeToRole(w http.ResponseWriter, r *http.Reques
 
 // RemoveScopeFromRole - Remove a scope from a role
 func (c *RoleAPIController) RemoveScopeFromRole(w http.ResponseWriter, r *http.Request) {
-	roleIdParam, err := parseNumericParameter[int32](
+	roleIdParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "role_id"),
-		WithRequire[int32](parseInt32),
+		WithRequire[int64](parseInt64),
 	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Param: "role_id", Err: err}, nil)
 		return
 	}
-	scopeIdParam, err := parseNumericParameter[int32](
+	scopeIdParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "scope_id"),
-		WithRequire[int32](parseInt32),
+		WithRequire[int64](parseInt64),
 	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Param: "scope_id", Err: err}, nil)

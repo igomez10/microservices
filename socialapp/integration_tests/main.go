@@ -976,7 +976,7 @@ func RoleLifecycle(ctx context.Context) error {
 	}
 
 	// get role
-	gettedRole, res, err := apiClient.RoleAPI.GetRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+	gettedRole, res, err := apiClient.RoleAPI.GetRole(oauth2Ctx, *createdRole.Id).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `RoleAPI.GetRole`: %v", err)
 	}
@@ -1000,13 +1000,13 @@ func RoleLifecycle(ctx context.Context) error {
 		}
 		// attach scope to role
 		scopesToAdd := []string{newScope.Name}
-		res, err = apiClient.RoleAPI.AddScopeToRole(oauth2Ctx, int32(*createdRole.Id)).RequestBody(scopesToAdd).Execute()
+		res, err = apiClient.RoleAPI.AddScopeToRole(oauth2Ctx, *createdRole.Id).RequestBody(scopesToAdd).Execute()
 		if err != nil {
 			return fmt.Errorf("Error when calling `RoleAPI.AddScopeToRole`: %v", err)
 		}
 		// verify scope is attached to role
 		// get role scopes
-		roleScopes, res, err := apiClient.RoleAPI.ListScopesForRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		roleScopes, res, err := apiClient.RoleAPI.ListScopesForRole(oauth2Ctx, *createdRole.Id).Execute()
 		if err != nil {
 			return fmt.Errorf("Error when calling `RoleAPI.ListScopesForRole`: %v", err)
 		}
@@ -1020,7 +1020,7 @@ func RoleLifecycle(ctx context.Context) error {
 			return fmt.Errorf("Expected scope name %s, got %s", newScope.Name, roleScopes[0].Name)
 		}
 		// remove scope from role
-		res, err = apiClient.RoleAPI.RemoveScopeFromRole(oauth2Ctx, int32(*createdRole.Id), int32(*createdScope.Id)).Execute()
+		res, err = apiClient.RoleAPI.RemoveScopeFromRole(oauth2Ctx, *createdRole.Id, *createdScope.Id).Execute()
 		if err != nil {
 			return fmt.Errorf("Error when calling `RoleAPI.RemoveScopeFromRole`: %v", err)
 		}
@@ -1029,7 +1029,7 @@ func RoleLifecycle(ctx context.Context) error {
 		}
 		// verify scope is removed from role
 		// get role scopes
-		roleScopes, res, err = apiClient.RoleAPI.ListScopesForRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		roleScopes, res, err = apiClient.RoleAPI.ListScopesForRole(oauth2Ctx, *createdRole.Id).Execute()
 		if err != nil {
 			return fmt.Errorf("Error when calling `RoleAPI.ListScopesForRole`: %v", err)
 		}
@@ -1040,7 +1040,7 @@ func RoleLifecycle(ctx context.Context) error {
 			return fmt.Errorf("Expected 0 scopes, got %d", len(roleScopes))
 		}
 		// detach scope from role
-		res, err = apiClient.RoleAPI.RemoveScopeFromRole(oauth2Ctx, int32(*createdRole.Id), int32(*createdScope.Id)).Execute()
+		res, err = apiClient.RoleAPI.RemoveScopeFromRole(oauth2Ctx, *createdRole.Id, *createdScope.Id).Execute()
 		if err != nil {
 			return fmt.Errorf("Error when calling `RoleAPI.RemoveScopeFromRole`: %v", err)
 		}
@@ -1049,7 +1049,7 @@ func RoleLifecycle(ctx context.Context) error {
 		}
 		// verify scope is detached from role
 		// get role scopes
-		roleScopes, res, err = apiClient.RoleAPI.ListScopesForRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		roleScopes, res, err = apiClient.RoleAPI.ListScopesForRole(oauth2Ctx, *createdRole.Id).Execute()
 		if err != nil {
 			return fmt.Errorf("Error when calling `RoleAPI.ListScopesForRole`: %v", err)
 		}
@@ -1061,7 +1061,7 @@ func RoleLifecycle(ctx context.Context) error {
 		}
 
 		// delete scope
-		res, err = apiClient.ScopeAPI.DeleteScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+		res, err = apiClient.ScopeAPI.DeleteScope(oauth2Ctx, *createdScope.Id).Execute()
 		if err != nil {
 			return fmt.Errorf("Error when calling `ScopeAPI.DeleteScope`: %v", err)
 		}
@@ -1079,7 +1079,7 @@ func RoleLifecycle(ctx context.Context) error {
 	newRole.Name = updatedName
 
 	// update role
-	updatedRole, res, err := apiClient.RoleAPI.UpdateRole(oauth2Ctx, int32(*createdRole.Id)).Role(*newRole).Execute()
+	updatedRole, res, err := apiClient.RoleAPI.UpdateRole(oauth2Ctx, *createdRole.Id).Role(*newRole).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `RoleAPI.UpdateRole`: %v", err)
 	}
@@ -1097,7 +1097,7 @@ func RoleLifecycle(ctx context.Context) error {
 	}
 
 	// get role again to check if updated
-	gettedRole, res, err = apiClient.RoleAPI.GetRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+	gettedRole, res, err = apiClient.RoleAPI.GetRole(oauth2Ctx, *createdRole.Id).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `RoleAPI.GetRole`: %v", err)
 	}
@@ -1116,7 +1116,7 @@ func RoleLifecycle(ctx context.Context) error {
 
 	// delete role
 	if err := func() error {
-		res, err := apiClient.RoleAPI.DeleteRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		res, err := apiClient.RoleAPI.DeleteRole(oauth2Ctx, *createdRole.Id).Execute()
 		if err != nil {
 			return fmt.Errorf("Error when calling `RoleAPI.DeleteRole`: %v", err)
 		}
@@ -1129,7 +1129,7 @@ func RoleLifecycle(ctx context.Context) error {
 	}
 
 	// try to get deleted role
-	gettedDeletedRole, res, err := apiClient.RoleAPI.GetRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+	gettedDeletedRole, res, err := apiClient.RoleAPI.GetRole(oauth2Ctx, *createdRole.Id).Execute()
 	if err == nil {
 		return fmt.Errorf("Expected error when calling `RoleAPI.GetRole`, got nil")
 	}
@@ -1198,7 +1198,7 @@ func ScopeLifecycle(ctx context.Context) error {
 	}
 
 	// get scope
-	gettedScope, res, err := apiClient.ScopeAPI.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+	gettedScope, res, err := apiClient.ScopeAPI.GetScope(oauth2Ctx, *createdScope.Id).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `ScopeAPI.GetScope`: %v", err)
 	}
@@ -1215,7 +1215,7 @@ func ScopeLifecycle(ctx context.Context) error {
 	newScope.Name = updatedName
 
 	// update scope
-	updatedScope, res, err := apiClient.ScopeAPI.UpdateScope(oauth2Ctx, int32(*createdScope.Id)).Scope(*newScope).Execute()
+	updatedScope, res, err := apiClient.ScopeAPI.UpdateScope(oauth2Ctx, *createdScope.Id).Scope(*newScope).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `ScopeAPI.UpdateScope`: %v", err)
 	}
@@ -1233,7 +1233,7 @@ func ScopeLifecycle(ctx context.Context) error {
 	}
 
 	// get scope again to check if updated
-	gettedScope, res, err = apiClient.ScopeAPI.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+	gettedScope, res, err = apiClient.ScopeAPI.GetScope(oauth2Ctx, *createdScope.Id).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `ScopeAPI.GetScope`: %v", err)
 	}
@@ -1252,7 +1252,7 @@ func ScopeLifecycle(ctx context.Context) error {
 
 	// delete scope
 	if err := func() error {
-		res, err := apiClient.ScopeAPI.DeleteScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+		res, err := apiClient.ScopeAPI.DeleteScope(oauth2Ctx, *createdScope.Id).Execute()
 		if err != nil {
 			return fmt.Errorf("Error when calling `ScopeAPI.DeleteScope`: %v", err)
 		}
@@ -1265,7 +1265,7 @@ func ScopeLifecycle(ctx context.Context) error {
 	}
 
 	// try to get deleted scope
-	gettedDeletedScope, res, err := apiClient.ScopeAPI.GetScope(oauth2Ctx, int32(*createdScope.Id)).Execute()
+	gettedDeletedScope, res, err := apiClient.ScopeAPI.GetScope(oauth2Ctx, *createdScope.Id).Execute()
 	if err == nil {
 		return fmt.Errorf("Expected error when calling `ScopeAPI.GetScope`, got nil")
 	}
@@ -1338,7 +1338,7 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 	}
 	defer func() {
 		// delete scope
-		res, err := apiClient.ScopeAPI.DeleteScope(oauth2Ctx, int32(*cretedScope.Id)).Execute()
+		res, err := apiClient.ScopeAPI.DeleteScope(oauth2Ctx, *cretedScope.Id).Execute()
 		if err != nil {
 			log.Err(err).Msg("Error when calling `ScopeAPI.DeleteScope`")
 		}
@@ -1365,7 +1365,7 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 
 	defer func() {
 		// delete role
-		res, err := apiClient.RoleAPI.DeleteRole(oauth2Ctx, int32(*createdRole.Id)).Execute()
+		res, err := apiClient.RoleAPI.DeleteRole(oauth2Ctx, *createdRole.Id).Execute()
 		if err != nil {
 			log.Err(err).Msg("Error when calling `RoleAPI.DeleteRole`")
 		}

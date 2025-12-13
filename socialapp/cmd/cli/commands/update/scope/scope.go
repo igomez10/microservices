@@ -95,7 +95,7 @@ func GetCmd() *cli.Command {
 			apiClient := client.NewAPIClient(cfg)
 
 			// Get existing scope to preserve fields not being updated
-			existingScope, _, err := apiClient.ScopeAPI.GetScope(ctx, int32(scopeID)).Execute()
+			existingScope, _, err := apiClient.ScopeAPI.GetScope(ctx, scopeID).Execute()
 			if err != nil {
 				return fmt.Errorf("failed to get existing scope: %v", err)
 			}
@@ -110,7 +110,7 @@ func GetCmd() *cli.Command {
 
 			updatedScope := client.NewScope(name, description)
 
-			scope, httpResponse, err := apiClient.ScopeAPI.UpdateScope(ctx, int32(scopeID)).Scope(*updatedScope).Execute()
+			scope, httpResponse, err := apiClient.ScopeAPI.UpdateScope(ctx, scopeID).Scope(*updatedScope).Execute()
 			if err != nil {
 				if httpResponse != nil && httpResponse.Body != nil {
 					bodyBytes, _ := io.ReadAll(httpResponse.Body)

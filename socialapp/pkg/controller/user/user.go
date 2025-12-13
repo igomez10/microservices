@@ -958,7 +958,24 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 	// add new roles
 	for _, roleNameToAdd := range rolesToAdd {
 		roleID := newRoles[roleNameToAdd].ID
-		_, err := s.DB.CreateUserToRole(ctx, tx, db.CreateUserToRoleParams{
+
+		// Generate snowflake ID for the user-to-role association
+		userToRoleID, err := s.SnowflakeGenerator.NextID()
+		if err != nil {
+			log.Error().
+				Err(err).
+				Msg("Error generating snowflake ID for user to role")
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Code:    http.StatusInternalServerError,
+					Message: "Error generating ID",
+				},
+			}, nil
+		}
+
+		_, err = s.DB.CreateUserToRoleWithID(ctx, tx, db.CreateUserToRoleWithIDParams{
+			ID:     userToRoleID,
 			UserID: dbUser.ID,
 			RoleID: roleID,
 		})

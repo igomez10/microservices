@@ -23,11 +23,53 @@ import (
 	"github.com/rs/zerolog"
 )
 
+var _ db.Querier = (*mockDB)(nil)
+
 // Mock database for testing
 type mockDB struct {
 	getUserByUsernameFunc func(ctx context.Context, conn *pgxpool.Pool, username string) (db.User, error)
 	getUserRolesFunc      func(ctx context.Context, conn *pgxpool.Pool, userID int64) ([]db.Role, error)
 	listRoleScopesFunc    func(ctx context.Context, conn *pgxpool.Pool, params db.ListRoleScopesParams) ([]db.Scope, error)
+}
+
+// CreateCommentForUserWithID implements dbpgx.Querier.
+func (m *mockDB) CreateCommentForUserWithID(ctx context.Context, db db.DBTX, arg db.CreateCommentForUserWithIDParams) (db.Comment, error) {
+	panic("unimplemented")
+}
+
+// CreateCredentialWithID implements dbpgx.Querier.
+func (m *mockDB) CreateCredentialWithID(ctx context.Context, db db.DBTX, arg db.CreateCredentialWithIDParams) (db.Credential, error) {
+	panic("unimplemented")
+}
+
+// CreateEventWithID implements dbpgx.Querier.
+func (m *mockDB) CreateEventWithID(ctx context.Context, db db.DBTX, arg db.CreateEventWithIDParams) error {
+	panic("unimplemented")
+}
+
+// CreateRoleScopeWithID implements dbpgx.Querier.
+func (m *mockDB) CreateRoleScopeWithID(ctx context.Context, db db.DBTX, arg db.CreateRoleScopeWithIDParams) (db.RolesToScope, error) {
+	panic("unimplemented")
+}
+
+// CreateRoleWithID implements dbpgx.Querier.
+func (m *mockDB) CreateRoleWithID(ctx context.Context, db db.DBTX, arg db.CreateRoleWithIDParams) (db.Role, error) {
+	panic("unimplemented")
+}
+
+// CreateScopeWithID implements dbpgx.Querier.
+func (m *mockDB) CreateScopeWithID(ctx context.Context, db db.DBTX, arg db.CreateScopeWithIDParams) (db.Scope, error) {
+	panic("unimplemented")
+}
+
+// CreateUserToRoleWithID implements dbpgx.Querier.
+func (m *mockDB) CreateUserToRoleWithID(ctx context.Context, db db.DBTX, arg db.CreateUserToRoleWithIDParams) (db.UsersToRole, error) {
+	panic("unimplemented")
+}
+
+// CreateUserWithID implements dbpgx.Querier.
+func (m *mockDB) CreateUserWithID(ctx context.Context, db db.DBTX, arg db.CreateUserWithIDParams) (db.User, error) {
+	panic("unimplemented")
 }
 
 // Implement required methods matching the Querier interface

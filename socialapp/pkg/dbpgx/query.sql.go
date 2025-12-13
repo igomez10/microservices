@@ -297,6 +297,31 @@ func (q *Queries) CreateRoleScopeWithID(ctx context.Context, db DBTX, arg Create
 	return i, err
 }
 
+const CreateRoleWithID = `-- name: CreateRoleWithID :one
+INSERT INTO roles (id, name, description) 
+VALUES ($1, $2, $3)
+RETURNING id, name, description, created_at, deleted_at
+`
+
+type CreateRoleWithIDParams struct {
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) CreateRoleWithID(ctx context.Context, db DBTX, arg CreateRoleWithIDParams) (Role, error) {
+	row := db.QueryRow(ctx, CreateRoleWithID, arg.ID, arg.Name, arg.Description)
+	var i Role
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const CreateScope = `-- name: CreateScope :one
 INSERT INTO scopes (
 	  name, description

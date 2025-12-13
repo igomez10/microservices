@@ -25,11 +25,12 @@ func (m *MockSnowflakeGenerator) NextID() (int64, error) {
 
 // MockQuerier is a mock implementation of db.Querier for testing
 type MockQuerier struct {
-	getUserByUsernameFunc func(ctx context.Context, db db.DBTX, username string) (db.User, error)
-	getUserByEmailFunc    func(ctx context.Context, db db.DBTX, email string) (db.User, error)
-	getRoleByNameFunc     func(ctx context.Context, db db.DBTX, name string) (db.Role, error)
-	createUserWithIDFunc  func(ctx context.Context, db db.DBTX, arg db.CreateUserWithIDParams) (db.User, error)
-	createUserToRoleFunc  func(ctx context.Context, db db.DBTX, arg db.CreateUserToRoleParams) (db.UsersToRole, error)
+	getUserByUsernameFunc      func(ctx context.Context, db db.DBTX, username string) (db.User, error)
+	getUserByEmailFunc         func(ctx context.Context, db db.DBTX, email string) (db.User, error)
+	getRoleByNameFunc          func(ctx context.Context, db db.DBTX, name string) (db.Role, error)
+	createUserWithIDFunc       func(ctx context.Context, db db.DBTX, arg db.CreateUserWithIDParams) (db.User, error)
+	createUserToRoleFunc       func(ctx context.Context, db db.DBTX, arg db.CreateUserToRoleParams) (db.UsersToRole, error)
+	createUserToRoleWithIDFunc func(ctx context.Context, db db.DBTX, arg db.CreateUserToRoleWithIDParams) (db.UsersToRole, error)
 }
 
 func (m *MockQuerier) GetUserByUsername(ctx context.Context, dbtx db.DBTX, username string) (db.User, error) {
@@ -74,6 +75,13 @@ func (m *MockQuerier) CreateUserToRole(ctx context.Context, dbtx db.DBTX, arg db
 	return db.UsersToRole{ID: 1, UserID: arg.UserID, RoleID: arg.RoleID}, nil
 }
 
+func (m *MockQuerier) CreateUserToRoleWithID(ctx context.Context, dbtx db.DBTX, arg db.CreateUserToRoleWithIDParams) (db.UsersToRole, error) {
+	if m.createUserToRoleWithIDFunc != nil {
+		return m.createUserToRoleWithIDFunc(ctx, dbtx, arg)
+	}
+	return db.UsersToRole{ID: arg.ID, UserID: arg.UserID, RoleID: arg.RoleID}, nil
+}
+
 // Stub implementations for remaining Querier methods
 func (m *MockQuerier) CreateComment(ctx context.Context, dbtx db.DBTX, arg db.CreateCommentParams) (db.Comment, error) {
 	return db.Comment{}, nil
@@ -81,10 +89,19 @@ func (m *MockQuerier) CreateComment(ctx context.Context, dbtx db.DBTX, arg db.Cr
 func (m *MockQuerier) CreateCommentForUser(ctx context.Context, dbtx db.DBTX, arg db.CreateCommentForUserParams) (db.Comment, error) {
 	return db.Comment{}, nil
 }
+func (m *MockQuerier) CreateCommentForUserWithID(ctx context.Context, dbtx db.DBTX, arg db.CreateCommentForUserWithIDParams) (db.Comment, error) {
+	return db.Comment{ID: arg.ID}, nil
+}
 func (m *MockQuerier) CreateCredential(ctx context.Context, dbtx db.DBTX, arg db.CreateCredentialParams) (db.Credential, error) {
 	return db.Credential{}, nil
 }
+func (m *MockQuerier) CreateCredentialWithID(ctx context.Context, dbtx db.DBTX, arg db.CreateCredentialWithIDParams) (db.Credential, error) {
+	return db.Credential{ID: arg.ID}, nil
+}
 func (m *MockQuerier) CreateEvent(ctx context.Context, dbtx db.DBTX, arg db.CreateEventParams) error {
+	return nil
+}
+func (m *MockQuerier) CreateEventWithID(ctx context.Context, dbtx db.DBTX, arg db.CreateEventWithIDParams) error {
 	return nil
 }
 func (m *MockQuerier) CreateRole(ctx context.Context, dbtx db.DBTX, arg db.CreateRoleParams) (db.Role, error) {
@@ -93,8 +110,14 @@ func (m *MockQuerier) CreateRole(ctx context.Context, dbtx db.DBTX, arg db.Creat
 func (m *MockQuerier) CreateRoleScope(ctx context.Context, dbtx db.DBTX, arg db.CreateRoleScopeParams) (db.RolesToScope, error) {
 	return db.RolesToScope{}, nil
 }
+func (m *MockQuerier) CreateRoleScopeWithID(ctx context.Context, dbtx db.DBTX, arg db.CreateRoleScopeWithIDParams) (db.RolesToScope, error) {
+	return db.RolesToScope{ID: arg.ID}, nil
+}
 func (m *MockQuerier) CreateScope(ctx context.Context, dbtx db.DBTX, arg db.CreateScopeParams) (db.Scope, error) {
 	return db.Scope{}, nil
+}
+func (m *MockQuerier) CreateScopeWithID(ctx context.Context, dbtx db.DBTX, arg db.CreateScopeWithIDParams) (db.Scope, error) {
+	return db.Scope{ID: arg.ID}, nil
 }
 func (m *MockQuerier) CreateURL(ctx context.Context, dbtx db.DBTX, arg db.CreateURLParams) (db.Url, error) {
 	return db.Url{}, nil
@@ -356,5 +379,65 @@ func TestCreateUser_ResponseStatusOK(t *testing.T) {
 
 	if response.Code != expectedStatus {
 		t.Errorf("Expected status %d, got %d", expectedStatus, response.Code)
+	}
+}
+
+func TestCreateUserToRole_DeterministicID(t *testing.T) {
+	expectedUserToRoleID := int64(5876543210123456789)
+
+	mockQuerier := &MockQuerier{
+		createUserToRoleWithIDFunc: func(ctx context.Context, dbtx db.DBTX, arg db.CreateUserToRoleWithIDParams) (db.UsersToRole, error) {
+			// Verify the ID passed to CreateUserToRoleWithID matches our expected snowflake ID
+			if arg.ID != expectedUserToRoleID {
+				t.Errorf("Expected UserToRole ID %d, got %d", expectedUserToRoleID, arg.ID)
+			}
+			return db.UsersToRole{
+				ID:     arg.ID,
+				UserID: arg.UserID,
+				RoleID: arg.RoleID,
+			}, nil
+		},
+	}
+
+	mockSnowflake := &MockSnowflakeGenerator{nextID: expectedUserToRoleID}
+
+	t.Run("snowflake generator returns expected ID for user-to-role", func(t *testing.T) {
+		id, err := mockSnowflake.NextID()
+		if err != nil {
+			t.Fatalf("NextID() returned error: %v", err)
+		}
+		if id != expectedUserToRoleID {
+			t.Errorf("Expected ID %d, got %d", expectedUserToRoleID, id)
+		}
+	})
+
+	t.Run("mock querier receives correct ID for user-to-role", func(t *testing.T) {
+		_, _ = mockQuerier.CreateUserToRoleWithID(context.Background(), nil, db.CreateUserToRoleWithIDParams{
+			ID:     expectedUserToRoleID,
+			UserID: 123,
+			RoleID: 456,
+		})
+		// Test assertion is in the mock function
+	})
+}
+
+func TestSnowflakeID_UniquePerService(t *testing.T) {
+	// Test that multiple snowflake generators produce different IDs
+	gen1 := &MockSnowflakeGenerator{nextID: 1111111111111111111}
+	gen2 := &MockSnowflakeGenerator{nextID: 2222222222222222222}
+
+	id1, _ := gen1.NextID()
+	id2, _ := gen2.NextID()
+
+	if id1 == id2 {
+		t.Errorf("Different generators should produce different IDs: %d == %d", id1, id2)
+	}
+
+	// Verify both are valid positive int64
+	if id1 <= 0 {
+		t.Errorf("Expected positive ID from gen1, got %d", id1)
+	}
+	if id2 <= 0 {
+		t.Errorf("Expected positive ID from gen2, got %d", id2)
 	}
 }

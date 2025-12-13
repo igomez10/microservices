@@ -546,10 +546,8 @@ paths:
           headers:
             x-next:
               description: A link to the next page of responses
-              explode: false
               schema:
                 type: string
-              style: simple
         "401":
           content:
             application/json:
@@ -925,6 +923,7 @@ paths:
           name: id
           required: true
           schema:
+            format: int64
             type: integer
           style: simple
       responses:
@@ -963,6 +962,7 @@ paths:
           name: id
           required: true
           schema:
+            format: int64
             type: integer
           style: simple
       requestBody:
@@ -1008,6 +1008,7 @@ paths:
           required: true
           schema:
             type: integer
+            format: int64
           style: simple
       responses:
         "200":
@@ -1042,6 +1043,7 @@ paths:
           name: id
           required: true
           schema:
+            format: int64
             type: integer
           style: simple
         - description: The numbers of scopes to return
@@ -1098,12 +1100,12 @@ paths:
       parameters:
         - description: The id of the role
           example: 123
-          explode: false
           in: path
           name: id
           required: true
           schema:
             type: integer
+            format: int64
           style: simple
       requestBody:
         content:
@@ -1157,20 +1159,20 @@ paths:
       parameters:
         - description: The id of the role
           example: 123
-          explode: false
           in: path
           name: role_id
           required: true
           schema:
+            format: int64
             type: integer
           style: simple
         - description: The id of the scope
           example: 123
-          explode: false
           in: path
           name: scope_id
           required: true
           schema:
+            format: int64
             type: integer
           style: simple
       responses:
@@ -1301,12 +1303,12 @@ paths:
       parameters:
         - description: The id of the scope
           example: 123
-          explode: false
           in: path
           name: id
           required: true
           schema:
             type: integer
+            format: int64
           style: simple
       responses:
         "200":
@@ -1339,12 +1341,12 @@ paths:
       parameters:
         - description: id of the scope
           example: 123
-          explode: false
           in: path
           name: id
           required: true
           schema:
             type: integer
+            format: int64
           style: simple
       requestBody:
         content:
@@ -1383,12 +1385,12 @@ paths:
       parameters:
         - description: id of the scope
           example: 123
-          explode: false
           in: path
           name: id
           required: true
           schema:
             type: integer
+            format: int64
           style: simple
       responses:
         "204":

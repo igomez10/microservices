@@ -91,7 +91,7 @@ func GetCmd() *cli.Command {
 			apiClient := client.NewAPIClient(cfg)
 
 			// Get existing role to preserve fields not being updated
-			existingRole, _, err := apiClient.RoleAPI.GetRole(ctx, int32(roleID)).Execute()
+			existingRole, _, err := apiClient.RoleAPI.GetRole(ctx, roleID).Execute()
 			if err != nil {
 				return fmt.Errorf("failed to get existing role: %v", err)
 			}
@@ -109,7 +109,7 @@ func GetCmd() *cli.Command {
 				updatedRole.Description = &description
 			}
 
-			role, httpResponse, err := apiClient.RoleAPI.UpdateRole(ctx, int32(roleID)).Role(*updatedRole).Execute()
+			role, httpResponse, err := apiClient.RoleAPI.UpdateRole(ctx, roleID).Role(*updatedRole).Execute()
 			if err != nil {
 				if httpResponse != nil && httpResponse.Body != nil {
 					bodyBytes, _ := io.ReadAll(httpResponse.Body)

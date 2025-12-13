@@ -10,15 +10,19 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/converter"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	"github.com/igomez10/microservices/socialapp/pkg/snowflake"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
 // s *ScopeApiService openapi.ScopeApiServicer
+var _ openapi.ScopeAPIServicer = (*ScopeApiService)(nil)
+
 type ScopeApiService struct {
-	DB     db.Querier
-	DBConn db.DBTX
+	DB                 db.Querier
+	DBConn             db.DBTX
+	SnowflakeGenerator snowflake.IDGenerator
 }
 
 func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scope) (openapi.ImplResponse, error) {
@@ -30,12 +34,25 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 		Str("new_scope", fmt.Sprintf("%+v", newScope)).
 		Logger()
 
-	// check scope with name doesnt exist
-	params := db.CreateScopeParams{
+	// Generate snowflake ID for the scope
+	scopeID, err := s.SnowflakeGenerator.NextID()
+	if err != nil {
+		log.Error().Err(err).Msg("Error generating snowflake ID for scope")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Failed to generate ID",
+			},
+		}, nil
+	}
+
+	params := db.CreateScopeWithIDParams{
+		ID:          scopeID,
 		Name:        newScope.Name,
 		Description: newScope.Description,
 	}
-	createdScope, err := s.DB.CreateScope(ctx, s.DBConn, params)
+	createdScope, err := s.DB.CreateScopeWithID(ctx, s.DBConn, params)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -69,7 +86,7 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 	}, nil
 }
 
-func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (openapi.ImplResponse, error) {
+func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int64) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "DeleteScope")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
@@ -79,7 +96,7 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (opena
 		Logger()
 
 	//verify scope exists
-	scope, err := s.DB.GetScope(ctx, s.DBConn, int64(scopeID))
+	scope, err := s.DB.GetScope(ctx, s.DBConn, scopeID)
 	if err != nil {
 		log.Error().
 			Err(err).
@@ -119,7 +136,7 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int32) (opena
 
 }
 
-func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int32) (openapi.ImplResponse, error) {
+func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int64) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetScope")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
@@ -197,7 +214,7 @@ func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset in
 	}, nil
 }
 
-func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeID int32, updatedScope openapi.Scope) (openapi.ImplResponse, error) {
+func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeID int64, updatedScope openapi.Scope) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "UpdateScope")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)

@@ -83,7 +83,7 @@ func GetCmd() *cli.Command {
 
 			apiClient := client.NewAPIClient(cfg)
 
-			role, httpResponse, err := apiClient.RoleAPI.GetRole(ctx, int32(roleID)).Execute()
+			role, httpResponse, err := apiClient.RoleAPI.GetRole(ctx, roleID).Execute()
 			if err != nil {
 				if httpResponse != nil && httpResponse.Body != nil {
 					bodyBytes, _ := io.ReadAll(httpResponse.Body)

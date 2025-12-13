@@ -21,6 +21,7 @@ type Querier interface {
 	CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams) (Role, error)
 	CreateRoleScope(ctx context.Context, db DBTX, arg CreateRoleScopeParams) (RolesToScope, error)
 	CreateRoleScopeWithID(ctx context.Context, db DBTX, arg CreateRoleScopeWithIDParams) (RolesToScope, error)
+	CreateRoleWithID(ctx context.Context, db DBTX, arg CreateRoleWithIDParams) (Role, error)
 	CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (Scope, error)
 	CreateScopeWithID(ctx context.Context, db DBTX, arg CreateScopeWithIDParams) (Scope, error)
 	CreateURL(ctx context.Context, db DBTX, arg CreateURLParams) (Url, error)

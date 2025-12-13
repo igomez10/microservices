@@ -128,12 +128,12 @@ type FollowingAPIServicer interface {
 type RoleAPIServicer interface {
 	ListRoles(context.Context, int32, int32) (ImplResponse, error)
 	CreateRole(context.Context, Role) (ImplResponse, error)
-	GetRole(context.Context, int32) (ImplResponse, error)
-	UpdateRole(context.Context, int32, Role) (ImplResponse, error)
-	DeleteRole(context.Context, int32) (ImplResponse, error)
-	ListScopesForRole(context.Context, int32, int32, int32) (ImplResponse, error)
-	AddScopeToRole(context.Context, int32, []string) (ImplResponse, error)
-	RemoveScopeFromRole(context.Context, int32, int32) (ImplResponse, error)
+	GetRole(context.Context, int64) (ImplResponse, error)
+	UpdateRole(context.Context, int64, Role) (ImplResponse, error)
+	DeleteRole(context.Context, int64) (ImplResponse, error)
+	ListScopesForRole(context.Context, int64, int32, int32) (ImplResponse, error)
+	AddScopeToRole(context.Context, int64, []string) (ImplResponse, error)
+	RemoveScopeFromRole(context.Context, int64, int64) (ImplResponse, error)
 }
 
 // ScopeAPIServicer defines the api actions for the ScopeAPI service
@@ -143,9 +143,9 @@ type RoleAPIServicer interface {
 type ScopeAPIServicer interface {
 	ListScopes(context.Context, int32, int32) (ImplResponse, error)
 	CreateScope(context.Context, Scope) (ImplResponse, error)
-	GetScope(context.Context, int32) (ImplResponse, error)
-	UpdateScope(context.Context, int32, Scope) (ImplResponse, error)
-	DeleteScope(context.Context, int32) (ImplResponse, error)
+	GetScope(context.Context, int64) (ImplResponse, error)
+	UpdateScope(context.Context, int64, Scope) (ImplResponse, error)
+	DeleteScope(context.Context, int64) (ImplResponse, error)
 }
 
 // URLAPIServicer defines the api actions for the URLAPI service

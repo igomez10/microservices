@@ -91,7 +91,7 @@ func GetCmd() *cli.Command {
 
 			apiClient := client.NewAPIClient(cfg)
 
-			scopes, httpResponse, err := apiClient.RoleAPI.ListScopesForRole(ctx, int32(roleID)).Limit(limit).Offset(offset).Execute()
+			scopes, httpResponse, err := apiClient.RoleAPI.ListScopesForRole(ctx, roleID).Limit(limit).Offset(offset).Execute()
 			if err != nil {
 				if httpResponse != nil && httpResponse.Body != nil {
 					bodyBytes, _ := io.ReadAll(httpResponse.Body)

@@ -11,6 +11,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	"github.com/igomez10/microservices/socialapp/pkg/snowflake"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
@@ -18,9 +19,13 @@ import (
 )
 
 // s *RoleApiService openapi.RoleApiServicer
+
+var _ openapi.RoleAPIServicer = (*RoleApiService)(nil)
+
 type RoleApiService struct {
-	DB     dbpgx.Querier
-	DBConn dbpgx.DBTX
+	DB                 dbpgx.Querier
+	DBConn             dbpgx.DBTX
+	SnowflakeGenerator snowflake.IDGenerator
 }
 
 func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (openapi.ImplResponse, error) {
@@ -28,19 +33,31 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
-		Str("newrole", fmt.Sprintf("%+v", newRole)).
+		Str("new_role", fmt.Sprintf("%+v", newRole)).
 		Logger()
 
-	// check role with name doesnt exist
-	params := db.CreateRoleParams{
+	// check role with name doesn't exist
+	roleID, err := s.SnowflakeGenerator.NextID()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to generate snowflake ID for role")
+		return openapi.ImplResponse{
+			Code: http.StatusInternalServerError,
+			Body: openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Failed to generate ID",
+			},
+		}, nil
+	}
+	params := db.CreateRoleWithIDParams{
+		ID:          roleID,
 		Name:        newRole.Name,
 		Description: newRole.Description,
 	}
-	createdRole, err := s.DB.CreateRole(ctx, s.DBConn, params)
+	createdRole, err := s.DB.CreateRoleWithID(ctx, s.DBConn, params)
 	if err != nil {
 		log.Error().
 			Err(err).
-			Msg("failed to create role")
+			Msg("Failed to create role")
 
 		// Check if it's a duplicate key violation
 		var pgErr *pgconn.PgError
@@ -86,7 +103,7 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 	}, nil
 }
 
-func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.ImplResponse, error) {
+func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int64) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "DeleteRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
@@ -131,7 +148,7 @@ func (s *RoleApiService) DeleteRole(ctx context.Context, roleID int32) (openapi.
 
 }
 
-func (s *RoleApiService) GetRole(ctx context.Context, roleID int32) (openapi.ImplResponse, error) {
+func (s *RoleApiService) GetRole(ctx context.Context, roleID int64) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
@@ -217,7 +234,7 @@ func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int3
 	}, nil
 }
 
-func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole openapi.Role) (openapi.ImplResponse, error) {
+func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int64, newRole openapi.Role) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "UpdateRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
@@ -297,13 +314,13 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleID int32, newRole o
 	}, nil
 }
 
-func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scopes []string) (openapi.ImplResponse, error) {
+func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int64, scopes []string) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "AddScopeToRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
 	log = log.With().
 		Strs("scopes", scopes).
-		Int32("role_id", roleID).
+		Int64("role_id", roleID).
 		Logger()
 
 	// get role from db
@@ -344,7 +361,21 @@ func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scope
 
 	// add scopes to role
 	for _, sc := range dbScopes {
-		_, err = s.DB.CreateRoleScope(ctx, s.DBConn, db.CreateRoleScopeParams{
+		// Generate snowflake ID for the role-scope association
+		roleScopeID, err := s.SnowflakeGenerator.NextID()
+		if err != nil {
+			log.Error().Err(err).Msg("Error generating snowflake ID for role-scope")
+			return openapi.ImplResponse{
+				Code: http.StatusInternalServerError,
+				Body: openapi.Error{
+					Code:    http.StatusInternalServerError,
+					Message: "Failed to generate ID",
+				},
+			}, nil
+		}
+
+		_, err = s.DB.CreateRoleScopeWithID(ctx, s.DBConn, db.CreateRoleScopeWithIDParams{
+			ID:      roleScopeID,
 			RoleID:  role.ID,
 			ScopeID: sc.ID,
 		})
@@ -381,7 +412,7 @@ func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleID int32, scope
 	}, nil
 }
 
-func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleID int32, limit int32, offset int32) (openapi.ImplResponse, error) {
+func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleID int64, limit int32, offset int32) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "ListScopesForRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
@@ -441,7 +472,7 @@ func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleID int32, li
 	}, nil
 }
 
-func (s *RoleApiService) RemoveScopeFromRole(ctx context.Context, roleID int32, scopeID int32) (openapi.ImplResponse, error) {
+func (s *RoleApiService) RemoveScopeFromRole(ctx context.Context, roleID int64, scopeID int64) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "RemoveScopeFromRole")
 	defer span.End()
 	log := contexthelper.GetLoggerInContext(ctx)
