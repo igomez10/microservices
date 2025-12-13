@@ -158,11 +158,16 @@ type Pattern struct {
 
 type customHTTPResponseWriter struct {
 	http.ResponseWriter
-	statusCode int
+	statusCode    int
+	headerWritten bool
 }
 
 func (w *customHTTPResponseWriter) WriteHeader(statusCode int) {
+	if w.headerWritten {
+		return
+	}
 	w.statusCode = statusCode
+	w.headerWritten = true
 	w.ResponseWriter.WriteHeader(statusCode)
 }
 
