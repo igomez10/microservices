@@ -201,6 +201,69 @@ func createTestServer(t *testing.T, ctx context.Context, dbPool *pgxpool.Pool, r
 	return httptest.NewServer(router)
 }
 
+// TestUser represents a user created for testing purposes
+type TestUser struct {
+	Username string
+	Password string
+	Email    string
+	UserID   int64
+}
+
+// createTestUser creates a user via the API with known credentials.
+// The CreateUser API automatically assigns the "administrator" role to new users,
+// so created users have all scopes available.
+func createTestUser(t *testing.T, env *TestEnv) TestUser {
+	t.Helper()
+
+	// Generate unique user credentials
+	timestamp := time.Now().UnixNano()
+	username := fmt.Sprintf("testuser_%d", timestamp)
+	password := "TestPassword123!"
+	email := fmt.Sprintf("testuser_%d@example.com", timestamp)
+
+	// Create user via API
+	createUserReq := openapi.CreateUserRequest{
+		Username:  username,
+		Password:  password,
+		FirstName: "Test",
+		LastName:  "User",
+		Email:     email,
+	}
+
+	body, err := json.Marshal(createUserReq)
+	require.NoError(t, err)
+
+	resp, err := http.Post(
+		env.BaseURL+"/v1/users",
+		"application/json",
+		bytes.NewReader(body),
+	)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode,
+		"Failed to create test user: %s", string(respBody))
+
+	var createdUser openapi.CreateUserResponse
+	err = json.Unmarshal(respBody, &createdUser)
+	require.NoError(t, err)
+
+	return TestUser{
+		Username: username,
+		Password: password,
+		Email:    email,
+		UserID:   createdUser.Id,
+	}
+}
+
+// createAdminTestUser creates a user with the administrator role (has all scopes)
+// This is an alias for createTestUser since the API auto-assigns the admin role
+func createAdminTestUser(t *testing.T, env *TestEnv) TestUser {
+	return createTestUser(t, env)
+}
+
 // TestCreateUser_Success tests successful user creation
 func TestCreateUser_Success(t *testing.T) {
 	env := setupTestEnv(t)

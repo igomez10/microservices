@@ -119,6 +119,9 @@ build:
 test:
 	go test ./...
 
+test-e2e:
+	go test -v ./e2e/... -timeout 300s
+
 start:
 	docker compose up -d
 

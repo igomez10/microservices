@@ -70,6 +70,36 @@ func (q *Queries) CreateCommentForUser(ctx context.Context, db DBTX, arg CreateC
 	return i, err
 }
 
+const CreateCommentForUserWithID = `-- name: CreateCommentForUserWithID :one
+INSERT INTO comments (
+  id, user_id, content
+) VALUES (
+  $1, (SELECT id FROM users WHERE username = $2 AND deleted_at IS NULL), $3
+)
+RETURNING id, content, like_count, user_id, created_at, updated_at, deleted_at
+`
+
+type CreateCommentForUserWithIDParams struct {
+	ID       int64  `json:"id"`
+	Username string `json:"username"`
+	Content  string `json:"content"`
+}
+
+func (q *Queries) CreateCommentForUserWithID(ctx context.Context, db DBTX, arg CreateCommentForUserWithIDParams) (Comment, error) {
+	row := db.QueryRow(ctx, CreateCommentForUserWithID, arg.ID, arg.Username, arg.Content)
+	var i Comment
+	err := row.Scan(
+		&i.ID,
+		&i.Content,
+		&i.LikeCount,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const CreateCredential = `-- name: CreateCredential :one
 INSERT INTO credentials (
   user_id, public_key, description, name
@@ -106,6 +136,44 @@ func (q *Queries) CreateCredential(ctx context.Context, db DBTX, arg CreateCrede
 	return i, err
 }
 
+const CreateCredentialWithID = `-- name: CreateCredentialWithID :one
+INSERT INTO credentials (
+  id, user_id, public_key, description, name
+) VALUES (
+  $1, $2, $3, $4, $5
+)
+RETURNING id, user_id, public_key, description, name, created_at, deleted_at
+`
+
+type CreateCredentialWithIDParams struct {
+	ID          int64  `json:"id"`
+	UserID      int64  `json:"user_id"`
+	PublicKey   string `json:"public_key"`
+	Description string `json:"description"`
+	Name        string `json:"name"`
+}
+
+func (q *Queries) CreateCredentialWithID(ctx context.Context, db DBTX, arg CreateCredentialWithIDParams) (Credential, error) {
+	row := db.QueryRow(ctx, CreateCredentialWithID,
+		arg.ID,
+		arg.UserID,
+		arg.PublicKey,
+		arg.Description,
+		arg.Name,
+	)
+	var i Credential
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.PublicKey,
+		&i.Description,
+		&i.Name,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const CreateEvent = `-- name: CreateEvent :exec
 INSERT INTO events (
   aggregate_id, aggregate_type, version, event_type, payload)
@@ -124,6 +192,35 @@ type CreateEventParams struct {
 
 func (q *Queries) CreateEvent(ctx context.Context, db DBTX, arg CreateEventParams) error {
 	_, err := db.Exec(ctx, CreateEvent,
+		arg.AggregateID,
+		arg.AggregateType,
+		arg.Version,
+		arg.EventType,
+		arg.Payload,
+	)
+	return err
+}
+
+const CreateEventWithID = `-- name: CreateEventWithID :exec
+INSERT INTO events (
+  id, aggregate_id, aggregate_type, version, event_type, payload
+) VALUES (
+  $1, $2, $3, $4, $5, $6
+)
+`
+
+type CreateEventWithIDParams struct {
+	ID            int64  `json:"id"`
+	AggregateID   int64  `json:"aggregate_id"`
+	AggregateType string `json:"aggregate_type"`
+	Version       int64  `json:"version"`
+	EventType     string `json:"event_type"`
+	Payload       []byte `json:"payload"`
+}
+
+func (q *Queries) CreateEventWithID(ctx context.Context, db DBTX, arg CreateEventWithIDParams) error {
+	_, err := db.Exec(ctx, CreateEventWithID,
+		arg.ID,
 		arg.AggregateID,
 		arg.AggregateType,
 		arg.Version,
@@ -178,6 +275,28 @@ func (q *Queries) CreateRoleScope(ctx context.Context, db DBTX, arg CreateRoleSc
 	return i, err
 }
 
+const CreateRoleScopeWithID = `-- name: CreateRoleScopeWithID :one
+INSERT INTO roles_to_scopes (
+	id, role_id, scope_id
+) VALUES (
+	$1, $2, $3
+)
+RETURNING id, role_id, scope_id
+`
+
+type CreateRoleScopeWithIDParams struct {
+	ID      int64 `json:"id"`
+	RoleID  int64 `json:"role_id"`
+	ScopeID int64 `json:"scope_id"`
+}
+
+func (q *Queries) CreateRoleScopeWithID(ctx context.Context, db DBTX, arg CreateRoleScopeWithIDParams) (RolesToScope, error) {
+	row := db.QueryRow(ctx, CreateRoleScopeWithID, arg.ID, arg.RoleID, arg.ScopeID)
+	var i RolesToScope
+	err := row.Scan(&i.ID, &i.RoleID, &i.ScopeID)
+	return i, err
+}
+
 const CreateScope = `-- name: CreateScope :one
 INSERT INTO scopes (
 	  name, description
@@ -194,6 +313,34 @@ type CreateScopeParams struct {
 
 func (q *Queries) CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (Scope, error) {
 	row := db.QueryRow(ctx, CreateScope, arg.Name, arg.Description)
+	var i Scope
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.CreatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
+const CreateScopeWithID = `-- name: CreateScopeWithID :one
+INSERT INTO scopes (
+  id, name, description
+) VALUES (
+  $1, $2, $3
+)
+RETURNING id, name, description, created_at, deleted_at
+`
+
+type CreateScopeWithIDParams struct {
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) CreateScopeWithID(ctx context.Context, db DBTX, arg CreateScopeWithIDParams) (Scope, error) {
+	row := db.QueryRow(ctx, CreateScopeWithID, arg.ID, arg.Name, arg.Description)
 	var i Scope
 	err := row.Scan(
 		&i.ID,

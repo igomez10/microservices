@@ -94,6 +94,14 @@ INSERT INTO comments (
 )
 RETURNING *;
 
+-- name: CreateCommentForUserWithID :one
+INSERT INTO comments (
+  id, user_id, content
+) VALUES (
+  $1, (SELECT id FROM users WHERE username = $2 AND deleted_at IS NULL), $3
+)
+RETURNING *;
+
 -- name: DeleteComment :exec
 UPDATE comments
 SET deleted_at = NOW()
@@ -144,6 +152,14 @@ INSERT INTO credentials (
 )
 RETURNING *;
 
+-- name: CreateCredentialWithID :one
+INSERT INTO credentials (
+  id, user_id, public_key, description, name
+) VALUES (
+  $1, $2, $3, $4, $5
+)
+RETURNING *;
+
 -- name: DeleteCredential :exec
 DELETE FROM credentials
 WHERE id = $1;
@@ -170,6 +186,14 @@ INSERT INTO scopes (
 	  name, description
 ) VALUES (
 	$1, $2
+)
+RETURNING *;
+
+-- name: CreateScopeWithID :one
+INSERT INTO scopes (
+  id, name, description
+) VALUES (
+  $1, $2, $3
 )
 RETURNING *;
 
@@ -215,6 +239,14 @@ INSERT INTO roles_to_scopes (
 	role_id, scope_id
 ) VALUES (
 	$1, $2
+)
+RETURNING *;
+
+-- name: CreateRoleScopeWithID :one
+INSERT INTO roles_to_scopes (
+	id, role_id, scope_id
+) VALUES (
+	$1, $2, $3
 )
 RETURNING *;
 
@@ -276,6 +308,13 @@ INSERT INTO events (
   aggregate_id, aggregate_type, version, event_type, payload)
 VALUES (
 	  $1, $2, $3, $4, $5
+);
+
+-- name: CreateEventWithID :exec
+INSERT INTO events (
+  id, aggregate_id, aggregate_type, version, event_type, payload
+) VALUES (
+  $1, $2, $3, $4, $5, $6
 );
 
 -- SHORTLY

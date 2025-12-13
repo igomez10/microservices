@@ -13,11 +13,16 @@ import (
 type Querier interface {
 	CreateComment(ctx context.Context, db DBTX, arg CreateCommentParams) (Comment, error)
 	CreateCommentForUser(ctx context.Context, db DBTX, arg CreateCommentForUserParams) (Comment, error)
+	CreateCommentForUserWithID(ctx context.Context, db DBTX, arg CreateCommentForUserWithIDParams) (Comment, error)
 	CreateCredential(ctx context.Context, db DBTX, arg CreateCredentialParams) (Credential, error)
+	CreateCredentialWithID(ctx context.Context, db DBTX, arg CreateCredentialWithIDParams) (Credential, error)
 	CreateEvent(ctx context.Context, db DBTX, arg CreateEventParams) error
+	CreateEventWithID(ctx context.Context, db DBTX, arg CreateEventWithIDParams) error
 	CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams) (Role, error)
 	CreateRoleScope(ctx context.Context, db DBTX, arg CreateRoleScopeParams) (RolesToScope, error)
+	CreateRoleScopeWithID(ctx context.Context, db DBTX, arg CreateRoleScopeWithIDParams) (RolesToScope, error)
 	CreateScope(ctx context.Context, db DBTX, arg CreateScopeParams) (Scope, error)
+	CreateScopeWithID(ctx context.Context, db DBTX, arg CreateScopeWithIDParams) (Scope, error)
 	CreateURL(ctx context.Context, db DBTX, arg CreateURLParams) (Url, error)
 	CreateUser(ctx context.Context, db DBTX, arg CreateUserParams) (User, error)
 	CreateUserToRole(ctx context.Context, db DBTX, arg CreateUserToRoleParams) (UsersToRole, error)
