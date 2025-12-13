@@ -227,7 +227,6 @@ func TestDecompose(t *testing.T) {
 
 func TestMustNextID_Success(t *testing.T) {
 	g, _ := NewGenerator(1)
-	
 	// Should not panic
 	id := g.MustNextID()
 	if id == 0 {
@@ -281,4 +280,3 @@ func BenchmarkNextID_Concurrent(b *testing.B) {
 		}
 	})
 }
-
