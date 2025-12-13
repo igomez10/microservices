@@ -130,7 +130,7 @@ services:
             target_label: "service_name"
 
   database:
-    image: postgres:15-alpine
+    image: postgres:15-bookworm
     container_name: database
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
