@@ -34,7 +34,7 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 		}
 		if len(tokenScopes) == 0 && len(m.RequiredScopes) != 0 {
 			log.Error().
-				Msg("No scopes in context and required scopes are not empty")
+				Msgf("No scopes in context and required scopes are not empty token: %v, required scopes: %v", tokenScopes, m.RequiredScopes)
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(`{"code":401,"message":"No scopes in context and required scopes are not empty"}`))
 			return

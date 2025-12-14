@@ -27,10 +27,8 @@ volumes:
 
 services:
   socialapp:
-    ports:
-      - "8086:8086"
     deploy:
-      replicas: 1
+      replicas: 3
       resources:
         limits:
           cpus: "0.5"
@@ -584,12 +582,11 @@ services:
         labels: "service_name"
 
   integration-tests-1:
-    # container_name: integration-tests-1
     build:
       context: .
       dockerfile: Integration.Dockerfile
-    # ports:
-    #   - "45678:45678"
+    deploy:
+      replicas: 3
     environment:
       "ADD_TEST_JITTER": 1
       "OTEL_EXPORTER_OTLP_ENDPOINT": "http://otel-collector:4317"
