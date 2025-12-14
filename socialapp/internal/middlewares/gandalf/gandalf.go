@@ -288,7 +288,7 @@ func (m *Middleware) handleBasicAuth(w http.ResponseWriter, r *http.Request, nex
 
 // handleNoAuth processes requests without authentication
 func (m *Middleware) handleNoAuth(w http.ResponseWriter, r *http.Request, next http.Handler, start time.Time) {
-	r = contexthelper.SetRequestedScopesInContext(r, map[string]bool{"noauth": true})
+	r = contexthelper.SetRequestedScopesInContext(r, map[string]bool{})
 	authenticationDuration.WithLabelValues(authResultNoAuth).Observe(time.Since(start).Seconds())
 	next.ServeHTTP(w, r)
 }

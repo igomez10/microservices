@@ -2,7 +2,6 @@ package comment
 
 import (
 	"context"
-	"database/sql"
 	"net/http"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
@@ -17,6 +16,8 @@ import (
 )
 
 // s *CommentService openapi.CommentApiServicer
+var _ openapi.CommentAPIServicer = (*CommentService)(nil)
+
 type CommentService struct {
 	DB                 dbpgx.Querier
 	DBConn             dbpgx.DBTX
@@ -31,7 +32,7 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, comment.Username)
 	if errGetUser != nil {
 		switch errGetUser {
-		case sql.ErrNoRows:
+		case pgx.ErrNoRows:
 			return openapi.Response(http.StatusNotFound, openapi.Error{
 				Code:    http.StatusNotFound,
 				Message: "User not found",
@@ -78,19 +79,33 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 	return openapi.Response(http.StatusOK, c), nil
 }
 
-func (s *CommentService) GetComment(ctx context.Context, id int32) (openapi.ImplResponse, error) {
+func (s *CommentService) GetComment(ctx context.Context, id int64) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "CommentService.GetComment")
 	defer span.End()
-	comment, err := s.DB.GetComment(ctx, s.DBConn, int64(id))
+	comment, err := s.DB.GetComment(ctx, s.DBConn, id)
 	if err != nil {
-		log.Error().Err(err).Msg("Error getting comment")
-		return openapi.Response(http.StatusNotFound, nil), nil
+		switch err {
+		case pgx.ErrNoRows:
+			return openapi.Response(http.StatusNotFound, openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "Comment not found",
+			}), nil
+		default:
+			log.Error().Err(err).Msg("Error getting comment")
+			return openapi.Response(http.StatusInternalServerError, openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Error getting comment",
+			}), nil
+		}
 	}
 	// get username
 	user, errGetUser := s.DB.GetUserByID(ctx, s.DBConn, comment.UserID)
 	if errGetUser != nil {
-		log.Error().Err(errGetUser).Msg("Error getting usrname for comment author")
-		return openapi.Response(http.StatusNotFound, nil), nil
+		log.Error().Err(errGetUser).Msg("Error getting username for comment author")
+		return openapi.Response(http.StatusNotFound, openapi.Error{
+			Code:    http.StatusNotFound,
+			Message: "Error getting username for comment author",
+		}), nil
 	}
 
 	c := converter.FromDBCmtToAPICmt(comment, user)

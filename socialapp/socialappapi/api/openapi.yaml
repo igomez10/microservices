@@ -722,7 +722,7 @@ paths:
         name: id
         required: true
         schema:
-          format: int32
+          format: int64
           type: integer
         style: simple
       responses:

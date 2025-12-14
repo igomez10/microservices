@@ -109,7 +109,7 @@ type AuthenticationAPIServicer interface {
 // and updated with the logic required for the API.
 type CommentAPIServicer interface {
 	GetUserFeed(context.Context) (ImplResponse, error)
-	GetComment(context.Context, int32) (ImplResponse, error)
+	GetComment(context.Context, int64) (ImplResponse, error)
 	CreateComment(context.Context, Comment) (ImplResponse, error)
 }
 

@@ -32,10 +32,17 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 			w.Write([]byte(`{"code":403,"message":"No scopes in context"}`))
 			return
 		}
+		if len(tokenScopes) == 0 && len(m.RequiredScopes) != 0 {
+			log.Error().
+				Msg("No scopes in context and required scopes are not empty")
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(`{"code":401,"message":"No scopes in context and required scopes are not empty"}`))
+			return
+		}
 
 		// check if all required scopes are in token
 		for scopeName := range m.RequiredScopes {
-			if exist := tokenScopes[scopeName]; !exist && scopeName != "noauth" {
+			if exist := tokenScopes[scopeName]; !exist {
 				log.Info().
 					Str("scope", scopeName).
 					Str("tokenScopes", fmt.Sprintf("%v", tokenScopes)).

@@ -782,7 +782,7 @@ func RegisterUserFlow(ctx context.Context) error {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
 
-	// Get user by using oauath2 token
+	// Get user by using oauth2 token
 	if err := func() error {
 		_, res, err := apiClient.UserAPI.GetUserByUsername(oauth2Ctx, username1).Execute()
 		if err != nil {
@@ -796,14 +796,13 @@ func RegisterUserFlow(ctx context.Context) error {
 		return err
 	}
 
-	// TODO API Should return 401 if no auth is provided
-	// validate 403 if no auth is provided
+	// validate 401 if no auth is provided
 	if err := func() error {
 		user, res, err := apiClient.UserAPI.GetUserByUsername(proxyCtx, username1).Execute()
 		if err == nil {
 			return fmt.Errorf("Error when calling `UserAPI.GetUsers`: %v", err)
 		}
-		if res.StatusCode != http.StatusForbidden { // TOOD fix to 401
+		if res.StatusCode != http.StatusUnauthorized {
 			return fmt.Errorf("Expected status code 401, got %d", res.StatusCode)
 		}
 		if user != nil {

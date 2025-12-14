@@ -157,7 +157,7 @@ func (a *CommentAPIService) CreateCommentExecute(r CommentAPICreateCommentReques
 type CommentAPIGetCommentRequest struct {
 	ctx        context.Context
 	ApiService *CommentAPIService
-	id         int32
+	id         int64
 }
 
 func (r CommentAPIGetCommentRequest) Execute() (*Comment, *http.Response, error) {
@@ -173,7 +173,7 @@ Returns details about a particular comment
 	@param id ID of the comment
 	@return CommentAPIGetCommentRequest
 */
-func (a *CommentAPIService) GetComment(ctx context.Context, id int32) CommentAPIGetCommentRequest {
+func (a *CommentAPIService) GetComment(ctx context.Context, id int64) CommentAPIGetCommentRequest {
 	return CommentAPIGetCommentRequest{
 		ApiService: a,
 		ctx:        ctx,

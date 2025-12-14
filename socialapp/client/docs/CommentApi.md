@@ -97,7 +97,7 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | ID of the comment
+	id := int64(123) // int64 | ID of the comment
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -117,7 +117,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | ID of the comment | 
+**id** | **int64** | ID of the comment | 
 
 ### Other Parameters
 

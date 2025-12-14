@@ -31,14 +31,13 @@ func FromOpenAPIToEndpointScopes(doc *openapi3.T) EndpointAuthorizations {
 				// if the operation has no security requirements, we add an empty array of scopes
 				if _, exist := res[path]; !exist {
 					res[path] = map[string][]string{ // "/user"
-						method: {"noauth"}, // "GET": []string{}
+						method: {},
 					}
 				} else {
-					res[path][method] = []string{"noauth"}
+					res[path][method] = []string{}
 				}
 			}
 		}
 	}
-
 	return res
 }

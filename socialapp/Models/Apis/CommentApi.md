@@ -48,7 +48,7 @@ Returns details about a particular comment
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **id** | **Integer**| ID of the comment | [default to null] |
+| **id** | **Long**| ID of the comment | [default to null] |
 
 ### Return type
 

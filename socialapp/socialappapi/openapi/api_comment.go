@@ -111,9 +111,9 @@ func (c *CommentAPIController) GetUserFeed(w http.ResponseWriter, r *http.Reques
 
 // GetComment - Returns details about a particular comment
 func (c *CommentAPIController) GetComment(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseNumericParameter[int32](
+	idParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "id"),
-		WithRequire[int32](parseInt32),
+		WithRequire[int64](parseInt64),
 	)
 	if err != nil {
 		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)

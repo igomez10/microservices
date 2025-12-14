@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS scopes (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL
 );
-CREATE INDEX IF NOT EXISTS scopes_name_idx ON scopes (name);
+CREATE UNIQUE INDEX IF NOT EXISTS scopes_name_idx ON scopes (name);
 
 CREATE SEQUENCE IF NOT EXISTS roles_to_scopes_id_seq;
 CREATE TABLE IF NOT EXISTS roles_to_scopes (

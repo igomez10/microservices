@@ -172,6 +172,10 @@ func newConfigForTest(dbPool *pgxpool.Pool, redisOpts *redis.Options) server.Con
 		})
 	}
 
+	openAPIContent, err := os.ReadFile("../openapi.yaml")
+	if err != nil {
+		panic(err)
+	}
 	return server.Config{
 		InstanceID:      "test-instance",
 		AppName:         "socialapp-test",
@@ -185,6 +189,7 @@ func newConfigForTest(dbPool *pgxpool.Pool, redisOpts *redis.Options) server.Con
 		JWTSecret:       "test-jwt-secret",
 		URLShortenerURL: &url.URL{Scheme: "http", Host: "localhost:8089"},
 		KibanaURL:       "http://localhost:5601",
+		OpenAPIContent:  openAPIContent,
 	}
 }
 
