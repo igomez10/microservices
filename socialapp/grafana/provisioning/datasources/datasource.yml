@@ -71,17 +71,6 @@ datasources:
       tlsAuthWithCACert: false
   - orgId: 1
     version: 1
-    name: Mimir
-    type: prometheus
-    access: proxy
-    url: http://mimir:9009/prometheus
-    isDefault: false
-    jsonData:
-      graphiteVersion: "1.1"
-      tlsAuth: false
-      tlsAuthWithCACert: false
-  - orgId: 1
-    version: 1
     name: Tempo
     type: tempo
     access: proxy
