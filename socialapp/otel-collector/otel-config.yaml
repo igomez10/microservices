@@ -3,6 +3,8 @@ receivers:
     protocols:
       grpc:
         endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
   prometheus:
     config:
       scrape_configs:
@@ -76,12 +78,26 @@ exporters:
     endpoint: 0.0.0.0:8889
     resource_to_telemetry_conversion:
       enabled: true
-  prometheusremotewrite:
-    resource_to_telemetry_conversion:
-      enabled: true
-    endpoint: "http://mimir:9009/api/v1/push"
+    add_metric_suffixes: true # Add _total, _info suffixes
+
+  # DISABLED: JUST USE PROMETHEUS
+  # prometheusremotewrite:
+  #   resource_to_telemetry_conversion:
+  #     enabled: true
+  #   endpoint: "http://mimir:9009/api/v1/push"
+  #   tls:
+  #     insecure: true
+
+  otlphttp/logs:
+    endpoint: "http://loki:3100/otlp"
     tls:
       insecure: true
+
+  # Keep debug exporter but reduce verbosity for production
+  # debug:
+  #   verbosity: normal
+  #   sampling_initial: 5
+  #   sampling_thereafter: 200
 
 service:
   pipelines:
@@ -89,11 +105,13 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [otlp]
+
     metrics:
       receivers: [otlp, prometheus]
       processors: [batch]
-      exporters: [prometheus, prometheusremotewrite]
+      exporters: [prometheus]
+
     logs:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [otlp]
+      processors: []
+      exporters: [otlphttp/logs]
