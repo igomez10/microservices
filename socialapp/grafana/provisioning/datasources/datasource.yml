@@ -14,12 +14,6 @@ datasources:
     secureJsonData:
       accessToken: $GITHUB_ACCESSTOKEN
   - orgId: 1
-    version: 2
-    name: Phlare
-    type: phlare
-    access: proxy
-    url: http://phlare:4100
-  - orgId: 1
     version: 8
     name: PostgreSQL
     type: postgres
