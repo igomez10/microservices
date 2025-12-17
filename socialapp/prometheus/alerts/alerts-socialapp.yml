@@ -126,24 +126,24 @@ groups:
   - name: SocialAppTraffic
     rules:
       - alert: HighTrafficCritical
-        expr: sum(rate(http_server_response_duration_count[5m])) > 100
+        expr: sum(rate(http_server_response_duration_count[5m])) > 500
         for: 5m
         labels:
           severity: critical
           datacenter: socialapp
         annotations:
           summary: Critical traffic volume
-          description: "Traffic is at {{ $value }} req/s (threshold: 100 req/s). System may be under heavy load or attack."
+          description: "Traffic is at {{ $value }} req/s (threshold: 500 req/s). System may be under heavy load or attack."
 
       - alert: HighTrafficWarning
-        expr: sum(rate(http_server_response_duration_count[5m])) > 50
+        expr: sum(rate(http_server_response_duration_count[5m])) > 150
         for: 5m
         labels:
           severity: warning
           datacenter: socialapp
         annotations:
           summary: High traffic volume
-          description: "Traffic is at {{ $value }} req/s (threshold: 50 req/s). Monitor system resources."
+          description: "Traffic is at {{ $value }} req/s (threshold: 150 req/s). Monitor system resources."
 
       - alert: NoTraffic
         expr: sum(rate(http_server_response_duration_count[5m])) == 0
@@ -198,4 +198,3 @@ groups:
         annotations:
           summary: No cache operations detected
           description: "No cache operations in the last 5 minutes. Cache may be disabled or not functioning."
-
