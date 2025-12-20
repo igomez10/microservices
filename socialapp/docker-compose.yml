@@ -115,17 +115,12 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
         loki-max-backoff: "1000ms"
-        loki-timeout: "1s"
-        labels: "service_name,instance_id"
-        loki-relabel-config: |
-          - action: labelmap
-            regex: compose_(service|project)
-          - action: replace
-            source_labels: ["compose_service"]
-            target_label: "service_name"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
+        labels: "service_name"
 
   database:
     image: postgres:15-bookworm
@@ -161,17 +156,12 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
         loki-max-backoff: "1000ms"
-        loki-timeout: "1s"
-        labels: "service_name,instance_id"
-        loki-relabel-config: |
-          - action: labelmap
-            regex: compose_(service|project)
-          - action: replace
-            source_labels: ["compose_service"]
-            target_label: "service_name"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
+        labels: "service_name"
     deploy:
       resources:
         limits:
@@ -214,8 +204,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
     deploy:
       resources:
@@ -271,8 +264,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   prometheus:
@@ -318,8 +314,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   alertmanager:
@@ -358,8 +357,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   node-exporter:
@@ -396,8 +398,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   inspector:
@@ -410,8 +415,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
     networks:
       - dns
@@ -454,8 +462,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   broker1:
@@ -486,8 +497,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   broker2:
@@ -517,8 +531,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   broker3:
@@ -548,8 +565,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   kafka-ui:
@@ -577,8 +597,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   integration-tests-1:
@@ -603,17 +626,12 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
         loki-max-backoff: "1000ms"
-        loki-timeout: "1s"
-        labels: "service_name,instance_id"
-        loki-relabel-config: |
-          - action: labelmap
-            regex: compose_(service|project)
-          - action: replace
-            source_labels: ["compose_service"]
-            target_label: "service_name"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
+        labels: "service_name"
 
   elasticsearch-exporter:
     container_name: elasticsearch-exporter
@@ -672,8 +690,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
         # debezium-ui:
@@ -737,8 +758,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   tempo:
@@ -757,8 +781,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   otel-collector:
@@ -788,8 +815,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   pyroscope:
@@ -809,8 +839,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   # mimir:
@@ -831,8 +864,8 @@ services:
   #     driver: loki
   #     options:
   #       loki-url: "http://localhost:3100/loki/api/v1/push"
-  #       loki-batch-size: "4000"
-  #       loki-retries: "2"
+  #       loki-batch-size: "5000"
+  #       loki-retries: "3"
   #       labels: "service_name"
 
   loki:
@@ -871,8 +904,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   redis:
@@ -902,8 +938,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   traefik:
@@ -931,17 +970,12 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
         loki-max-backoff: "1000ms"
-        loki-timeout: "1s"
-        labels: "service_name,instance_id"
-        loki-relabel-config: |
-          - action: labelmap
-            regex: compose_(service|project)
-          - action: replace
-            source_labels: ["compose_service"]
-            target_label: "service_name"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
+        labels: "service_name"
 
   whoamiinternal:
     container_name: whoamiinternal
@@ -968,8 +1002,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
 
   whoami:
@@ -997,6 +1034,9 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "4000"
-        loki-retries: "2"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
         labels: "service_name"
