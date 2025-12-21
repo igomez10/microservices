@@ -121,6 +121,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   database:
     image: postgres:15-bookworm
@@ -162,6 +164,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:
@@ -210,6 +214,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:
@@ -270,6 +276,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   prometheus:
     container_name: prometheus
@@ -320,6 +328,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   alertmanager:
     container_name: alertmanager
@@ -363,6 +373,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   node-exporter:
     container_name: node-exporter
@@ -404,6 +416,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   inspector:
     container_name: inspector
@@ -421,6 +435,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
     networks:
       - dns
       - default
@@ -468,6 +484,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   broker1:
     container_name: broker1
@@ -503,6 +521,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   broker2:
     container_name: broker2
@@ -537,6 +557,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   broker3:
     container_name: broker3
@@ -571,6 +593,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   kafka-ui:
     container_name: kafka-ui
@@ -603,6 +627,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   integration-tests-1:
     build:
@@ -632,6 +658,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   elasticsearch-exporter:
     container_name: elasticsearch-exporter
@@ -696,6 +724,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
         # debezium-ui:
         #   image: debezium/debezium-ui:latest
@@ -764,6 +794,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   tempo:
     container_name: tempo
@@ -787,6 +819,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   otel-collector:
     container_name: otel-collector
@@ -821,6 +855,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   pyroscope:
     container_name: pyroscope
@@ -845,28 +881,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
-
-  # mimir:
-  #   container_name: mimir
-  #   image: grafana/mimir:2.13.0
-  #   command:
-  #     - "-ingester.native-histograms-ingestion-enabled=true"
-  #     - "-config.file=/etc/mimir.yaml"
-  #   ports:
-  #     - "9009:9009"
-  #   cpus: 2
-  #   mem_limit: 4096m
-  #   volumes:
-  #     - "./mimir/mimir.yaml:/etc/mimir.yaml"
-  #     - mimir-1-data:/data
-  #   restart: unless-stopped
-  #   logging:
-  #     driver: loki
-  #     options:
-  #       loki-url: "http://localhost:3100/loki/api/v1/push"
-  #       loki-batch-size: "5000"
-  #       loki-retries: "3"
-  #       labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   loki:
     container_name: loki
@@ -910,6 +926,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   redis:
     container_name: redis
@@ -944,6 +962,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   traefik:
     container_name: traefik
@@ -976,6 +996,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   whoamiinternal:
     container_name: whoamiinternal
@@ -1008,6 +1030,8 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
 
   whoami:
     container_name: whoami
@@ -1040,3 +1064,5 @@ services:
         loki-timeout: "1000ms"
         loki-batch-wait: "5s"
         labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
