@@ -72,7 +72,7 @@ func GetCmd() *cli.Command {
 
 			clnt := client.NewAPIClient(configuration)
 
-			comment, res, err := clnt.CommentAPI.GetComment(ctx, int32(commentID)).Execute()
+			comment, res, err := clnt.CommentAPI.GetComment(ctx, commentID).Execute()
 			if err != nil {
 				fmt.Printf("Full HTTP response: %v\n", res)
 				return fmt.Errorf("error when calling `CommentAPI.GetComment`: %v", err)
