@@ -52,3 +52,7 @@ curl -X PUT "elasticsearch:9200/_cluster/settings" -H 'Content-Type: application
 psql -U postgres -h database -d postgres -c "CREATE DATABASE socialapp;"
 psql -U postgres -h database -d postgres -c "CREATE DATABASE unleash;"
 psql -U postgres -h database -d socialapp -f /schema.sql
+
+# curl -X POST http://ollama:11434/api/pull \
+#   -H "Content-Type: application/json" \
+#   -d '{"name": "gemma3:270m"}'
