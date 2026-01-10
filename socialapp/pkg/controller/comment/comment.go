@@ -12,7 +12,6 @@ import (
 	"github.com/igomez10/microservices/socialapp/pkg/snowflake"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgx/v5"
-	"github.com/rs/zerolog/log"
 )
 
 // s *CommentService openapi.CommentApiServicer
@@ -27,7 +26,7 @@ type CommentService struct {
 func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comment) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateComment")
 	defer span.End()
-	log := contexthelper.GetLoggerInContext(ctx)
+	logger := contexthelper.GetLoggerInContext(ctx)
 	// validate user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, comment.Username)
 	if errGetUser != nil {
@@ -39,9 +38,7 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 			}), nil
 
 		default:
-			log.Error().
-				Err(errGetUser).
-				Msg("Error getting user")
+			logger.Error("Error getting user", "error", errGetUser)
 
 			return openapi.Response(http.StatusInternalServerError, openapi.Error{
 				Code:    http.StatusInternalServerError,
@@ -53,7 +50,7 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 	// Generate snowflake ID for the comment
 	commentID, err := s.SnowflakeGenerator.NextID()
 	if err != nil {
-		log.Error().Err(err).Msg("Error generating snowflake ID for comment")
+		logger.Error("Error generating snowflake ID for comment", "error", err)
 		return openapi.Response(http.StatusInternalServerError, openapi.Error{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -68,7 +65,7 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 
 	createdComment, err := s.DB.CreateCommentForUserWithID(ctx, s.DBConn, params)
 	if err != nil {
-		log.Error().Err(err).Msg("Error creating comment")
+		logger.Error("Error creating comment", "error", err)
 		return openapi.Response(http.StatusNotFound, openapi.Error{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
@@ -91,7 +88,8 @@ func (s *CommentService) GetComment(ctx context.Context, id int64) (openapi.Impl
 				Message: "Comment not found",
 			}), nil
 		default:
-			log.Error().Err(err).Msg("Error getting comment")
+			logger := contexthelper.GetLoggerInContext(ctx)
+			logger.Error("Error getting comment", "error", err)
 			return openapi.Response(http.StatusInternalServerError, openapi.Error{
 				Code:    http.StatusInternalServerError,
 				Message: "Error getting comment",
@@ -101,7 +99,8 @@ func (s *CommentService) GetComment(ctx context.Context, id int64) (openapi.Impl
 	// get username
 	user, errGetUser := s.DB.GetUserByID(ctx, s.DBConn, comment.UserID)
 	if errGetUser != nil {
-		log.Error().Err(errGetUser).Msg("Error getting username for comment author")
+		logger := contexthelper.GetLoggerInContext(ctx)
+		logger.Error("Error getting username for comment author", "error", errGetUser)
 		return openapi.Response(http.StatusNotFound, openapi.Error{
 			Code:    http.StatusNotFound,
 			Message: "Error getting username for comment author",
@@ -115,13 +114,12 @@ func (s *CommentService) GetComment(ctx context.Context, id int64) (openapi.Impl
 func (s *CommentService) GetUserFeed(ctx context.Context) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "CommentService.GetUserFeed")
 	defer span.End()
-	log := contexthelper.GetLoggerInContext(ctx)
+	logger := contexthelper.GetLoggerInContext(ctx)
 	// validate the user exists
 	// get username from context
 	username, exists := contexthelper.GetUsernameInContext(ctx)
 	if !exists {
-		log.Error().
-			Msg("Error getting user from context")
+		logger.Error("Error getting user from context")
 
 		return openapi.Response(http.StatusInternalServerError, openapi.Error{
 			Code:    http.StatusInternalServerError,
@@ -138,9 +136,7 @@ func (s *CommentService) GetUserFeed(ctx context.Context) (openapi.ImplResponse,
 				Message: "User not found",
 			}), nil
 		default:
-			log.Error().
-				Err(errGetUser).
-				Msg("Error getting user")
+			logger.Error("Error getting user", "error", errGetUser)
 			return openapi.Response(http.StatusInternalServerError, openapi.Error{
 				Code:    http.StatusInternalServerError,
 				Message: "Internal server error",
@@ -151,9 +147,7 @@ func (s *CommentService) GetUserFeed(ctx context.Context) (openapi.ImplResponse,
 	// get followed users
 	followedUsers, err := s.DB.GetFollowedUsers(ctx, s.DBConn, user.ID)
 	if err != nil {
-		log.Error().
-			Err(err).
-			Msg("Error getting followed users")
+		logger.Error("Error getting followed users", "error", err)
 		return openapi.Response(http.StatusNotFound, nil), nil
 	}
 
@@ -165,11 +159,9 @@ func (s *CommentService) GetUserFeed(ctx context.Context) (openapi.ImplResponse,
 			Limit:    20,
 			Offset:   0,
 		})
-		log.Info().Msgf("userComments: \n%v\n", userComments)
+		logger.Info("userComments", "comments", userComments)
 		if err != nil {
-			log.Error().
-				Err(err).
-				Msg("Error getting user comments")
+			logger.Error("Error getting user comments", "error", err)
 			return openapi.Response(http.StatusNotFound, nil), nil
 		}
 		for _, currentComment := range userComments {
@@ -182,7 +174,7 @@ func (s *CommentService) GetUserFeed(ctx context.Context) (openapi.ImplResponse,
 		}
 	}
 	for i := range comments {
-		log.Info().Msgf("comments: \n%v\n", comments[i])
+		logger.Info("comments", "comment", comments[i])
 	}
 
 	return openapi.Response(http.StatusOK, comments), nil

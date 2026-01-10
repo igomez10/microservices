@@ -21,20 +21,22 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 
 		r = r.WithContext(ctx)
 
-		log := contexthelper.GetLoggerInContext(r.Context())
+		logger := contexthelper.GetLoggerInContext(r.Context())
 		// get scopes from context
 		tokenScopes, ok := contexthelper.GetRequestedScopesInContext(r.Context())
 		if !ok {
-			log.Error().
-				Msg("Failed to get token scopes from context")
+			logger.Error("Failed to get token scopes from context")
 
 			w.WriteHeader(http.StatusForbidden)
 			w.Write([]byte(`{"code":403,"message":"No scopes in context"}`))
 			return
 		}
 		if len(tokenScopes) == 0 && len(m.RequiredScopes) != 0 {
-			log.Error().
-				Msgf("No scopes in context and required scopes are not empty token: %v, required scopes: %v", tokenScopes, m.RequiredScopes)
+			logger.Error(
+				"No scopes in context and required scopes are not empty",
+				"token_scopes", tokenScopes,
+				"required_scopes", m.RequiredScopes,
+			)
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(`{"code":401,"message":"No scopes in context and required scopes are not empty"}`))
 			return
@@ -43,10 +45,7 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 		// check if all required scopes are in token
 		for scopeName := range m.RequiredScopes {
 			if exist := tokenScopes[scopeName]; !exist {
-				log.Info().
-					Str("scope", scopeName).
-					Str("tokenScopes", fmt.Sprintf("%v", tokenScopes)).
-					Msg("Missing scope")
+				logger.Info("Missing scope", "scope", scopeName, "token_scopes", tokenScopes)
 
 				w.WriteHeader(http.StatusForbidden)
 				w.Write([]byte(fmt.Sprintf(`{"code": 403, "message": "Scope %s missing from token"}`, scopeName)))
@@ -54,8 +53,7 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 			}
 		}
 
-		log.Info().
-			Msg("Authorization successful")
+		logger.Info("Authorization successful")
 		next.ServeHTTP(w, r)
 	})
 }

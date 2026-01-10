@@ -2,7 +2,9 @@ package cache
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -10,7 +12,6 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/rs/zerolog/log"
 )
 
 // RedisClient interface for testing
@@ -31,7 +32,8 @@ func NewCache(config CacheConfig) *Cache {
 	client := redis.NewClient(config.RedisOpts)
 	_, err := client.Ping(context.Background()).Result()
 	if err != nil {
-		log.Fatal().Stack().Err(err).Msg("Failed to connect to redis")
+		slog.Error("Failed to connect to redis", "error", err)
+		os.Exit(1)
 	}
 
 	c := &Cache{
@@ -90,7 +92,7 @@ func (c *Cache) Middleware(next http.Handler) http.Handler {
 					}
 
 					if err := c.Client.Set(r.Context(), key, customW.Body, time.Minute*10).Err(); err != nil {
-						log.Error().Stack().Err(err).Msg("Failed to set key in redis")
+						slog.Error("Failed to set key in redis", "error", err)
 					}
 				}
 			}()

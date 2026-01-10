@@ -24,9 +24,7 @@ func Middleware(next http.Handler) http.Handler {
 		// Add request id as attribute to the logger
 		r = r.WithContext(contexthelper.SetRequestIDInContext(r.Context(), requestID))
 		log := contexthelper.GetLoggerInContext(r.Context())
-		log = log.With().
-			Str("X-Request-ID", requestID).
-			Logger()
+		log = log.With("X-Request-ID", requestID)
 		contexthelper.SetLoggerInContext(r.Context(), log)
 
 		r = r.WithContext(contexthelper.SetLoggerInContext(r.Context(), log))

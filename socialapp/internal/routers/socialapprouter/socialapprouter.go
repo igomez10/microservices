@@ -2,6 +2,7 @@ package socialapprouter
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 
@@ -12,7 +13,6 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/pattern"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/newrelic/go-agent/v3/newrelic"
-	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
@@ -42,7 +42,7 @@ func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers [
 			file := "openapi.yaml"
 			content, err := os.ReadFile(file)
 			if err != nil {
-				log.Error().Err(err).Msg("Error reading file")
+				slog.Error("Error reading file", "error", err, "path", file)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}

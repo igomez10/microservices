@@ -2,14 +2,19 @@ package authorization
 
 import (
 	"context"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 )
+
+func newTestLogger() *slog.Logger {
+	return slog.New(slog.NewJSONHandler(io.Discard, nil))
+}
 
 func TestAuthorize(t *testing.T) {
 	testCases := []struct {
@@ -169,7 +174,7 @@ func TestAuthorize(t *testing.T) {
 			ctx := req.Context()
 
 			// Add logger to context
-			logger := zerolog.Nop()
+			logger := slog.New(slog.NewJSONHandler(io.Discard, nil))
 			ctx = context.WithValue(ctx, "logger", logger)
 
 			// Add scopes to context if needed
@@ -244,7 +249,7 @@ func TestAuthorize_ContextPropagation(t *testing.T) {
 			ctx := req.Context()
 
 			// Add logger to context
-			logger := zerolog.Nop()
+			logger := newTestLogger()
 			ctx = context.WithValue(ctx, "logger", logger)
 
 			// Add custom value to verify context propagation
@@ -290,7 +295,7 @@ func TestAuthorize_HTTPMethods(t *testing.T) {
 			req := httptest.NewRequest(method, "/test", nil)
 			ctx := req.Context()
 
-			logger := zerolog.Nop()
+			logger := newTestLogger()
 			ctx = context.WithValue(ctx, "logger", logger)
 
 			tokenScopes := map[string]bool{
@@ -371,7 +376,7 @@ func TestAuthorize_ErrorResponses(t *testing.T) {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
 			ctx := req.Context()
 
-			logger := zerolog.Nop()
+			logger := newTestLogger()
 			ctx = context.WithValue(ctx, "logger", logger)
 
 			if tc.scopesInCtx {
@@ -446,7 +451,7 @@ func TestAuthorize_ComplexScopeScenarios(t *testing.T) {
 		{
 			name:           "Empty required scopes allows everything",
 			requiredScopes: map[string]bool{},
-			tokenScopes: map[string]bool{
+			tokenScopes:    map[string]bool{
 				// Any scopes or empty - doesn't matter when no scopes required
 			},
 			expectPass:  true,
@@ -480,7 +485,7 @@ func TestAuthorize_ComplexScopeScenarios(t *testing.T) {
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
 			ctx := req.Context()
 
-			logger := zerolog.Nop()
+			logger := newTestLogger()
 			ctx = context.WithValue(ctx, "logger", logger)
 
 			req = contexthelper.SetRequestedScopesInContext(req.WithContext(ctx), tc.tokenScopes)

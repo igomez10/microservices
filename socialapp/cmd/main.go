@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	_ "net/http/pprof"
 	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"sync/atomic"
 	"syscall"
 	"time"
@@ -23,8 +25,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jessevdk/go-flags"
 	_ "github.com/lib/pq"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -64,10 +64,10 @@ func main() {
 
 	config, shutdown := getConfig(ctx)
 	defer func() {
-		log.Info().Msg("Running shutdown functions")
+		slog.Info("Running shutdown functions")
 		for _, fn := range shutdown {
 			if err := fn(); err != nil {
-				log.Error().Err(err).Msg("failed to shutdown")
+				slog.Error("failed to shutdown", "error", err)
 			}
 		}
 	}()
@@ -85,15 +85,15 @@ func main() {
 	// Wait for shutdown signal or server error
 	select {
 	case sig := <-signalChan:
-		log.Info().Str("signal", sig.String()).Msg("Received shutdown signal")
+		slog.Info("Received shutdown signal", "signal", sig.String())
 		cancel() // Cancel context to trigger graceful shutdown
 	case err := <-serverErrors:
 		if err != nil {
-			log.Error().Err(err).Msg("Server error")
+			slog.Error("Server error", "error", err)
 		}
 	}
 
-	log.Info().Msg("Main shutdown complete")
+	slog.Info("Main shutdown complete")
 }
 
 func run(ctx context.Context, config server.Config) error {
@@ -112,24 +112,24 @@ func run(ctx context.Context, config server.Config) error {
 	// Start graceful shutdown listener
 	go func() {
 		<-ctx.Done()
-		log.Info().Msg("Context cancelled, starting graceful shutdown")
+		slog.Info("Context cancelled, starting graceful shutdown")
 
 		// Give server time to finish existing requests
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), DefaultShutdownTimeout)
 		defer cancel()
 
 		if err := httpServer.Shutdown(shutdownCtx); err != nil {
-			log.Error().Err(err).Msg("Server shutdown error")
+			slog.Error("Server shutdown error", "error", err)
 		}
 	}()
 
-	log.Info().Msgf("Server listening on port %d", config.AppPort)
+	slog.Info("Server listening on port", "port", config.AppPort)
 	err = httpServer.ListenAndServe()
 	if err != nil && err != http.ErrServerClosed {
 		return fmt.Errorf("server error: %w", err)
 	}
 
-	log.Info().Msg("Server stopped")
+	slog.Info("Server stopped")
 	return nil
 }
 
@@ -137,7 +137,8 @@ func run(ctx context.Context, config server.Config) error {
 func CreateDBPools(ctx context.Context, databaseURL string, numPools int, applicationName string) *ForcedConnectionPool {
 	config, err := pgxpool.ParseConfig(databaseURL)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse database url")
+		slog.Error("failed to parse database url", "error", err)
+		os.Exit(1)
 	}
 
 	config.MinConns = DefaultDBMinConns
@@ -152,17 +153,20 @@ func CreateDBPools(ctx context.Context, databaseURL string, numPools int, applic
 		// Use context.Background() for pool creation so the pool isn't tied to request context lifecycle
 		dbConn, err := pgxpool.NewWithConfig(context.Background(), config)
 		if err != nil {
-			log.Fatal().Err(err)
+			slog.Error("failed to create db pool", "error", err)
+			os.Exit(1)
 		}
 
 		if dbConn == nil {
-			log.Fatal().Msg("db is nil")
+			slog.Error("db is nil")
+			os.Exit(1)
 		}
 
 		pingCtx, cancel := context.WithTimeout(context.Background(), DefaultDBPingTimeout)
 		defer cancel()
 		if err := dbConn.Ping(pingCtx); err != nil {
-			log.Fatal().Err(err).Msg("failed to ping database, shutting down")
+			slog.Error("failed to ping database, shutting down", "error", err)
+			os.Exit(1)
 		}
 
 		pools = append(pools, dbConn)
@@ -225,33 +229,13 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 	}
 
 	instanceID := uuid.NewString()
-	log.Info().
-		Str("logHost", opts.LogHost).
-		Str("logLevel", opts.LogLevel).
-		Str("appName", opts.AppName).
-		Str("propertiesSubdomain", opts.PropertiesSubdomain).
-		Str("urlServiceHost", opts.UrlShortenerSubdomain).
-		Str("agentURL", opts.AgentURL).
-		Str("urlShortenerSubdomain", opts.UrlShortenerSubdomain).
-		Str("urlShortenerURL", opts.URLShortenerURL).
-		Str("socialappSubdomain", opts.SocialappSubdomain).
-		Str("instanceID", instanceID).
-		Str("puttyknifeDomain", opts.PuttyknifeDomain).
-		Str("puttyknifeURL", opts.PuttyknifeURL).
-		Str("redisURL", opts.RedisURL).
-		Str("kibanaSubdomain", opts.KibanaSubdomain).
-		Msg("Starting SocialApp")
 
 	// Setup retryable http client
 	retryClient := retryablehttp.NewClient()
 	retryClient.Logger = nil
 	retryClient.RequestLogHook = func(_ retryablehttp.Logger, req *http.Request, attempt int) {
 		if attempt >= 1 {
-			log.Warn().
-				Str("method", req.Method).
-				Str("url", req.URL.String()).
-				Int("attempt", attempt).
-				Msgf("http retry")
+			slog.Warn("http retry", "method", req.Method, "url", req.URL.String(), "attempt", attempt)
 		}
 	}
 
@@ -270,16 +254,17 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 
 	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
 		if err != nil {
-			log.Warn().Err(err).Msg("http retry - network error")
+			slog.Warn("http retry - network error", "error", err)
 			return true, err
 		}
 		if resp != nil && resp.StatusCode >= 500 {
-			log.Warn().
-				Stringer("url", resp.Request.URL).
-				Str("method", resp.Request.Method).
-				Str("status", resp.Status).
-				Int("status_code", resp.StatusCode).
-				Msg("http retry - 5xx status")
+			slog.Warn(
+				"http retry - 5xx status",
+				"url", resp.Request.URL.String(),
+				"method", resp.Request.Method,
+				"status", resp.Status,
+				"status_code", resp.StatusCode,
+			)
 			return true, nil
 		}
 		return false, nil
@@ -289,27 +274,53 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 	// Set proxy
 	if opts.ProxyHost != "" {
 		if u, err := url.Parse(opts.ProxyHost); err != nil {
-			log.Err(err).Msgf("Failed to parse proxy URL")
+			slog.Error("Failed to parse proxy URL", "error", err)
 		} else {
 			http.DefaultTransport = &http.Transport{Proxy: http.ProxyURL(u)}
 		}
 	}
 
 	// Parse log level
-	parsedLogLevel, err := zerolog.ParseLevel(opts.LogLevel)
+	parsedLogLevel, err := parseLogLevel(opts.LogLevel)
 	if err != nil {
-		log.Fatal().Err(err).Msgf("Invalid log level, %s", opts.LogLevel)
+		slog.Error("Invalid log level", "log_level", opts.LogLevel, "error", err)
+		os.Exit(1)
 	}
 
 	// Setup log destinations
 	var logDestinations []io.Writer = []io.Writer{os.Stdout}
+	logHandler := slog.NewJSONHandler(io.MultiWriter(logDestinations...), &slog.HandlerOptions{
+		AddSource: true,
+		Level:     parsedLogLevel,
+	})
+	logger := slog.New(logHandler).With("app", opts.AppName, "instance", instanceID)
+	slog.SetDefault(logger)
+
+	slog.Info(
+		"Starting SocialApp",
+		"logHost", opts.LogHost,
+		"logLevel", opts.LogLevel,
+		"appName", opts.AppName,
+		"propertiesSubdomain", opts.PropertiesSubdomain,
+		"urlServiceHost", opts.UrlShortenerSubdomain,
+		"agentURL", opts.AgentURL,
+		"urlShortenerSubdomain", opts.UrlShortenerSubdomain,
+		"urlShortenerURL", opts.URLShortenerURL,
+		"socialappSubdomain", opts.SocialappSubdomain,
+		"instanceID", instanceID,
+		"puttyknifeDomain", opts.PuttyknifeDomain,
+		"puttyknifeURL", opts.PuttyknifeURL,
+		"redisURL", opts.RedisURL,
+		"kibanaSubdomain", opts.KibanaSubdomain,
+	)
 
 	// Parse properties subdomain
 	var propertiesSubdomainURL *url.URL
 	if len(opts.PropertiesSubdomain) != 0 {
 		u, err := url.Parse(opts.PropertiesSubdomain)
 		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to parse properties subdomain url %s", opts.PropertiesSubdomain)
+			slog.Error("failed to parse properties subdomain url", "url", opts.PropertiesSubdomain, "error", err)
+			os.Exit(1)
 		}
 		propertiesSubdomainURL = u
 	}
@@ -317,14 +328,16 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 	// Parse url service host
 	urlService, err := url.Parse(opts.URLShortenerURL)
 	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to parse url service host url %s", opts.URLShortenerURL)
+		slog.Error("failed to parse url service host url", "url", opts.URLShortenerURL, "error", err)
+		os.Exit(1)
 	}
 
 	var puttyknifeURL *url.URL
 	if len(opts.PuttyknifeURL) != 0 {
 		u, err := url.Parse(opts.PuttyknifeURL)
 		if err != nil {
-			log.Fatal().Err(err).Msgf("failed to parse puttyknife url %s", opts.PuttyknifeURL)
+			slog.Error("failed to parse puttyknife url", "url", opts.PuttyknifeURL, "error", err)
+			os.Exit(1)
 		}
 		puttyknifeURL = u
 	}
@@ -341,7 +354,8 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 		otlptracegrpc.WithEndpointURL(opts.AgentURL),
 	)
 	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", opts.AgentURL)
+		slog.Error("failed to create otlp exporter for tracing", "agent_url", opts.AgentURL, "error", err)
+		os.Exit(1)
 	}
 
 	res, err := resource.New(ctx,
@@ -356,7 +370,8 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 		}),
 	)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to create resource")
+		slog.Error("failed to create resource", "error", err)
+		os.Exit(1)
 	}
 
 	tp := trace.NewTracerProvider(
@@ -369,7 +384,8 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 		otlpmetricgrpc.WithEndpointURL(opts.AgentURL),
 	)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to create otlp exporter for metrics")
+		slog.Error("failed to create otlp exporter for metrics", "error", err)
+		os.Exit(1)
 	}
 
 	meterProvider := metric.NewMeterProvider(
@@ -382,26 +398,28 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 	otel.SetMeterProvider(meterProvider)
 
 	shutdown = append(shutdown, func() error {
-		log.Info().Msg("Shutting down tracer provider")
+		slog.Info("Shutting down tracer provider")
 		return tp.Shutdown(ctx)
 	})
 
 	shutdown = append(shutdown, func() error {
-		log.Info().Msg("Shutting down meter provider")
+		slog.Info("Shutting down meter provider")
 		return meterProvider.Shutdown(ctx)
 	})
 
 	// Setup OTLP logs exporter
 	agentURL, err := url.Parse(opts.AgentURL)
 	if err != nil {
-		log.Fatal().Err(err).Str("agentURL", opts.AgentURL).Msg("failed to parse agent URL for log exporter")
+		slog.Error("failed to parse agent URL for log exporter", "agent_url", opts.AgentURL, "error", err)
+		os.Exit(1)
 	}
 	logExporter, err := otlploghttp.New(ctx,
 		otlploghttp.WithInsecure(),
 		otlploghttp.WithEndpoint(agentURL.Host),
 	)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to create otlp log exporter")
+		slog.Error("failed to create otlp log exporter", "error", err)
+		os.Exit(1)
 	}
 
 	loggerProvider := sdklog.NewLoggerProvider(
@@ -410,7 +428,7 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 	)
 
 	shutdown = append(shutdown, func() error {
-		log.Info().Msg("Shutting down log provider")
+		slog.Info("Shutting down log provider")
 		return loggerProvider.Shutdown(ctx)
 	})
 
@@ -418,14 +436,15 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 	connections := CreateDBPools(ctx, opts.DatabaseURL, DefaultNumDBPools, fmt.Sprintf("%s-%s", opts.AppName, instanceID))
 
 	shutdown = append(shutdown, func() error {
-		log.Info().Msg("Shutting down database connections")
+		slog.Info("Shutting down database connections")
 		connections.Close()
 		return nil
 	})
 
 	redisOpts, err := redis.ParseURL(opts.RedisURL)
 	if err != nil {
-		log.Fatal().Err(err).Msg("failed to parse redis url")
+		slog.Error("failed to parse redis url", "error", err)
+		os.Exit(1)
 	}
 
 	redisOpts.PoolSize = DefaultRedisPoolSize
@@ -439,7 +458,8 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 	openAPIPath := "openapi.yaml"
 	openAPIContent, err := os.ReadFile(openAPIPath)
 	if err != nil {
-		log.Fatal().Err(err).Str("path", openAPIPath).Msg("failed to read openapi file")
+		slog.Error("failed to read openapi file", "path", openAPIPath, "error", err)
+		os.Exit(1)
 	}
 
 	config := server.Config{
@@ -467,4 +487,19 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 	}
 
 	return config, shutdown
+}
+
+func parseLogLevel(level string) (slog.Level, error) {
+	switch strings.ToLower(level) {
+	case "debug":
+		return slog.LevelDebug, nil
+	case "info":
+		return slog.LevelInfo, nil
+	case "warn", "warning":
+		return slog.LevelWarn, nil
+	case "error":
+		return slog.LevelError, nil
+	default:
+		return slog.LevelInfo, fmt.Errorf("unsupported log level: %s", level)
+	}
 }

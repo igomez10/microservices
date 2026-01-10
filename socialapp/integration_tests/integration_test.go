@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"log/slog"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rs/zerolog/log"
 )
 
 func TestMain(m *testing.M) {
@@ -15,7 +15,7 @@ func TestMain(m *testing.M) {
 	// add jitter
 	if os.Getenv("ADD_TEST_JITTER") != "" {
 		jitterInSeconds := uuid.New().ID() % 60
-		log.Info().Int("jitter_seconds", int(jitterInSeconds)).Msg("Adding test jitter")
+		slog.Info("Adding test jitter", "jitter_seconds", int(jitterInSeconds))
 		time.Sleep(time.Duration(jitterInSeconds))
 	}
 

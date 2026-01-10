@@ -2,6 +2,7 @@ package gandalf
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
@@ -74,24 +75,24 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		r = r.WithContext(ctx)
 
 		start := time.Now()
-		log := contexthelper.GetLoggerInContext(r.Context())
+		logger := contexthelper.GetLoggerInContext(r.Context())
 
 		// Check if path is allowlisted
 		if m.isPathAllowlisted(r) {
-			m.handleAllowlistedPath(w, r, next, start, span, log)
+			m.handleAllowlistedPath(w, r, next, start, span, logger)
 			return
 		}
 
 		// Try Bearer token authentication
 		authHeader := r.Header.Get("Authorization")
 		if strings.HasPrefix(authHeader, "Bearer ") {
-			m.handleBearerAuth(w, r, next, authHeader, start, log)
+			m.handleBearerAuth(w, r, next, authHeader, start, logger)
 			return
 		}
 
 		// Try Basic authentication
 		if m.shouldAllowBasicAuth(r, authHeader) {
-			m.handleBasicAuth(w, r, next, start, log)
+			m.handleBasicAuth(w, r, next, start, logger)
 			return
 		}
 
@@ -112,57 +113,33 @@ func (m *Middleware) shouldAllowBasicAuth(r *http.Request, authHeader string) bo
 }
 
 // handleAllowlistedPath processes requests to allowlisted paths
-func (m *Middleware) handleAllowlistedPath(w http.ResponseWriter, r *http.Request, next http.Handler, start time.Time, span any, log any) {
+func (m *Middleware) handleAllowlistedPath(w http.ResponseWriter, r *http.Request, next http.Handler, start time.Time, span any, logger *slog.Logger) {
 	if s, ok := span.(interface{ SetAttributes(...attribute.KeyValue) }); ok {
 		s.SetAttributes(attribute.Bool("allowlisted", true))
 	}
 
 	r = contexthelper.SetRequestedScopesInContext(r, map[string]bool{})
 
-	if l, ok := log.(interface {
-		Info() interface {
-			Str(string, string) interface {
-				Str(string, string) interface {
-					Str(string, string) interface{ Msg(string) }
-				}
-			}
-		}
-	}); ok {
-		l.Info().Str("path", r.URL.Path).Str("method", r.Method).Str("middleware", "gandalf").Msg("allowlisted path")
-	}
+	logger.Info("allowlisted path", "path", r.URL.Path, "method", r.Method, "middleware", "gandalf")
 
 	authenticationDuration.WithLabelValues(authResultAllowlisted).Observe(time.Since(start).Seconds())
 	next.ServeHTTP(w, r)
 }
 
 // handleBearerAuth processes Bearer token authentication
-func (m *Middleware) handleBearerAuth(w http.ResponseWriter, r *http.Request, next http.Handler, authHeader string, start time.Time, log any) {
+func (m *Middleware) handleBearerAuth(w http.ResponseWriter, r *http.Request, next http.Handler, authHeader string, start time.Time, logger *slog.Logger) {
 	givenToken := strings.TrimPrefix(authHeader, "Bearer ")
 
 	token, err := jwt.NewTokenFromString(givenToken, m.JWTSecret)
 	if err != nil {
-		if l, ok := log.(interface {
-			Error() interface {
-				Err(error) interface {
-					Str(string, string) interface{ Msg(string) }
-				}
-			}
-		}); ok {
-			l.Error().Err(err).Str("token", givenToken).Msg("Failed to parse token")
-		}
+		logger.Error("Failed to parse token", "error", err, "token", givenToken)
 		m.writeUnauthorized(w, errMsgInvalidBearerToken)
 		authenticationDuration.WithLabelValues("failed_jwt").Observe(time.Since(start).Seconds())
 		return
 	}
 
 	if !m.isTokenValid(token) {
-		if l, ok := log.(interface {
-			Error() interface {
-				Str(string, string) interface{ Msg(string) }
-			}
-		}); ok {
-			l.Error().Str("token", givenToken).Msg("Token invalid or expired")
-		}
+		logger.Error("Token invalid or expired", "token", givenToken)
 		m.writeUnauthorized(w, errMsgInvalidBearerToken)
 		authenticationDuration.WithLabelValues("failed_jwt_expired").Observe(time.Since(start).Seconds())
 		return
@@ -178,45 +155,25 @@ func (m *Middleware) handleBearerAuth(w http.ResponseWriter, r *http.Request, ne
 }
 
 // handleBasicAuth processes Basic authentication
-func (m *Middleware) handleBasicAuth(w http.ResponseWriter, r *http.Request, next http.Handler, start time.Time, log any) {
+func (m *Middleware) handleBasicAuth(w http.ResponseWriter, r *http.Request, next http.Handler, start time.Time, logger *slog.Logger) {
 	username, password, ok := r.BasicAuth()
 	if !ok {
-		if l, ok := log.(interface {
-			Error() interface {
-				Str(string, string) interface{ Msg(string) }
-			}
-		}); ok {
-			l.Error().Str("username", username).Msg("Basic auth not ok")
-		}
+		logger.Error("Basic auth not ok", "username", username)
 		m.writeUnauthorized(w, errMsgInvalidBasicAuth)
 		authenticationDuration.WithLabelValues("failed_basic_format").Observe(time.Since(start).Seconds())
 		return
 	}
 
 	// Get user from database
-	usr, err := m.getUserByUsername(r, username, log)
+	usr, err := m.getUserByUsername(r, username)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			if l, ok := log.(interface {
-				Debug() interface {
-					Err(error) interface {
-						Str(string, string) interface{ Msg(string) }
-					}
-				}
-			}); ok {
-				l.Debug().Err(err).Str("username", username).Msg("User not found")
-			}
+			logger.Debug("User not found", "error", err, "username", username)
 			m.writeUnauthorized(w, errMsgInvalidCredentials)
 			authenticationDuration.WithLabelValues("failed_basic_user_not_found").Observe(time.Since(start).Seconds())
 			return
 		}
-		if l, ok := log.(interface {
-			Error() interface {
-				Err(error) interface{ Msg(string) }
-			}
-		}); ok {
-			l.Error().Err(err).Msg("Error while getting user")
-		}
+		logger.Error("Error while getting user", "error", err)
 		m.writeInternalError(w, errMsgErrorGettingUser)
 		authenticationDuration.WithLabelValues("failed_basic_db_error").Observe(time.Since(start).Seconds())
 		return
@@ -224,11 +181,7 @@ func (m *Middleware) handleBasicAuth(w http.ResponseWriter, r *http.Request, nex
 
 	// Verify password
 	if !m.verifyPassword(password, usr) {
-		if l, ok := log.(interface {
-			Error() interface{ Msg(string) }
-		}); ok {
-			l.Error().Msg("Invalid password")
-		}
+		logger.Error("Invalid password")
 		m.writeUnauthorized(w, errMsgInvalidCredentials)
 		authenticationDuration.WithLabelValues("failed_basic_invalid_password").Observe(time.Since(start).Seconds())
 		return
@@ -241,13 +194,7 @@ func (m *Middleware) handleBasicAuth(w http.ResponseWriter, r *http.Request, nex
 	requestedScopes, err := m.parseRequestedScopes(r)
 	if err != nil {
 		// Invalid scope requested - return 400 Bad Request
-		if l, ok := log.(interface {
-			Error() interface {
-				Err(error) interface{ Msg(string) }
-			}
-		}); ok {
-			l.Error().Err(err).Msg("Invalid scope requested")
-		}
+		logger.Error("Invalid scope requested", "error", err)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(fmt.Sprintf(errMsgInvalidScope, err.Error())))
 		authenticationDuration.WithLabelValues("failed_basic_invalid_scope").Observe(time.Since(start).Seconds())
@@ -255,7 +202,7 @@ func (m *Middleware) handleBasicAuth(w http.ResponseWriter, r *http.Request, nex
 	}
 
 	// Get allowed scopes for this user
-	allowedScopes, err := m.getAllowedScopes(r, usr.ID, log)
+	allowedScopes, err := m.getAllowedScopes(r, usr.ID, logger)
 	if err != nil {
 		m.writeInternalError(w, errMsgErrorGettingScopes)
 		authenticationDuration.WithLabelValues("failed_basic_scopes_error").Observe(time.Since(start).Seconds())
@@ -265,13 +212,7 @@ func (m *Middleware) handleBasicAuth(w http.ResponseWriter, r *http.Request, nex
 	// Validate requested scopes
 	for _, scopeName := range requestedScopes {
 		if _, exists := allowedScopes[scopeName]; !exists {
-			if l, ok := log.(interface {
-				Error() interface {
-					Str(string, string) interface{ Msg(string) }
-				}
-			}); ok {
-				l.Error().Str("scope", scopeName).Msg("Scope not allowed")
-			}
+			logger.Error("Scope not allowed", "scope", scopeName)
 			m.writeUnauthorized(w, fmt.Sprintf(errMsgScopeNotAllowed, scopeName))
 			authenticationDuration.WithLabelValues("failed_basic_scope_denied").Observe(time.Since(start).Seconds())
 			return
@@ -318,7 +259,7 @@ func (m *Middleware) convertTokenScopes(tokenScopes []string) map[string]bool {
 }
 
 // getUserByUsername retrieves a user from the database
-func (m *Middleware) getUserByUsername(r *http.Request, username string, log any) (db.User, error) {
+func (m *Middleware) getUserByUsername(r *http.Request, username string) (db.User, error) {
 	ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.db.get_user_by_username")
 	defer span.End()
 	return m.DB.GetUserByUsername(ctx, m.DBConn, username)
@@ -354,25 +295,19 @@ func (m *Middleware) parseRequestedScopes(r *http.Request) ([]string, error) {
 }
 
 // getAllowedScopes retrieves all scopes allowed for a user based on their roles
-func (m *Middleware) getAllowedScopes(r *http.Request, userID int64, log any) (map[string]db.Scope, error) {
+func (m *Middleware) getAllowedScopes(r *http.Request, userID int64, logger *slog.Logger) (map[string]db.Scope, error) {
 	ctx, rolesSpan := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.db.get_user_roles")
 	roles, err := m.DB.GetUserRoles(ctx, m.DBConn, userID)
 	rolesSpan.End()
 
 	if err != nil && err != pgx.ErrNoRows {
-		if l, ok := log.(interface {
-			Error() interface {
-				Err(error) interface{ Msg(string) }
-			}
-		}); ok {
-			l.Error().Err(err).Msg("Error while getting user roles")
-		}
+		logger.Error("Error while getting user roles", "error", err)
 		return nil, err
 	}
 
 	allowedScopes := make(map[string]db.Scope)
 	for _, role := range roles {
-		scopes, err := m.getRoleScopes(r, role.ID, log)
+		scopes, err := m.getRoleScopes(r, role.ID, logger)
 		if err != nil {
 			return nil, err
 		}
@@ -386,7 +321,7 @@ func (m *Middleware) getAllowedScopes(r *http.Request, userID int64, log any) (m
 }
 
 // getRoleScopes retrieves all scopes for a specific role
-func (m *Middleware) getRoleScopes(r *http.Request, roleID int64, log any) ([]db.Scope, error) {
+func (m *Middleware) getRoleScopes(r *http.Request, roleID int64, logger *slog.Logger) ([]db.Scope, error) {
 	ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.gandalf.db.get_role_scopes")
 	defer span.End()
 
@@ -397,13 +332,7 @@ func (m *Middleware) getRoleScopes(r *http.Request, roleID int64, log any) ([]db
 	})
 
 	if err != nil && err != pgx.ErrNoRows {
-		if l, ok := log.(interface {
-			Error() interface {
-				Err(error) interface{ Msg(string) }
-			}
-		}); ok {
-			l.Error().Err(err).Msg("Error while getting role scopes")
-		}
+		logger.Error("Error while getting role scopes", "error", err)
 		return nil, err
 	}
 

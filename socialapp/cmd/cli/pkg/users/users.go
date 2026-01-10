@@ -2,13 +2,13 @@ package users
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/igomez10/microservices/socialapp/client"
-	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"golang.org/x/oauth2"
 )
@@ -54,11 +54,7 @@ func getHTTPClient() *http.Client {
 	retryClient.Logger = nil
 	retryClient.RequestLogHook = func(_ retryablehttp.Logger, req *http.Request, attempt int) {
 		if attempt >= 1 {
-			log.Warn().
-				Str("method", req.Method).
-				Str("url", req.URL.String()).
-				Int("attempt", attempt).
-				Msgf("http retry")
+			slog.Warn("http retry", "method", req.Method, "url", req.URL.String(), "attempt", attempt)
 		}
 	}
 
@@ -69,13 +65,14 @@ func getHTTPClient() *http.Client {
 	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
 		// Retry on network errors or 5xx status codes
 		if err != nil {
-			log.Warn().
-				Err(err).
-				Stringer("url", resp.Request.URL).
-				Str("method", resp.Request.Method).
-				Str("status", resp.Status).
-				Int("status_code", resp.StatusCode).
-				Msg("http retry")
+			slog.Warn(
+				"http retry",
+				"error", err,
+				"url", resp.Request.URL.String(),
+				"method", resp.Request.Method,
+				"status", resp.Status,
+				"status_code", resp.StatusCode,
+			)
 			return true, err
 		}
 

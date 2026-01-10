@@ -23,11 +23,11 @@ type AuthenticationService struct {
 func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetAccessToken")
 	defer span.End()
-	log := contexthelper.GetLoggerInContext(ctx)
+	logger := contexthelper.GetLoggerInContext(ctx)
 
 	username, ok := contexthelper.GetUsernameInContext(ctx)
 	if !ok {
-		log.Error().Str("username", username).Msg("username not found in context")
+		logger.Error("username not found in context", "username", username)
 		return openapi.ImplResponse{
 			Code: http.StatusUnauthorized,
 			Body: openapi.Error{
@@ -39,7 +39,7 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 
 	requestedScopes, ok := contexthelper.GetRequestedScopesInContext(ctx)
 	if !ok {
-		log.Error().Interface("scopes", requestedScopes).Msg("scopes not found in context")
+		logger.Error("scopes not found in context", "scopes", requestedScopes)
 		return openapi.ImplResponse{
 			Code: http.StatusUnauthorized,
 			Body: openapi.Error{
@@ -67,7 +67,7 @@ func (s *AuthenticationService) GetAccessToken(ctx context.Context) (openapi.Imp
 
 	stringToken, err := socialappjwt.TokenToString(&newtoken, []byte(s.JWTSecret))
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to create token")
+		logger.Error("Failed to create token", "error", err)
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
 			Body: openapi.Error{

@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -13,7 +14,6 @@ import (
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/igomez10/microservices/socialapp/pkg/scopes"
-	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
@@ -78,7 +78,8 @@ func Setup() []ConfigurationOpts {
 		panic("APP_HOST environment variable is not set")
 	}
 	// with timestamp and caller
-	log.Logger = log.Output(os.Stderr).With().Caller().Timestamp().Logger()
+	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{AddSource: true}))
+	slog.SetDefault(logger)
 	return []ConfigurationOpts{
 		WithHost(testSetup),
 	}
@@ -90,26 +91,18 @@ func getHTTPClient() *http.Client {
 	retryClient.Logger = nil
 	retryClient.RequestLogHook = func(_ retryablehttp.Logger, req *http.Request, attempt int) {
 		if attempt >= 1 {
-			log.Warn().
-				Str("method", req.Method).
-				Str("url", req.URL.String()).
-				Int("attempt", attempt).
-				Msgf("http retry")
+			slog.Warn("http retry", "method", req.Method, "url", req.URL.String(), "attempt", attempt)
 		}
 	}
 
 	retryClient.ErrorHandler = func(resp *http.Response, err error, numTries int) (*http.Response, error) {
-		log.Err(err).Msgf("error in http request, attempt %d", numTries)
+		slog.Error("error in http request", "attempt", numTries, "error", err)
 		return resp, err
 	}
 
 	retryClient.ResponseLogHook = func(_ retryablehttp.Logger, resp *http.Response) {
 		if resp.StatusCode >= 500 {
-			log.Warn().
-				Str("method", resp.Request.Method).
-				Str("url", resp.Request.URL.String()).
-				Int("status", resp.StatusCode).
-				Msgf("http response")
+			slog.Warn("http response", "method", resp.Request.Method, "url", resp.Request.URL.String(), "status", resp.StatusCode)
 		}
 	}
 
@@ -153,11 +146,12 @@ func getTracer() trace.Tracer {
 
 func main() {
 	flag.Parse()
-	log.Info().Msg("Starting integration tests")
+	slog.Info("Starting integration tests")
 	ctx := context.Background()
 	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithInsecure(), otlptracegrpc.WithEndpointURL(*urlAgent))
 	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", *urlAgent)
+		slog.Error("failed to create otlp exporter for tracing", "agent_url", *urlAgent, "error", err)
+		os.Exit(1)
 	}
 
 	tp := sdktrace.NewTracerProvider(
@@ -181,67 +175,67 @@ func main() {
 	finishedSuccessfully := true
 	if err := ListUsersLifecycle(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error ListUsersLifecycle")
+		slog.Error("error ListUsersLifecycle", "error", err)
 	}
 	if err := CreateUserLifecycle(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error CreateUserLifecycle")
+		slog.Error("error CreateUserLifecycle", "error", err)
 	}
 	if err := FollowLifeCycle(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error FollowLifeCycle")
+		slog.Error("error FollowLifeCycle", "error", err)
 	}
 	if err := GetExpectedFeed(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error GetExpectedFeed")
+		slog.Error("error GetExpectedFeed", "error", err)
 	}
 	if err := GetAccessToken(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error GetAccessToken")
+		slog.Error("error GetAccessToken", "error", err)
 	}
 	if err := RegisterUserFlow(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error RegisterUserFlow")
+		slog.Error("error RegisterUserFlow", "error", err)
 	}
 	if err := ChangePassword(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error ChangePassword")
+		slog.Error("error ChangePassword", "error", err)
 	}
 	if err := RoleLifecycle(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error RoleLifecycle")
+		slog.Error("error RoleLifecycle", "error", err)
 	}
 	if err := ScopeLifecycle(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error ScopeLifecycle")
+		slog.Error("error ScopeLifecycle", "error", err)
 	}
 	if err := UserRoleLifeCycle(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error UserRoleLifeCycle")
+		slog.Error("error UserRoleLifeCycle", "error", err)
 	}
 	if err := CacheRequestSameUser(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error CacheRequestSameUser")
+		slog.Error("error CacheRequestSameUser", "error", err)
 	}
 	if err := URLLifeCycle(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error URLLifeCycle")
+		slog.Error("error URLLifeCycle", "error", err)
 	}
 
 	if err := tp.ForceFlush(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error flushing traces")
+		slog.Error("error flushing traces", "error", err)
 	}
 
 	if err := tp.Shutdown(ctx); err != nil {
 		finishedSuccessfully = false
-		log.Error().Err(err).Msg("error shutting down tracer provider")
+		slog.Error("error shutting down tracer provider", "error", err)
 	}
 
 	if finishedSuccessfully {
-		log.Info().Msg("All integration tests passed successfully")
+		slog.Info("All integration tests passed successfully")
 	} else {
-		log.Error().Msg("Some integration tests failed")
+		slog.Error("Some integration tests failed")
 		os.Exit(1)
 	}
 }
@@ -1339,10 +1333,10 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 		// delete scope
 		res, err := apiClient.ScopeAPI.DeleteScope(oauth2Ctx, *cretedScope.Id).Execute()
 		if err != nil {
-			log.Err(err).Msg("Error when calling `ScopeAPI.DeleteScope`")
+			slog.Error("Error when calling `ScopeAPI.DeleteScope`", "error", err)
 		}
 		if res.StatusCode != http.StatusOK {
-			log.Err(err).Msg("Expected status code 204, got %d")
+			slog.Error("Expected status code for DeleteScope", "expected", http.StatusOK, "actual", res.StatusCode)
 		}
 	}()
 
@@ -1366,10 +1360,10 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 		// delete role
 		res, err := apiClient.RoleAPI.DeleteRole(oauth2Ctx, *createdRole.Id).Execute()
 		if err != nil {
-			log.Err(err).Msg("Error when calling `RoleAPI.DeleteRole`")
+			slog.Error("Error when calling `RoleAPI.DeleteRole`", "error", err)
 		}
 		if res.StatusCode != http.StatusOK {
-			log.Err(err).Msgf("Expected status code 200, got %d", res.StatusCode)
+			slog.Error("Expected status code for DeleteRole", "expected", http.StatusOK, "actual", res.StatusCode)
 		}
 	}()
 

@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -20,8 +22,11 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/rs/zerolog"
 )
+
+func newTestLogger() *slog.Logger {
+	return slog.New(slog.NewJSONHandler(io.Discard, nil))
+}
 
 var _ db.Querier = (*mockDB)(nil)
 
@@ -327,7 +332,7 @@ func TestAuthenticate_AllowlistedPath(t *testing.T) {
 			}))
 
 			req := httptest.NewRequest(tt.method, tt.path, nil)
-			req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+			req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 			rr := httptest.NewRecorder()
 
 			handler.ServeHTTP(rr, req)
@@ -428,7 +433,7 @@ func TestAuthenticate_BearerToken(t *testing.T) {
 			}))
 
 			req := httptest.NewRequest("GET", "/test", nil)
-			req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+			req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 			req.Header.Set("Authorization", "Bearer "+tokenString)
 			rr := httptest.NewRecorder()
 
@@ -453,7 +458,7 @@ func TestAuthenticate_InvalidBearerToken(t *testing.T) {
 	}))
 
 	req := httptest.NewRequest("GET", "/test", nil)
-	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 	req.Header.Set("Authorization", "Bearer invalid-token")
 	rr := httptest.NewRecorder()
 
@@ -532,7 +537,7 @@ func TestAuthenticate_BasicAuth_Success(t *testing.T) {
 	form := url.Values{}
 	form.Add("scope", scopes.SocialappUsersList.String()+" "+scopes.SocialappUsersRead.String())
 	req := httptest.NewRequest("POST", "/auth", strings.NewReader(form.Encode()))
-	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	// Set basic auth header
@@ -570,7 +575,7 @@ func TestAuthenticate_BasicAuth_UserNotFound(t *testing.T) {
 	}))
 
 	req := httptest.NewRequest("GET", "/test", nil)
-	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 	auth := "nonexistent:password"
 	encodedAuth := base64.StdEncoding.EncodeToString([]byte(auth))
 	req.Header.Set("Authorization", "Basic "+encodedAuth)
@@ -596,7 +601,7 @@ func TestAuthenticate_BasicAuth_InvalidFormat(t *testing.T) {
 	}))
 
 	req := httptest.NewRequest("GET", "/test", nil)
-	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 	req.Header.Set("Authorization", "Basic invalid")
 
 	rr := httptest.NewRecorder()
@@ -627,7 +632,7 @@ func TestAuthenticate_NoAuth(t *testing.T) {
 	}))
 
 	req := httptest.NewRequest("GET", "/test", nil)
-	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)

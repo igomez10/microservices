@@ -20,13 +20,13 @@ import (
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	tcRedis "github.com/testcontainers/testcontainers-go/modules/redis"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"log/slog"
 )
 
 // TestEnv holds all the resources needed for e2e tests
@@ -180,7 +180,7 @@ func newConfigForTest(dbPool *pgxpool.Pool, redisOpts *redis.Options) server.Con
 		InstanceID:      "test-instance",
 		AppName:         "socialapp-test",
 		AppPort:         0, // Will be assigned by httptest
-		LogLevel:        zerolog.InfoLevel,
+		LogLevel:        slog.LevelInfo,
 		LogDestinations: []io.Writer{io.Discard},
 		DBPool:          dbPool,
 		Queries:         queries,

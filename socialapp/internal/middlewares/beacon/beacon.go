@@ -1,14 +1,13 @@
 package beacon
 
 import (
+	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/responseWriter"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -79,7 +78,7 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 				10.000,
 			}...))
 		if err != nil {
-			log.Error().Err(err).Msg("failed to create histogram in beacon")
+			slog.Error("failed to create histogram in beacon", "error", err)
 		} else {
 			hist.Record(ctx, time.Since(startTime).Seconds(), metric.WithAttributeSet(attributes))
 		}
@@ -115,44 +114,48 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 
 		// Log the response
 		statusCode := customW.StatusCode
-		logEvent := createLogEvent(r, statusCode, startTime, &logger)
-		logEvent.Msgf("finished request")
+		logEvent := createLogEvent(r, statusCode, startTime, logger)
+		logEvent.Info("finished request")
 	})
 }
 
 // Create a log event based on the request and response.
-func createLogEvent(r *http.Request, statusCode int, startTime time.Time, logger *zerolog.Logger) *zerolog.Event {
+func createLogEvent(r *http.Request, statusCode int, startTime time.Time, logger *slog.Logger) *slog.Logger {
 	requestPattern := contexthelper.GetRequestPatternInContext(r.Context())
 	latency := time.Since(startTime).Milliseconds()
 
-	logevent := logger.WithLevel(zerolog.InfoLevel).
-		Str("path", r.URL.Path).
-		Str("query", r.URL.RawQuery).
-		Str("pattern", requestPattern).
-		Str("method", r.Method).
-		Str("remote_addr", r.RemoteAddr).
-		Str("user_agent", r.UserAgent()).
-		Str("referer", r.Referer()).
-		Str("request_host", r.Host).
-		Int("status_code", statusCode).
-		Int64("latency_ms", latency)
+	logArgs := []any{
+		"path", r.URL.Path,
+		"query", r.URL.RawQuery,
+		"pattern", requestPattern,
+		"method", r.Method,
+		"remote_addr", r.RemoteAddr,
+		"user_agent", r.UserAgent(),
+		"referer", r.Referer(),
+		"request_host", r.Host,
+		"status_code", statusCode,
+		"latency_ms", latency,
+	}
 
 	for k, v := range r.Header {
 		if k == "Authorization" {
 			continue
 		}
 
-		logevent.Strs(k, v)
+		logArgs = append(logArgs, k, v)
 	}
 
 	switch statusCode {
 	case http.StatusUnauthorized:
 		username, _ := contexthelper.GetUsernameInContext(r.Context())
-		return logevent.
-			Str("authorization", r.Header.Get("Authorization")).
-			Str("username", username).
-			Str("error", "Unauthorized")
+		logArgs = append(
+			logArgs,
+			"authorization", r.Header.Get("Authorization"),
+			"username", username,
+			"error", "Unauthorized",
+		)
+		return logger.With(logArgs...)
 	default:
-		return logevent
+		return logger.With(logArgs...)
 	}
 }

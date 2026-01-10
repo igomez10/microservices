@@ -30,7 +30,7 @@ type URLApiServiceConfig struct {
 func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateUrl")
 	defer span.End()
-	log := contexthelper.GetLoggerInContext(ctx)
+	logger := contexthelper.GetLoggerInContext(ctx)
 	var openapiURL openapi.Url
 	newURLRequest := urlClient.NewURL(newURL.Url, newURL.Alias)
 	u, createRes, err := s.Client.URLAPI.CreateUrl(ctx).
@@ -38,7 +38,7 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (open
 		XRequestID(contexthelper.GetRequestIDInContext(ctx)).
 		Execute()
 	if err != nil {
-		log.Error().Err(err).Msgf("unexpected error creating url %q with alias %q", newURL.Url, newURL.Alias)
+		logger.Error("unexpected error creating url", "error", err, "url", newURL.Url, "alias", newURL.Alias)
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
 			Body: openapi.Error{
@@ -78,7 +78,7 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL openapi.Url) (open
 func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "DeleteUrl")
 	defer span.End()
-	log := contexthelper.GetLoggerInContext(ctx)
+	logger := contexthelper.GetLoggerInContext(ctx)
 
 	// use the urlshortener service
 	res, err := s.Client.URLAPI.
@@ -86,7 +86,7 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (openapi.Im
 		XRequestID(contexthelper.GetRequestIDInContext(ctx)).
 		Execute()
 	if err != nil || res.StatusCode != http.StatusOK {
-		log.Error().Err(err).Msg("error deleting url")
+		logger.Error("error deleting url", "error", err)
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
 			Body: openapi.Error{
@@ -103,7 +103,7 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string) (openapi.Im
 func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetUrl")
 	defer span.End()
-	log := contexthelper.GetLoggerInContext(ctx)
+	logger := contexthelper.GetLoggerInContext(ctx)
 
 	var shortURL string
 	// use the urlshortener service
@@ -114,7 +114,7 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplR
 	if err != nil || res.StatusCode != http.StatusOK {
 		switch res.StatusCode {
 		case http.StatusNotFound:
-			log.Debug().Err(err).Msg("alias does not exist")
+			logger.Debug("alias does not exist", "error", err)
 			return openapi.ImplResponse{
 				Code: http.StatusNotFound,
 				Body: openapi.Error{
@@ -123,10 +123,7 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplR
 				},
 			}, nil
 		default:
-			log.Error().
-				Err(err).
-				Int("status_code", res.StatusCode).
-				Msg("error getting url from urlshortener service")
+			logger.Error("error getting url from urlshortener service", "error", err, "status_code", res.StatusCode)
 			return openapi.ImplResponse{
 				Code: http.StatusInternalServerError,
 				Body: openapi.Error{
@@ -153,7 +150,7 @@ func (s *URLApiService) GetUrl(ctx context.Context, alias string) (openapi.ImplR
 func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetUrlData")
 	defer span.End()
-	log := contexthelper.GetLoggerInContext(ctx)
+	logger := contexthelper.GetLoggerInContext(ctx)
 
 	var responseUrl openapi.Url
 	u, apiRes, err := s.Client.URLAPI.
@@ -161,7 +158,7 @@ func (s *URLApiService) GetUrlData(ctx context.Context, alias string) (openapi.I
 		XRequestID(contexthelper.GetRequestIDInContext(ctx)).
 		Execute()
 	if err != nil || apiRes.StatusCode != http.StatusOK {
-		log.Error().Err(err).Msg("error getting url from urlshortener service")
+		logger.Error("error getting url from urlshortener service", "error", err)
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
 			Body: openapi.Error{

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -11,7 +12,6 @@ import (
 	"time"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
-	"github.com/rs/zerolog"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/trace"
@@ -27,6 +27,12 @@ func setupTestEnvironment() (*metric.MeterProvider, *trace.TracerProvider) {
 	otel.SetTracerProvider(tracerProvider)
 
 	return meterProvider, tracerProvider
+}
+
+func newTestLogger(w io.Writer) *slog.Logger {
+	return slog.New(slog.NewJSONHandler(w, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
 }
 
 func TestBeacon_Middleware(t *testing.T) {
@@ -125,7 +131,7 @@ func TestBeacon_Middleware(t *testing.T) {
 
 			// Set logger and pattern in context
 			logBuf := &bytes.Buffer{}
-			logger := zerolog.New(logBuf).With().Timestamp().Logger()
+			logger := newTestLogger(logBuf)
 			req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), logger))
 			req = req.WithContext(contexthelper.SetRequestPatternInContext(req.Context(), tt.path))
 
@@ -174,7 +180,7 @@ func TestBeacon_Middleware_WithQueryParameters(t *testing.T) {
 
 	req := httptest.NewRequest("GET", "/api/users?limit=10&offset=20", nil)
 	logBuf := &bytes.Buffer{}
-	logger := zerolog.New(logBuf).With().Timestamp().Logger()
+	logger := newTestLogger(logBuf)
 	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), logger))
 	req = req.WithContext(contexthelper.SetRequestPatternInContext(req.Context(), "/api/users"))
 
@@ -204,7 +210,7 @@ func TestBeacon_Middleware_WithUserAgent(t *testing.T) {
 	req := httptest.NewRequest("GET", "/api/test", nil)
 	req.Header.Set("User-Agent", "TestAgent/1.0")
 	logBuf := &bytes.Buffer{}
-	logger := zerolog.New(logBuf).With().Timestamp().Logger()
+	logger := newTestLogger(logBuf)
 	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), logger))
 	req = req.WithContext(contexthelper.SetRequestPatternInContext(req.Context(), "/api/test"))
 
@@ -231,7 +237,7 @@ func TestBeacon_Middleware_UnauthorizedWithUsername(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer token123")
 
 	logBuf := &bytes.Buffer{}
-	logger := zerolog.New(logBuf).With().Timestamp().Logger()
+	logger := newTestLogger(logBuf)
 	ctx := contexthelper.SetLoggerInContext(req.Context(), logger)
 	ctx = contexthelper.SetUsernameInContext(req.WithContext(ctx), "testuser").Context()
 	ctx = contexthelper.SetRequestPatternInContext(ctx, "/api/protected")
@@ -299,7 +305,7 @@ func TestBeacon_Middleware_RemoteIPParsing(t *testing.T) {
 			req.RemoteAddr = tt.remoteAddr
 
 			logBuf := &bytes.Buffer{}
-			logger := zerolog.New(logBuf).With().Timestamp().Logger()
+			logger := newTestLogger(logBuf)
 			req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), logger))
 			req = req.WithContext(contexthelper.SetRequestPatternInContext(req.Context(), "/test"))
 
@@ -329,7 +335,7 @@ func TestBeacon_Middleware_LatencyTracking(t *testing.T) {
 
 	req := httptest.NewRequest("GET", "/test", nil)
 	logBuf := &bytes.Buffer{}
-	logger := zerolog.New(logBuf).With().Timestamp().Logger()
+	logger := newTestLogger(logBuf)
 	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), logger))
 	req = req.WithContext(contexthelper.SetRequestPatternInContext(req.Context(), "/test"))
 
@@ -362,7 +368,7 @@ func TestBeacon_Middleware_AuthorizationHeaderExcluded(t *testing.T) {
 	req.Header.Set("X-Custom-Header", "custom-value")
 
 	logBuf := &bytes.Buffer{}
-	logger := zerolog.New(logBuf).With().Timestamp().Logger()
+	logger := newTestLogger(logBuf)
 	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), logger))
 	req = req.WithContext(contexthelper.SetRequestPatternInContext(req.Context(), "/test"))
 
@@ -415,7 +421,7 @@ func TestBeacon_Middleware_StatusCodeClassification(t *testing.T) {
 
 			req := httptest.NewRequest("GET", "/test", nil)
 			logBuf := &bytes.Buffer{}
-			logger := zerolog.New(logBuf).With().Timestamp().Logger()
+			logger := newTestLogger(logBuf)
 			req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), logger))
 			req = req.WithContext(contexthelper.SetRequestPatternInContext(req.Context(), "/test"))
 
@@ -448,7 +454,7 @@ func TestBeacon_Middleware_RefererHeader(t *testing.T) {
 	req.Header.Set("Referer", "https://example.com/previous-page")
 
 	logBuf := &bytes.Buffer{}
-	logger := zerolog.New(logBuf).With().Timestamp().Logger()
+	logger := newTestLogger(logBuf)
 	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), logger))
 	req = req.WithContext(contexthelper.SetRequestPatternInContext(req.Context(), "/test"))
 
@@ -474,7 +480,7 @@ func TestBeacon_Middleware_RequestHost(t *testing.T) {
 	req := httptest.NewRequest("GET", "http://example.com:8080/test", nil)
 
 	logBuf := &bytes.Buffer{}
-	logger := zerolog.New(logBuf).With().Timestamp().Logger()
+	logger := newTestLogger(logBuf)
 	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), logger))
 	req = req.WithContext(contexthelper.SetRequestPatternInContext(req.Context(), "/test"))
 
@@ -539,11 +545,11 @@ func TestCreateLogEvent(t *testing.T) {
 			req = req.WithContext(ctx)
 
 			logBuf := &bytes.Buffer{}
-			logger := zerolog.New(logBuf).With().Timestamp().Logger()
+			logger := newTestLogger(logBuf)
 			startTime := time.Now()
 
-			logEvent := createLogEvent(req, tt.statusCode, startTime, &logger)
-			logEvent.Msg("test")
+			logEvent := createLogEvent(req, tt.statusCode, startTime, logger)
+			logEvent.Info("test")
 
 			logOutput := logBuf.String()
 
@@ -582,7 +588,7 @@ func TestBeacon_Middleware_ContextPropagation(t *testing.T) {
 
 	req := httptest.NewRequest("GET", "/test", nil)
 	logBuf := &bytes.Buffer{}
-	logger := zerolog.New(logBuf).With().Timestamp().Logger()
+	logger := newTestLogger(logBuf)
 	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), logger))
 	req = req.WithContext(contexthelper.SetRequestPatternInContext(req.Context(), "/test"))
 
@@ -608,7 +614,7 @@ func BenchmarkBeacon_Middleware(b *testing.B) {
 	handler := beacon.Middleware(testHandler)
 
 	req := httptest.NewRequest("GET", "/test", nil)
-	logger := zerolog.New(io.Discard)
+	logger := newTestLogger(io.Discard)
 	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), logger))
 	req = req.WithContext(contexthelper.SetRequestPatternInContext(req.Context(), "/test"))
 

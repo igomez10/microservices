@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/rs/zerolog/log"
+	"log/slog"
 )
 
 type ProxyRouter struct {
@@ -75,7 +75,7 @@ func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handl
 			Inc()
 		req.Host = target.Host
 		req.URL.Host = target.Host
-		log.Info().Msgf("Proxying request to %s", req.Host)
+		slog.Info("Proxying request", "host", req.Host)
 		// remove auth header
 		req.Header.Del("Authorization")
 		proxy.ServeHTTP(w, req)

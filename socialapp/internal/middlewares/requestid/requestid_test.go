@@ -1,14 +1,19 @@
 package requestid
 
 import (
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
-	"github.com/rs/zerolog"
 )
+
+func newTestLogger() *slog.Logger {
+	return slog.New(slog.NewJSONHandler(io.Discard, nil))
+}
 
 func TestMiddleware(t *testing.T) {
 	tests := []struct {
@@ -73,7 +78,7 @@ func TestMiddleware(t *testing.T) {
 
 			// Create a test request
 			req := httptest.NewRequest("GET", tt.path, nil)
-			req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+			req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 			rr := httptest.NewRecorder()
 
 			// Serve the request
@@ -121,7 +126,7 @@ func TestMiddleware_RequestIDUniqueness(t *testing.T) {
 
 	for i := 0; i < numRequests; i++ {
 		req := httptest.NewRequest("GET", "/test", nil)
-		req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+		req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
 	}
@@ -156,7 +161,7 @@ func TestMiddleware_ContextPropagation(t *testing.T) {
 	handler := Middleware(testHandler)
 
 	req := httptest.NewRequest("GET", "/test", nil)
-	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
@@ -176,7 +181,7 @@ func TestMiddleware_ResponseHeaderSet(t *testing.T) {
 	handler := Middleware(testHandler)
 
 	req := httptest.NewRequest("GET", "/test", nil)
-	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
@@ -203,7 +208,7 @@ func TestMiddleware_RequestHeaderSet(t *testing.T) {
 	handler := Middleware(testHandler)
 
 	req := httptest.NewRequest("GET", "/test", nil)
-	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
@@ -266,7 +271,7 @@ func TestMiddleware_HandlerPanics(t *testing.T) {
 	handler := Middleware(testHandler)
 
 	req := httptest.NewRequest("GET", "/test", nil)
-	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 	rr := httptest.NewRecorder()
 
 	handler.ServeHTTP(rr, req)
@@ -293,7 +298,7 @@ func TestMiddleware_DifferentHTTPMethods(t *testing.T) {
 			handler := Middleware(testHandler)
 
 			req := httptest.NewRequest(method, "/test", nil)
-			req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+			req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 			rr := httptest.NewRecorder()
 
 			handler.ServeHTTP(rr, req)
@@ -332,7 +337,7 @@ func TestMiddleware_ConsistencyBetweenHeaderAndContext(t *testing.T) {
 	// Run multiple requests to ensure consistency
 	for i := 0; i < 10; i++ {
 		req := httptest.NewRequest("GET", "/test", nil)
-		req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+		req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
 	}
@@ -346,7 +351,7 @@ func BenchmarkMiddleware(b *testing.B) {
 	handler := Middleware(testHandler)
 
 	req := httptest.NewRequest("GET", "/test", nil)
-	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), zerolog.New(nil)))
+	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), newTestLogger()))
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {

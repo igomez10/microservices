@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"hash/fnv"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -35,8 +36,6 @@ import (
 	urlClient "github.com/igomez10/microservices/urlshortener/generated/clients/go/client"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/cors"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
 )
 
@@ -52,7 +51,7 @@ type Config struct {
 	AppName               string
 	AppPort               int
 	ProxyURL              string
-	LogLevel              zerolog.Level
+	LogLevel              slog.Level
 	LogDestinations       []io.Writer
 	LoggerProvider        *sdklog.LoggerProvider
 	DBPool                *pgxpool.Pool
@@ -92,16 +91,16 @@ func createServiceGenerator(hostname, serviceName string) (*snowflake.Generator,
 // NewRouter creates and configures the main chi router
 func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 	// Setup logger
-	zerolog.SetGlobalLevel(config.LogLevel)
-	multi := zerolog.MultiLevelWriter(config.LogDestinations...)
-
-	log.Logger = zerolog.New(multi).
-		With().
-		Str("app", config.AppName).
-		Str("instance", config.InstanceID).
-		Timestamp().
-		Caller().
-		Logger()
+	multi := io.MultiWriter(config.LogDestinations...)
+	handler := slog.NewJSONHandler(multi, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     config.LogLevel,
+	})
+	logger := slog.New(handler).With(
+		"app", config.AppName,
+		"instance", config.InstanceID,
+	)
+	slog.SetDefault(logger)
 
 	// Get hostname for snowflake node ID generation
 	hostname, err := os.Hostname()
@@ -131,9 +130,7 @@ func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 		return nil, err
 	}
 
-	log.Info().
-		Str("hostname", hostname).
-		Msg("Initialized snowflake generators for all services")
+	slog.Info("Initialized snowflake generators for all services", "hostname", hostname)
 
 	// EventRecorder for event sourcing
 	eventRec := eventRecorder.EventRecorder{
@@ -335,9 +332,7 @@ func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 	// Main router for routing to different routers based on subdomain
 	mainRouter := chi.NewRouter()
 	mainRouter.HandleFunc("/*", func(w http.ResponseWriter, r *http.Request) {
-		log.Info().Str("host", r.Host).
-			Str("path", r.URL.Path).
-			Msg("Request host")
+		slog.Info("Request host", "host", r.Host, "path", r.URL.Path)
 
 		switch r.Host {
 		case config.KibanaSubdomain:
@@ -353,7 +348,7 @@ func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 					// Add form value to body
 					r.Header.Add("Authorization", "Basic "+base64.StdEncoding.EncodeToString([]byte(usr+":"+pwd)))
 				}
-				log.Warn().Err(err).Msg("failed to get auth cookie")
+				slog.Warn("failed to get auth cookie", "error", err)
 			} else {
 				r.Header.Add("Authorization", "Bearer "+cookie.Value)
 			}

@@ -7,15 +7,14 @@ import (
 	"crypto/sha512"
 	"crypto/x509"
 	"encoding/pem"
-
-	"github.com/rs/zerolog/log"
+	"log/slog"
 )
 
 // GenerateKeyPair generates a new key pair
 func GenerateKeyPair(bits int) (*rsa.PrivateKey, *rsa.PublicKey) {
 	privkey, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
-		log.Err(err)
+		slog.Error("failed to generate rsa keypair", "error", err)
 	}
 	return privkey, &privkey.PublicKey
 }
@@ -36,7 +35,7 @@ func PrivateKeyToBytes(priv *rsa.PrivateKey) []byte {
 func PublicKeyToBytes(pub *rsa.PublicKey) []byte {
 	pubASN1, err := x509.MarshalPKIXPublicKey(pub)
 	if err != nil {
-		log.Err(err)
+		slog.Error("failed to marshal public key", "error", err)
 	}
 
 	pubBytes := pem.EncodeToMemory(&pem.Block{
@@ -54,15 +53,15 @@ func BytesToPrivateKey(priv []byte) *rsa.PrivateKey {
 	b := block.Bytes
 	var err error
 	if enc {
-		log.Info().Msg("is encrypted pem block")
+		slog.Info("is encrypted pem block")
 		b, err = x509.DecryptPEMBlock(block, nil)
 		if err != nil {
-			log.Err(err)
+			slog.Error("failed to decrypt pem block", "error", err)
 		}
 	}
 	key, err := x509.ParsePKCS1PrivateKey(b)
 	if err != nil {
-		log.Err(err)
+		slog.Error("failed to parse private key", "error", err)
 	}
 	return key
 }
@@ -74,19 +73,19 @@ func BytesToPublicKey(pub []byte) *rsa.PublicKey {
 	b := block.Bytes
 	var err error
 	if enc {
-		log.Info().Msg("is encrypted pem block")
+		slog.Info("is encrypted pem block")
 		b, err = x509.DecryptPEMBlock(block, nil)
 		if err != nil {
-			log.Err(err)
+			slog.Error("failed to decrypt pem block", "error", err)
 		}
 	}
 	ifc, err := x509.ParsePKIXPublicKey(b)
 	if err != nil {
-		log.Err(err)
+		slog.Error("failed to parse public key", "error", err)
 	}
 	key, ok := ifc.(*rsa.PublicKey)
 	if !ok {
-		log.Error().Msg("not ok")
+		slog.Error("failed to cast public key")
 	}
 	return key
 }
@@ -96,7 +95,7 @@ func EncryptWithPublicKey(msg []byte, pub *rsa.PublicKey) []byte {
 	hash := sha512.New()
 	ciphertext, err := rsa.EncryptOAEP(hash, rand.Reader, pub, msg, nil)
 	if err != nil {
-		log.Err(err)
+		slog.Error("failed to encrypt with public key", "error", err)
 	}
 	return ciphertext
 }
@@ -106,7 +105,7 @@ func DecryptWithPrivateKey(ciphertext []byte, priv *rsa.PrivateKey) []byte {
 	hash := sha512.New()
 	plaintext, err := rsa.DecryptOAEP(hash, rand.Reader, priv, ciphertext, nil)
 	if err != nil {
-		log.Err(err)
+		slog.Error("failed to decrypt with private key", "error", err)
 	}
 	return plaintext
 }
@@ -117,7 +116,7 @@ func SignWithPrivateKey(ciphertext []byte, priv *rsa.PrivateKey) (signature []by
 	signature, err := rsa.SignPKCS1v15(rand.Reader, priv, crypto.SHA512, hash)
 	// DecryptOAEP(hash, rand.Reader, priv, ciphertext, nil)
 	if err != nil {
-		log.Err(err)
+		slog.Error("failed to sign with private key", "error", err)
 	}
 	return signature, hash
 }
@@ -126,8 +125,8 @@ func SignWithPrivateKey(ciphertext []byte, priv *rsa.PrivateKey) (signature []by
 func VerifyWithPublicKey(signature []byte, hash []byte, pub *rsa.PublicKey) error {
 	err := rsa.VerifyPKCS1v15(pub, crypto.SHA512, hash, signature)
 	if err != nil {
-		log.Err(err)
+		slog.Error("failed to verify signature", "error", err)
 	}
-	log.Info().Msg("verified")
+	slog.Info("verified")
 	return nil
 }

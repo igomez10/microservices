@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"context"
+	"io"
+	"log/slog"
 	"net"
 	"net/http"
 	"net/url"
@@ -12,7 +14,6 @@ import (
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/jackc/pgx/v5"
 	_ "github.com/lib/pq"
-	"github.com/rs/zerolog"
 )
 
 // TestFetchURLIntegration tests the integration of the fetchURL function
@@ -130,10 +131,10 @@ func TestMultiLevelLog(t *testing.T) {
 	}
 	defer stream.Close()
 
-	ml := zerolog.MultiLevelWriter(memoryFile, secondFile, stream)
-	logger := zerolog.New(ml).With().Timestamp().Logger()
+	ml := io.MultiWriter(memoryFile, secondFile, stream)
+	logger := slog.New(slog.NewJSONHandler(ml, nil))
 
-	logger.Info().Msg("info message")
+	logger.Info("info message")
 
 	// Give the goroutine time to read from the stream
 	time.Sleep(100 * time.Millisecond)
@@ -234,12 +235,7 @@ func TestRetryClientCheckRetry(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a logger that won't pollute test output
 			logBuf := &bytes.Buffer{}
-			logger := zerolog.New(logBuf).With().Timestamp().Logger()
-
-			// Temporarily replace the global logger
-			originalLogger := zerolog.GlobalLevel()
-			zerolog.SetGlobalLevel(zerolog.WarnLevel)
-			defer zerolog.SetGlobalLevel(originalLogger)
+			logger := slog.New(slog.NewJSONHandler(logBuf, nil))
 
 			// Create test context
 			ctx := context.Background()
@@ -248,20 +244,19 @@ func TestRetryClientCheckRetry(t *testing.T) {
 			checkRetry := func(ctx context.Context, resp *http.Response, err error) (bool, error) {
 				// Retry on network errors
 				if err != nil {
-					logger.Warn().
-						Err(err).
-						Msg("http retry - network error")
+					logger.Warn("http retry - network error", "error", err)
 					return true, err
 				}
 
 				// Retry on 5xx status codes
 				if resp != nil && resp.StatusCode >= 500 {
-					logger.Warn().
-						Stringer("url", resp.Request.URL).
-						Str("method", resp.Request.Method).
-						Str("status", resp.Status).
-						Int("status_code", resp.StatusCode).
-						Msg("http retry - 5xx status")
+					logger.Warn(
+						"http retry - 5xx status",
+						"url", resp.Request.URL.String(),
+						"method", resp.Request.Method,
+						"status", resp.Status,
+						"status_code", resp.StatusCode,
+					)
 					return true, nil
 				}
 

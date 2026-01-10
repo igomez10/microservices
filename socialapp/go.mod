@@ -20,7 +20,6 @@ require (
 	github.com/newrelic/go-agent/v3 v3.24.1
 	github.com/prometheus/client_golang v1.18.0
 	github.com/rs/cors v1.11.1
-	github.com/rs/zerolog v1.30.0
 	github.com/stretchr/testify v1.11.1
 	github.com/testcontainers/testcontainers-go v0.40.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.40.0
