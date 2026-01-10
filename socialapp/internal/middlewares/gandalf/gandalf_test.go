@@ -618,8 +618,10 @@ func TestAuthenticate_NoAuth(t *testing.T) {
 		if !ok {
 			t.Error("Expected scopes in context")
 		}
-		if !scopes["noauth"] {
-			t.Error("Expected 'noauth' scope in context")
+		// When no auth is provided, scopes should be empty (not special "noauth" scope)
+		// Empty scopes will be allowed by authorization middleware when endpoint has no required scopes
+		if len(scopes) != 0 {
+			t.Errorf("Expected empty scopes for unauthenticated request, got %v", scopes)
 		}
 		w.WriteHeader(http.StatusOK)
 	}))

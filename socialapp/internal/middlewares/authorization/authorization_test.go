@@ -64,31 +64,6 @@ func TestAuthorize(t *testing.T) {
 			expectBodyPart:  "missing from token",
 		},
 		{
-			name: "Success - NoAuth scope",
-			requiredScopes: map[string]bool{
-				"noauth": true,
-			},
-			tokenScopes:     map[string]bool{},
-			scopesInContext: true,
-			expectStatus:    http.StatusOK,
-			expectCalled:    true,
-			expectBodyPart:  "success",
-		},
-		{
-			name: "Success - NoAuth mixed with other scopes",
-			requiredScopes: map[string]bool{
-				"noauth":     true,
-				"read:users": true,
-			},
-			tokenScopes: map[string]bool{
-				"read:users": true,
-			},
-			scopesInContext: true,
-			expectStatus:    http.StatusOK,
-			expectCalled:    true,
-			expectBodyPart:  "success",
-		},
-		{
 			name:            "Success - Empty required scopes",
 			requiredScopes:  map[string]bool{},
 			tokenScopes:     map[string]bool{"some:scope": true},
@@ -168,9 +143,9 @@ func TestAuthorize(t *testing.T) {
 			},
 			tokenScopes:     map[string]bool{},
 			scopesInContext: true,
-			expectStatus:    http.StatusForbidden,
+			expectStatus:    http.StatusUnauthorized,
 			expectCalled:    false,
-			expectBodyPart:  "missing from token",
+			expectBodyPart:  "No scopes in context and required scopes are not empty",
 		},
 	}
 
@@ -469,15 +444,13 @@ func TestAuthorize_ComplexScopeScenarios(t *testing.T) {
 			description: "Missing one of many required scopes",
 		},
 		{
-			name: "NoAuth allows everything",
-			requiredScopes: map[string]bool{
-				"noauth": true,
-			},
+			name:           "Empty required scopes allows everything",
+			requiredScopes: map[string]bool{},
 			tokenScopes: map[string]bool{
-				// Empty or any scopes
+				// Any scopes or empty - doesn't matter when no scopes required
 			},
 			expectPass:  true,
-			description: "NoAuth special case",
+			description: "Public endpoint - no scopes required",
 		},
 		{
 			name: "Single scope requirement",

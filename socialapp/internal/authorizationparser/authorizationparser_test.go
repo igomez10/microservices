@@ -51,7 +51,7 @@ func TestParseAuthorization(t *testing.T) {
 var expectedEndpointAuthorizationsForTestApi = EndpointAuthorizations{
 	"/users": {
 		"GET":  []string{"socialapp.users.list"},
-		"POST": []string{"noauth"},
+		"POST": []string{}, // No security requirement = empty scopes (public endpoint)
 	},
 	"/users/{username}": {
 		"GET":    []string{"socialapp.users.read"},
