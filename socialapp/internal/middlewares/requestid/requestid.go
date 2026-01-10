@@ -15,19 +15,14 @@ func Middleware(next http.Handler) http.Handler {
 		ctx, span := tracerhelper.GetTracer().Start(r.Context(), "middleware.request_id")
 		defer span.End()
 
-		r = r.WithContext(ctx)
-
 		requestID := uuid.New().String()
 		w.Header().Set("X-Request-ID", requestID)
 		r.Header.Set("X-Request-ID", requestID)
 
-		// Add request id as attribute to the logger
-		r = r.WithContext(contexthelper.SetRequestIDInContext(r.Context(), requestID))
-		log := contexthelper.GetLoggerInContext(r.Context())
-		log = log.With("X-Request-ID", requestID)
-		contexthelper.SetLoggerInContext(r.Context(), log)
-
-		r = r.WithContext(contexthelper.SetLoggerInContext(r.Context(), log))
+		ctx = contexthelper.SetRequestIDInContext(ctx, requestID)
+		logger := contexthelper.GetLoggerInContext(ctx).With("X-Request-ID", requestID)
+		ctx = contexthelper.SetLoggerInContext(ctx, logger)
+		r = r.WithContext(ctx)
 
 		// ---------
 		//  HANDLE REQUEST

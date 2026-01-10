@@ -1,3 +1,6 @@
+// Integration tests exercise the running SocialApp service and expect environment variables such as APP_HOST
+// (service base URL), OTEL_EXPORTER_OTLP_ENDPOINT (Tempo/OTLP collector), and TEST_SETUP (switch between LOCALHOST and DNS overrides).
+// They also honor USE_PROXY if request capture is required.
 package main
 
 import (
