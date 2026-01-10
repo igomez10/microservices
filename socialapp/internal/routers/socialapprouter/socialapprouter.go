@@ -12,8 +12,8 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/authorization"
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/pattern"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
-	"github.com/newrelic/go-agent/v3/newrelic"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
 )
 
 type SocialAppRouter struct {
@@ -22,7 +22,7 @@ type SocialAppRouter struct {
 
 type Middleware func(http.Handler) http.Handler
 
-func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers []openapi.Router, authorizationParse authorizationparser.EndpointAuthorizations, newrelicApp *newrelic.Application) SocialAppRouter {
+func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers []openapi.Router, authorizationParse authorizationparser.EndpointAuthorizations) SocialAppRouter {
 	mainRouter := chi.NewRouter()
 
 	mainRouter.Mount("/debug", middleware.Profiler())
@@ -59,8 +59,15 @@ func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers [
 				handler = route.HandlerFunc
 
 				r.Group(func(r chi.Router) {
-					// use a  custom middleware to record the metrics on the route pattern.
+					// Add open telemetry traces before any middleware can short-circuit.
+					resourceName := fmt.Sprintf("%s_%s", route.Method, route.Pattern)
+					r.Use(otelhttp.NewMiddleware(
+						resourceName,
+						otelhttp.WithTracerProvider(otel.GetTracerProvider()),
+						otelhttp.WithPropagators(otel.GetTextMapPropagator()),
+					))
 
+					// use a  custom middleware to record the metrics on the route pattern.
 					pattern := pattern.Pattern{Pattern: route.Pattern}
 					r.Use(pattern.Middleware)
 
@@ -79,15 +86,7 @@ func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers [
 					}
 
 					r.Use(authorizationRuler.Authorize)
-					if newrelicApp != nil {
-						_, handler = newrelic.WrapHandle(newrelicApp, route.Pattern, handler)
-					}
-
-					// Add open telemetry traces
-					resourceName := fmt.Sprintf("%s_%s", route.Method, route.Pattern)
-					otelHandler := otelhttp.NewHandler(handler, resourceName)
-
-					r.Method(route.Method, route.Pattern, otelHandler)
+					r.Method(route.Method, route.Pattern, handler)
 				})
 			}
 		}

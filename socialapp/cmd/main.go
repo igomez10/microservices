@@ -36,6 +36,7 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
 // Configuration constants
@@ -345,10 +346,6 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 	queries := dbpgx.New()
 
 	// Setup tracing
-	http.DefaultClient = &http.Client{
-		Transport: otelhttp.NewTransport(http.DefaultTransport),
-	}
-
 	exporter, err := otlptracegrpc.New(ctx,
 		otlptracegrpc.WithInsecure(),
 		otlptracegrpc.WithEndpointURL(opts.AgentURL),
@@ -364,6 +361,7 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 		resource.WithTelemetrySDK(),
 		resource.WithContainer(),
 		resource.WithContainerID(),
+		resource.WithAttributes(semconv.ServiceNameKey.String(opts.AppName)),
 		resource.WithAttributes(attribute.KeyValue{
 			Key:   attribute.Key("instance_id"),
 			Value: attribute.StringValue(instanceID),
@@ -396,6 +394,13 @@ func getConfig(ctx context.Context) (server.Config, []func() error) {
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	otel.SetTracerProvider(tp)
 	otel.SetMeterProvider(meterProvider)
+	http.DefaultClient = &http.Client{
+		Transport: otelhttp.NewTransport(
+			http.DefaultTransport,
+			otelhttp.WithTracerProvider(otel.GetTracerProvider()),
+			otelhttp.WithPropagators(otel.GetTextMapPropagator()),
+		),
+	}
 
 	shutdown = append(shutdown, func() error {
 		slog.Info("Shutting down tracer provider")

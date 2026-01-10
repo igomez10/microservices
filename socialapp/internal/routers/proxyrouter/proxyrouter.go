@@ -9,6 +9,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
 	"log/slog"
 )
 
@@ -39,6 +41,12 @@ var prometheusProxyResponseTime = promauto.NewSummaryVec(prometheus.SummaryOpts{
 func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handler) *ProxyRouter {
 	router := chi.NewRouter()
 
+	router.Use(otelhttp.NewMiddleware(
+		"proxy",
+		otelhttp.WithTracerProvider(otel.GetTracerProvider()),
+		otelhttp.WithPropagators(otel.GetTextMapPropagator()),
+	))
+
 	for i := range middlewares {
 		router.Use(middlewares[i])
 	}
@@ -47,6 +55,11 @@ func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handl
 		Scheme: target.Scheme,
 		Host:   target.Host,
 	})
+	proxy.Transport = otelhttp.NewTransport(
+		http.DefaultTransport,
+		otelhttp.WithTracerProvider(otel.GetTracerProvider()),
+		otelhttp.WithPropagators(otel.GetTextMapPropagator()),
+	)
 
 	// Serve static files from the static/public folder
 	fs := http.FileServer(http.Dir("static/public"))
@@ -67,7 +80,7 @@ func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handl
 			Observe(latency)
 	})
 
-	router.HandleFunc("/*", func(w http.ResponseWriter, req *http.Request) {
+	proxyHandler := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		// metrics for proxy
 		startTime := time.Now()
 		prometheusProxyRequests.
@@ -86,6 +99,7 @@ func NewProxyRouter(target *url.URL, middlewares []func(http.Handler) http.Handl
 			Observe(latency)
 		return
 	})
+	router.Handle("/*", proxyHandler)
 
 	return &ProxyRouter{
 		Router: router,

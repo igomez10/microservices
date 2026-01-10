@@ -17,7 +17,6 @@ require (
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/jessevdk/go-flags v1.6.1
 	github.com/lib/pq v1.10.9
-	github.com/newrelic/go-agent/v3 v3.24.1
 	github.com/prometheus/client_golang v1.18.0
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.11.1

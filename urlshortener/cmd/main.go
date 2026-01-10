@@ -28,6 +28,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
@@ -141,6 +142,10 @@ func main() {
 
 	// Register the tracer provider as the global provider.
 	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{},
+		propagation.Baggage{},
+	))
 
 	// Start HTTP server
 	middlewares := []func(http.Handler) http.Handler{
@@ -276,6 +281,14 @@ func NewRouter(middlewares []func(http.Handler) http.Handler, routers []server.R
 			for _, route := range api.Routes() {
 
 				r.Group(func(r chi.Router) {
+					// Add open telemetry traces before any middleware can short-circuit.
+					resourceName := fmt.Sprintf("%s_%s", route.Method, route.Pattern)
+					r.Use(otelhttp.NewMiddleware(
+						resourceName,
+						otelhttp.WithTracerProvider(otel.GetTracerProvider()),
+						otelhttp.WithPropagators(otel.GetTextMapPropagator()),
+					))
+
 					// use a  custom middleware to record the metrics on the route pattern.
 					r.Use(std.HandlerProvider(route.Pattern, mdlw))
 
@@ -286,10 +299,8 @@ func NewRouter(middlewares []func(http.Handler) http.Handler, routers []server.R
 						r.Use(middlewares[i])
 					}
 
-					resourceName := fmt.Sprintf("%s_%s", route.Method, route.Pattern)
 					handler := route.HandlerFunc
-					otelHandler := otelhttp.NewHandler(http.Handler(handler), resourceName)
-					r.Method(route.Method, route.Pattern, otelHandler)
+					r.Method(route.Method, route.Pattern, handler)
 				})
 			}
 		}

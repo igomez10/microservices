@@ -36,7 +36,11 @@ import (
 	urlClient "github.com/igomez10/microservices/urlshortener/generated/clients/go/client"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/cors"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // Configuration constants
@@ -183,7 +187,18 @@ func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 		uc.Host = config.URLShortenerURL.Host
 		uc.Scheme = config.URLShortenerURL.Scheme
 	}
-	uc.HTTPClient = http.DefaultClient
+	urlHTTPClient := &http.Client{
+		Transport: otelhttp.NewTransport(
+			http.DefaultClient.Transport,
+			otelhttp.WithTracerProvider(otel.GetTracerProvider()),
+			otelhttp.WithPropagators(otel.GetTextMapPropagator()),
+			otelhttp.WithSpanOptions(trace.WithAttributes(
+				attribute.String("peer.service", "urlshortener"),
+			)),
+		),
+		Timeout: http.DefaultClient.Timeout,
+	}
+	uc.HTTPClient = urlHTTPClient
 	uc.UserAgent = config.AppName
 	urlServiceClient := urlClient.NewAPIClient(uc)
 
@@ -244,7 +259,7 @@ func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 		middleware.RealIP,
 	}
 
-	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse, nil)
+	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse)
 
 	// Setup proxy routers (for Kibana, properties, etc.)
 	kibanaTargetURL, _ := url.Parse(config.KibanaURL)

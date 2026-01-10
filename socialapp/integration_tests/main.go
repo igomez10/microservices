@@ -16,6 +16,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/pkg/scopes"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -113,7 +114,14 @@ func getHTTPClient() *http.Client {
 		},
 	}
 
-	retryClient.HTTPClient.Transport = otelhttp.NewTransport(customTransport)
+	retryClient.HTTPClient.Transport = otelhttp.NewTransport(
+		customTransport,
+		otelhttp.WithTracerProvider(otel.GetTracerProvider()),
+		otelhttp.WithPropagators(otel.GetTextMapPropagator()),
+		otelhttp.WithSpanOptions(trace.WithAttributes(
+			attribute.String("peer.service", "socialapp"),
+		)),
+	)
 	retryClient.RetryMax = 3
 	retryClient.HTTPClient.Timeout = 15 * time.Second
 	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
