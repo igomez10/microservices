@@ -8,9 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/newrelic/go-agent/v3/integrations/nrpq v1.1.1
-	github.com/pact-foundation/pact-go v1.8.0
 	github.com/prometheus/client_golang v1.18.0
-	github.com/rs/zerolog v1.30.0
 	github.com/slok/go-http-metrics v0.11.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.54.0
 	go.opentelemetry.io/otel v1.29.0

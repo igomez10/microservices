@@ -2,10 +2,8 @@ package contexthelper
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
-
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 )
 
 func GetUsernameInContext(ctx context.Context) (string, bool) {
@@ -29,7 +27,7 @@ func SetRequestedScopesInContext(r *http.Request, scopes map[string]bool) *http.
 func GetRequestIDInContext(ctx context.Context) string {
 	requestID, ok := ctx.Value("X-Request-ID").(string)
 	if !ok {
-		log.Error().Msg("failed to retrieve request ID from context")
+		slog.Error("failed to retrieve request ID from context")
 		defaultRequestID := "Request ID not found in context"
 		return defaultRequestID
 	}
@@ -40,22 +38,22 @@ func SetRequestIDInContext(ctx context.Context, requestID string) context.Contex
 	return context.WithValue(ctx, "X-Request-ID", requestID)
 }
 
-func GetLoggerInContext(ctx context.Context) zerolog.Logger {
-	logger, ok := ctx.Value("logger").(zerolog.Logger)
-	if !ok {
-		return log.Logger
+func GetLoggerInContext(ctx context.Context) *slog.Logger {
+	logger, ok := ctx.Value("logger").(*slog.Logger)
+	if !ok || logger == nil {
+		return slog.Default()
 	}
 	return logger
 }
 
-func SetLoggerInContext(ctx context.Context, logger zerolog.Logger) context.Context {
+func SetLoggerInContext(ctx context.Context, logger *slog.Logger) context.Context {
 	return context.WithValue(ctx, "logger", logger)
 }
 
 func GetRequestPatternInContext(ctx context.Context) string {
 	pattern, ok := ctx.Value("pattern").(string)
 	if !ok {
-		log.Error().Msg("failed to retrieve pattern from context")
+		slog.Error("failed to retrieve pattern from context")
 		defaultPattern := "Pattern not found in context"
 		return defaultPattern
 	}

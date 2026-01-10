@@ -4,8 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -19,8 +21,6 @@ import (
 	flags "github.com/jessevdk/go-flags"
 	_ "github.com/newrelic/go-agent/v3/integrations/nrpq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"github.com/slok/go-http-metrics/metrics/prometheus"
 	metricsMiddleware "github.com/slok/go-http-metrics/middleware"
 	"github.com/slok/go-http-metrics/middleware/std"
@@ -51,46 +51,50 @@ func main() {
 	// Parse flags
 	if _, err := flags.Parse(&opts); err != nil {
 		if err.(*flags.Error).Type != flags.ErrHelp {
-			log.Fatal().Err(err).Msg("failed to parse flags")
+			slog.Error("failed to parse flags", "err", err)
+			os.Exit(1)
 		}
 		os.Exit(0)
 	}
 
 	instanceID := uuid.NewString()
-	log.Logger = zerolog.New(os.Stderr).
-		With().
-		Caller().
-		Str("app", opts.AppName).
-		Str("instance", instanceID).
-		Timestamp().
-		Caller().
-		Logger()
-
-	// Set log level zerolog
-	if _, err := zerolog.ParseLevel(opts.logLevel); err != nil {
-		log.Fatal().Err(err).Msg("failed to parse log level")
+	level, err := parseLogLevel(opts.logLevel)
+	if err != nil {
+		slog.Error("failed to parse log level", "level", opts.logLevel, "err", err)
+		os.Exit(1)
 	}
+	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
+		Level:     level,
+		AddSource: true,
+	})).With(
+		"app", opts.AppName,
+		"instance", instanceID,
+	)
+	slog.SetDefault(logger)
 
 	// Connect to database
 	dbConn, err := sql.Open("nrpostgres", opts.DBURL)
 	if err != nil {
-		log.Fatal().Err(err)
+		slog.Error("failed to open database", "err", err)
+		os.Exit(1)
 	}
 
 	defer func() {
 		if err := dbConn.Close(); err != nil {
-			log.Error().Err(err).Msg("failed to close database connection")
+			slog.Error("failed to close database connection", "err", err)
 		}
 	}()
 
 	if dbConn == nil {
-		log.Fatal().Msg("db is nil")
+		slog.Error("db is nil")
+		os.Exit(1)
 	}
 
 	pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := dbConn.PingContext(pingCtx); err != nil {
-		log.Fatal().Err(err).Msg("failed to ping database, shutting down")
+		slog.Error("failed to ping database, shutting down", "err", err)
+		os.Exit(1)
 	}
 
 	// Create queries instance for db calls
@@ -111,15 +115,17 @@ func main() {
 	// Start meta service
 	go func() {
 		meta := NewMetaRouter()
-		log.Info().Str("addr", fmt.Sprintf("%s:%d", opts.MetaServer.Addr, opts.MetaServer.Port)).Msg("starting meta service")
+		slog.Info("starting meta service", "addr", fmt.Sprintf("%s:%d", opts.MetaServer.Addr, opts.MetaServer.Port))
 		if err := http.ListenAndServe(fmt.Sprintf("%s:%d", opts.MetaServer.Addr, opts.MetaServer.Port), meta); err != nil {
-			log.Fatal().Err(err).Msg("failed to start meta service")
+			slog.Error("failed to start meta service", "err", err)
+			os.Exit(1)
 		}
 	}()
 
 	exporter, err := otlptracegrpc.New(mainCtx, otlptracegrpc.WithInsecure(), otlptracegrpc.WithEndpointURL(opts.AgentURL))
 	if err != nil {
-		log.Fatal().Err(err).Msgf("failed to create otlp exporter for tracing %q", opts.AgentURL)
+		slog.Error("failed to create otlp exporter for tracing", "endpoint", opts.AgentURL, "err", err)
+		os.Exit(1)
 	}
 
 	// Create a new tracer provider with a batch span processor and the otlp exporter.
@@ -146,9 +152,10 @@ func main() {
 	urlRouter := NewRouter(middlewares, []server.Router{URLAPIController})
 
 	addr := fmt.Sprintf("%s:%d", opts.HTTPAddr, opts.Port)
-	log.Info().Str("addr", addr).Msg("starting HTTP server")
+	slog.Info("starting HTTP server", "addr", addr)
 	if err := http.ListenAndServe(addr, urlRouter); err != nil {
-		log.Fatal().Err(err).Msg("failed to start HTTP server")
+		slog.Error("failed to start HTTP server", "err", err)
+		os.Exit(1)
 	}
 }
 
@@ -180,12 +187,10 @@ func ObservabilityMiddleware() func(next http.Handler) http.Handler {
 			span.SetAttributes(attribute.String("x-request-id", middleware.GetReqID(r.Context())))
 
 			logger := contexthelper.GetLoggerInContext(ctx)
-			logger.UpdateContext(func(c zerolog.Context) zerolog.Context {
-				c = c.Str("trace_id", span.SpanContext().TraceID().String())
-				c = c.Str("x-request-id", middleware.GetReqID(r.Context()))
-				return c
-			})
-
+			logger = logger.With(
+				"trace_id", span.SpanContext().TraceID().String(),
+				"x-request-id", middleware.GetReqID(r.Context()),
+			)
 			ctx = contexthelper.SetLoggerInContext(ctx, logger)
 			r = r.WithContext(ctx)
 
@@ -193,13 +198,13 @@ func ObservabilityMiddleware() func(next http.Handler) http.Handler {
 				ResponseWriter: w,
 			}
 			next.ServeHTTP(customW, r)
-			logger.Info().
-				Str("method", r.Method).
-				Int("status_code", customW.statusCode).
-				Str("path", r.URL.Path).
-				Str("remote_addr", r.RemoteAddr).
-				Str("user_agent", r.UserAgent()).
-				Msg("finished request")
+			logger.Info("finished request",
+				"method", r.Method,
+				"status_code", customW.statusCode,
+				"path", r.URL.Path,
+				"remote_addr", r.RemoteAddr,
+				"user_agent", r.UserAgent(),
+			)
 		})
 	}
 }
@@ -226,7 +231,7 @@ func NewMetaRouter() chi.Router {
 			file := "openapi.yaml"
 			content, err := os.ReadFile(file)
 			if err != nil {
-				log.Error().Err(err).Msg("Error reading file")
+				slog.Error("error reading file", "err", err)
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -247,9 +252,7 @@ func (p *Pattern) Middleware(next http.Handler) http.Handler {
 		span.SetAttributes(attribute.String("x-pattern", p.Pattern))
 
 		logger := contexthelper.GetLoggerInContext(ctx)
-		logger.UpdateContext(func(c zerolog.Context) zerolog.Context {
-			return c.Str("x-pattern", p.Pattern)
-		})
+		logger = logger.With("x-pattern", p.Pattern)
 		ctx = contexthelper.SetLoggerInContext(ctx, logger)
 		ctx = contexthelper.SetRequestPatternInContext(ctx, p.Pattern)
 
@@ -293,4 +296,19 @@ func NewRouter(middlewares []func(http.Handler) http.Handler, routers []server.R
 	})
 
 	return mainRouter
+}
+
+func parseLogLevel(input string) (slog.Level, error) {
+	switch strings.ToLower(input) {
+	case "debug":
+		return slog.LevelDebug, nil
+	case "info", "":
+		return slog.LevelInfo, nil
+	case "warn", "warning":
+		return slog.LevelWarn, nil
+	case "error":
+		return slog.LevelError, nil
+	default:
+		return slog.LevelInfo, fmt.Errorf("invalid log level: %s", input)
+	}
 }

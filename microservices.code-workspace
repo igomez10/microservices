@@ -32,6 +32,9 @@
 		},
 		{
 			"path": "../microservices-docker-elk"
+		},
+		{
+			"path": "../clones-microservices"
 		}
 	],
 	"settings": {

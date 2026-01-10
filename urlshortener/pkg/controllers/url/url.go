@@ -10,7 +10,6 @@ import (
 	"github.com/igomez10/microservices/urlshortener/pkg/converter"
 	"github.com/igomez10/microservices/urlshortener/pkg/db"
 	"github.com/igomez10/microservices/urlshortener/pkg/tracerhelper"
-	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 )
@@ -58,7 +57,8 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url, reques
 		}
 
 		// other error
-		log.Error().Err(err).Msgf("error creating url %q with alias %q", newURL.Url, newURL.Alias)
+		logger := contexthelper.GetLoggerInContext(ctx)
+		logger.Error("error creating url", "url", newURL.Url, "alias", newURL.Alias, "err", err)
 		return server.ImplResponse{
 			Code: http.StatusInternalServerError,
 			Body: server.Error{
@@ -80,10 +80,10 @@ func (s *URLApiService) DeleteUrl(ctx context.Context, alias string, requestID s
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "DeleteUrl")
 	defer span.End()
 
-	log := contexthelper.GetLoggerInContext(ctx)
+	logger := contexthelper.GetLoggerInContext(ctx)
 	ctx, dbspan := tracerhelper.GetTracer().Start(ctx, "db.DeleteUrl")
 	if err := s.DB.DeleteURL(ctx, s.DBConn, alias); err != nil {
-		log.Error().Err(err).Msgf("error deleting url %q", alias)
+		logger.Error("error deleting url", "alias", alias, "err", err)
 		return server.ImplResponse{
 			Code: http.StatusInternalServerError,
 			Body: server.Error{
