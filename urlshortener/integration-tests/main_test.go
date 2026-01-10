@@ -86,31 +86,32 @@ func TestURLLifeCycle(t *testing.T) {
 	// setup url client
 	urlClientConfiguration := urlClient.NewConfiguration()
 	urlClientConfiguration.Host = "localhost:8089"
+	urlClientConfiguration.Scheme = "http"
 	httpClient := getHTTPClient()
 	urlClientConfiguration.HTTPClient = httpClient
 	urlClnt = urlClient.NewAPIClient(urlClientConfiguration)
 
 	// create url
 	alias := fmt.Sprintf("%d", uuid.New().ID())
-	// newURL := urlClient.NewURL("https://www.google.com/", alias)
-	// _, r, err := urlClnt.URLAPI.CreateUrl(ctx).URL(*newURL).Execute()
-	// if err != nil {
-	// 	t.Errorf("Error when calling `URLAPI.CreateURL`: %v\n", err)
-	// 	t.Errorf("Full HTTP response: %v ", r)
-	// }
+	newURL := urlClient.NewURL("https://www.google.com/", alias)
+	_, r, err := urlClnt.URLAPI.CreateUrl(ctx).URL(*newURL).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `URLAPI.CreateURL`: %v\n", err)
+		t.Errorf("Full HTTP response: %v ", r)
+	}
 
-	// if r.StatusCode != http.StatusOK {
-	// 	t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
-	// }
+	if r.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+	}
 
-	// // create same url should fail with 409
-	// _, r, err = urlClnt.URLAPI.CreateUrl(ctx).URL(*newURL).Execute()
-	// if err == nil {
-	// 	t.Errorf("Expected error when calling `URLAPI.CreateURL`, got none")
-	// }
-	// if r.StatusCode != http.StatusConflict {
-	// 	t.Errorf("Expected status code %d, got %d", http.StatusConflict, r.StatusCode)
-	// }
+	// create same url should fail with 409
+	_, r, err = urlClnt.URLAPI.CreateUrl(ctx).URL(*newURL).Execute()
+	if err == nil {
+		t.Errorf("Expected error when calling `URLAPI.CreateURL`, got none")
+	}
+	if r.StatusCode != http.StatusConflict {
+		t.Errorf("Expected status code %d, got %d", http.StatusConflict, r.StatusCode)
+	}
 
 	// get url
 	getUrlRes, err := urlClnt.URLAPI.GetUrl(ctx, alias).Execute()
@@ -120,30 +121,30 @@ func TestURLLifeCycle(t *testing.T) {
 		t.Fatalf("Error getting url: %v", err)
 	}
 
-	// if getUrlRes.StatusCode != http.StatusOK {
-	// 	t.Errorf("Expected status code %d, got %d", http.StatusOK, getUrlRes.StatusCode)
-	// }
+	if getUrlRes.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, getUrlRes.StatusCode)
+	}
 
-	// // delete url
-	// deleteUrlRes, err := urlClnt.URLAPI.DeleteUrl(urlAPICtx, alias).Execute()
-	// if err != nil {
-	// 	t.Errorf("Error when calling `URLAPI.DeleteURL`: %v\n", err)
-	// 	t.Errorf("Full HTTP response: %v ", r)
-	// 	t.Fatalf("Error deleting url: %v", err)
-	// }
+	// delete url
+	deleteUrlRes, err := urlClnt.URLAPI.DeleteUrl(ctx, alias).Execute()
+	if err != nil {
+		t.Errorf("Error when calling `URLAPI.DeleteURL`: %v\n", err)
+		t.Errorf("Full HTTP response: %v ", r)
+		t.Fatalf("Error deleting url: %v", err)
+	}
 
-	// if deleteUrlRes.StatusCode != http.StatusOK {
-	// 	t.Errorf("Expected status code %d, got %d", http.StatusOK, deleteUrlRes.StatusCode)
-	// }
+	if deleteUrlRes.StatusCode != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, deleteUrlRes.StatusCode)
+	}
 
-	// // get url
-	// getUrlRes, err = urlClnt.URLAPI.GetUrl(urlAPICtx, alias).Execute()
-	// if err == nil {
-	// 	t.Errorf("Expected error when calling `URLAPI.GetURL`, got none")
-	// }
-	// if getUrlRes.StatusCode != http.StatusNotFound {
-	// 	t.Errorf("Expected status code %d, got %d", http.StatusNotFound, getUrlRes.StatusCode)
-	// }
+	// get url
+	getUrlRes, err = urlClnt.URLAPI.GetUrl(ctx, alias).Execute()
+	if err == nil {
+		t.Errorf("Expected error when calling `URLAPI.GetURL`, got none")
+	}
+	if getUrlRes.StatusCode != http.StatusNotFound {
+		t.Errorf("Expected status code %d, got %d", http.StatusNotFound, getUrlRes.StatusCode)
+	}
 }
 
 func getOuath2Context(initialContext context.Context, config clientcredentials.Config) (context.Context, error) {

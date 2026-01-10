@@ -18,7 +18,7 @@ import (
 // TestFetchURLIntegration tests the integration of the fetchURL function
 func TestFetchURLIntegration(t *testing.T) {
 	ctx := context.Background()
-	dbConn, err := pgx.Connect(ctx, "postgres://postgres:password@localhost:5432/postgres?sslmode=disable")
+	dbConn, err := pgx.Connect(ctx, "postgres://postgres:password@localhost:5432/socialapp?sslmode=disable")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,13 +30,14 @@ func TestFetchURLIntegration(t *testing.T) {
 	defer dbConn.Close(ctx)
 
 	queries := db.New()
-	createUserReq := db.CreateUserParams{
+	createUserReq := db.CreateUserWithIDParams{
+		ID:        time.Now().UnixNano(),
 		FirstName: "first",
 		LastName:  "last",
 		Email:     "first@last.com",
 	}
 
-	createdUser, err := queries.CreateUser(ctx, dbConn, createUserReq)
+	createdUser, err := queries.CreateUserWithID(ctx, dbConn, createUserReq)
 	if err != nil {
 		t.Fatal(err)
 	}

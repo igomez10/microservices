@@ -11,7 +11,7 @@ func FromOpenAPIToEndpointScopes(doc *openapi3.T) EndpointAuthorizations {
 	res := EndpointAuthorizations{}
 
 	// iterate over paths
-	for path, item := range doc.Paths {
+	for path, item := range doc.Paths.Map() {
 		// iterate over possible operations (methods of the path)
 		for method, operation := range item.Operations() {
 			// check if the operation has security requirements
