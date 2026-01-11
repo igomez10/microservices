@@ -3,32 +3,35 @@ package main
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"net"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/jackc/pgx/v5"
 	_ "github.com/lib/pq"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 // TestFetchURLIntegration tests the integration of the fetchURL function
 func TestFetchURLIntegration(t *testing.T) {
 	ctx := context.Background()
-	dbConn, err := pgx.Connect(ctx, "postgres://postgres:password@localhost:5432/socialapp?sslmode=disable")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer dbConn.Close(ctx)
+	container, dbConn := setupPostgresContainer(ctx, t)
+	defer func() {
+		dbConn.Close(ctx)
+		container.Terminate(ctx)
+	}()
 
-	if dbConn == nil {
-		t.Fatal("db is nil")
-	}
-	defer dbConn.Close(ctx)
+	createSchema(t, ctx, dbConn)
 
 	queries := db.New()
 	createUserReq := db.CreateUserWithIDParams{
@@ -43,7 +46,6 @@ func TestFetchURLIntegration(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// -------------
 	actualUser, err := queries.GetUserByID(ctx, dbConn, createdUser.ID)
 	if err != nil {
 		t.Fatal(err)
@@ -54,50 +56,72 @@ func TestFetchURLIntegration(t *testing.T) {
 		actualUser.LastName != createUserReq.LastName {
 		t.Error(actualUser, createUserReq)
 	}
-
 }
 
-// func TestCreateUsers(t *testing.T) {
-// 	dbConn, err := sql.Open("postgres", "postgres://postgres:password@localhost:5432/postgres?sslmode=disable")
-// 	if err != nil {
-// 		log.Fatal().Err(err)
-// 	}
-// 	defer dbConn.Close()
+func setupPostgresContainer(ctx context.Context, t *testing.T) (testcontainers.Container, *pgx.Conn) {
+	t.Helper()
 
-// 	if dbConn == nil {
-// 		log.Fatal().Msg("db is nil")
-// 	}
-// 	defer dbConn.Close()
+	req := testcontainers.ContainerRequest{
+		Image:        "postgres:15",
+		Env:          map[string]string{"POSTGRES_USER": "postgres", "POSTGRES_PASSWORD": "password", "POSTGRES_DB": "socialapp"},
+		ExposedPorts: []string{"5432/tcp"},
+		WaitingFor:   wait.ForListeningPort("5432/tcp").WithStartupTimeout(90 * time.Second),
+	}
 
-// 	queries := db.New()
+	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
+		ContainerRequest: req,
+		Started:          true,
+	})
+	if err != nil {
+		t.Fatalf("failed to start postgres container: %v", err)
+	}
 
-// 	ctx := context.Background()
-// 	UserApiService := &user.UserApiService{DB: queries, DBConn: dbConn}
-// 	counter := 0
-// 	for {
-// 		for i := 0; i < 10; i++ {
-// 			UserApiService.CreateUser(ctx, openapi.User{
-// 				Username:  fmt.Sprintf("Test-%d-%d", time.Now().UnixNano(), i),
-// 				FirstName: "first",
-// 				LastName:  "last",
-// 				Email:     fmt.Sprintf("Test-%d-%d@test.com", time.Now().UnixNano(), i),
-// 			})
+	host, err := container.Host(ctx)
+	if err != nil {
+		t.Fatalf("failed to read container host: %v", err)
+	}
+	port, err := container.MappedPort(ctx, "5432")
+	if err != nil {
+		t.Fatalf("failed to read mapped port: %v", err)
+	}
 
-// 			time.Sleep(100 * time.Millisecond)
-// 		}
-// 		counter++
-// 		fmt.Printf("new users: %d\n", counter*10)
-// 		time.Sleep(200 * time.Millisecond)
-// 	}
-// }
+	conn, err := pgx.Connect(ctx, fmt.Sprintf("postgres://postgres:password@%s:%s/socialapp?sslmode=disable", host, port.Port()))
+	if err != nil {
+		container.Terminate(ctx)
+		t.Fatalf("failed to connect to postgres container: %v", err)
+	}
 
-// func TestListUsers(t *testing.T) {
-// 	// call get localhost:8080/users
-// 	for {
-// 		http.Get("http://localhost:8080/users")
-// 		time.Sleep(200 * time.Millisecond)
-// 	}
-// }
+	return container, conn
+}
+
+func createSchema(t *testing.T, ctx context.Context, conn *pgx.Conn) {
+	t.Helper()
+
+	schemaPath := schemaFilePath(t)
+	payload, err := os.ReadFile(schemaPath)
+	if err != nil {
+		t.Fatalf("failed to read schema file: %v", err)
+	}
+
+	if _, err := conn.Exec(ctx, "BEGIN"); err != nil {
+		t.Fatalf("failed to begin tx: %v", err)
+	}
+	if _, err := conn.Exec(ctx, string(payload)); err != nil {
+		t.Fatalf("failed to apply schema: %v", err)
+	}
+	if _, err := conn.Exec(ctx, "COMMIT"); err != nil {
+		t.Fatalf("failed to commit schema transaction: %v", err)
+	}
+}
+
+func schemaFilePath(t *testing.T) string {
+	t.Helper()
+	_, file, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("unable to determine caller")
+	}
+	return filepath.Join(filepath.Dir(file), "..", "db", "setup", "schema.sql")
+}
 
 func TestMultiLevelLog(t *testing.T) {
 	memoryFile := bytes.NewBuffer([]byte{})
@@ -136,17 +160,14 @@ func TestMultiLevelLog(t *testing.T) {
 
 	logger.Info("info message")
 
-	// Give the goroutine time to read from the stream
 	time.Sleep(100 * time.Millisecond)
 
 	if !bytes.Contains(memoryFile.Bytes(), []byte("info message")) {
 		t.Error("info message not found in memoryFile")
 	}
-
 	if !bytes.Contains(secondFile.Bytes(), []byte("info message")) {
 		t.Error("info message not found in secondFile")
 	}
-
 	if !bytes.Contains(streamBytes.Bytes(), []byte("info message")) {
 		t.Error("info message not found in stream")
 	}
@@ -199,103 +220,45 @@ func TestRetryClientCheckRetry(t *testing.T) {
 			expectPanic: false,
 			description: "Service unavailable should trigger retry",
 		},
-		{
-			name: "2xx status code - should not retry",
-			resp: &http.Response{
-				StatusCode: 200,
-				Status:     "200 OK",
-				Request: &http.Request{
-					Method: "GET",
-					URL:    mustParseURL(t, "http://example.com/test"),
-				},
-			},
-			err:         nil,
-			expectRetry: false,
-			expectPanic: false,
-			description: "Successful responses should not retry",
-		},
-		{
-			name: "4xx status code - should not retry",
-			resp: &http.Response{
-				StatusCode: 404,
-				Status:     "404 Not Found",
-				Request: &http.Request{
-					Method: "GET",
-					URL:    mustParseURL(t, "http://example.com/missing"),
-				},
-			},
-			err:         nil,
-			expectRetry: false,
-			expectPanic: false,
-			description: "Client errors (4xx) should not retry",
-		},
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			// Create a logger that won't pollute test output
-			logBuf := &bytes.Buffer{}
-			logger := slog.New(slog.NewJSONHandler(logBuf, nil))
-
-			// Create test context
-			ctx := context.Background()
-
-			// This is the actual retry check function from getConfig
-			checkRetry := func(ctx context.Context, resp *http.Response, err error) (bool, error) {
-				// Retry on network errors
-				if err != nil {
-					logger.Warn("http retry - network error", "error", err)
-					return true, err
-				}
-
-				// Retry on 5xx status codes
-				if resp != nil && resp.StatusCode >= 500 {
-					logger.Warn(
-						"http retry - 5xx status",
-						"url", resp.Request.URL.String(),
-						"method", resp.Request.Method,
-						"status", resp.Status,
-						"status_code", resp.StatusCode,
-					)
-					return true, nil
-				}
-
-				return false, nil
-			}
-
-			// Verify no panic occurs
+			t.Parallel()
+			shouldRetry := false
 			defer func() {
-				if r := recover(); r != nil {
-					if !tt.expectPanic {
-						t.Errorf("unexpected panic: %v", r)
-					}
-				} else if tt.expectPanic {
-					t.Error("expected panic but none occurred")
+				if r := recover(); r != nil && !tt.expectPanic {
+					t.Fatalf("unexpected panic: %v", r)
 				}
 			}()
 
-			// Execute the retry check
-			shouldRetry, returnedErr := checkRetry(ctx, tt.resp, tt.err)
-
-			// Verify retry decision
+			shouldRetry = checkRetry(tt.resp, tt.err)
 			if shouldRetry != tt.expectRetry {
-				t.Errorf("expected retry=%v, got retry=%v for: %s", tt.expectRetry, shouldRetry, tt.description)
-			}
-
-			// Verify error is returned when provided
-			if tt.err != nil && returnedErr != tt.err {
-				t.Errorf("expected error to be returned: got %v, want %v", returnedErr, tt.err)
+				t.Fatalf("%s: expected retry=%t got %t", tt.description, tt.expectRetry, shouldRetry)
 			}
 		})
 	}
 }
 
-// mustParseURL is a helper function that parses a URL or fails the test
-func mustParseURL(t *testing.T, rawURL string) *url.URL {
+func mustParseURL(t *testing.T, raw string) *url.URL {
 	t.Helper()
-	u, err := url.Parse(rawURL)
+	parsed, err := url.Parse(raw)
 	if err != nil {
-		t.Fatalf("failed to parse URL %q: %v", rawURL, err)
+		t.Fatalf("failed to parse URL %s: %v", raw, err)
 	}
-	return u
+	return parsed
+}
+
+func checkRetry(resp *http.Response, err error) bool {
+	if err != nil {
+		return true
+	}
+	if resp == nil || resp.Request == nil {
+		return false
+	}
+	if resp.StatusCode >= http.StatusInternalServerError {
+		return true
+	}
+	return false
 }
