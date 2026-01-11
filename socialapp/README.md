@@ -109,3 +109,42 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
   - shortly.url.update: Update a url
   - shortly.url.delete: Delete a url
 
+## Contract Testing with Pact
+
+Socialapp now ships a Pact consumer test that verifies how the URL controller
+talks to the `urlshortener` service. Running `make contract-test` spins up a Pact
+mock server, exercises the `/v1/urls/{alias}/data` call, and writes the contract
+to `contracts/pacts/Socialapp-UrlShortener.json`. Runtime logs land in
+`contracts/logs/`, which is ignored by source control.
+
+The same command also records expectations for Socialapp's user, comment, and
+scope APIs in `contracts/pacts/socialapp-client-socialapp.json`, so downstream
+clients can rely on those endpoints as well.
+
+Before you run the contract test, install the Pact CLI and native libraries:
+
+```sh
+go install github.com/pact-foundation/pact-go/v2@v2.4.2
+pact-go -l DEBUG install
+```
+
+If `/usr/local/lib` is read‑only (common on macOS), run `pact-go -l DEBUG install --libDir /tmp`
+instead or point `--libDir` at another writable directory.
+
+Then run:
+
+```sh
+cd socialapp
+make contract-test
+```
+
+CI jobs can call `../scripts/run-contract-tests.sh` to ensure every contract test
+executes for both services before a merge.
+
+Use `scripts/publish-contracts.sh` with the required `PACT_BROKER_*` environment
+variables (e.g., `PACT_BROKER_BASE_URL`, `PACT_BROKER_VERSION`, and credentials)
+to push `contracts/pacts/socialapp-client-socialapp.json` and
+`contracts/pacts/socialapp-urlshortener.json` to your Pact Broker.
+
+Commit the updated file from `contracts/pacts/` after regenerating it so the
+`urlshortener` team can verify their provider against the new contract.

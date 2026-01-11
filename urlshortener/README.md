@@ -35,7 +35,23 @@ All URIs are relative to *https://urlshortener.gomezignacio.com*
 - **Flow**: application
 - **Authorization URL**: 
 - **Scopes**: 
-  - shortly.url.create: Create a url
-  - shortly.url.update: Update a url
-  - shortly.url.delete: Delete a url
+- shortly.url.create: Create a url
+- shortly.url.update: Update a url
+- shortly.url.delete: Delete a url
 
+Contract tests are also available via `make contract-test`. CI pipelines can run
+`../scripts/run-contract-tests.sh` from the repo root to exercise Socialapp and
+UrlShortener pact suites together.
+
+## Contract Testing with Pact
+
+The URL Shortener service verifies the consumer contract that Socialapp generates for `/v1/urls/{alias}/data`. Run `make contract-test` after installing the Pact CLI and native libraries to ensure the provider still meets those expectations:
+
+```sh
+go install github.com/pact-foundation/pact-go/v2@v2.4.2
+pact-go -l DEBUG install --libDir /tmp
+cd urlshortener
+make contract-test
+```
+
+Logs appear under `contracts/logs/` and are ignored by git, while the pact file itself lives in Socialapp (`../socialapp/contracts/pacts/socialapp-urlshortener.json`).

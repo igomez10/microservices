@@ -122,6 +122,16 @@ test:
 test-e2e:
 	go test -v ./e2e/... -timeout 300s
 
+contract-test:
+	../scripts/pact-check.sh
+	go test ./contracts -run Test.*Contract -count=1
+	go test ./pkg/controller/url -run TestURLApiService_GetUrlDataContract -count=1
+
+publish-contracts:
+	../scripts/publish-contracts.sh \
+		contracts/pacts/socialapp-client-socialapp.json \
+		contracts/pacts/socialapp-urlshortener.json
+
 start:
 	docker compose up -d
 

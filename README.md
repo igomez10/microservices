@@ -106,6 +106,7 @@ A service for tracking and displaying Bitcoin price information using the Buffal
 
 - **Unit Testing**: Go testing framework
 - **Contract Testing**: Pact
+  - Run `scripts/run-contract-tests.sh` from the repo root to execute the pact suites for both services (ensures `pact-go check` runs before the tests).
 - **Integration Testing**: Custom test suites
 - **API Testing**: Postman collections
 

@@ -91,6 +91,10 @@ build:
 test:
 	go test ./...
 
+contract-test:
+	../scripts/pact-check.sh
+	go test ./contracts -run TestProvider_VerifyUrlShortener -count=1
+
 start:
 	docker compose up -d
 

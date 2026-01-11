@@ -22,6 +22,14 @@ jobs:
           go-version: "1.24"
           cache-dependency-path: socialapp/go.sum
 
+      - name: Run unit tests
+        run: |
+          cd socialapp
+          make test
+
+      - name: Run contract tests
+        run: ./scripts/run-contract-tests.sh
+
       - name: Run e2e tests
         run: |
           cd socialapp
