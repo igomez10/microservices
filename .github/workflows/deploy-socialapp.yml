@@ -22,6 +22,11 @@ jobs:
           go-version: "1.24"
           cache-dependency-path: socialapp/go.sum
 
+      - name: Install Pact CLI
+        run: |
+          go install github.com/pact-foundation/pact-go/v2@v2.4.2
+          pact-go -l DEBUG install --libDir /tmp
+
       - name: Run unit tests
         run: |
           cd socialapp
