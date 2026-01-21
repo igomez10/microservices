@@ -24,6 +24,7 @@ volumes:
   mimir-1-data: {}
   redis_data: {}
   loki_data: {}
+  tempo_data: {}
 
 services:
   socialapp:
@@ -806,6 +807,7 @@ services:
     command: ["-config.file=/etc/tempo.yaml"]
     volumes:
       - "./tempo/tempo.yaml:/etc/tempo.yaml"
+      - tempo_data:/var/tempo
     restart: unless-stopped
     cpus: 2
     mem_limit: 4096m
