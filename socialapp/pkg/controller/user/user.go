@@ -658,7 +658,7 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 	defer tx.Rollback(ctx)
 
 	// get user from request context
-	username, ok := ctx.Value("username").(string)
+	username, ok := contexthelper.GetUsernameInContext(ctx)
 	if !ok {
 		logger.Error("Error getting user from context")
 		return openapi.ImplResponse{

@@ -116,16 +116,26 @@ start-dev-server:
 build:
 	go build ./...
 
-test:
-	go test ./...
+# Run only unit tests (excludes e2e, integration, and contract tests)
+test-unit:
+	go test $$(go list ./... | grep -v -E '/(e2e|integration_tests|contracts|pkg/controller/url)$$')
 
+# Run integration tests
+test-integration:
+	go test -v ./integration_tests/... -timeout 300s
+
+# Run end-to-end tests
 test-e2e:
 	go test -v ./e2e/... -timeout 300s
 
-contract-test:
+# Run contract tests
+test-contract:
 	../scripts/pact-check.sh
 	go test ./contracts -run Test.*Contract -count=1
 	go test ./pkg/controller/url -run TestURLApiService_GetUrlDataContract -count=1
+
+# Run all tests
+test: test-unit test-integration test-e2e test-contract
 
 publish-contracts:
 	../scripts/publish-contracts.sh \
