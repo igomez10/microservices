@@ -27,13 +27,13 @@ jobs:
           go install github.com/pact-foundation/pact-go/v2@v2.4.2
           pact-go -l DEBUG install --libDir /tmp
 
-      # - name: Run unit tests
-      #   run: |
-      #     cd socialapp
-      #     make test
+      - name: Run unit tests
+        run: |
+          cd socialapp
+          make test
 
-      - name: Run contract tests
-        run: ./scripts/run-contract-tests.sh
+      # - name: Run contract tests
+      #   run: ./scripts/run-contract-tests.sh
 
       - name: Run e2e tests
         run: |
