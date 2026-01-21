@@ -28,6 +28,7 @@ volumes:
 
 services:
   socialapp:
+    init: true
     deploy:
       replicas: 3
       resources:
@@ -227,6 +228,7 @@ services:
           memory: 128M
 
   grafana:
+    init: true
     container_name: grafana
     image: grafana/grafana:11.5.1
     user: "472"
@@ -281,13 +283,14 @@ services:
         max-file: "3"
 
   prometheus:
+    init: true
     container_name: prometheus
     image: prom/prometheus:v2.50.1
     volumes:
       - ./prometheus/:/etc/prometheus/:ro
       - prometheus_data:/prometheus
     command:
-      - "--storage.tsdb.retention.size=6GB"
+      - "--storage.tsdb.retention.size=3GB"
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
@@ -333,6 +336,7 @@ services:
         max-file: "3"
 
   alertmanager:
+    init: true
     container_name: alertmanager
     image: prom/alertmanager:latest
     volumes:
@@ -450,6 +454,7 @@ services:
       - "whoami.${EXPOSED_HOST}:172.28.0.151"
 
   cadvisor:
+    init: true
     container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:v0.51.0
     privileged: true
@@ -462,7 +467,7 @@ services:
       - /dev/disk/:/dev/disk:ro
     command:
       - "--docker_only=true"
-      - "--housekeeping_interval=10s"
+      - "--housekeeping_interval=30s"
     expose:
       - 8080
     ports:
@@ -750,6 +755,7 @@ services:
         #     options:
         #       loki-url: "http://localhost:3100/loki/api/v1/push"
   unleash:
+    init: true
     container_name: unleash
     image: unleashorg/unleash-server:6
     ports:

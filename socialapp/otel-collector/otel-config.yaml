@@ -69,6 +69,28 @@ processors:
     timeout: 10s
     send_batch_size: 1000
 
+  # Tail-based sampling: keeps all errors/slow traces, samples 10% of normal traces
+  tail_sampling:
+    decision_wait: 10s
+    num_traces: 100000
+    expected_new_traces_per_sec: 1000
+    policies:
+      # Always keep traces with errors
+      - name: errors-policy
+        type: status_code
+        status_code:
+          status_codes: [ERROR]
+      # Always keep slow traces (>500ms)
+      - name: latency-policy
+        type: latency
+        latency:
+          threshold_ms: 500
+      # Sample 10% of remaining traces
+      - name: probabilistic-policy
+        type: probabilistic
+        probabilistic:
+          sampling_percentage: 10
+
 exporters:
   otlp:
     endpoint: http://tempo:4317
@@ -103,7 +125,7 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]
+      processors: [tail_sampling, batch]
       exporters: [otlp]
 
     metrics:
