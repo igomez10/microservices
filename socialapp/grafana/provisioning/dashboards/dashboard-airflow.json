@@ -1,0 +1,271 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": {
+                    "type": "grafana",
+                    "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 1,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "title": "DAG Run Duration",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "s",
+                    "color": { "mode": "palette-classic" },
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineWidth": 2,
+                        "fillOpacity": 10,
+                        "pointSize": 5,
+                        "showPoints": "auto"
+                    }
+                },
+                "overrides": []
+            },
+            "targets": [
+                {
+                    "expr": "airflow_dagrun_duration{status=\"success\"}",
+                    "legendFormat": "{{ dag_id }}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "title": "Task Instance Finish Rate",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "ops",
+                    "color": { "mode": "palette-classic" },
+                    "custom": {
+                        "drawStyle": "bars",
+                        "lineWidth": 1,
+                        "fillOpacity": 50,
+                        "stacking": { "mode": "normal" }
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": { "id": "byRegexp", "options": ".*failed.*" },
+                        "properties": [
+                            { "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }
+                        ]
+                    },
+                    {
+                        "matcher": { "id": "byRegexp", "options": ".*success.*" },
+                        "properties": [
+                            { "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } }
+                        ]
+                    }
+                ]
+            },
+            "targets": [
+                {
+                    "expr": "rate(airflow_ti_finish[5m])",
+                    "legendFormat": "{{ dag_id }}/{{ task_id }} ({{ state }})",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "title": "Executor Slots",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": { "mode": "palette-classic" },
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineWidth": 2,
+                        "fillOpacity": 20
+                    }
+                },
+                "overrides": []
+            },
+            "targets": [
+                {
+                    "expr": "airflow_executor_open_slots",
+                    "legendFormat": "Open Slots",
+                    "refId": "A"
+                },
+                {
+                    "expr": "airflow_executor_queued_tasks",
+                    "legendFormat": "Queued Tasks",
+                    "refId": "B"
+                },
+                {
+                    "expr": "airflow_executor_running_tasks",
+                    "legendFormat": "Running Tasks",
+                    "refId": "C"
+                }
+            ]
+        },
+        {
+            "title": "Scheduler Tasks",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": { "mode": "palette-classic" },
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineWidth": 2,
+                        "fillOpacity": 20
+                    }
+                },
+                "overrides": []
+            },
+            "targets": [
+                {
+                    "expr": "airflow_scheduler_tasks_running",
+                    "legendFormat": "Running",
+                    "refId": "A"
+                },
+                {
+                    "expr": "airflow_scheduler_tasks_starving",
+                    "legendFormat": "Starving",
+                    "refId": "B"
+                }
+            ]
+        },
+        {
+            "title": "Pool Utilization",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": { "mode": "palette-classic" },
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineWidth": 2,
+                        "fillOpacity": 20
+                    }
+                },
+                "overrides": []
+            },
+            "targets": [
+                {
+                    "expr": "airflow_pool_open_slots",
+                    "legendFormat": "{{ pool }} - Open",
+                    "refId": "A"
+                },
+                {
+                    "expr": "airflow_pool_used_slots",
+                    "legendFormat": "{{ pool }} - Used",
+                    "refId": "B"
+                }
+            ]
+        },
+        {
+            "title": "DAG Schedule Delay",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "s",
+                    "color": { "mode": "palette-classic" },
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineWidth": 2,
+                        "fillOpacity": 10
+                    }
+                },
+                "overrides": []
+            },
+            "targets": [
+                {
+                    "expr": "airflow_dagrun_schedule_delay",
+                    "legendFormat": "{{ dag_id }}",
+                    "refId": "A"
+                }
+            ]
+        },
+        {
+            "title": "DAG Processing Parse Time",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+            "datasource": {
+                "type": "prometheus",
+                "uid": "PBFA97CFB590B2093"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "s",
+                    "color": { "mode": "palette-classic" },
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineWidth": 2,
+                        "fillOpacity": 10
+                    }
+                },
+                "overrides": []
+            },
+            "targets": [
+                {
+                    "expr": "airflow_dag_processing_total_parse_time",
+                    "legendFormat": "Total Parse Time",
+                    "refId": "A"
+                }
+            ]
+        }
+    ],
+    "schemaVersion": 38,
+    "style": "dark",
+    "tags": ["airflow", "puttyknife"],
+    "templating": { "list": [] },
+    "time": { "from": "now-6h", "to": "now" },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Airflow",
+    "uid": "airflow-metrics",
+    "version": 1,
+    "weekStart": ""
+}
