@@ -137,6 +137,9 @@ test-contract:
 # Run all tests
 test: test-unit test-integration test-e2e test-contract
 
+# Add CI specific test target
+test-ci: test-unit
+
 publish-contracts:
 	../scripts/publish-contracts.sh \
 		contracts/pacts/socialapp-client-socialapp.json \

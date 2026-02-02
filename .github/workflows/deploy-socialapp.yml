@@ -30,7 +30,7 @@ jobs:
       - name: Run unit tests
         run: |
           cd socialapp
-          APP_HOST=$APP_HOST make test
+          APP_HOST=$APP_HOST make test-ci
 
       # - name: Run contract tests
       #   run: ./scripts/run-contract-tests.sh
