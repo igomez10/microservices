@@ -17,6 +17,7 @@ test.skip(!shouldRun, 'E2E_CLIENT_ID and E2E_CLIENT_SECRET are required for UI t
 test('get access token', async ({ page }) => {
   await page.goto('/')
   await page.getByLabel('API Base URL').fill(apiBaseUrl)
+  await page.getByRole('button', { name: 'Sign in' }).click()
 
   await page.getByRole('button', { name: 'Settings' }).click()
   await page.getByLabel('Client ID').fill(clientId!)
@@ -30,6 +31,7 @@ test('get access token', async ({ page }) => {
 test('list users and create/delete a user', async ({ page }) => {
   await page.goto('/')
   await page.getByLabel('API Base URL').fill(apiBaseUrl)
+  await page.getByRole('button', { name: 'Sign in' }).click()
 
   await page.getByRole('button', { name: 'Settings' }).click()
   await page.getByLabel('Client ID').fill(clientId!)

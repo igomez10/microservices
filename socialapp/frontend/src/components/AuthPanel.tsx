@@ -65,40 +65,49 @@ export default function AuthPanel({
   }
 
   return (
-    <div>
-      <h2>Authentication</h2>
-      <div className="grid">
-        <label className="field">
-          Client ID
-          <input value={clientId} onChange={(event) => onClientId(event.target.value)} />
+    <section>
+      <div className="flex-between">
+        <h3>Authentication</h3>
+        <span className="status-chip">{token ? 'Token set' : 'No token'}</span>
+      </div>
+
+      <div className="form-grid mt-16">
+        <label className="input-group">
+          <span className="input-label">Client ID</span>
+          <input className="input input-mono" value={clientId} onChange={(event) => onClientId(event.target.value)} />
         </label>
-        <label className="field">
-          Client Secret
+
+        <label className="input-group">
+          <span className="input-label">Client Secret</span>
           <input
+            className="input input-mono"
             type="password"
             value={clientSecret}
             onChange={(event) => onClientSecret(event.target.value)}
           />
         </label>
-        <label className="field">
-          Scopes (space-separated)
-          <input value={scopes} onChange={(event) => onScopes(event.target.value)} />
-        </label>
       </div>
-      <div className="muted">Token is cached locally in your browser.</div>
-      <div className="row">
-        <button className="button" onClick={handleToken} disabled={isLoading || !canRequestToken}>
-          {isLoading ? 'Fetching…' : 'Get access token'}
+
+      <label className="input-group mt-16">
+        <span className="input-label">Scopes (space-separated)</span>
+        <input className="input input-mono" value={scopes} onChange={(event) => onScopes(event.target.value)} />
+      </label>
+
+      <p className="small-muted">Token is cached locally in your browser.</p>
+
+      <div className="row mt-16">
+        <button className="btn btn-primary" onClick={handleToken} disabled={isLoading || !canRequestToken}>
+          {isLoading ? 'Fetching...' : 'Get access token'}
         </button>
-        <button className="button secondary" onClick={() => onToken(undefined)}>
+        <button className="btn btn-secondary" onClick={() => onToken(undefined)}>
           Clear token
         </button>
-        <span className="pill">{token ? 'Token set' : 'No token'}</span>
       </div>
-      {status ? <div className="muted">Status: {status}</div> : null}
-      {!canRequestToken ? <div className="error">Provide client credentials to request a token.</div> : null}
-      {error ? <div className="error">Error: {error}</div> : null}
+
+      {status ? <p className="small-muted">Status: {status}</p> : null}
+      {!canRequestToken ? <p className="error-text">Provide client credentials to request a token.</p> : null}
+      {error ? <p className="error-text">Error: {error}</p> : null}
       {response ? <pre className="highlight">{response}</pre> : null}
-    </div>
+    </section>
   )
 }

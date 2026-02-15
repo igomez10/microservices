@@ -1,4 +1,4 @@
-import { useMemo, useState, type Dispatch, type SetStateAction } from 'react'
+import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import AuthPanel from '@/components/AuthPanel'
 import { clearStored, readStored, writeStored } from '@/lib/storage'
 import {
@@ -21,7 +21,10 @@ const DEFAULT_SCOPES = import.meta.env.VITE_OAUTH_SCOPES ?? ''
 const BASE_URL_KEY = 'socialapp.baseUrl'
 const TOKEN_KEY = 'socialapp.token'
 
-type View = 'home' | 'users' | 'admin' | 'urls' | 'settings'
+type View = 'feed' | 'users' | 'profile' | 'admin' | 'settings'
+type AdminTab = 'roles' | 'scopes' | 'urls'
+type SettingsTab = 'auth' | 'password' | 'danger'
+type ProfileTab = 'posts' | 'followers' | 'following' | 'roles'
 
 type StatusState = {
   status: string
@@ -31,8 +34,143 @@ type StatusState = {
 
 const initialStatus: StatusState = { status: '', error: '', loading: false }
 
+const AVATAR_COLORS = [
+  '#1a1a2e',
+  '#16213e',
+  '#0f3460',
+  '#533483',
+  '#4a0e4e',
+  '#2c3333',
+  '#395b64',
+  '#2c3639'
+]
+
+function avatarColor(username: string) {
+  let hash = 0
+  for (let index = 0; index < username.length; index += 1) {
+    hash = username.charCodeAt(index) + ((hash << 5) - hash)
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
+}
+
+function timeAgo(dateStr?: string) {
+  if (!dateStr) {
+    return 'just now'
+  }
+  const now = new Date()
+  const then = new Date(dateStr)
+  if (Number.isNaN(then.getTime())) {
+    return 'just now'
+  }
+  const diff = Math.floor((now.getTime() - then.getTime()) / 1000)
+  if (diff < 60) return 'just now'
+  if (diff < 3600) return `${Math.floor(diff / 60)}m`
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h`
+  if (diff < 604800) return `${Math.floor(diff / 86400)}d`
+  return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+function formatDate(dateStr?: string) {
+  if (!dateStr) {
+    return 'Unknown'
+  }
+  const value = new Date(dateStr)
+  if (Number.isNaN(value.getTime())) {
+    return 'Unknown'
+  }
+  return value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+
+function getInitials(user: { username: string; first_name?: string; last_name?: string }) {
+  const first = user.first_name?.trim().charAt(0) ?? user.username.charAt(0)
+  const last = user.last_name?.trim().charAt(0) ?? ''
+  return `${first}${last}`.toUpperCase()
+}
+
+type IconProps = {
+  d: string
+  size?: number
+  stroke?: string
+  fill?: string
+}
+
+function Icon({ d, size = 20, stroke = 'currentColor', fill = 'none' }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={fill}
+      stroke={stroke}
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={d} />
+    </svg>
+  )
+}
+
+const Icons = {
+  home: (size = 20) => <Icon size={size} d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z" />,
+  search: (size = 20) => <Icon size={size} d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />,
+  user: (size = 20) => <Icon size={size} d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" />,
+  users: (size = 20) =>
+    <Icon
+      size={size}
+      d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75M9 11a4 4 0 100-8 4 4 0 000 8z"
+    />,
+  shield: (size = 20) => <Icon size={size} d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />,
+  heart: (size = 20, liked = false) => (
+    <Icon
+      size={size}
+      d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"
+      fill={liked ? '#c45d5d' : 'none'}
+      stroke={liked ? '#c45d5d' : 'currentColor'}
+    />
+  ),
+  logout: (size = 20) => <Icon size={size} d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />,
+  settings: (size = 20) => (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+    </svg>
+  )
+}
+
+function Avatar({
+  user,
+  size = 'md'
+}: {
+  user: { username: string; first_name?: string; last_name?: string }
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+}) {
+  return (
+    <div className={`avatar avatar-${size}`} style={{ background: avatarColor(user.username) }}>
+      {getInitials(user)}
+    </div>
+  )
+}
+
 export default function App() {
-  const [view, setView] = useState<View>('home')
+  const [view, setView] = useState<View>('feed')
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [isSignup, setIsSignup] = useState(false)
+  const [adminTab, setAdminTab] = useState<AdminTab>('roles')
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>('auth')
+  const [profileTab, setProfileTab] = useState<ProfileTab>('posts')
+
   const [baseUrl, setBaseUrl] = useState(() => readStored(BASE_URL_KEY, DEFAULT_API_BASE_URL))
   const [token, setToken] = useState<string | undefined>(() => {
     const stored = readStored<string | undefined>(TOKEN_KEY, undefined)
@@ -212,6 +350,7 @@ export default function App() {
       await loadUsers()
       if (createdUsername) {
         await loadProfile(createdUsername)
+        setView('profile')
       }
     }
   }
@@ -277,6 +416,7 @@ export default function App() {
       setSelectedUser(null)
       setProfileForm(null)
       await loadUsers()
+      setView('users')
     }
   }
 
@@ -306,12 +446,12 @@ export default function App() {
       setStatus(setUserRoleStatus, { status: '', error: 'Provide username', loading: false })
       return
     }
-    const roles = rolesInput
+    const parsedRoles = rolesInput
       .split(',')
       .map((role) => role.trim())
       .filter(Boolean)
     setStatus(setUserRoleStatus, { ...initialStatus, loading: true })
-    const res = await api.updateRolesForUser(username, roles)
+    const res = await api.updateRolesForUser(username, parsedRoles)
     setStatus(setUserRoleStatus, {
       status: `${res.status} ${res.statusText}`,
       error: res.error ?? '',
@@ -643,709 +783,1465 @@ export default function App() {
     user.username.toLowerCase().includes(userSearch.toLowerCase())
   )
 
-  return (
-    <div className="shell">
-      <header className="topbar">
-        <div>
-          <div className="brand">Socialapp</div>
-          <div className="muted">A social workspace for your API.</div>
-        </div>
-        <div className="top-controls">
-          <label className="field">
-            API Base URL
-            <input value={baseUrl} onChange={(event) => handleBaseUrlChange(event.target.value)} />
-          </label>
-          <div className="pill">{token ? 'Session active' : 'No session'}</div>
-        </div>
-      </header>
+  const sidebarUser = selectedUser ?? users[0] ?? null
+  const canPost = commentForm.username.trim().length > 0 && commentForm.content.trim().length > 0
 
-      <nav className="nav">
-        <button className={view === 'home' ? 'active' : ''} onClick={() => setView('home')}>
-          Home
-        </button>
-        <button className={view === 'users' ? 'active' : ''} onClick={() => setView('users')}>
-          Users
-        </button>
-        <button className={view === 'admin' ? 'active' : ''} onClick={() => setView('admin')}>
-          Admin
-        </button>
-        <button className={view === 'urls' ? 'active' : ''} onClick={() => setView('urls')}>
-          URLs
-        </button>
-        <button className={view === 'settings' ? 'active' : ''} onClick={() => setView('settings')}>
-          Settings
-        </button>
-      </nav>
+  useEffect(() => {
+    if (!loggedIn) {
+      return
+    }
+    if (view === 'feed' && feedItems.length === 0 && !feedStatus.loading) {
+      void loadFeed()
+    }
+  }, [loggedIn, view, feedItems.length, feedStatus.loading])
 
-      <main className="content">
-        {view === 'home' && (
-          <section className="view">
-            <div className="grid">
-              <div className="card">
-                <div className="card-header">
-                  <h2>Server</h2>
-                  <button className="button" onClick={pingServer} disabled={serverStatus.loading}>
-                    {serverStatus.loading ? 'Pinging…' : 'Ping server'}
-                  </button>
-                </div>
-                <div className="muted">{serverStatus.status || 'Ping the API root endpoint.'}</div>
-                {serverStatus.error ? <div className="error">{serverStatus.error}</div> : null}
-                {serverMessage ? <div className="highlight">{serverMessage}</div> : null}
+  useEffect(() => {
+    if (!loggedIn) {
+      return
+    }
+    if ((view === 'users' || view === 'profile') && users.length === 0 && !usersStatus.loading) {
+      void loadUsers()
+    }
+  }, [loggedIn, view, users.length, usersStatus.loading])
+
+  const renderProfileWorkspace = () => {
+    if (!selectedUser || !profileForm) {
+      return (
+        <div className="empty-state">
+          <div className="empty-state-text">Select a user to view their profile.</div>
+        </div>
+      )
+    }
+
+    return (
+      <div className="card animate-in">
+        <div className="card-body">
+          <div className="flex-between">
+            <h3>Profile</h3>
+            <div className="flex gap-8">
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() => {
+                  void loadProfile(selectedUser.username)
+                }}
+              >
+                Refresh
+              </button>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => {
+                  void updateProfile()
+                }}
+              >
+                Update
+              </button>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => {
+                  void deleteProfile()
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+          {profileStatus.status ? <p className="small-muted">Status: {profileStatus.status}</p> : null}
+          {profileStatus.error ? <p className="error-text">{profileStatus.error}</p> : null}
+
+          <div className="profile-header compact">
+            <Avatar user={selectedUser} size="lg" />
+            <div className="profile-info">
+              <h2 className="profile-name">
+                {selectedUser.first_name} {selectedUser.last_name}
+              </h2>
+              <div className="profile-handle">@{selectedUser.username}</div>
+              <p className="profile-bio">Joined {formatDate(selectedUser.created_at)}</p>
+              <div className="profile-stats">
+                <span className="profile-stat">
+                  <strong>{following.length}</strong>following
+                </span>
+                <span className="profile-stat">
+                  <strong>{followers.length}</strong>followers
+                </span>
+                <span className="profile-stat">
+                  <strong>{profileComments.length}</strong>posts
+                </span>
               </div>
+            </div>
+          </div>
 
-              <div className="card">
-                <div className="card-header">
-                  <h2>Compose</h2>
-                  <button className="button" onClick={postComment} disabled={feedStatus.loading}>
-                    Post
-                  </button>
+          <div className="form-grid">
+            <label className="input-group">
+              <span className="input-label">Username</span>
+              <input
+                className="input input-mono"
+                value={profileForm.username}
+                onChange={(event) =>
+                  setProfileForm((prev) => (prev ? { ...prev, username: event.target.value } : prev))
+                }
+              />
+            </label>
+            <label className="input-group">
+              <span className="input-label">Email</span>
+              <input
+                className="input"
+                value={profileForm.email}
+                onChange={(event) =>
+                  setProfileForm((prev) => (prev ? { ...prev, email: event.target.value } : prev))
+                }
+              />
+            </label>
+            <label className="input-group">
+              <span className="input-label">First name</span>
+              <input
+                className="input"
+                value={profileForm.first_name}
+                onChange={(event) =>
+                  setProfileForm((prev) => (prev ? { ...prev, first_name: event.target.value } : prev))
+                }
+              />
+            </label>
+            <label className="input-group">
+              <span className="input-label">Last name</span>
+              <input
+                className="input"
+                value={profileForm.last_name}
+                onChange={(event) =>
+                  setProfileForm((prev) => (prev ? { ...prev, last_name: event.target.value } : prev))
+                }
+              />
+            </label>
+          </div>
+
+          <div className="section mt-24">
+            <div className="section-title">Follow actions</div>
+            <label className="input-group">
+              <span className="input-label">Follower username</span>
+              <input
+                className="input input-mono"
+                value={followActor}
+                onChange={(event) => setFollowActor(event.target.value)}
+              />
+            </label>
+            <div className="flex gap-8 mt-16">
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => {
+                  void followSelectedUser('follow')
+                }}
+              >
+                Follow
+              </button>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() => {
+                  void followSelectedUser('unfollow')
+                }}
+              >
+                Unfollow
+              </button>
+            </div>
+          </div>
+
+          <div className="tabs mt-24">
+            <button
+              className={`tab ${profileTab === 'posts' ? 'active' : ''}`}
+              onClick={() => setProfileTab('posts')}
+            >
+              Posts
+            </button>
+            <button
+              className={`tab ${profileTab === 'followers' ? 'active' : ''}`}
+              onClick={() => setProfileTab('followers')}
+            >
+              Followers
+            </button>
+            <button
+              className={`tab ${profileTab === 'following' ? 'active' : ''}`}
+              onClick={() => setProfileTab('following')}
+            >
+              Following
+            </button>
+            <button
+              className={`tab ${profileTab === 'roles' ? 'active' : ''}`}
+              onClick={() => setProfileTab('roles')}
+            >
+              Roles
+            </button>
+          </div>
+
+          {profileTab === 'posts' && (
+            <div className="animate-in">
+              {profileComments.length > 0 ? (
+                profileComments.map((comment) => (
+                  <div key={comment.id ?? comment.content} className="comment-item compact">
+                    <div className="comment-header">
+                      <Avatar user={selectedUser} size="md" />
+                      <div className="comment-meta">
+                        <span className="comment-author">
+                          {selectedUser.first_name} {selectedUser.last_name}
+                        </span>
+                        <span className="comment-handle">@{comment.username}</span>
+                        <span className="comment-time">{timeAgo(comment.created_at)}</span>
+                      </div>
+                    </div>
+                    <div className="comment-body">{comment.content}</div>
+                    <div className="comment-actions">
+                      <span className="comment-action">{Icons.heart(14)} {comment.like_count ?? 0}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="empty-state">
+                  <div className="empty-state-text">No posts yet</div>
                 </div>
-                <label className="field">
-                  Username
+              )}
+            </div>
+          )}
+
+          {profileTab === 'followers' && (
+            <div className="animate-in" style={{ paddingTop: '16px' }}>
+              {followers.length > 0 ? (
+                followers.map((user) => (
+                  <div key={user.username} className="user-row">
+                    <Avatar user={user} size="md" />
+                    <div className="user-row-info">
+                      <div className="user-row-name">
+                        {user.first_name} {user.last_name}
+                      </div>
+                      <div className="user-row-handle">@{user.username}</div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="empty-state">
+                  <div className="empty-state-text">No followers</div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {profileTab === 'following' && (
+            <div className="animate-in" style={{ paddingTop: '16px' }}>
+              {following.length > 0 ? (
+                following.map((user) => (
+                  <div key={user.username} className="user-row">
+                    <Avatar user={user} size="md" />
+                    <div className="user-row-info">
+                      <div className="user-row-name">
+                        {user.first_name} {user.last_name}
+                      </div>
+                      <div className="user-row-handle">@{user.username}</div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="empty-state">
+                  <div className="empty-state-text">No followed users</div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {profileTab === 'roles' && (
+            <div className="animate-in" style={{ paddingTop: '16px' }}>
+              <div className="form-grid">
+                <label className="input-group">
+                  <span className="input-label">Username</span>
                   <input
+                    className="input input-mono"
+                    value={userRoleUsername}
+                    onChange={(event) => setUserRoleUsername(event.target.value)}
+                  />
+                </label>
+                <label className="input-group">
+                  <span className="input-label">Role names (comma-separated)</span>
+                  <input
+                    className="input input-mono"
+                    value={rolesInput}
+                    onChange={(event) => setRolesInput(event.target.value)}
+                  />
+                </label>
+              </div>
+              <div className="flex gap-8 mt-16">
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => {
+                    void fetchUserRoles()
+                  }}
+                >
+                  Fetch roles
+                </button>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    void updateUserRoles()
+                  }}
+                >
+                  Update roles
+                </button>
+              </div>
+              {userRoleStatus.status ? <p className="small-muted">Status: {userRoleStatus.status}</p> : null}
+              {userRoleStatus.error ? <p className="error-text">{userRoleStatus.error}</p> : null}
+              <div className="tag-list mt-16">
+                {rolesForUser.length > 0
+                  ? rolesForUser.map((role) => (
+                      <span key={role.name} className="badge badge-blue">
+                        {role.name}
+                      </span>
+                    ))
+                  : null}
+                {rolesForUser.length === 0 ? <span className="small-muted">No roles assigned.</span> : null}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  if (!loggedIn) {
+    return (
+      <div className="login-page">
+        <div className="login-container animate-in">
+          <div className="login-brand">
+            <h1>Socialapp</h1>
+            <p>A space for thoughtful conversation</p>
+          </div>
+          <div className="login-card">
+            <h2 className="login-title">{isSignup ? 'Create account' : 'Welcome back'}</h2>
+
+            {isSignup ? (
+              <div className="form-grid">
+                <label className="input-group">
+                  <span className="input-label">First name</span>
+                  <input className="input" placeholder="John" />
+                </label>
+                <label className="input-group">
+                  <span className="input-label">Last name</span>
+                  <input className="input" placeholder="Doe" />
+                </label>
+              </div>
+            ) : null}
+
+            <label className="input-group">
+              <span className="input-label">Email</span>
+              <input className="input" type="email" placeholder="you@example.com" />
+            </label>
+
+            <label className="input-group">
+              <span className="input-label">Password</span>
+              <input className="input" type="password" placeholder="********" />
+            </label>
+
+            <label className="input-group">
+              <span className="input-label">API Base URL</span>
+              <input
+                className="input input-mono"
+                value={baseUrl}
+                onChange={(event) => handleBaseUrlChange(event.target.value)}
+              />
+            </label>
+
+            <button className="btn btn-primary login-submit" onClick={() => setLoggedIn(true)}>
+              {isSignup ? 'Create account' : 'Sign in'}
+            </button>
+
+            <div className="login-divider">or</div>
+
+            <button className="btn btn-secondary login-submit" onClick={() => setLoggedIn(true)}>
+              Continue with OAuth
+            </button>
+
+            <div className="login-footer">
+              {isSignup ? (
+                <>
+                  Already have an account?{' '}
+                  <button type="button" className="link-button" onClick={() => setIsSignup(false)}>
+                    Sign in
+                  </button>
+                </>
+              ) : (
+                <>
+                  Do not have an account?{' '}
+                  <button type="button" className="link-button" onClick={() => setIsSignup(true)}>
+                    Create one
+                  </button>
+                </>
+              )}
+            </div>
+
+            <p className="small-muted">{token ? 'Stored token detected.' : 'No access token stored yet.'}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const navItems: Array<{ id: View; label: string; icon: (size?: number) => JSX.Element }> = [
+    { id: 'feed', label: 'Feed', icon: Icons.home },
+    { id: 'users', label: 'Users', icon: Icons.users },
+    { id: 'profile', label: 'Profile', icon: Icons.user },
+    { id: 'settings', label: 'Settings', icon: Icons.settings },
+    { id: 'admin', label: 'Admin', icon: Icons.shield }
+  ]
+
+  return (
+    <div className="app-root">
+      <aside className="sidebar">
+        <div className="sidebar-brand">
+          <h1>Socialapp</h1>
+          <span>v1.0.0</span>
+        </div>
+
+        <nav className="sidebar-nav">
+          <div className="sidebar-section-label">Navigation</div>
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              className={`nav-item ${view === item.id ? 'active' : ''}`}
+              onClick={() => {
+                setView(item.id)
+                if (item.id === 'admin') {
+                  void loadRoles()
+                }
+                if (item.id === 'users') {
+                  void loadUsers()
+                }
+              }}
+            >
+              <span className="nav-icon">{item.icon(18)}</span>
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="sidebar-user">
+          {sidebarUser ? <Avatar user={sidebarUser} size="sm" /> : <div className="avatar avatar-sm">?</div>}
+          <div className="sidebar-user-info">
+            <div className="sidebar-user-name">
+              {sidebarUser ? `${sidebarUser.first_name} ${sidebarUser.last_name}` : 'Guest user'}
+            </div>
+            <div className="sidebar-user-handle">{sidebarUser ? `@${sidebarUser.username}` : '@guest'}</div>
+          </div>
+          <button className="btn btn-ghost btn-icon" style={{ padding: '4px' }} onClick={() => setLoggedIn(false)}>
+            {Icons.logout(16)}
+          </button>
+        </div>
+      </aside>
+
+      <main className="main-content">
+        {view === 'feed' && (
+          <div>
+            <div className="page-header">
+              <div className="flex-between">
+                <div>
+                  <h2 className="page-title">Feed</h2>
+                  <p className="page-subtitle">Posts from people in your network</p>
+                </div>
+                <div className="flex gap-8">
+                  <button
+                    className="btn btn-secondary btn-sm"
+                    onClick={() => {
+                      void loadFeed()
+                    }}
+                    disabled={feedStatus.loading}
+                  >
+                    {feedStatus.loading ? 'Loading...' : 'Refresh feed'}
+                  </button>
+                  <span className="page-indicator">GET /v1/feed</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="compose-box animate-in">
+              <Avatar
+                user={{
+                  username: commentForm.username || 'you',
+                  first_name: commentForm.username || 'Y',
+                  last_name: ''
+                }}
+                size="md"
+              />
+              <div className="compose-input">
+                <label className="input-group compact">
+                  <span className="input-label">Username</span>
+                  <input
+                    className="input input-mono"
                     value={commentForm.username}
                     onChange={(event) =>
                       setCommentForm((prev) => ({ ...prev, username: event.target.value }))
                     }
+                    placeholder="username"
                   />
                 </label>
-                <label className="field">
-                  Comment
-                  <textarea
-                    value={commentForm.content}
-                    onChange={(event) =>
-                      setCommentForm((prev) => ({ ...prev, content: event.target.value }))
-                    }
-                  />
-                </label>
-                {feedStatus.error ? <div className="error">{feedStatus.error}</div> : null}
-              </div>
-
-              <div className="card span-two">
-                <div className="card-header">
-                  <h2>Feed</h2>
-                  <button className="button secondary" onClick={loadFeed} disabled={feedStatus.loading}>
-                    {feedStatus.loading ? 'Loading…' : 'Refresh feed'}
+                <textarea
+                  className="compose-textarea"
+                  rows={3}
+                  placeholder="What's on your mind?"
+                  value={commentForm.content}
+                  onChange={(event) => setCommentForm((prev) => ({ ...prev, content: event.target.value }))}
+                />
+                <div className="compose-footer">
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => {
+                      void postComment()
+                    }}
+                    disabled={!canPost || feedStatus.loading}
+                  >
+                    {feedStatus.loading ? 'Posting...' : 'Post'}
                   </button>
                 </div>
-                <div className="muted">{feedStatus.status || 'Latest posts from the network.'}</div>
-                {feedStatus.error ? <div className="error">{feedStatus.error}</div> : null}
-                <div className="list">
-                  {feedItems.map((item) => (
-                    <div key={`${item.username}-${item.id}`} className="list-item">
-                      <div className="avatar">{item.username.slice(0, 1).toUpperCase()}</div>
-                      <div>
-                        <div className="list-title">{item.username}</div>
-                        <div className="muted">{item.content}</div>
-                      </div>
-                    </div>
-                  ))}
-                  {feedItems.length === 0 ? <div className="muted">No feed items yet.</div> : null}
-                </div>
-              </div>
-
-              <div className="card">
-                <div className="card-header">
-                  <h2>Find Comment</h2>
-                  <button className="button secondary" onClick={lookupComment}>
-                    Fetch
-                  </button>
-                </div>
-                <label className="field">
-                  Comment ID
-                  <input value={commentLookupId} onChange={(event) => setCommentLookupId(event.target.value)} />
-                </label>
-                <div className="muted">{commentLookupStatus.status}</div>
-                {commentLookupStatus.error ? <div className="error">{commentLookupStatus.error}</div> : null}
-                {commentLookupResult ? (
-                  <div className="highlight">{commentLookupResult.content}</div>
-                ) : (
-                  <div className="muted">No comment loaded.</div>
-                )}
+                {feedStatus.error ? <p className="error-text">{feedStatus.error}</p> : null}
               </div>
             </div>
-          </section>
+
+            <div className="card card-flat">
+              {feedStatus.status ? <div className="panel-status">{feedStatus.status}</div> : null}
+              {feedItems.map((item, index) => {
+                const knownUser = users.find((candidate) => candidate.username === item.username)
+                const avatarUser =
+                  knownUser ??
+                  ({
+                    username: item.username,
+                    first_name: item.username,
+                    last_name: ''
+                  } as const)
+
+                return (
+                  <div key={`${item.username}-${item.id ?? item.content}-${index}`} className="comment-item">
+                    <div className="comment-header">
+                      <Avatar user={avatarUser} size="md" />
+                      <div className="comment-meta">
+                        <span className="comment-author">
+                          {knownUser ? `${knownUser.first_name} ${knownUser.last_name}` : item.username}
+                        </span>
+                        <span className="comment-handle">@{item.username}</span>
+                        <span className="comment-time">{timeAgo(item.created_at)}</span>
+                      </div>
+                    </div>
+                    <div className="comment-body">{item.content}</div>
+                    <div className="comment-actions">
+                      <span className="comment-action">{Icons.heart(14)} {item.like_count ?? 0}</span>
+                    </div>
+                  </div>
+                )
+              })}
+              {feedItems.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-text">No feed items yet.</div>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="page-body">
+              <div className="content-grid">
+                <div className="card animate-in delay-1">
+                  <div className="card-body">
+                    <div className="flex-between">
+                      <h3>Server</h3>
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                          void pingServer()
+                        }}
+                        disabled={serverStatus.loading}
+                      >
+                        {serverStatus.loading ? 'Pinging...' : 'Ping server'}
+                      </button>
+                    </div>
+                    <p className="small-muted">{serverStatus.status || 'Ping the API root endpoint.'}</p>
+                    {serverStatus.error ? <p className="error-text">{serverStatus.error}</p> : null}
+                    {serverMessage ? <pre className="highlight">{serverMessage}</pre> : null}
+                  </div>
+                </div>
+
+                <div className="card animate-in delay-2">
+                  <div className="card-body">
+                    <div className="flex-between">
+                      <h3>Find Comment</h3>
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                          void lookupComment()
+                        }}
+                        disabled={commentLookupStatus.loading}
+                      >
+                        Fetch
+                      </button>
+                    </div>
+                    <label className="input-group">
+                      <span className="input-label">Comment ID</span>
+                      <input
+                        className="input input-mono"
+                        value={commentLookupId}
+                        onChange={(event) => setCommentLookupId(event.target.value)}
+                      />
+                    </label>
+                    <p className="small-muted">{commentLookupStatus.status}</p>
+                    {commentLookupStatus.error ? <p className="error-text">{commentLookupStatus.error}</p> : null}
+                    {commentLookupResult ? (
+                      <pre className="highlight">{commentLookupResult.content}</pre>
+                    ) : (
+                      <p className="small-muted">No comment loaded.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {view === 'users' && (
-          <section className="view">
-            <div className="grid">
-              <div className="card span-two">
-                <div className="card-header">
-                  <h2>Directory</h2>
-                  <div className="row">
-                    <input
-                      placeholder="Search usernames"
-                      value={userSearch}
-                      onChange={(event) => setUserSearch(event.target.value)}
-                    />
-                    <button className="button secondary" onClick={loadUsers}>
-                      Refresh
-                    </button>
-                  </div>
+          <div>
+            <div className="page-header">
+              <div className="flex-between">
+                <div>
+                  <h2 className="page-title">Users</h2>
+                  <p className="page-subtitle">Discover and manage users in the network</p>
                 </div>
-                <div className="muted">{usersStatus.status || 'Browse registered users.'}</div>
-                {usersStatus.error ? <div className="error">{usersStatus.error}</div> : null}
-                <div className="list">
-                  {filteredUsers.map((user) => (
-                    <button
-                      key={user.username}
-                      className={`list-item selectable ${selectedUser?.username === user.username ? 'active' : ''}`}
-                      onClick={() => loadProfile(user.username)}
-                    >
-                      <div className="avatar">{user.username.slice(0, 1).toUpperCase()}</div>
-                      <div>
-                        <div className="list-title">{user.username}</div>
-                        <div className="muted">{user.email}</div>
-                      </div>
-                    </button>
-                  ))}
-                  {filteredUsers.length === 0 ? <div className="muted">No users found.</div> : null}
-                </div>
-              </div>
-
-              <div className="card">
-                <div className="card-header">
-                  <h2>Register</h2>
-                  <button className="button" onClick={registerUser}>
-                    Create user
-                  </button>
-                </div>
-                <label className="field">
-                  Username
-                  <input
-                    value={newUser.username}
-                    onChange={(event) => setNewUser((prev) => ({ ...prev, username: event.target.value }))}
-                  />
-                </label>
-                <label className="field">
-                  First name
-                  <input
-                    value={newUser.first_name}
-                    onChange={(event) => setNewUser((prev) => ({ ...prev, first_name: event.target.value }))}
-                  />
-                </label>
-                <label className="field">
-                  Last name
-                  <input
-                    value={newUser.last_name}
-                    onChange={(event) => setNewUser((prev) => ({ ...prev, last_name: event.target.value }))}
-                  />
-                </label>
-                <label className="field">
-                  Email
-                  <input
-                    value={newUser.email}
-                    onChange={(event) => setNewUser((prev) => ({ ...prev, email: event.target.value }))}
-                  />
-                </label>
-                <label className="field">
-                  Password
-                  <input
-                    type="password"
-                    value={newUser.password}
-                    onChange={(event) => setNewUser((prev) => ({ ...prev, password: event.target.value }))}
-                  />
-                </label>
+                <span className="page-indicator">GET /v1/users</span>
               </div>
             </div>
 
-            {selectedUser && profileForm ? (
-              <div className="grid">
-                <div className="card span-two">
-                  <div className="card-header">
-                    <h2>Profile</h2>
-                    <div className="row">
-                      <button className="button secondary" onClick={() => loadProfile(selectedUser.username)}>
-                        Refresh
-                      </button>
-                      <button className="button" onClick={updateProfile}>
-                        Update
-                      </button>
-                      <button className="button danger" onClick={deleteProfile}>
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                  <div className="muted">{profileStatus.status}</div>
-                  {profileStatus.error ? <div className="error">{profileStatus.error}</div> : null}
-                  <div className="grid">
-                    <label className="field">
-                      Username
-                      <input
-                        value={profileForm.username}
-                        onChange={(event) =>
-                          setProfileForm((prev) => (prev ? { ...prev, username: event.target.value } : prev))
-                        }
-                      />
-                    </label>
-                    <label className="field">
-                      Email
-                      <input
-                        value={profileForm.email}
-                        onChange={(event) =>
-                          setProfileForm((prev) => (prev ? { ...prev, email: event.target.value } : prev))
-                        }
-                      />
-                    </label>
-                    <label className="field">
-                      First name
-                      <input
-                        value={profileForm.first_name}
-                        onChange={(event) =>
-                          setProfileForm((prev) => (prev ? { ...prev, first_name: event.target.value } : prev))
-                        }
-                      />
-                    </label>
-                    <label className="field">
-                      Last name
-                      <input
-                        value={profileForm.last_name}
-                        onChange={(event) =>
-                          setProfileForm((prev) => (prev ? { ...prev, last_name: event.target.value } : prev))
-                        }
-                      />
-                    </label>
-                  </div>
-                </div>
-
-                <div className="card">
-                  <div className="card-header">
-                    <h2>Followers</h2>
-                  </div>
-                  <div className="list">
-                    {followers.map((user) => (
-                      <div key={user.username} className="list-item">
-                        <div className="avatar">{user.username.slice(0, 1).toUpperCase()}</div>
-                        <div>
-                          <div className="list-title">{user.username}</div>
-                          <div className="muted">{user.email}</div>
-                        </div>
-                      </div>
-                    ))}
-                    {followers.length === 0 ? <div className="muted">No followers.</div> : null}
-                  </div>
-                </div>
-
-                <div className="card">
-                  <div className="card-header">
-                    <h2>Following</h2>
-                  </div>
-                  <div className="list">
-                    {following.map((user) => (
-                      <div key={user.username} className="list-item">
-                        <div className="avatar">{user.username.slice(0, 1).toUpperCase()}</div>
-                        <div>
-                          <div className="list-title">{user.username}</div>
-                          <div className="muted">{user.email}</div>
-                        </div>
-                      </div>
-                    ))}
-                    {following.length === 0 ? <div className="muted">Not following anyone.</div> : null}
-                  </div>
-                </div>
-
-                <div className="card span-two">
-                  <div className="card-header">
-                    <h2>Follow actions</h2>
-                    <div className="row">
-                      <button className="button" onClick={() => followSelectedUser('follow')}>
-                        Follow
-                      </button>
-                      <button className="button secondary" onClick={() => followSelectedUser('unfollow')}>
-                        Unfollow
-                      </button>
-                    </div>
-                  </div>
-                  <label className="field">
-                    Follower username
-                    <input value={followActor} onChange={(event) => setFollowActor(event.target.value)} />
-                  </label>
-                </div>
-
-                <div className="card span-two">
-                  <div className="card-header">
-                    <h2>User comments</h2>
-                  </div>
-                  <div className="list">
-                    {profileComments.map((comment) => (
-                      <div key={comment.id ?? comment.content} className="list-item">
-                        <div className="avatar">{comment.username.slice(0, 1).toUpperCase()}</div>
-                        <div>
-                          <div className="list-title">{comment.username}</div>
-                          <div className="muted">{comment.content}</div>
-                        </div>
-                      </div>
-                    ))}
-                    {profileComments.length === 0 ? <div className="muted">No comments yet.</div> : null}
-                  </div>
-                </div>
-
-                <div className="card">
-                  <div className="card-header">
-                    <h2>Roles</h2>
-                    <button className="button secondary" onClick={updateUserRoles}>
-                      Update roles
-                    </button>
-                  </div>
-                  <label className="field">
-                    Role names (comma-separated)
-                    <input value={rolesInput} onChange={(event) => setRolesInput(event.target.value)} />
-                  </label>
-                  <div className="list">
-                    {rolesForUser.map((role) => (
-                      <div key={role.name} className="list-item">
-                        <div className="avatar">R</div>
-                        <div>
-                          <div className="list-title">{role.name}</div>
-                          <div className="muted">{role.description}</div>
-                        </div>
-                      </div>
-                    ))}
-                    {rolesForUser.length === 0 ? <div className="muted">No roles assigned.</div> : null}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="empty">Select a user to view their profile.</div>
-            )}
-          </section>
-        )}
-
-        {view === 'admin' && (
-          <section className="view">
-            <div className="grid">
-              <div className="card span-two">
-                <div className="card-header">
-                  <h2>Roles</h2>
-                  <div className="row">
-                    <button className="button secondary" onClick={loadRoles}>
-                      Refresh
-                    </button>
-                    <button className="button secondary" onClick={fetchRole}>
-                      Fetch
-                    </button>
-                    <button className="button" onClick={createRole}>
-                      Create
-                    </button>
-                    <button className="button secondary" onClick={updateRole}>
-                      Update
-                    </button>
-                    <button className="button danger" onClick={deleteRole}>
-                      Delete
-                    </button>
-                  </div>
-                </div>
-                <div className="muted">{rolesStatus.status}</div>
-                {rolesStatus.error ? <div className="error">{rolesStatus.error}</div> : null}
-                <div className="grid">
-                  <label className="field">
-                    Role ID (for update/delete)
-                    <input value={roleId} onChange={(event) => setRoleId(event.target.value)} />
-                  </label>
-                  <label className="field">
-                    Name
-                    <input value={roleForm.name} onChange={(event) => setRoleForm((prev) => ({ ...prev, name: event.target.value }))} />
-                  </label>
-                  <label className="field">
-                    Description
-                    <input
-                      value={roleForm.description ?? ''}
-                      onChange={(event) => setRoleForm((prev) => ({ ...prev, description: event.target.value }))}
-                    />
-                  </label>
-                </div>
-                <div className="list">
-                  {roles.map((role) => (
-                    <div key={role.id ?? role.name} className="list-item">
-                      <div className="avatar">R</div>
-                      <div>
-                        <div className="list-title">
-                          {role.name} {role.id ? `#${role.id}` : ''}
-                        </div>
-                        <div className="muted">{role.description}</div>
-                      </div>
-                    </div>
-                  ))}
-                  {roles.length === 0 ? <div className="muted">No roles loaded.</div> : null}
-                </div>
-              </div>
-
-              <div className="card span-two">
-                <div className="card-header">
-                  <h2>Scopes</h2>
-                  <div className="row">
-                    <button className="button secondary" onClick={loadScopes}>
-                      Refresh
-                    </button>
-                    <button className="button secondary" onClick={fetchScope}>
-                      Fetch
-                    </button>
-                    <button className="button" onClick={createScope}>
-                      Create
-                    </button>
-                    <button className="button secondary" onClick={updateScope}>
-                      Update
-                    </button>
-                    <button className="button danger" onClick={deleteScope}>
-                      Delete
-                    </button>
-                  </div>
-                </div>
-                <div className="muted">{scopesStatus.status}</div>
-                {scopesStatus.error ? <div className="error">{scopesStatus.error}</div> : null}
-                <div className="grid">
-                  <label className="field">
-                    Scope ID (for update/delete)
-                    <input value={scopeId} onChange={(event) => setScopeId(event.target.value)} />
-                  </label>
-                  <label className="field">
-                    Name
-                    <input value={scopeForm.name} onChange={(event) => setScopeForm((prev) => ({ ...prev, name: event.target.value }))} />
-                  </label>
-                  <label className="field">
-                    Description
-                    <input
-                      value={scopeForm.description}
-                      onChange={(event) => setScopeForm((prev) => ({ ...prev, description: event.target.value }))}
-                    />
-                  </label>
-                </div>
-                <div className="list">
-                  {scopesList.map((scope) => (
-                    <div key={scope.id ?? scope.name} className="list-item">
-                      <div className="avatar">S</div>
-                      <div>
-                        <div className="list-title">
-                          {scope.name} {scope.id ? `#${scope.id}` : ''}
-                        </div>
-                        <div className="muted">{scope.description}</div>
-                      </div>
-                    </div>
-                  ))}
-                  {scopesList.length === 0 ? <div className="muted">No scopes loaded.</div> : null}
-                </div>
-              </div>
-
-              <div className="card span-two">
-                <div className="card-header">
-                  <h2>Role scopes</h2>
-                  <div className="row">
-                    <button className="button secondary" onClick={loadRoleScopes}>
-                      Load
-                    </button>
-                    <button className="button" onClick={addScopesToRole}>
-                      Add scopes
-                    </button>
-                    <button className="button danger" onClick={removeScopeFromRole}>
-                      Remove scope
-                    </button>
-                  </div>
-                </div>
-                <div className="muted">{roleScopesStatus.status}</div>
-                {roleScopesStatus.error ? <div className="error">{roleScopesStatus.error}</div> : null}
-                <div className="grid">
-                  <label className="field">
-                    Role ID
-                    <input value={roleScopeId} onChange={(event) => setRoleScopeId(event.target.value)} />
-                  </label>
-                  <label className="field">
-                    Scope names (comma-separated)
-                    <input value={roleScopeInput} onChange={(event) => setRoleScopeInput(event.target.value)} />
-                  </label>
-                  <label className="field">
-                    Remove scope ID
-                    <input value={removeScopeId} onChange={(event) => setRemoveScopeId(event.target.value)} />
-                  </label>
-                </div>
-                <div className="list">
-                  {roleScopes.map((scope) => (
-                    <div key={scope.id ?? scope.name} className="list-item">
-                      <div className="avatar">S</div>
-                      <div>
-                        <div className="list-title">
-                          {scope.name} {scope.id ? `#${scope.id}` : ''}
-                        </div>
-                        <div className="muted">{scope.description}</div>
-                      </div>
-                    </div>
-                  ))}
-                  {roleScopes.length === 0 ? <div className="muted">No role scopes loaded.</div> : null}
-                </div>
-              </div>
-
-              <div className="card span-two">
-                <div className="card-header">
-                  <h2>User role assignment</h2>
-                  <div className="row">
-                    <button className="button secondary" onClick={fetchUserRoles}>
-                      Fetch roles
-                    </button>
-                    <button className="button" onClick={updateUserRoles}>
-                      Update roles
-                    </button>
-                  </div>
-                </div>
-                <div className="muted">{userRoleStatus.status}</div>
-                {userRoleStatus.error ? <div className="error">{userRoleStatus.error}</div> : null}
-                <label className="field">
-                  Username
-                  <input value={userRoleUsername} onChange={(event) => setUserRoleUsername(event.target.value)} />
-                </label>
-                <label className="field">
-                  Role names (comma-separated)
-                  <input value={rolesInput} onChange={(event) => setRolesInput(event.target.value)} />
-                </label>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {view === 'urls' && (
-          <section className="view">
-            <div className="grid">
-              <div className="card">
-                <div className="card-header">
-                  <h2>Create URL</h2>
-                  <button className="button" onClick={createUrl}>
-                    Create
-                  </button>
-                </div>
-                <label className="field">
-                  Alias
-                  <input value={urlForm.alias} onChange={(event) => setUrlForm((prev) => ({ ...prev, alias: event.target.value }))} />
-                </label>
-                <label className="field">
-                  Target URL
-                  <input value={urlForm.url} onChange={(event) => setUrlForm((prev) => ({ ...prev, url: event.target.value }))} />
-                </label>
-              </div>
-
-              <div className="card">
-                <div className="card-header">
-                  <h2>Resolve</h2>
-                  <button className="button secondary" onClick={resolveUrl}>
-                    Resolve
-                  </button>
-                </div>
-                <label className="field">
-                  Alias
-                  <input value={urlLookupAlias} onChange={(event) => setUrlLookupAlias(event.target.value)} />
-                </label>
-                <div className="muted">{urlResolve ? `Location: ${urlResolve}` : 'No redirect yet.'}</div>
-              </div>
-
-              <div className="card">
-                <div className="card-header">
-                  <h2>Metadata</h2>
-                  <button className="button secondary" onClick={fetchUrlData}>
-                    Fetch
-                  </button>
-                </div>
-                <label className="field">
-                  Alias
-                  <input value={urlLookupAlias} onChange={(event) => setUrlLookupAlias(event.target.value)} />
-                </label>
-                {urlData ? (
-                  <div className="highlight">{urlData.alias} → {urlData.url}</div>
-                ) : (
-                  <div className="muted">No metadata loaded.</div>
-                )}
-              </div>
-
-              <div className="card">
-                <div className="card-header">
-                  <h2>Delete</h2>
-                  <button className="button danger" onClick={deleteUrl}>
-                    Delete
-                  </button>
-                </div>
-                <label className="field">
-                  Alias
-                  <input value={urlDeleteAlias} onChange={(event) => setUrlDeleteAlias(event.target.value)} />
-                </label>
-              </div>
-
-              <div className="card span-two">
-                <div className="card-header">
-                  <h2>URL status</h2>
-                </div>
-                <div className="muted">{urlStatus.status}</div>
-                {urlStatus.error ? <div className="error">{urlStatus.error}</div> : null}
-                {urlData ? (
-                  <div className="highlight">Alias {urlData.alias} created for {urlData.url}</div>
-                ) : (
-                  <div className="muted">No URL action yet.</div>
-                )}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {view === 'settings' && (
-          <section className="view">
-            <div className="grid">
-              <div className="card span-two">
-                <AuthPanel
-                  baseUrl={baseUrl}
-                  token={token}
-                  onToken={handleTokenChange}
-                  clientId={clientId}
-                  clientSecret={clientSecret}
-                  scopes={scopes}
-                  onClientId={setClientId}
-                  onClientSecret={setClientSecret}
-                  onScopes={setScopes}
+            <div className="page-body">
+              <div className="search-bar animate-in">
+                {Icons.search(18)}
+                <input
+                  placeholder="Search users..."
+                  value={userSearch}
+                  onChange={(event) => setUserSearch(event.target.value)}
                 />
               </div>
 
-              <div className="card">
-                <div className="card-header">
-                  <h2>Change password</h2>
-                  <button className="button" onClick={changePassword}>
-                    Update
-                  </button>
+              <div className="content-grid">
+                <div className="card animate-in delay-1">
+                  <div className="card-body">
+                    <div className="flex-between">
+                      <h3>Directory</h3>
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => {
+                          void loadUsers()
+                        }}
+                        disabled={usersStatus.loading}
+                      >
+                        {usersStatus.loading ? 'Loading...' : 'Refresh'}
+                      </button>
+                    </div>
+                    {usersStatus.status ? <p className="small-muted">{usersStatus.status}</p> : null}
+                    {usersStatus.error ? <p className="error-text">{usersStatus.error}</p> : null}
+
+                    {filteredUsers.length > 0 ? (
+                      filteredUsers.map((user) => (
+                        <button
+                          key={user.username}
+                          className="user-row selectable"
+                          onClick={() => {
+                            void loadProfile(user.username)
+                            setView('profile')
+                          }}
+                        >
+                          <Avatar user={user} size="md" />
+                          <span className="user-row-info">
+                            <span className="user-row-name">
+                              {user.first_name} {user.last_name}
+                            </span>
+                            <span className="user-row-handle">@{user.username}</span>
+                            <span className="user-row-bio">{user.email}</span>
+                          </span>
+                        </button>
+                      ))
+                    ) : (
+                      <div className="empty-state">
+                        <div className="empty-state-text">No users found</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <label className="field">
-                  Old password
-                  <input
-                    type="password"
-                    value={passwordForm.old_password}
-                    onChange={(event) => setPasswordForm((prev) => ({ ...prev, old_password: event.target.value }))}
-                  />
-                </label>
-                <label className="field">
-                  New password
-                  <input
-                    type="password"
-                    value={passwordForm.new_password}
-                    onChange={(event) => setPasswordForm((prev) => ({ ...prev, new_password: event.target.value }))}
-                  />
-                </label>
+
+                <div className="card animate-in delay-2">
+                  <div className="card-body">
+                    <div className="flex-between">
+                      <h3>Register</h3>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => {
+                          void registerUser()
+                        }}
+                        disabled={usersStatus.loading}
+                      >
+                        Create user
+                      </button>
+                    </div>
+
+                    <label className="input-group">
+                      <span className="input-label">Username</span>
+                      <input
+                        className="input input-mono"
+                        value={newUser.username}
+                        onChange={(event) => setNewUser((prev) => ({ ...prev, username: event.target.value }))}
+                      />
+                    </label>
+                    <label className="input-group">
+                      <span className="input-label">First name</span>
+                      <input
+                        className="input"
+                        value={newUser.first_name}
+                        onChange={(event) => setNewUser((prev) => ({ ...prev, first_name: event.target.value }))}
+                      />
+                    </label>
+                    <label className="input-group">
+                      <span className="input-label">Last name</span>
+                      <input
+                        className="input"
+                        value={newUser.last_name}
+                        onChange={(event) => setNewUser((prev) => ({ ...prev, last_name: event.target.value }))}
+                      />
+                    </label>
+                    <label className="input-group">
+                      <span className="input-label">Email</span>
+                      <input
+                        className="input"
+                        value={newUser.email}
+                        onChange={(event) => setNewUser((prev) => ({ ...prev, email: event.target.value }))}
+                      />
+                    </label>
+                    <label className="input-group">
+                      <span className="input-label">Password</span>
+                      <input
+                        className="input"
+                        type="password"
+                        value={newUser.password}
+                        onChange={(event) => setNewUser((prev) => ({ ...prev, password: event.target.value }))}
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
 
-              <div className="card">
-                <div className="card-header">
-                  <h2>Reset password</h2>
-                  <button className="button secondary" onClick={resetPassword}>
-                    Send reset
-                  </button>
-                </div>
-                <label className="field">
-                  Email
-                  <input value={resetForm.email} onChange={(event) => setResetForm({ email: event.target.value })} />
-                </label>
-              </div>
+              <div className="mt-24">{renderProfileWorkspace()}</div>
+            </div>
+          </div>
+        )}
 
-              <div className="card span-two">
-                <div className="card-header">
-                  <h2>Password status</h2>
+        {view === 'profile' && (
+          <div>
+            <div className="page-header">
+              <div className="flex-between">
+                <div>
+                  <h2 className="page-title">Profile</h2>
+                  <p className="page-subtitle">User details, followers, and roles</p>
                 </div>
-                <div className="muted">{passwordStatus.status}</div>
-                {passwordStatus.error ? <div className="error">{passwordStatus.error}</div> : null}
+                <span className="page-indicator">GET /v1/users/{'{username}'}</span>
               </div>
             </div>
-          </section>
+
+            <div className="page-body">
+              <div className="card animate-in">
+                <div className="card-body">
+                  <div className="flex-between">
+                    <h3>Load user</h3>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={() => {
+                        if (userRoleUsername) {
+                          void loadProfile(userRoleUsername)
+                        }
+                      }}
+                    >
+                      Load profile
+                    </button>
+                  </div>
+                  <label className="input-group">
+                    <span className="input-label">Username</span>
+                    <input
+                      className="input input-mono"
+                      value={userRoleUsername}
+                      onChange={(event) => setUserRoleUsername(event.target.value)}
+                      placeholder="username"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="mt-24">{renderProfileWorkspace()}</div>
+            </div>
+          </div>
+        )}
+
+        {view === 'settings' && (
+          <div>
+            <div className="page-header">
+              <h2 className="page-title">Settings</h2>
+              <p className="page-subtitle">Manage API access and account credentials</p>
+            </div>
+
+            <div className="page-body">
+              <div className="tabs animate-in" style={{ marginBottom: '32px' }}>
+                <button
+                  className={`tab ${settingsTab === 'auth' ? 'active' : ''}`}
+                  onClick={() => setSettingsTab('auth')}
+                >
+                  Auth
+                </button>
+                <button
+                  className={`tab ${settingsTab === 'password' ? 'active' : ''}`}
+                  onClick={() => setSettingsTab('password')}
+                >
+                  Password
+                </button>
+                <button
+                  className={`tab ${settingsTab === 'danger' ? 'active' : ''}`}
+                  onClick={() => setSettingsTab('danger')}
+                >
+                  Danger zone
+                </button>
+              </div>
+
+              {settingsTab === 'auth' && (
+                <div className="animate-in delay-1">
+                  <div className="card">
+                    <div className="card-body">
+                      <label className="input-group">
+                        <span className="input-label">API Base URL</span>
+                        <input
+                          className="input input-mono"
+                          value={baseUrl}
+                          onChange={(event) => handleBaseUrlChange(event.target.value)}
+                        />
+                      </label>
+                      <div className="tag-list mt-16">
+                        <span className="badge badge-default">{token ? 'Token set' : 'No token'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="card mt-24">
+                    <div className="card-body">
+                      <AuthPanel
+                        baseUrl={baseUrl}
+                        token={token}
+                        onToken={handleTokenChange}
+                        clientId={clientId}
+                        clientSecret={clientSecret}
+                        scopes={scopes}
+                        onClientId={setClientId}
+                        onClientSecret={setClientSecret}
+                        onScopes={setScopes}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {settingsTab === 'password' && (
+                <div className="animate-in delay-1 content-grid">
+                  <div className="card">
+                    <div className="card-body">
+                      <div className="flex-between">
+                        <h3>Change password</h3>
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => {
+                            void changePassword()
+                          }}
+                        >
+                          Update
+                        </button>
+                      </div>
+                      <label className="input-group">
+                        <span className="input-label">Old password</span>
+                        <input
+                          className="input"
+                          type="password"
+                          value={passwordForm.old_password}
+                          onChange={(event) =>
+                            setPasswordForm((prev) => ({ ...prev, old_password: event.target.value }))
+                          }
+                        />
+                      </label>
+                      <label className="input-group">
+                        <span className="input-label">New password</span>
+                        <input
+                          className="input"
+                          type="password"
+                          value={passwordForm.new_password}
+                          onChange={(event) =>
+                            setPasswordForm((prev) => ({ ...prev, new_password: event.target.value }))
+                          }
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="card">
+                    <div className="card-body">
+                      <div className="flex-between">
+                        <h3>Reset password</h3>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => {
+                            void resetPassword()
+                          }}
+                        >
+                          Send reset
+                        </button>
+                      </div>
+                      <label className="input-group">
+                        <span className="input-label">Email</span>
+                        <input
+                          className="input"
+                          type="email"
+                          value={resetForm.email}
+                          onChange={(event) => setResetForm({ email: event.target.value })}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="card">
+                    <div className="card-body">
+                      <h3>Password status</h3>
+                      <p className="small-muted">{passwordStatus.status || 'No password action yet.'}</p>
+                      {passwordStatus.error ? <p className="error-text">{passwordStatus.error}</p> : null}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {settingsTab === 'danger' && (
+                <div className="animate-in delay-1" style={{ maxWidth: '520px' }}>
+                  <div className="card danger-card">
+                    <div className="card-body">
+                      <h3>Delete account</h3>
+                      <p className="small-muted">
+                        Deleting a user account is permanent and removes profile data, posts, and relationships.
+                      </p>
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => {
+                          void deleteProfile()
+                        }}
+                        disabled={!selectedUser}
+                      >
+                        Delete my account
+                      </button>
+                      {!selectedUser ? (
+                        <p className="small-muted">Load a profile first from Users or Profile page.</p>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {view === 'admin' && (
+          <div>
+            <div className="page-header">
+              <h2 className="page-title">Admin</h2>
+              <p className="page-subtitle">Roles, scopes, and URL management</p>
+            </div>
+
+            <div className="page-body">
+              <div className="tabs animate-in" style={{ marginBottom: '32px' }}>
+                <button className={`tab ${adminTab === 'roles' ? 'active' : ''}`} onClick={() => setAdminTab('roles')}>
+                  Roles
+                </button>
+                <button className={`tab ${adminTab === 'scopes' ? 'active' : ''}`} onClick={() => setAdminTab('scopes')}>
+                  Scopes
+                </button>
+                <button className={`tab ${adminTab === 'urls' ? 'active' : ''}`} onClick={() => setAdminTab('urls')}>
+                  Short URLs
+                </button>
+              </div>
+
+              {adminTab === 'roles' && (
+                <div className="animate-in delay-1">
+                  <div className="card">
+                    <div className="card-body">
+                      <div className="flex-between">
+                        <h3>Roles</h3>
+                        <div className="flex gap-8">
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => {
+                              void loadRoles()
+                            }}
+                          >
+                            Refresh
+                          </button>
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => {
+                              void fetchRole()
+                            }}
+                          >
+                            Fetch
+                          </button>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={() => {
+                              void createRole()
+                            }}
+                          >
+                            Create
+                          </button>
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => {
+                              void updateRole()
+                            }}
+                          >
+                            Update
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => {
+                              void deleteRole()
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+
+                      <p className="small-muted">{rolesStatus.status}</p>
+                      {rolesStatus.error ? <p className="error-text">{rolesStatus.error}</p> : null}
+
+                      <div className="form-grid">
+                        <label className="input-group">
+                          <span className="input-label">Role ID (for update/delete)</span>
+                          <input
+                            className="input input-mono"
+                            value={roleId}
+                            onChange={(event) => setRoleId(event.target.value)}
+                          />
+                        </label>
+                        <label className="input-group">
+                          <span className="input-label">Name</span>
+                          <input
+                            className="input input-mono"
+                            value={roleForm.name}
+                            onChange={(event) =>
+                              setRoleForm((prev) => ({ ...prev, name: event.target.value }))
+                            }
+                          />
+                        </label>
+                        <label className="input-group">
+                          <span className="input-label">Description</span>
+                          <input
+                            className="input"
+                            value={roleForm.description ?? ''}
+                            onChange={(event) =>
+                              setRoleForm((prev) => ({ ...prev, description: event.target.value }))
+                            }
+                          />
+                        </label>
+                      </div>
+
+                      <div className="table-wrap mt-24">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Description</th>
+                              <th>ID</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {roles.map((role) => (
+                              <tr key={role.id ?? role.name}>
+                                <td>
+                                  <span className="badge badge-blue">{role.name}</span>
+                                </td>
+                                <td>{role.description}</td>
+                                <td className="text-mono">{role.id ?? '-'}</td>
+                              </tr>
+                            ))}
+                            {roles.length === 0 ? (
+                              <tr>
+                                <td colSpan={3}>No roles loaded.</td>
+                              </tr>
+                            ) : null}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="card mt-24">
+                    <div className="card-body">
+                      <div className="flex-between">
+                        <h3>User role assignment</h3>
+                        <div className="flex gap-8">
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => {
+                              void fetchUserRoles()
+                            }}
+                          >
+                            Fetch roles
+                          </button>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={() => {
+                              void updateUserRoles()
+                            }}
+                          >
+                            Update roles
+                          </button>
+                        </div>
+                      </div>
+
+                      <p className="small-muted">{userRoleStatus.status}</p>
+                      {userRoleStatus.error ? <p className="error-text">{userRoleStatus.error}</p> : null}
+
+                      <div className="form-grid">
+                        <label className="input-group">
+                          <span className="input-label">Username</span>
+                          <input
+                            className="input input-mono"
+                            value={userRoleUsername}
+                            onChange={(event) => setUserRoleUsername(event.target.value)}
+                          />
+                        </label>
+                        <label className="input-group">
+                          <span className="input-label">Role names (comma-separated)</span>
+                          <input
+                            className="input input-mono"
+                            value={rolesInput}
+                            onChange={(event) => setRolesInput(event.target.value)}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {adminTab === 'scopes' && (
+                <div className="animate-in delay-1">
+                  <div className="card">
+                    <div className="card-body">
+                      <div className="flex-between">
+                        <h3>Scopes</h3>
+                        <div className="flex gap-8">
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => {
+                              void loadScopes()
+                            }}
+                          >
+                            Refresh
+                          </button>
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => {
+                              void fetchScope()
+                            }}
+                          >
+                            Fetch
+                          </button>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={() => {
+                              void createScope()
+                            }}
+                          >
+                            Create
+                          </button>
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => {
+                              void updateScope()
+                            }}
+                          >
+                            Update
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => {
+                              void deleteScope()
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+
+                      <p className="small-muted">{scopesStatus.status}</p>
+                      {scopesStatus.error ? <p className="error-text">{scopesStatus.error}</p> : null}
+
+                      <div className="form-grid">
+                        <label className="input-group">
+                          <span className="input-label">Scope ID (for update/delete)</span>
+                          <input
+                            className="input input-mono"
+                            value={scopeId}
+                            onChange={(event) => setScopeId(event.target.value)}
+                          />
+                        </label>
+                        <label className="input-group">
+                          <span className="input-label">Name</span>
+                          <input
+                            className="input input-mono"
+                            value={scopeForm.name}
+                            onChange={(event) =>
+                              setScopeForm((prev) => ({ ...prev, name: event.target.value }))
+                            }
+                          />
+                        </label>
+                        <label className="input-group">
+                          <span className="input-label">Description</span>
+                          <input
+                            className="input"
+                            value={scopeForm.description}
+                            onChange={(event) =>
+                              setScopeForm((prev) => ({ ...prev, description: event.target.value }))
+                            }
+                          />
+                        </label>
+                      </div>
+
+                      <div className="table-wrap mt-24">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Scope</th>
+                              <th>Description</th>
+                              <th>ID</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {scopesList.map((scope) => (
+                              <tr key={scope.id ?? scope.name}>
+                                <td className="text-mono">{scope.name}</td>
+                                <td>{scope.description}</td>
+                                <td className="text-mono">{scope.id ?? '-'}</td>
+                              </tr>
+                            ))}
+                            {scopesList.length === 0 ? (
+                              <tr>
+                                <td colSpan={3}>No scopes loaded.</td>
+                              </tr>
+                            ) : null}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="card mt-24">
+                    <div className="card-body">
+                      <div className="flex-between">
+                        <h3>Role scopes</h3>
+                        <div className="flex gap-8">
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            onClick={() => {
+                              void loadRoleScopes()
+                            }}
+                          >
+                            Load
+                          </button>
+                          <button
+                            className="btn btn-primary btn-sm"
+                            onClick={() => {
+                              void addScopesToRole()
+                            }}
+                          >
+                            Add scopes
+                          </button>
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={() => {
+                              void removeScopeFromRole()
+                            }}
+                          >
+                            Remove scope
+                          </button>
+                        </div>
+                      </div>
+
+                      <p className="small-muted">{roleScopesStatus.status}</p>
+                      {roleScopesStatus.error ? <p className="error-text">{roleScopesStatus.error}</p> : null}
+
+                      <div className="form-grid">
+                        <label className="input-group">
+                          <span className="input-label">Role ID</span>
+                          <input
+                            className="input input-mono"
+                            value={roleScopeId}
+                            onChange={(event) => setRoleScopeId(event.target.value)}
+                          />
+                        </label>
+                        <label className="input-group">
+                          <span className="input-label">Scope names (comma-separated)</span>
+                          <input
+                            className="input input-mono"
+                            value={roleScopeInput}
+                            onChange={(event) => setRoleScopeInput(event.target.value)}
+                          />
+                        </label>
+                        <label className="input-group">
+                          <span className="input-label">Remove scope ID</span>
+                          <input
+                            className="input input-mono"
+                            value={removeScopeId}
+                            onChange={(event) => setRemoveScopeId(event.target.value)}
+                          />
+                        </label>
+                      </div>
+
+                      <div className="tag-list mt-16">
+                        {roleScopes.map((scope) => (
+                          <span key={scope.id ?? scope.name} className="badge badge-green">
+                            {scope.name}
+                          </span>
+                        ))}
+                        {roleScopes.length === 0 ? <span className="small-muted">No role scopes loaded.</span> : null}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {adminTab === 'urls' && (
+                <div className="animate-in delay-1 content-grid">
+                  <div className="card">
+                    <div className="card-body">
+                      <div className="flex-between">
+                        <h3>Create URL</h3>
+                        <button
+                          className="btn btn-primary btn-sm"
+                          onClick={() => {
+                            void createUrl()
+                          }}
+                        >
+                          Create
+                        </button>
+                      </div>
+                      <label className="input-group">
+                        <span className="input-label">Alias</span>
+                        <input
+                          className="input input-mono"
+                          value={urlForm.alias}
+                          onChange={(event) =>
+                            setUrlForm((prev) => ({ ...prev, alias: event.target.value }))
+                          }
+                        />
+                      </label>
+                      <label className="input-group">
+                        <span className="input-label">Target URL</span>
+                        <input
+                          className="input"
+                          value={urlForm.url}
+                          onChange={(event) => setUrlForm((prev) => ({ ...prev, url: event.target.value }))}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="card">
+                    <div className="card-body">
+                      <div className="flex-between">
+                        <h3>Resolve</h3>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => {
+                            void resolveUrl()
+                          }}
+                        >
+                          Resolve
+                        </button>
+                      </div>
+                      <label className="input-group">
+                        <span className="input-label">Alias</span>
+                        <input
+                          className="input input-mono"
+                          value={urlLookupAlias}
+                          onChange={(event) => setUrlLookupAlias(event.target.value)}
+                        />
+                      </label>
+                      <p className="small-muted">{urlResolve ? `Location: ${urlResolve}` : 'No redirect yet.'}</p>
+                    </div>
+                  </div>
+
+                  <div className="card">
+                    <div className="card-body">
+                      <div className="flex-between">
+                        <h3>Metadata</h3>
+                        <button
+                          className="btn btn-secondary btn-sm"
+                          onClick={() => {
+                            void fetchUrlData()
+                          }}
+                        >
+                          Fetch
+                        </button>
+                      </div>
+                      <label className="input-group">
+                        <span className="input-label">Alias</span>
+                        <input
+                          className="input input-mono"
+                          value={urlLookupAlias}
+                          onChange={(event) => setUrlLookupAlias(event.target.value)}
+                        />
+                      </label>
+                      {urlData ? (
+                        <pre className="highlight">
+                          {urlData.alias}
+                          {' -> '}
+                          {urlData.url}
+                        </pre>
+                      ) : (
+                        <p className="small-muted">No metadata loaded.</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="card">
+                    <div className="card-body">
+                      <div className="flex-between">
+                        <h3>Delete</h3>
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={() => {
+                            void deleteUrl()
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                      <label className="input-group">
+                        <span className="input-label">Alias</span>
+                        <input
+                          className="input input-mono"
+                          value={urlDeleteAlias}
+                          onChange={(event) => setUrlDeleteAlias(event.target.value)}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="card">
+                    <div className="card-body">
+                      <h3>URL status</h3>
+                      <p className="small-muted">{urlStatus.status || 'No URL action yet.'}</p>
+                      {urlStatus.error ? <p className="error-text">{urlStatus.error}</p> : null}
+                      {urlData ? (
+                        <p className="small-muted">Alias {urlData.alias} points to {urlData.url}</p>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </main>
     </div>
