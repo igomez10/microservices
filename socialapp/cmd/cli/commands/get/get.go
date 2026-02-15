@@ -5,6 +5,7 @@ import (
 	getfeed "github.com/igomez10/microservices/socialapp/cmd/cli/commands/get/feed"
 	getrole "github.com/igomez10/microservices/socialapp/cmd/cli/commands/get/role"
 	getscope "github.com/igomez10/microservices/socialapp/cmd/cli/commands/get/scope"
+	gettoken "github.com/igomez10/microservices/socialapp/cmd/cli/commands/get/token"
 	geturl "github.com/igomez10/microservices/socialapp/cmd/cli/commands/get/url"
 	getuser "github.com/igomez10/microservices/socialapp/cmd/cli/commands/get/user"
 	getusercomments "github.com/igomez10/microservices/socialapp/cmd/cli/commands/get/user-comments"
@@ -29,6 +30,7 @@ func GetCmd() *cli.Command {
 			getuserroles.GetCmd(),
 			getscope.GetCmd(),
 			getrole.GetCmd(),
+			gettoken.GetCmd(),
 		},
 	}
 }

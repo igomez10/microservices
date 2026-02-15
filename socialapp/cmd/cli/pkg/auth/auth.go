@@ -195,13 +195,68 @@ func (c *cachedTokenSource) Token() (*oauth2.Token, error) {
 	return c.token, nil
 }
 
-// GetHTTPClient returns an authenticated HTTP client with token caching
-func GetHTTPClient(ctx context.Context, envName, username, password string, scopes []string) (*http.Client, error) {
+func requestToken(ctx context.Context, tokenEndpoint, username, password string, scopes []string) (*oauth2.Token, error) {
+	oauthConfig := clientcredentials.Config{
+		ClientID:     username,
+		ClientSecret: password,
+		TokenURL:     tokenEndpoint,
+		Scopes:       scopes,
+	}
+
+	tokenSource := oauthConfig.TokenSource(ctx)
+	token, err := tokenSource.Token()
+	if err != nil {
+		return nil, fmt.Errorf("failed to obtain token: %w", err)
+	}
+
+	return token, nil
+}
+
+func cacheToken(token *oauth2.Token, environment, username string) error {
+	expiresIn := int64(0)
+	if !token.Expiry.IsZero() {
+		expiresIn = int64(time.Until(token.Expiry).Seconds())
+	}
+
+	cachedToken := &CachedToken{
+		AccessToken: token.AccessToken,
+		TokenType:   token.TokenType,
+		ExpiresIn:   expiresIn,
+		CreatedAt:   time.Now(),
+		Environment: environment,
+		Username:    username,
+	}
+
+	return saveCachedToken(cachedToken)
+}
+
+// GetFreshTokenWithTokenEndpoint fetches a new OAuth token from a specific token endpoint and updates the local cache.
+func GetFreshTokenWithTokenEndpoint(ctx context.Context, cacheEnvironment, tokenEndpoint, username, password string, scopes []string) (*oauth2.Token, error) {
+	token, err := requestToken(ctx, tokenEndpoint, username, password, scopes)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := cacheToken(token, cacheEnvironment, username); err != nil {
+		// Log warning but continue - caching is not critical
+		fmt.Fprintf(os.Stderr, "Warning: failed to cache token: %v\n", err)
+	}
+
+	return token, nil
+}
+
+// GetFreshToken fetches a new OAuth token from the configured token endpoint and updates the local cache.
+func GetFreshToken(ctx context.Context, envName, username, password string, scopes []string) (*oauth2.Token, error) {
 	env, err := GetEnvironment(envName)
 	if err != nil {
 		return nil, err
 	}
 
+	return GetFreshTokenWithTokenEndpoint(ctx, envName, env.TokenEndpoint, username, password, scopes)
+}
+
+// GetHTTPClient returns an authenticated HTTP client with token caching
+func GetHTTPClient(ctx context.Context, envName, username, password string, scopes []string) (*http.Client, error) {
 	// Check for valid cached token
 	cached, err := loadCachedToken()
 	if err != nil {
@@ -221,38 +276,9 @@ func GetHTTPClient(ctx context.Context, envName, username, password string, scop
 		return oauth2.NewClient(ctx, &cachedTokenSource{token: token}), nil
 	}
 
-	// Get new token
-	oauthConfig := clientcredentials.Config{
-		ClientID:     username,
-		ClientSecret: password,
-		TokenURL:     env.TokenEndpoint,
-		Scopes:       scopes,
-	}
-
-	tokenSource := oauthConfig.TokenSource(ctx)
-	token, err := tokenSource.Token()
+	token, err := GetFreshToken(ctx, envName, username, password, scopes)
 	if err != nil {
-		return nil, fmt.Errorf("failed to obtain token: %w", err)
-	}
-
-	// Cache the new token
-	expiresIn := int64(0)
-	if !token.Expiry.IsZero() {
-		expiresIn = int64(time.Until(token.Expiry).Seconds())
-	}
-
-	cachedToken := &CachedToken{
-		AccessToken: token.AccessToken,
-		TokenType:   token.TokenType,
-		ExpiresIn:   expiresIn,
-		CreatedAt:   time.Now(),
-		Environment: envName,
-		Username:    username,
-	}
-
-	if err := saveCachedToken(cachedToken); err != nil {
-		// Log warning but continue - caching is not critical
-		fmt.Fprintf(os.Stderr, "Warning: failed to cache token: %v\n", err)
+		return nil, err
 	}
 
 	return oauth2.NewClient(ctx, oauth2.StaticTokenSource(token)), nil
