@@ -96,6 +96,11 @@ generate-openapi:
 	openapi-generator generate --input-spec openapi.yaml \
 		--generator-name postman-collection \
 		--output postman
+	# generate frontend types
+	$(MAKE) generate-frontend-types
+
+generate-frontend-types:
+	cd frontend && npm run generate:api
 
 
 sqlc-generate:
