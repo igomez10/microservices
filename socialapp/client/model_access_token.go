@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -20,12 +20,16 @@ import (
 // checks if the AccessToken type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &AccessToken{}
 
-// AccessToken struct for AccessToken
+// AccessToken OAuth access token response.
 type AccessToken struct {
-	AccessToken string   `json:"access_token"`
-	TokenType   string   `json:"token_type"`
-	Scopes      []string `json:"scopes,omitempty"`
-	ExpiresIn   int32    `json:"expires_in"`
+	// Access token used for authenticated requests.
+	AccessToken string `json:"access_token"`
+	// Type of token returned by the authorization server.
+	TokenType string `json:"token_type"`
+	// Granted OAuth scopes.
+	Scopes []string `json:"scopes,omitempty"`
+	// Access token lifetime in seconds.
+	ExpiresIn int32 `json:"expires_in"`
 }
 
 type _AccessToken AccessToken

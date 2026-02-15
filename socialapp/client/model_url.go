@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -21,12 +21,17 @@ import (
 // checks if the URL type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &URL{}
 
-// URL struct for URL
+// URL URL alias and metadata.
 type URL struct {
-	Url       string     `json:"url"`
-	Alias     string     `json:"alias"`
+	// Destination URL.
+	Url string `json:"url"`
+	// Short alias used to reference the URL.
+	Alias string `json:"alias"`
+	// Timestamp when the alias was created.
 	CreatedAt *time.Time `json:"created_at,omitempty"`
+	// Timestamp when the alias was last updated.
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	// Timestamp when the alias was deleted.
 	DeletedAt *time.Time `json:"deleted_at,omitempty"`
 }
 

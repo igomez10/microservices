@@ -6,8 +6,8 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**CreateScope**](ScopeAPI.md#CreateScope) | **Post** /v1/scopes | Create a new scope
 [**DeleteScope**](ScopeAPI.md#DeleteScope) | **Delete** /v1/scopes/{id} | Delete a scope
-[**GetScope**](ScopeAPI.md#GetScope) | **Get** /v1/scopes/{id} | Returns a scope
-[**ListScopes**](ScopeAPI.md#ListScopes) | **Get** /v1/scopes | Returns a list of scopes
+[**GetScope**](ScopeAPI.md#GetScope) | **Get** /v1/scopes/{id} | Get scope by ID
+[**ListScopes**](ScopeAPI.md#ListScopes) | **Get** /v1/scopes | List scopes
 [**UpdateScope**](ScopeAPI.md#UpdateScope) | **Put** /v1/scopes/{id} | Update a scope
 
 
@@ -99,7 +99,7 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | id of the scope
+	id := int64(123) // int64 | id of the scope
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -117,7 +117,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | id of the scope | 
+**id** | **int64** | id of the scope | 
 
 ### Other Parameters
 
@@ -150,7 +150,7 @@ Name | Type | Description  | Notes
 
 > Scope GetScope(ctx, id).Execute()
 
-Returns a scope
+Get scope by ID
 
 
 
@@ -167,7 +167,7 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | The id of the scope
+	id := int64(123) // int64 | The id of the scope
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -187,7 +187,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | The id of the scope | 
+**id** | **int64** | The id of the scope | 
 
 ### Other Parameters
 
@@ -220,7 +220,7 @@ Name | Type | Description  | Notes
 
 > []Scope ListScopes(ctx).Limit(limit).Offset(offset).Execute()
 
-Returns a list of scopes
+List scopes
 
 
 
@@ -237,8 +237,8 @@ import (
 )
 
 func main() {
-	limit := int32(56) // int32 | The numbers of scopes to return (optional) (default to 20)
-	offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
+	limit := int32(20) // int32 | The numbers of scopes to return (optional) (default to 20)
+	offset := int32(0) // int32 | The number of items to skip before starting to collect the result (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -305,7 +305,7 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | id of the scope
+	id := int64(123) // int64 | id of the scope
 	scope := *openapiclient.NewScope("Name_example", "Description_example") // Scope | Update a scope (optional)
 
 	configuration := openapiclient.NewConfiguration()
@@ -326,7 +326,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | id of the scope | 
+**id** | **int64** | id of the scope | 
 
 ### Other Parameters
 

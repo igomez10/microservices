@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -11,7 +11,10 @@
 
 package openapi
 
+// ResetPasswordRequest - Request payload for triggering a password reset.
 type ResetPasswordRequest struct {
+
+	// Email address associated with the user account.
 	Email string `json:"email"`
 }
 

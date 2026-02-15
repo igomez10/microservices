@@ -4,18 +4,18 @@ All URIs are relative to **
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**createUrl**](URLApi.md#createUrl) | **POST** /v1/urls | Create a new url
-[**deleteUrl**](URLApi.md#deleteUrl) | **DELETE** /v1/urls/{alias} | Delete a url
-[**getUrl**](URLApi.md#getUrl) | **GET** /v1/urls/{alias} | Get a url
-[**getUrlData**](URLApi.md#getUrlData) | **GET** /v1/urls/{alias}/data | Returns a url metadata
+[**createUrl**](URLApi.md#createUrl) | **POST** /v1/urls | Create URL alias
+[**deleteUrl**](URLApi.md#deleteUrl) | **DELETE** /v1/urls/{alias} | Delete URL alias
+[**getUrl**](URLApi.md#getUrl) | **GET** /v1/urls/{alias} | Redirect using URL alias
+[**getUrlData**](URLApi.md#getUrlData) | **GET** /v1/urls/{alias}/data | Get URL metadata
 
 
 
 ## createUrl
 
-Create a new url
+Create URL alias
 
-Returns a url
+Create a new URL alias.
 
 ### Example
 
@@ -48,9 +48,9 @@ Name | Type | Description  | Notes
 
 ## deleteUrl
 
-Delete a url
+Delete URL alias
 
-Delete a url
+Delete a URL alias and its metadata.
 
 ### Example
 
@@ -83,9 +83,9 @@ Name | Type | Description  | Notes
 
 ## getUrl
 
-Get a url
+Redirect using URL alias
 
-Returns a url
+Resolve an alias and redirect to the destination URL.
 
 ### Example
 
@@ -118,9 +118,9 @@ Name | Type | Description  | Notes
 
 ## getUrlData
 
-Returns a url metadata
+Get URL metadata
 
-Returns a url
+Return metadata for a URL alias.
 
 ### Example
 

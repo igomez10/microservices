@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -43,7 +43,7 @@ func (r RoleAPIAddScopeToRoleRequest) Execute() (*http.Response, error) {
 /*
 AddScopeToRole Add a scope to a role
 
-Add a scope to a role
+Add one or more scopes to a role.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The id of the role
@@ -187,7 +187,7 @@ func (r RoleAPICreateRoleRequest) Execute() (*Role, *http.Response, error) {
 /*
 CreateRole Create a new role
 
-Create a new role
+Create a new role.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return RoleAPICreateRoleRequest
@@ -421,9 +421,9 @@ func (r RoleAPIGetRoleRequest) Execute() (*Role, *http.Response, error) {
 }
 
 /*
-GetRole Returns a role
+GetRole Get role by ID
 
-Returns a role
+Get a role by ID.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The id of the role
@@ -559,7 +559,7 @@ func (r RoleAPIListRolesRequest) Execute() ([]Role, *http.Response, error) {
 /*
 ListRoles Returns a list of roles
 
-Returns a list of roles
+List roles with offset-based pagination.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return RoleAPIListRolesRequest
@@ -701,9 +701,9 @@ func (r RoleAPIListScopesForRoleRequest) Execute() ([]Scope, *http.Response, err
 }
 
 /*
-ListScopesForRole Returns a list of scopes for a role
+ListScopesForRole List role scopes
 
-Returns a list of scopes for a role
+List scopes assigned to a role.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The id of the role
@@ -837,7 +837,7 @@ func (r RoleAPIRemoveScopeFromRoleRequest) Execute() (*http.Response, error) {
 /*
 RemoveScopeFromRole Remove a scope from a role
 
-Remove a scope from a role
+Remove a scope from a role.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param roleId The id of the role
@@ -980,7 +980,7 @@ func (r RoleAPIUpdateRoleRequest) Execute() (*Role, *http.Response, error) {
 /*
 UpdateRole Update a role
 
-Update a role
+Update a role by ID.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id id of the role

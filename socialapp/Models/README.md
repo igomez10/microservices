@@ -9,26 +9,26 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 |------------ | ------------- | ------------- | -------------|
 | *AuthenticationApi* | [**getAccessToken**](Apis/AuthenticationApi.md#getAccessToken) | **POST** /v1/oauth/token | Get an access token |
 | *CommentApi* | [**createComment**](Apis/CommentApi.md#createComment) | **POST** /v1/comments | Create a new comment |
-*CommentApi* | [**getComment**](Apis/CommentApi.md#getComment) | **GET** /v1/comments/{id} | Returns details about a particular comment |
-*CommentApi* | [**getUserFeed**](Apis/CommentApi.md#getUserFeed) | **GET** /v1/feed | Returns a users feed |
+*CommentApi* | [**getComment**](Apis/CommentApi.md#getComment) | **GET** /v1/comments/{id} | Get comment by ID |
+*CommentApi* | [**getUserFeed**](Apis/CommentApi.md#getUserFeed) | **GET** /v1/feed | Get user feed |
 | *FollowingApi* | [**getUserFollowers**](Apis/FollowingApi.md#getUserFollowers) | **GET** /v1/users/{username}/followers | Get all followers for a user |
 | *RoleApi* | [**addScopeToRole**](Apis/RoleApi.md#addScopeToRole) | **POST** /v1/roles/{id}/scopes | Add a scope to a role |
 *RoleApi* | [**createRole**](Apis/RoleApi.md#createRole) | **POST** /v1/roles | Create a new role |
 *RoleApi* | [**deleteRole**](Apis/RoleApi.md#deleteRole) | **DELETE** /v1/roles/{id} | Delete a role |
-*RoleApi* | [**getRole**](Apis/RoleApi.md#getRole) | **GET** /v1/roles/{id} | Returns a role |
+*RoleApi* | [**getRole**](Apis/RoleApi.md#getRole) | **GET** /v1/roles/{id} | Get role by ID |
 *RoleApi* | [**listRoles**](Apis/RoleApi.md#listRoles) | **GET** /v1/roles | Returns a list of roles |
-*RoleApi* | [**listScopesForRole**](Apis/RoleApi.md#listScopesForRole) | **GET** /v1/roles/{id}/scopes | Returns a list of scopes for a role |
+*RoleApi* | [**listScopesForRole**](Apis/RoleApi.md#listScopesForRole) | **GET** /v1/roles/{id}/scopes | List role scopes |
 *RoleApi* | [**removeScopeFromRole**](Apis/RoleApi.md#removeScopeFromRole) | **DELETE** /v1/roles/{role_id}/scopes/{scope_id} | Remove a scope from a role |
 *RoleApi* | [**updateRole**](Apis/RoleApi.md#updateRole) | **PUT** /v1/roles/{id} | Update a role |
 | *ScopeApi* | [**createScope**](Apis/ScopeApi.md#createScope) | **POST** /v1/scopes | Create a new scope |
 *ScopeApi* | [**deleteScope**](Apis/ScopeApi.md#deleteScope) | **DELETE** /v1/scopes/{id} | Delete a scope |
-*ScopeApi* | [**getScope**](Apis/ScopeApi.md#getScope) | **GET** /v1/scopes/{id} | Returns a scope |
-*ScopeApi* | [**listScopes**](Apis/ScopeApi.md#listScopes) | **GET** /v1/scopes | Returns a list of scopes |
+*ScopeApi* | [**getScope**](Apis/ScopeApi.md#getScope) | **GET** /v1/scopes/{id} | Get scope by ID |
+*ScopeApi* | [**listScopes**](Apis/ScopeApi.md#listScopes) | **GET** /v1/scopes | List scopes |
 *ScopeApi* | [**updateScope**](Apis/ScopeApi.md#updateScope) | **PUT** /v1/scopes/{id} | Update a scope |
-| *URLApi* | [**createUrl**](Apis/URLApi.md#createUrl) | **POST** /v1/urls | Create a new url |
-*URLApi* | [**deleteUrl**](Apis/URLApi.md#deleteUrl) | **DELETE** /v1/urls/{alias} | Delete a url |
-*URLApi* | [**getUrl**](Apis/URLApi.md#getUrl) | **GET** /v1/urls/{alias} | Get a url |
-*URLApi* | [**getUrlData**](Apis/URLApi.md#getUrlData) | **GET** /v1/urls/{alias}/data | Returns a url metadata |
+| *URLApi* | [**createUrl**](Apis/URLApi.md#createUrl) | **POST** /v1/urls | Create URL alias |
+*URLApi* | [**deleteUrl**](Apis/URLApi.md#deleteUrl) | **DELETE** /v1/urls/{alias} | Delete URL alias |
+*URLApi* | [**getUrl**](Apis/URLApi.md#getUrl) | **GET** /v1/urls/{alias} | Redirect using URL alias |
+*URLApi* | [**getUrlData**](Apis/URLApi.md#getUrlData) | **GET** /v1/urls/{alias}/data | Get URL metadata |
 | *UserApi* | [**changePassword**](Apis/UserApi.md#changePassword) | **POST** /v1/password | Change password |
 *UserApi* | [**createUser**](Apis/UserApi.md#createUser) | **POST** /v1/users | Create user |
 *UserApi* | [**deleteUser**](Apis/UserApi.md#deleteUser) | **DELETE** /v1/users/{username} | Deletes a particular user |
@@ -36,14 +36,14 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 *UserApi* | [**getFollowingUsers**](Apis/UserApi.md#getFollowingUsers) | **GET** /v1/users/{username}/following | Get all followed users for a user |
 *UserApi* | [**getRolesForUser**](Apis/UserApi.md#getRolesForUser) | **GET** /v1/users/{username}/roles | Get all roles for a user |
 *UserApi* | [**getUserByUsername**](Apis/UserApi.md#getUserByUsername) | **GET** /v1/users/{username} | Get a particular user by username |
-*UserApi* | [**getUserComments**](Apis/UserApi.md#getUserComments) | **GET** /v1/users/{username}/comments | Gets all comments for a user |
+*UserApi* | [**getUserComments**](Apis/UserApi.md#getUserComments) | **GET** /v1/users/{username}/comments | List comments for a user |
 *UserApi* | [**getUserFollowers**](Apis/UserApi.md#getUserFollowers) | **GET** /v1/users/{username}/followers | Get all followers for a user |
 *UserApi* | [**listUsers**](Apis/UserApi.md#listUsers) | **GET** /v1/users | List users |
 *UserApi* | [**resetPassword**](Apis/UserApi.md#resetPassword) | **PUT** /v1/password | Reset password |
 *UserApi* | [**unfollowUser**](Apis/UserApi.md#unfollowUser) | **DELETE** /v1/users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower |
 *UserApi* | [**updateRolesForUser**](Apis/UserApi.md#updateRolesForUser) | **PUT** /v1/users/{username}/roles | Update all roles for a user |
 *UserApi* | [**updateUser**](Apis/UserApi.md#updateUser) | **PUT** /v1/users/{username} | Update a user |
-*UserApi* | [**welcome**](Apis/UserApi.md#welcome) | **GET** / | Welcome to the Socialapp API |
+*UserApi* | [**welcome**](Apis/UserApi.md#welcome) | **GET** / | Get API welcome message |
 
 
 <a name="documentation-for-models"></a>

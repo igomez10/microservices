@@ -29,7 +29,7 @@ import (
 )
 
 func main() {
-	username := "johndoe" // string | username of the user
+	username := "johndoe" // string | Username of the user
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -49,7 +49,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**username** | **string** | username of the user | 
+**username** | **string** | Username of the user | 
 
 ### Other Parameters
 

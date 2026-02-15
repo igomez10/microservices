@@ -4,66 +4,80 @@ info:
     email: ignacio.gomez.arboleda@gmail.com
     name: Socialapp
     url: https://socialapp.gomezignacio.com
-  description: Socialapp is a generic social network.
+  description: |
+    Socialapp API for user management, social interactions, authorization,
+    and shortened URL operations.
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
+  termsOfService: https://socialapp.gomezignacio.com/terms
   title: Socialapp
   version: 1.0.0
 servers:
-- url: https://socialapp.gomezignacio.com
-- url: http://localhost:8080
-- url: http://localhost:8085
+- description: Production
+  url: https://socialapp.gomezignacio.com
+- description: Local development (API server)
+  url: http://localhost:8080
+- description: Local development (alternate port)
+  url: http://localhost:8085
 security:
 - OAuth2: []
 tags:
-- description: User management
+- description: User account lifecycle and profile operations
   name: User
-- description: Comment management
+- description: Comment creation and retrieval operations
   name: Comment
-- description: Authentication management
+- description: Authentication and access token operations
   name: Authentication
-- description: Following management
+- description: Follower and following relationship operations
   name: Following
-- description: Role management
+- description: Role administration operations
   name: Role
-- description: Scope management
+- description: OAuth scope administration operations
   name: Scope
-- description: URL management
+- description: "Short URL creation, redirect, and metadata operations"
   name: URL
 paths:
   /:
     get:
-      description: Welcome to the Socialapp API
+      description: Return a welcome message for the Socialapp API.
       operationId: welcome
       responses:
         "200":
           content:
             text/plain:
+              example: Welcome to the Socialapp API
               schema:
                 type: string
           description: Welcome message
         "401":
           content:
             application/json:
+              example:
+                code: 401
+                message: Unauthorized
               schema:
                 $ref: "#/components/schemas/Error"
           description: Unauthorized
         default:
           content:
             application/json:
+              example:
+                code: 500
+                message: Unexpected error
               schema:
                 $ref: "#/components/schemas/Error"
           description: Unexpected error
-      summary: Welcome to the Socialapp API
+      summary: Get API welcome message
       tags:
       - User
   /v1/users:
     get:
-      description: List all users in the system (paginated)
+      description: List users with offset-based pagination.
       operationId: listUsers
       parameters:
       - description: Maximum number of users to return
+        example: 20
         explode: true
         in: query
         name: limit
@@ -76,6 +90,7 @@ paths:
           type: integer
         style: form
       - description: Pagination offset
+        example: 0
         explode: true
         in: query
         name: offset
@@ -89,6 +104,13 @@ paths:
         "200":
           content:
             application/json:
+              example:
+              - id: 1
+                username: johndoe
+                first_name: John
+                last_name: Doe
+                email: johndoe@mail.com
+                created_at: 2020-01-01T00:00:00Z
               schema:
                 items:
                   $ref: "#/components/schemas/User"
@@ -113,11 +135,17 @@ paths:
       tags:
       - User
     post:
-      description: Create a new user in the system
+      description: Create a new user.
       operationId: createUser
       requestBody:
         content:
           application/json:
+            example:
+              username: johndoe
+              first_name: John
+              last_name: Doe
+              password: Secure123!
+              email: johndoe@mail.com
             schema:
               $ref: "#/components/schemas/CreateUserRequest"
         description: Create a new user
@@ -126,6 +154,13 @@ paths:
         "200":
           content:
             application/json:
+              example:
+                id: 1
+                username: johndoe
+                first_name: John
+                last_name: Doe
+                email: johndoe@mail.com
+                created_at: 2020-01-01T00:00:00Z
               schema:
                 $ref: "#/components/schemas/CreateUserResponse"
           description: User was created successfully
@@ -146,11 +181,14 @@ paths:
       - User
   /v1/password:
     post:
-      description: Change the password of the current user
+      description: Change the password for the authenticated user.
       operationId: changePassword
       requestBody:
         content:
           application/json:
+            example:
+              old_password: Secure123!
+              new_password: Secure1234!
             schema:
               $ref: "#/components/schemas/ChangePasswordRequest"
         description: Change password request
@@ -181,11 +219,13 @@ paths:
       tags:
       - User
     put:
-      description: Reset the password of a user
+      description: Reset a user's password using their email address.
       operationId: resetPassword
       requestBody:
         content:
           application/json:
+            example:
+              email: johndoe@mail.com
             schema:
               $ref: "#/components/schemas/ResetPasswordRequest"
         description: Reset password
@@ -217,17 +257,23 @@ paths:
       - User
   /v1/feed:
     get:
-      description: Returns a users feed
+      description: Return the current user's feed.
       operationId: getUserFeed
       responses:
         "200":
           content:
             application/json:
+              example:
+              - id: 101
+                content: This is a comment
+                like_count: 10
+                created_at: 2020-01-01T00:00:00Z
+                username: johndoe
               schema:
                 items:
                   $ref: "#/components/schemas/Comment"
                 type: array
-          description: Get a users feed
+          description: User feed
         "401":
           content:
             application/json:
@@ -243,15 +289,15 @@ paths:
       security:
       - OAuth2:
         - socialapp.feed.read
-      summary: Returns a users feed
+      summary: Get user feed
       tags:
       - Comment
   /v1/users/{username}/comments:
     get:
-      description: Gets all comments for a user
+      description: Get all comments for a specific user.
       operationId: getUserComments
       parameters:
-      - description: username of the user
+      - description: Username of the user
         example: johndoe
         explode: false
         in: path
@@ -288,6 +334,12 @@ paths:
         "200":
           content:
             application/json:
+              example:
+              - id: 123
+                content: This is a comment
+                like_count: 3
+                created_at: 2020-01-01T00:00:00Z
+                username: johndoe
               schema:
                 items:
                   $ref: "#/components/schemas/Comment"
@@ -308,15 +360,15 @@ paths:
       security:
       - OAuth2:
         - socialapp.comments.read
-      summary: Gets all comments for a user
+      summary: List comments for a user
       tags:
       - User
   /v1/users/{username}/followers:
     get:
-      description: Get all followers for a user
+      description: Get all followers for a specific user.
       operationId: getUserFollowers
       parameters:
-      - description: username of the user
+      - description: Username of the user
         example: johndoe
         explode: false
         in: path
@@ -329,6 +381,13 @@ paths:
         "200":
           content:
             application/json:
+              example:
+              - id: 2
+                username: janedoe
+                first_name: Jane
+                last_name: Doe
+                email: janedoe@mail.com
+                created_at: 2020-01-01T00:00:00Z
               schema:
                 items:
                   $ref: "#/components/schemas/User"
@@ -355,10 +414,10 @@ paths:
       - Following
   /v1/users/{username}/following:
     get:
-      description: Get all followed users for a user (users that the user is following)
+      description: Get all users followed by a specific user.
       operationId: getFollowingUsers
       parameters:
-      - description: username of the user
+      - description: Username of the user
         example: johndoe
         explode: false
         in: path
@@ -371,6 +430,13 @@ paths:
         "200":
           content:
             application/json:
+              example:
+              - id: 3
+                username: editor1
+                first_name: Ed
+                last_name: Itor
+                email: editor1@mail.com
+                created_at: 2020-01-01T00:00:00Z
               schema:
                 items:
                   $ref: "#/components/schemas/User"
@@ -396,10 +462,10 @@ paths:
       - User
   /v1/users/{followedUsername}/followers/{followerUsername}:
     delete:
-      description: Remove a user as a follower of another user
+      description: Remove a follower relationship between two users.
       operationId: unfollowUser
       parameters:
-      - description: username of the user
+      - description: Username of the user being followed
         example: johndoe
         explode: false
         in: path
@@ -408,7 +474,7 @@ paths:
         schema:
           type: string
         style: simple
-      - description: username of the follower
+      - description: Username of the follower to remove
         example: jackdoe
         explode: false
         in: path
@@ -439,10 +505,10 @@ paths:
       tags:
       - User
     post:
-      description: Add a user as a follower of another user
+      description: Create a follower relationship between two users.
       operationId: followUser
       parameters:
-      - description: username of the user
+      - description: Username of the user being followed
         example: johndoe
         explode: false
         in: path
@@ -451,7 +517,7 @@ paths:
         schema:
           type: string
         style: simple
-      - description: username of the follower
+      - description: Username of the follower to add
         example: jackdoe
         explode: false
         in: path
@@ -483,10 +549,10 @@ paths:
       - User
   /v1/users/{username}:
     delete:
-      description: Deletes a particular user by username
+      description: Delete a user by username.
       operationId: deleteUser
       parameters:
-      - description: username of the user
+      - description: Username of the user
         example: johndoe
         explode: false
         in: path
@@ -501,7 +567,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-          description: User was deleted succesfully
+          description: User was deleted successfully
         "404":
           content:
             application/json:
@@ -521,10 +587,10 @@ paths:
       tags:
       - User
     get:
-      description: Get a particular user by username
+      description: Get a user by username.
       operationId: getUserByUsername
       parameters:
-      - description: username of the user
+      - description: Username of the user
         example: johndoe
         explode: false
         in: path
@@ -539,7 +605,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-          description: Details about a user by ID
+          description: User details by username
           headers:
             x-next:
               description: A link to the next page of responses
@@ -572,10 +638,10 @@ paths:
       tags:
       - User
     put:
-      description: Update a user by username
+      description: Update a user by username.
       operationId: updateUser
       parameters:
-      - description: username of the user
+      - description: Username of the user
         example: johndoe
         explode: false
         in: path
@@ -587,6 +653,11 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              username: johndoe
+              first_name: John
+              last_name: Updated
+              email: johndoe@mail.com
             schema:
               $ref: "#/components/schemas/User"
         description: Update a user
@@ -618,10 +689,10 @@ paths:
       - User
   /v1/users/{username}/roles:
     get:
-      description: Get all roles for a user
+      description: Get all roles assigned to a user.
       operationId: getRolesForUser
       parameters:
-      - description: username of the user
+      - description: Username of the user
         example: johndoe
         explode: false
         in: path
@@ -634,6 +705,11 @@ paths:
         "200":
           content:
             application/json:
+              example:
+              - id: 1
+                name: admin
+                description: Administrator role
+                created_at: 2020-01-01T00:00:00Z
               schema:
                 items:
                   $ref: "#/components/schemas/Role"
@@ -658,10 +734,10 @@ paths:
       tags:
       - User
     put:
-      description: Update all roles for a user
+      description: Replace all roles for a user.
       operationId: updateRolesForUser
       parameters:
-      - description: username of the user
+      - description: Username of the user
         example: johndoe
         explode: false
         in: path
@@ -712,7 +788,7 @@ paths:
       - User
   /v1/comments/{id}:
     get:
-      description: Returns details about a particular comment
+      description: Get details for a specific comment.
       operationId: getComment
       parameters:
       - description: ID of the comment
@@ -729,6 +805,12 @@ paths:
         "200":
           content:
             application/json:
+              example:
+                id: 123
+                content: This is a comment
+                like_count: 10
+                created_at: 2020-01-01T00:00:00Z
+                username: johndoe
               schema:
                 $ref: "#/components/schemas/Comment"
           description: Details about a comment by ID
@@ -754,16 +836,19 @@ paths:
       security:
       - OAuth2:
         - socialapp.comments.read
-      summary: Returns details about a particular comment
+      summary: Get comment by ID
       tags:
       - Comment
   /v1/comments:
     post:
-      description: Create a new comment
+      description: Create a new comment.
       operationId: createComment
       requestBody:
         content:
           application/json:
+            example:
+              content: This is a comment
+              username: johndoe
             schema:
               $ref: "#/components/schemas/Comment"
         description: Create a new comment
@@ -795,12 +880,18 @@ paths:
       - Comment
   /v1/oauth/token:
     post:
-      description: Get an access token
+      description: Exchange HTTP basic credentials for an access token.
       operationId: getAccessToken
       responses:
         "200":
           content:
             application/json:
+              example:
+                access_token: 123token123
+                token_type: Bearer
+                scopes:
+                - socialapp.users.list
+                expires_in: 3600
               schema:
                 $ref: "#/components/schemas/AccessToken"
           description: Access token
@@ -823,10 +914,11 @@ paths:
       - Authentication
   /v1/roles:
     get:
-      description: Returns a list of roles
+      description: List roles with offset-based pagination.
       operationId: listRoles
       parameters:
       - description: The numbers of roles to return
+        example: 20
         explode: false
         in: query
         name: limit
@@ -839,6 +931,7 @@ paths:
           type: integer
         style: form
       - description: The number of items to skip before starting to collect the result
+        example: 0
         explode: false
         in: query
         name: offset
@@ -851,6 +944,11 @@ paths:
         "200":
           content:
             application/json:
+              example:
+              - id: 1
+                name: admin
+                description: Administrator role
+                created_at: 2020-01-01T00:00:00Z
               schema:
                 items:
                   $ref: "#/components/schemas/Role"
@@ -875,11 +973,14 @@ paths:
       tags:
       - Role
     post:
-      description: Create a new role
+      description: Create a new role.
       operationId: createRole
       requestBody:
         content:
           application/json:
+            example:
+              name: admin
+              description: Administrator role
             schema:
               $ref: "#/components/schemas/Role"
         description: Create a new role
@@ -946,7 +1047,7 @@ paths:
       tags:
       - Role
     get:
-      description: Returns a role
+      description: Get a role by ID.
       operationId: getRole
       parameters:
       - description: The id of the role
@@ -963,6 +1064,11 @@ paths:
         "200":
           content:
             application/json:
+              example:
+                id: 1
+                name: admin
+                description: Administrator role
+                created_at: 2020-01-01T00:00:00Z
               schema:
                 $ref: "#/components/schemas/Role"
           description: Role is returned
@@ -981,11 +1087,11 @@ paths:
       security:
       - OAuth2:
         - socialapp.roles.read
-      summary: Returns a role
+      summary: Get role by ID
       tags:
       - Role
     put:
-      description: Update a role
+      description: Update a role by ID.
       operationId: updateRole
       parameters:
       - description: id of the role
@@ -1001,6 +1107,9 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              name: admin
+              description: Administrator role
             schema:
               $ref: "#/components/schemas/Role"
         description: Update a role
@@ -1031,7 +1140,7 @@ paths:
       - Role
   /v1/roles/{id}/scopes:
     get:
-      description: Returns a list of scopes for a role
+      description: List scopes assigned to a role.
       operationId: listScopesForRole
       parameters:
       - description: The id of the role
@@ -1045,6 +1154,7 @@ paths:
           type: integer
         style: simple
       - description: The numbers of scopes to return
+        example: 20
         explode: false
         in: query
         name: limit
@@ -1057,6 +1167,7 @@ paths:
           type: integer
         style: form
       - description: The number of items to skip before starting to collect the result
+        example: 0
         explode: false
         in: query
         name: offset
@@ -1069,6 +1180,11 @@ paths:
         "200":
           content:
             application/json:
+              example:
+              - id: 1
+                name: socialapp.roles.read
+                description: Read role records
+                created_at: 2020-01-01T00:00:00Z
               schema:
                 items:
                   $ref: "#/components/schemas/Scope"
@@ -1089,11 +1205,11 @@ paths:
       security:
       - OAuth2:
         - socialapp.roles.scopes.list
-      summary: Returns a list of scopes for a role
+      summary: List role scopes
       tags:
       - Role
     post:
-      description: Add a scope to a role
+      description: Add one or more scopes to a role.
       operationId: addScopeToRole
       parameters:
       - description: The id of the role
@@ -1153,7 +1269,7 @@ paths:
       - Role
   /v1/roles/{role_id}/scopes/{scope_id}:
     delete:
-      description: Remove a scope from a role
+      description: Remove a scope from a role.
       operationId: removeScopeFromRole
       parameters:
       - description: The id of the role
@@ -1211,10 +1327,11 @@ paths:
       - Role
   /v1/scopes:
     get:
-      description: Returns a list of scopes
+      description: List scopes with offset-based pagination.
       operationId: listScopes
       parameters:
       - description: The numbers of scopes to return
+        example: 20
         explode: false
         in: query
         name: limit
@@ -1227,6 +1344,7 @@ paths:
           type: integer
         style: form
       - description: The number of items to skip before starting to collect the result
+        example: 0
         explode: false
         in: query
         name: offset
@@ -1239,6 +1357,11 @@ paths:
         "200":
           content:
             application/json:
+              example:
+              - id: 1
+                name: socialapp.roles.read
+                description: Read role records
+                created_at: 2020-01-01T00:00:00Z
               schema:
                 items:
                   $ref: "#/components/schemas/Scope"
@@ -1259,15 +1382,18 @@ paths:
       security:
       - OAuth2:
         - socialapp.scopes.list
-      summary: Returns a list of scopes
+      summary: List scopes
       tags:
       - Scope
     post:
-      description: Create a new scope
+      description: Create a new scope.
       operationId: createScope
       requestBody:
         content:
           application/json:
+            example:
+              name: socialapp.roles.read
+              description: Read role records
             schema:
               $ref: "#/components/schemas/Scope"
         description: Create a new scope
@@ -1334,7 +1460,7 @@ paths:
       tags:
       - Scope
     get:
-      description: Returns a scope
+      description: Get a scope by ID.
       operationId: getScope
       parameters:
       - description: The id of the scope
@@ -1351,6 +1477,11 @@ paths:
         "200":
           content:
             application/json:
+              example:
+                id: 1
+                name: socialapp.roles.read
+                description: Read role records
+                created_at: 2020-01-01T00:00:00Z
               schema:
                 $ref: "#/components/schemas/Scope"
           description: Scope is returned
@@ -1369,11 +1500,11 @@ paths:
       security:
       - OAuth2:
         - socialapp.scopes.read
-      summary: Returns a scope
+      summary: Get scope by ID
       tags:
       - Scope
     put:
-      description: Update a scope
+      description: Update a scope by ID.
       operationId: updateScope
       parameters:
       - description: id of the scope
@@ -1389,6 +1520,9 @@ paths:
       requestBody:
         content:
           application/json:
+            example:
+              name: socialapp.roles.read
+              description: Read role records
             schema:
               $ref: "#/components/schemas/Scope"
         description: Update a scope
@@ -1419,7 +1553,7 @@ paths:
       - Scope
   /v1/urls/{alias}:
     delete:
-      description: Delete a url
+      description: Delete a URL alias and its metadata.
       operationId: deleteUrl
       parameters:
       - description: The alias of the url
@@ -1443,11 +1577,11 @@ paths:
       security:
       - OAuth2:
         - shortly.url.delete
-      summary: Delete a url
+      summary: Delete URL alias
       tags:
       - URL
     get:
-      description: Returns a url
+      description: Resolve an alias and redirect to the destination URL.
       operationId: getUrl
       parameters:
       - description: The alias of the url
@@ -1478,12 +1612,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Url not found
-      summary: Get a url
+      summary: Redirect using URL alias
       tags:
       - URL
   /v1/urls/{alias}/data:
     get:
-      description: Returns a url
+      description: Return metadata for a URL alias.
       operationId: getUrlData
       parameters:
       - description: The alias of the url
@@ -1508,16 +1642,19 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
           description: Url not found
-      summary: Returns a url metadata
+      summary: Get URL metadata
       tags:
       - URL
   /v1/urls:
     post:
-      description: Returns a url
+      description: Create a new URL alias.
       operationId: createUrl
       requestBody:
         content:
           application/json:
+            example:
+              alias: example
+              url: https://example.com
             schema:
               $ref: "#/components/schemas/URL"
         description: Create a new url
@@ -1544,12 +1681,13 @@ paths:
       security:
       - OAuth2:
         - shortly.url.create
-      summary: Create a new url
+      summary: Create URL alias
       tags:
       - URL
 components:
   schemas:
     CreateUserRequest:
+      description: Request payload for creating a user account.
       example:
         username: johndoe
         first_name: John
@@ -1558,14 +1696,20 @@ components:
         email: johndoe@mail.com
       properties:
         username:
+          description: Unique username for the account.
           type: string
         password:
+          description: Plain-text password used during account creation.
           type: string
         first_name:
+          description: User first name.
           type: string
         last_name:
+          description: User last name.
           type: string
         email:
+          description: User email address.
+          format: email
           type: string
       required:
       - email
@@ -1574,26 +1718,34 @@ components:
       - password
       - username
     CreateUserResponse:
+      description: Response payload returned after user creation.
       example:
         id: 1
         username: johndoe
         first_name: John
         last_name: Doe
         email: john@doe.com
-        created_at: 2020-01-01T00:00:00Z
+        created_at: 2020-01-01T00:00:00.000+00:00
       properties:
         id:
+          description: Unique user identifier.
           format: int64
           type: integer
         username:
+          description: Unique username for the account.
           type: string
         first_name:
+          description: User first name.
           type: string
         last_name:
+          description: User last name.
           type: string
         email:
+          description: User email address.
+          format: email
           type: string
         created_at:
+          description: Timestamp when the user was created.
           format: date-time
           type: string
       required:
@@ -1604,6 +1756,7 @@ components:
       - last_name
       - username
     User:
+      description: User profile information.
       example:
         username: johndoe
         first_name: John
@@ -1612,17 +1765,24 @@ components:
         created_at: 2020-01-01T00:00:00Z
       properties:
         id:
+          description: Unique user identifier.
           format: int64
           type: integer
         username:
+          description: Unique username for the account.
           type: string
         first_name:
+          description: User first name.
           type: string
         last_name:
+          description: User last name.
           type: string
         email:
+          description: User email address.
+          format: email
           type: string
         created_at:
+          description: Timestamp when the user was created.
           format: date-time
           type: string
       required:
@@ -1631,135 +1791,171 @@ components:
       - last_name
       - username
     Comment:
+      description: User-generated comment.
       example:
         content: This is a comment
         username: johndoe
       properties:
         id:
+          description: Unique comment identifier.
           format: int64
           type: integer
         content:
+          description: Comment text.
           type: string
         like_count:
+          description: Number of likes for the comment.
           format: int64
           type: integer
         created_at:
+          description: Timestamp when the comment was created.
           format: date-time
           type: string
         username:
+          description: Username of the comment author.
           type: string
       required:
       - content
       - username
     AccessToken:
+      description: OAuth access token response.
       example:
         access_token: 123token123
         token_type: Bearer
         expires_in: 3600
       properties:
         access_token:
+          description: Access token used for authenticated requests.
           type: string
         token_type:
+          description: Type of token returned by the authorization server.
           type: string
         scopes:
+          description: Granted OAuth scopes.
           items:
             type: string
           type: array
         expires_in:
+          description: Access token lifetime in seconds.
           type: integer
       required:
       - access_token
       - expires_in
       - token_type
     Error:
+      description: Standard error payload returned by the API.
       example:
         code: 404
         message: Not found
       properties:
         code:
+          description: HTTP-like error code.
           format: int32
           type: integer
         message:
+          description: Human-readable error message.
           type: string
       required:
       - code
       - message
     ChangePasswordRequest:
+      description: Request payload for changing a user's password.
       example:
         old_password: Secure123!
         new_password: Secure1234!
       properties:
         old_password:
+          description: Current password.
           type: string
         new_password:
+          description: New password.
           type: string
       required:
       - new_password
       - old_password
     ResetPasswordRequest:
+      description: Request payload for triggering a password reset.
       example:
-        email: jhon@doe.com
+        email: johndoe@mail.com
       properties:
         email:
+          description: Email address associated with the user account.
+          format: email
           type: string
       required:
       - email
     Role:
+      description: Role assigned to users for authorization.
       example:
         name: admin
         description: Administrator Role
       properties:
         id:
+          description: Unique role identifier.
           format: int64
           type: integer
         name:
+          description: Unique role name.
           type: string
         description:
+          description: Description of what the role grants.
           type: string
         created_at:
+          description: Timestamp when the role was created.
           format: date-time
           type: string
       required:
       - name
     Scope:
+      description: OAuth scope used for access control.
       example:
         name: socialapp.roles.read
         description: Read roles
         id: 1
       properties:
         id:
+          description: Unique scope identifier.
           format: int64
           type: integer
         name:
+          description: "Scope name (for example, `socialapp.roles.read`)."
           type: string
         description:
+          description: Description of the permission granted by this scope.
           type: string
         created_at:
+          description: Timestamp when the scope was created.
           format: date-time
           type: string
       required:
       - description
       - name
     URL:
+      description: URL alias and metadata.
       example:
         alias: example
         url: https://example.com
-        creted_at: 2020-01-01T00:00:00Z
+        created_at: 2020-01-01T00:00:00Z
         updated_at: 2020-01-01T00:00:00Z
         deleted_at: 2020-01-01T00:00:00Z
       properties:
         url:
+          description: Destination URL.
           format: uri
           type: string
         alias:
+          description: Short alias used to reference the URL.
           type: string
         created_at:
+          description: Timestamp when the alias was created.
           format: date-time
           type: string
         updated_at:
+          description: Timestamp when the alias was last updated.
           format: date-time
           type: string
         deleted_at:
+          description: Timestamp when the alias was deleted.
           format: date-time
           type: string
       required:

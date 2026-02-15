@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -109,7 +109,7 @@ func (c *URLAPIController) OrderedRoutes() []Route {
 	}
 }
 
-// GetUrl - Get a url
+// GetUrl - Redirect using URL alias
 func (c *URLAPIController) GetUrl(w http.ResponseWriter, r *http.Request) {
 	aliasParam := chi.URLParam(r, "alias")
 	if aliasParam == "" {
@@ -126,7 +126,7 @@ func (c *URLAPIController) GetUrl(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
 }
 
-// DeleteUrl - Delete a url
+// DeleteUrl - Delete URL alias
 func (c *URLAPIController) DeleteUrl(w http.ResponseWriter, r *http.Request) {
 	aliasParam := chi.URLParam(r, "alias")
 	if aliasParam == "" {
@@ -143,7 +143,7 @@ func (c *URLAPIController) DeleteUrl(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
 }
 
-// GetUrlData - Returns a url metadata
+// GetUrlData - Get URL metadata
 func (c *URLAPIController) GetUrlData(w http.ResponseWriter, r *http.Request) {
 	aliasParam := chi.URLParam(r, "alias")
 	if aliasParam == "" {
@@ -160,7 +160,7 @@ func (c *URLAPIController) GetUrlData(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
 }
 
-// CreateUrl - Create a new url
+// CreateUrl - Create URL alias
 func (c *URLAPIController) CreateUrl(w http.ResponseWriter, r *http.Request) {
 	var urlParam Url
 	d := json.NewDecoder(r.Body)

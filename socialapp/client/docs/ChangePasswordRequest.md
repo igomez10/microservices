@@ -4,8 +4,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**OldPassword** | **string** |  | 
-**NewPassword** | **string** |  | 
+**OldPassword** | **string** | Current password. | 
+**NewPassword** | **string** | New password. | 
 
 ## Methods
 

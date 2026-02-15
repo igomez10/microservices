@@ -4,10 +4,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Id** | Pointer to **int64** |  | [optional] 
-**Name** | **string** |  | 
-**Description** | **string** |  | 
-**CreatedAt** | Pointer to **time.Time** |  | [optional] 
+**Id** | Pointer to **int64** | Unique scope identifier. | [optional] 
+**Name** | **string** | Scope name (for example, &#x60;socialapp.roles.read&#x60;). | 
+**Description** | **string** | Description of the permission granted by this scope. | 
+**CreatedAt** | Pointer to **time.Time** | Timestamp when the scope was created. | [optional] 
 
 ## Methods
 

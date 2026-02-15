@@ -11,14 +11,14 @@ Method | HTTP request | Description
 [**GetFollowingUsers**](UserAPI.md#GetFollowingUsers) | **Get** /v1/users/{username}/following | Get all followed users for a user
 [**GetRolesForUser**](UserAPI.md#GetRolesForUser) | **Get** /v1/users/{username}/roles | Get all roles for a user
 [**GetUserByUsername**](UserAPI.md#GetUserByUsername) | **Get** /v1/users/{username} | Get a particular user by username
-[**GetUserComments**](UserAPI.md#GetUserComments) | **Get** /v1/users/{username}/comments | Gets all comments for a user
+[**GetUserComments**](UserAPI.md#GetUserComments) | **Get** /v1/users/{username}/comments | List comments for a user
 [**GetUserFollowers**](UserAPI.md#GetUserFollowers) | **Get** /v1/users/{username}/followers | Get all followers for a user
 [**ListUsers**](UserAPI.md#ListUsers) | **Get** /v1/users | List users
 [**ResetPassword**](UserAPI.md#ResetPassword) | **Put** /v1/password | Reset password
 [**UnfollowUser**](UserAPI.md#UnfollowUser) | **Delete** /v1/users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
 [**UpdateRolesForUser**](UserAPI.md#UpdateRolesForUser) | **Put** /v1/users/{username}/roles | Update all roles for a user
 [**UpdateUser**](UserAPI.md#UpdateUser) | **Put** /v1/users/{username} | Update a user
-[**Welcome**](UserAPI.md#Welcome) | **Get** / | Welcome to the Socialapp API
+[**Welcome**](UserAPI.md#Welcome) | **Get** / | Get API welcome message
 
 
 
@@ -175,7 +175,7 @@ import (
 )
 
 func main() {
-	username := "johndoe" // string | username of the user
+	username := "johndoe" // string | Username of the user
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -195,7 +195,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**username** | **string** | username of the user | 
+**username** | **string** | Username of the user | 
 
 ### Other Parameters
 
@@ -245,8 +245,8 @@ import (
 )
 
 func main() {
-	followedUsername := "johndoe" // string | username of the user
-	followerUsername := "jackdoe" // string | username of the follower
+	followedUsername := "johndoe" // string | Username of the user being followed
+	followerUsername := "jackdoe" // string | Username of the follower to add
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -264,8 +264,8 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**followedUsername** | **string** | username of the user | 
-**followerUsername** | **string** | username of the follower | 
+**followedUsername** | **string** | Username of the user being followed | 
+**followerUsername** | **string** | Username of the follower to add | 
 
 ### Other Parameters
 
@@ -316,7 +316,7 @@ import (
 )
 
 func main() {
-	username := "johndoe" // string | username of the user
+	username := "johndoe" // string | Username of the user
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -336,7 +336,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**username** | **string** | username of the user | 
+**username** | **string** | Username of the user | 
 
 ### Other Parameters
 
@@ -386,7 +386,7 @@ import (
 )
 
 func main() {
-	username := "johndoe" // string | username of the user
+	username := "johndoe" // string | Username of the user
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -406,7 +406,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**username** | **string** | username of the user | 
+**username** | **string** | Username of the user | 
 
 ### Other Parameters
 
@@ -456,7 +456,7 @@ import (
 )
 
 func main() {
-	username := "johndoe" // string | username of the user
+	username := "johndoe" // string | Username of the user
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -476,7 +476,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**username** | **string** | username of the user | 
+**username** | **string** | Username of the user | 
 
 ### Other Parameters
 
@@ -509,7 +509,7 @@ Name | Type | Description  | Notes
 
 > []Comment GetUserComments(ctx, username).Limit(limit).Offset(offset).Execute()
 
-Gets all comments for a user
+List comments for a user
 
 
 
@@ -526,7 +526,7 @@ import (
 )
 
 func main() {
-	username := "johndoe" // string | username of the user
+	username := "johndoe" // string | Username of the user
 	limit := int32(20) // int32 | How many items to return at one time (max 100) (optional) (default to 20)
 	offset := int32(0) // int32 | The number of items to skip before starting to collect the result set (optional)
 
@@ -548,7 +548,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**username** | **string** | username of the user | 
+**username** | **string** | Username of the user | 
 
 ### Other Parameters
 
@@ -600,7 +600,7 @@ import (
 )
 
 func main() {
-	username := "johndoe" // string | username of the user
+	username := "johndoe" // string | Username of the user
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -620,7 +620,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**username** | **string** | username of the user | 
+**username** | **string** | Username of the user | 
 
 ### Other Parameters
 
@@ -670,8 +670,8 @@ import (
 )
 
 func main() {
-	limit := int32(56) // int32 | Maximum number of users to return (optional) (default to 20)
-	offset := int32(56) // int32 | Pagination offset (optional) (default to 0)
+	limit := int32(20) // int32 | Maximum number of users to return (optional) (default to 20)
+	offset := int32(0) // int32 | Pagination offset (optional) (default to 0)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -804,8 +804,8 @@ import (
 )
 
 func main() {
-	followedUsername := "johndoe" // string | username of the user
-	followerUsername := "jackdoe" // string | username of the follower
+	followedUsername := "johndoe" // string | Username of the user being followed
+	followerUsername := "jackdoe" // string | Username of the follower to remove
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -823,8 +823,8 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**followedUsername** | **string** | username of the user | 
-**followerUsername** | **string** | username of the follower | 
+**followedUsername** | **string** | Username of the user being followed | 
+**followerUsername** | **string** | Username of the follower to remove | 
 
 ### Other Parameters
 
@@ -875,7 +875,7 @@ import (
 )
 
 func main() {
-	username := "johndoe" // string | username of the user
+	username := "johndoe" // string | Username of the user
 	requestBody := []string{"Property_example"} // []string | Update all roles for a user (optional)
 
 	configuration := openapiclient.NewConfiguration()
@@ -896,7 +896,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**username** | **string** | username of the user | 
+**username** | **string** | Username of the user | 
 
 ### Other Parameters
 
@@ -947,7 +947,7 @@ import (
 )
 
 func main() {
-	username := "johndoe" // string | username of the user
+	username := "johndoe" // string | Username of the user
 	user := *openapiclient.NewUser("Username_example", "FirstName_example", "LastName_example", "Email_example") // User | Update a user
 
 	configuration := openapiclient.NewConfiguration()
@@ -968,7 +968,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**username** | **string** | username of the user | 
+**username** | **string** | Username of the user | 
 
 ### Other Parameters
 
@@ -1002,7 +1002,7 @@ Name | Type | Description  | Notes
 
 > string Welcome(ctx).Execute()
 
-Welcome to the Socialapp API
+Get API welcome message
 
 
 

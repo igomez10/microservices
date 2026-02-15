@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -42,7 +42,7 @@ func (r ScopeAPICreateScopeRequest) Execute() (*Scope, *http.Response, error) {
 /*
 CreateScope Create a new scope
 
-Create a new scope
+Create a new scope.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return ScopeAPICreateScopeRequest
@@ -276,9 +276,9 @@ func (r ScopeAPIGetScopeRequest) Execute() (*Scope, *http.Response, error) {
 }
 
 /*
-GetScope Returns a scope
+GetScope Get scope by ID
 
-Returns a scope
+Get a scope by ID.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id The id of the scope
@@ -412,9 +412,9 @@ func (r ScopeAPIListScopesRequest) Execute() ([]Scope, *http.Response, error) {
 }
 
 /*
-ListScopes Returns a list of scopes
+ListScopes List scopes
 
-Returns a list of scopes
+List scopes with offset-based pagination.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return ScopeAPIListScopesRequest
@@ -551,7 +551,7 @@ func (r ScopeAPIUpdateScopeRequest) Execute() (*Scope, *http.Response, error) {
 /*
 UpdateScope Update a scope
 
-Update a scope
+Update a scope by ID.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id id of the scope

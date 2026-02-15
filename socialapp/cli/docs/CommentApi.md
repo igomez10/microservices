@@ -5,8 +5,8 @@ All URIs are relative to **
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**createComment**](CommentApi.md#createComment) | **POST** /v1/comments | Create a new comment
-[**getComment**](CommentApi.md#getComment) | **GET** /v1/comments/{id} | Returns details about a particular comment
-[**getUserFeed**](CommentApi.md#getUserFeed) | **GET** /v1/feed | Returns a users feed
+[**getComment**](CommentApi.md#getComment) | **GET** /v1/comments/{id} | Get comment by ID
+[**getUserFeed**](CommentApi.md#getUserFeed) | **GET** /v1/feed | Get user feed
 
 
 
@@ -14,7 +14,7 @@ Method | HTTP request | Description
 
 Create a new comment
 
-Create a new comment
+Create a new comment.
 
 ### Example
 
@@ -47,9 +47,9 @@ Name | Type | Description  | Notes
 
 ## getComment
 
-Returns details about a particular comment
+Get comment by ID
 
-Returns details about a particular comment
+Get details for a specific comment.
 
 ### Example
 
@@ -82,9 +82,9 @@ Name | Type | Description  | Notes
 
 ## getUserFeed
 
-Returns a users feed
+Get user feed
 
-Returns a users feed
+Return the current user's feed.
 
 ### Example
 

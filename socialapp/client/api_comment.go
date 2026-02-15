@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -42,7 +42,7 @@ func (r CommentAPICreateCommentRequest) Execute() (*Comment, *http.Response, err
 /*
 CreateComment Create a new comment
 
-Create a new comment
+Create a new comment.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return CommentAPICreateCommentRequest
@@ -165,9 +165,9 @@ func (r CommentAPIGetCommentRequest) Execute() (*Comment, *http.Response, error)
 }
 
 /*
-GetComment Returns details about a particular comment
+GetComment Get comment by ID
 
-Returns details about a particular comment
+Get details for a specific comment.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param id ID of the comment
@@ -287,9 +287,9 @@ func (r CommentAPIGetUserFeedRequest) Execute() ([]Comment, *http.Response, erro
 }
 
 /*
-GetUserFeed Returns a users feed
+GetUserFeed Get user feed
 
-Returns a users feed
+Return the current user's feed.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return CommentAPIGetUserFeedRequest

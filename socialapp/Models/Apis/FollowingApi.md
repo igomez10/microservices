@@ -13,13 +13,13 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Get all followers for a user
 
-    Get all followers for a user
+    Get all followers for a specific user.
 
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **username** | **String**| username of the user | [default to null] |
+| **username** | **String**| Username of the user | [default to null] |
 
 ### Return type
 

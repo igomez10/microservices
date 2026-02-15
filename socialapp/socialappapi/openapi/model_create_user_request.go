@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -11,15 +11,22 @@
 
 package openapi
 
+// CreateUserRequest - Request payload for creating a user account.
 type CreateUserRequest struct {
+
+	// Unique username for the account.
 	Username string `json:"username"`
 
+	// Plain-text password used during account creation.
 	Password string `json:"password"`
 
+	// User first name.
 	FirstName string `json:"first_name"`
 
+	// User last name.
 	LastName string `json:"last_name"`
 
+	// User email address.
 	Email string `json:"email"`
 }
 

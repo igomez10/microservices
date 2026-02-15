@@ -5,8 +5,8 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**CreateComment**](CommentAPI.md#CreateComment) | **Post** /v1/comments | Create a new comment
-[**GetComment**](CommentAPI.md#GetComment) | **Get** /v1/comments/{id} | Returns details about a particular comment
-[**GetUserFeed**](CommentAPI.md#GetUserFeed) | **Get** /v1/feed | Returns a users feed
+[**GetComment**](CommentAPI.md#GetComment) | **Get** /v1/comments/{id} | Get comment by ID
+[**GetUserFeed**](CommentAPI.md#GetUserFeed) | **Get** /v1/feed | Get user feed
 
 
 
@@ -80,7 +80,7 @@ Name | Type | Description  | Notes
 
 > Comment GetComment(ctx, id).Execute()
 
-Returns details about a particular comment
+Get comment by ID
 
 
 
@@ -97,7 +97,7 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | ID of the comment
+	id := int64(123) // int64 | ID of the comment
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -117,7 +117,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | ID of the comment | 
+**id** | **int64** | ID of the comment | 
 
 ### Other Parameters
 
@@ -150,7 +150,7 @@ Name | Type | Description  | Notes
 
 > []Comment GetUserFeed(ctx).Execute()
 
-Returns a users feed
+Get user feed
 
 
 

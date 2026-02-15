@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -20,9 +20,11 @@ import (
 // checks if the ChangePasswordRequest type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &ChangePasswordRequest{}
 
-// ChangePasswordRequest struct for ChangePasswordRequest
+// ChangePasswordRequest Request payload for changing a user's password.
 type ChangePasswordRequest struct {
+	// Current password.
 	OldPassword string `json:"old_password"`
+	// New password.
 	NewPassword string `json:"new_password"`
 }
 

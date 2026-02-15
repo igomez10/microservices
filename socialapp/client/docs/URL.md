@@ -4,11 +4,11 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Url** | **string** |  | 
-**Alias** | **string** |  | 
-**CreatedAt** | Pointer to **time.Time** |  | [optional] 
-**UpdatedAt** | Pointer to **time.Time** |  | [optional] 
-**DeletedAt** | Pointer to **time.Time** |  | [optional] 
+**Url** | **string** | Destination URL. | 
+**Alias** | **string** | Short alias used to reference the URL. | 
+**CreatedAt** | Pointer to **time.Time** | Timestamp when the alias was created. | [optional] 
+**UpdatedAt** | Pointer to **time.Time** | Timestamp when the alias was last updated. | [optional] 
+**DeletedAt** | Pointer to **time.Time** | Timestamp when the alias was deleted. | [optional] 
 
 ## Methods
 

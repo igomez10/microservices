@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Email** | **string** |  | 
+**Email** | **string** | Email address associated with the user account. | 
 
 ## Methods
 

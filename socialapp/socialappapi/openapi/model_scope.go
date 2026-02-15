@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -15,13 +15,19 @@ import (
 	"time"
 )
 
+// Scope - OAuth scope used for access control.
 type Scope struct {
+
+	// Unique scope identifier.
 	Id int64 `json:"id,omitempty"`
 
+	// Scope name (for example, `socialapp.roles.read`).
 	Name string `json:"name"`
 
+	// Description of the permission granted by this scope.
 	Description string `json:"description"`
 
+	// Timestamp when the scope was created.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 

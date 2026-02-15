@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -15,15 +15,22 @@ import (
 	"time"
 )
 
+// Url - URL alias and metadata.
 type Url struct {
+
+	// Destination URL.
 	Url string `json:"url"`
 
+	// Short alias used to reference the URL.
 	Alias string `json:"alias"`
 
+	// Timestamp when the alias was created.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 
+	// Timestamp when the alias was last updated.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 
+	// Timestamp when the alias was deleted.
 	DeletedAt time.Time `json:"deleted_at,omitempty"`
 }
 

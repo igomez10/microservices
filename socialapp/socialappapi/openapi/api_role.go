@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -235,7 +235,7 @@ func (c *RoleAPIController) CreateRole(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
 }
 
-// GetRole - Returns a role
+// GetRole - Get role by ID
 func (c *RoleAPIController) GetRole(w http.ResponseWriter, r *http.Request) {
 	idParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "id"),
@@ -310,7 +310,7 @@ func (c *RoleAPIController) DeleteRole(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
 }
 
-// ListScopesForRole - Returns a list of scopes for a role
+// ListScopesForRole - List role scopes
 func (c *RoleAPIController) ListScopesForRole(w http.ResponseWriter, r *http.Request) {
 	query, err := parseQuery(r.URL.RawQuery)
 	if err != nil {

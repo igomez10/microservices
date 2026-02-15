@@ -12,7 +12,7 @@ Method | HTTP request | Description
 
 Get an access token
 
-Get an access token
+Exchange HTTP basic credentials for an access token.
 
 ### Example
 

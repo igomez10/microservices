@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -11,13 +11,19 @@
 
 package openapi
 
+// AccessToken - OAuth access token response.
 type AccessToken struct {
+
+	// Access token used for authenticated requests.
 	AccessToken string `json:"access_token"`
 
+	// Type of token returned by the authorization server.
 	TokenType string `json:"token_type"`
 
+	// Granted OAuth scopes.
 	Scopes []string `json:"scopes,omitempty"`
 
+	// Access token lifetime in seconds.
 	ExpiresIn int32 `json:"expires_in"`
 }
 

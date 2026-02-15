@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -21,13 +21,19 @@ import (
 // checks if the CreateUserResponse type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &CreateUserResponse{}
 
-// CreateUserResponse struct for CreateUserResponse
+// CreateUserResponse Response payload returned after user creation.
 type CreateUserResponse struct {
-	Id        int64     `json:"id"`
-	Username  string    `json:"username"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	Email     string    `json:"email"`
+	// Unique user identifier.
+	Id int64 `json:"id"`
+	// Unique username for the account.
+	Username string `json:"username"`
+	// User first name.
+	FirstName string `json:"first_name"`
+	// User last name.
+	LastName string `json:"last_name"`
+	// User email address.
+	Email string `json:"email"`
+	// Timestamp when the user was created.
 	CreatedAt time.Time `json:"created_at"`
 }
 

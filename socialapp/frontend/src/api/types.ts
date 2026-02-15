@@ -12,8 +12,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Welcome to the Socialapp API
-         * @description Welcome to the Socialapp API
+         * Get API welcome message
+         * @description Return a welcome message for the Socialapp API.
          */
         get: operations["welcome"];
         put?: never;
@@ -33,13 +33,13 @@ export interface paths {
         };
         /**
          * List users
-         * @description List all users in the system (paginated)
+         * @description List users with offset-based pagination.
          */
         get: operations["listUsers"];
         put?: never;
         /**
          * Create user
-         * @description Create a new user in the system
+         * @description Create a new user.
          */
         post: operations["createUser"];
         delete?: never;
@@ -58,12 +58,12 @@ export interface paths {
         get?: never;
         /**
          * Reset password
-         * @description Reset the password of a user
+         * @description Reset a user's password using their email address.
          */
         put: operations["resetPassword"];
         /**
          * Change password
-         * @description Change the password of the current user
+         * @description Change the password for the authenticated user.
          */
         post: operations["changePassword"];
         delete?: never;
@@ -80,8 +80,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Returns a users feed
-         * @description Returns a users feed
+         * Get user feed
+         * @description Return the current user's feed.
          */
         get: operations["getUserFeed"];
         put?: never;
@@ -100,8 +100,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Gets all comments for a user
-         * @description Gets all comments for a user
+         * List comments for a user
+         * @description Get all comments for a specific user.
          */
         get: operations["getUserComments"];
         put?: never;
@@ -121,7 +121,7 @@ export interface paths {
         };
         /**
          * Get all followers for a user
-         * @description Get all followers for a user
+         * @description Get all followers for a specific user.
          */
         get: operations["getUserFollowers"];
         put?: never;
@@ -141,7 +141,7 @@ export interface paths {
         };
         /**
          * Get all followed users for a user
-         * @description Get all followed users for a user (users that the user is following)
+         * @description Get all users followed by a specific user.
          */
         get: operations["getFollowingUsers"];
         put?: never;
@@ -163,12 +163,12 @@ export interface paths {
         put?: never;
         /**
          * Add a user as a follower
-         * @description Add a user as a follower of another user
+         * @description Create a follower relationship between two users.
          */
         post: operations["followUser"];
         /**
          * Remove a user as a follower
-         * @description Remove a user as a follower of another user
+         * @description Remove a follower relationship between two users.
          */
         delete: operations["unfollowUser"];
         options?: never;
@@ -185,18 +185,18 @@ export interface paths {
         };
         /**
          * Get a particular user by username
-         * @description Get a particular user by username
+         * @description Get a user by username.
          */
         get: operations["getUserByUsername"];
         /**
          * Update a user
-         * @description Update a user by username
+         * @description Update a user by username.
          */
         put: operations["updateUser"];
         post?: never;
         /**
          * Deletes a particular user
-         * @description Deletes a particular user by username
+         * @description Delete a user by username.
          */
         delete: operations["deleteUser"];
         options?: never;
@@ -213,12 +213,12 @@ export interface paths {
         };
         /**
          * Get all roles for a user
-         * @description Get all roles for a user
+         * @description Get all roles assigned to a user.
          */
         get: operations["getRolesForUser"];
         /**
          * Update all roles for a user
-         * @description Update all roles for a user
+         * @description Replace all roles for a user.
          */
         put: operations["updateRolesForUser"];
         post?: never;
@@ -236,8 +236,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Returns details about a particular comment
-         * @description Returns details about a particular comment
+         * Get comment by ID
+         * @description Get details for a specific comment.
          */
         get: operations["getComment"];
         put?: never;
@@ -259,7 +259,7 @@ export interface paths {
         put?: never;
         /**
          * Create a new comment
-         * @description Create a new comment
+         * @description Create a new comment.
          */
         post: operations["createComment"];
         delete?: never;
@@ -279,7 +279,7 @@ export interface paths {
         put?: never;
         /**
          * Get an access token
-         * @description Get an access token
+         * @description Exchange HTTP basic credentials for an access token.
          */
         post: operations["getAccessToken"];
         delete?: never;
@@ -297,13 +297,13 @@ export interface paths {
         };
         /**
          * Returns a list of roles
-         * @description Returns a list of roles
+         * @description List roles with offset-based pagination.
          */
         get: operations["listRoles"];
         put?: never;
         /**
          * Create a new role
-         * @description Create a new role
+         * @description Create a new role.
          */
         post: operations["createRole"];
         delete?: never;
@@ -320,13 +320,13 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Returns a role
-         * @description Returns a role
+         * Get role by ID
+         * @description Get a role by ID.
          */
         get: operations["getRole"];
         /**
          * Update a role
-         * @description Update a role
+         * @description Update a role by ID.
          */
         put: operations["updateRole"];
         post?: never;
@@ -348,14 +348,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Returns a list of scopes for a role
-         * @description Returns a list of scopes for a role
+         * List role scopes
+         * @description List scopes assigned to a role.
          */
         get: operations["listScopesForRole"];
         put?: never;
         /**
          * Add a scope to a role
-         * @description Add a scope to a role
+         * @description Add one or more scopes to a role.
          */
         post: operations["addScopeToRole"];
         delete?: never;
@@ -376,7 +376,7 @@ export interface paths {
         post?: never;
         /**
          * Remove a scope from a role
-         * @description Remove a scope from a role
+         * @description Remove a scope from a role.
          */
         delete: operations["removeScopeFromRole"];
         options?: never;
@@ -392,14 +392,14 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Returns a list of scopes
-         * @description Returns a list of scopes
+         * List scopes
+         * @description List scopes with offset-based pagination.
          */
         get: operations["listScopes"];
         put?: never;
         /**
          * Create a new scope
-         * @description Create a new scope
+         * @description Create a new scope.
          */
         post: operations["createScope"];
         delete?: never;
@@ -416,13 +416,13 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Returns a scope
-         * @description Returns a scope
+         * Get scope by ID
+         * @description Get a scope by ID.
          */
         get: operations["getScope"];
         /**
          * Update a scope
-         * @description Update a scope
+         * @description Update a scope by ID.
          */
         put: operations["updateScope"];
         post?: never;
@@ -444,15 +444,15 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get a url
-         * @description Returns a url
+         * Redirect using URL alias
+         * @description Resolve an alias and redirect to the destination URL.
          */
         get: operations["getUrl"];
         put?: never;
         post?: never;
         /**
-         * Delete a url
-         * @description Delete a url
+         * Delete URL alias
+         * @description Delete a URL alias and its metadata.
          */
         delete: operations["deleteUrl"];
         options?: never;
@@ -468,8 +468,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Returns a url metadata
-         * @description Returns a url
+         * Get URL metadata
+         * @description Return metadata for a URL alias.
          */
         get: operations["getUrlData"];
         put?: never;
@@ -490,8 +490,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Create a new url
-         * @description Returns a url
+         * Create URL alias
+         * @description Create a new URL alias.
          */
         post: operations["createUrl"];
         delete?: never;
@@ -505,6 +505,7 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /**
+         * @description Request payload for creating a user account.
          * @example {
          *       "username": "johndoe",
          *       "first_name": "John",
@@ -514,13 +515,22 @@ export interface components {
          *     }
          */
         CreateUserRequest: {
+            /** @description Unique username for the account. */
             username: string;
+            /** @description Plain-text password used during account creation. */
             password: string;
+            /** @description User first name. */
             first_name: string;
+            /** @description User last name. */
             last_name: string;
+            /**
+             * Format: email
+             * @description User email address.
+             */
             email: string;
         };
         /**
+         * @description Response payload returned after user creation.
          * @example {
          *       "id": 1,
          *       "username": "johndoe",
@@ -531,16 +541,30 @@ export interface components {
          *     }
          */
         CreateUserResponse: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Unique user identifier.
+             */
             id: number;
+            /** @description Unique username for the account. */
             username: string;
+            /** @description User first name. */
             first_name: string;
+            /** @description User last name. */
             last_name: string;
+            /**
+             * Format: email
+             * @description User email address.
+             */
             email: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the user was created.
+             */
             created_at: string;
         };
         /**
+         * @description User profile information.
          * @example {
          *       "username": "johndoe",
          *       "first_name": "John",
@@ -550,32 +574,58 @@ export interface components {
          *     }
          */
         User: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Unique user identifier.
+             */
             id?: number;
+            /** @description Unique username for the account. */
             username: string;
+            /** @description User first name. */
             first_name: string;
+            /** @description User last name. */
             last_name: string;
+            /**
+             * Format: email
+             * @description User email address.
+             */
             email: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the user was created.
+             */
             created_at?: string;
         };
         /**
+         * @description User-generated comment.
          * @example {
          *       "content": "This is a comment",
          *       "username": "johndoe"
          *     }
          */
         Comment: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Unique comment identifier.
+             */
             id?: number;
+            /** @description Comment text. */
             content: string;
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Number of likes for the comment.
+             */
             like_count?: number;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the comment was created.
+             */
             created_at?: string;
+            /** @description Username of the comment author. */
             username: string;
         };
         /**
+         * @description OAuth access token response.
          * @example {
          *       "access_token": "123token123",
          *       "token_type": "Bearer",
@@ -583,55 +633,82 @@ export interface components {
          *     }
          */
         AccessToken: {
+            /** @description Access token used for authenticated requests. */
             access_token: string;
+            /** @description Type of token returned by the authorization server. */
             token_type: string;
+            /** @description Granted OAuth scopes. */
             scopes?: string[];
+            /** @description Access token lifetime in seconds. */
             expires_in: number;
         };
         /**
+         * @description Standard error payload returned by the API.
          * @example {
          *       "code": 404,
          *       "message": "Not found"
          *     }
          */
         Error: {
-            /** Format: int32 */
+            /**
+             * Format: int32
+             * @description HTTP-like error code.
+             */
             code: number;
+            /** @description Human-readable error message. */
             message: string;
         };
         /**
+         * @description Request payload for changing a user's password.
          * @example {
          *       "old_password": "Secure123!",
          *       "new_password": "Secure1234!"
          *     }
          */
         ChangePasswordRequest: {
+            /** @description Current password. */
             old_password: string;
+            /** @description New password. */
             new_password: string;
         };
         /**
+         * @description Request payload for triggering a password reset.
          * @example {
-         *       "email": "jhon@doe.com"
+         *       "email": "johndoe@mail.com"
          *     }
          */
         ResetPasswordRequest: {
+            /**
+             * Format: email
+             * @description Email address associated with the user account.
+             */
             email: string;
         };
         /**
+         * @description Role assigned to users for authorization.
          * @example {
          *       "name": "admin",
          *       "description": "Administrator Role"
          *     }
          */
         Role: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Unique role identifier.
+             */
             id?: number;
+            /** @description Unique role name. */
             name: string;
+            /** @description Description of what the role grants. */
             description?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the role was created.
+             */
             created_at?: string;
         };
         /**
+         * @description OAuth scope used for access control.
          * @example {
          *       "name": "socialapp.roles.read",
          *       "description": "Read roles",
@@ -639,31 +716,53 @@ export interface components {
          *     }
          */
         Scope: {
-            /** Format: int64 */
+            /**
+             * Format: int64
+             * @description Unique scope identifier.
+             */
             id?: number;
+            /** @description Scope name (for example, `socialapp.roles.read`). */
             name: string;
+            /** @description Description of the permission granted by this scope. */
             description: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the scope was created.
+             */
             created_at?: string;
         };
         /**
+         * @description URL alias and metadata.
          * @example {
          *       "alias": "example",
          *       "url": "https://example.com",
-         *       "creted_at": "2020-01-01T00:00:00Z",
+         *       "created_at": "2020-01-01T00:00:00Z",
          *       "updated_at": "2020-01-01T00:00:00Z",
          *       "deleted_at": "2020-01-01T00:00:00Z"
          *     }
          */
         URL: {
-            /** Format: uri */
+            /**
+             * Format: uri
+             * @description Destination URL.
+             */
             url: string;
+            /** @description Short alias used to reference the URL. */
             alias: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the alias was created.
+             */
             created_at?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the alias was last updated.
+             */
             updated_at?: string;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Timestamp when the alias was deleted.
+             */
             deleted_at?: string;
         };
     };
@@ -690,6 +789,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /** @example Welcome to the Socialapp API */
                     "text/plain": string;
                 };
             };
@@ -699,6 +799,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "code": 401,
+                     *       "message": "Unauthorized"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Error"];
                 };
             };
@@ -708,6 +814,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "code": 500,
+                     *       "message": "Unexpected error"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Error"];
                 };
             };
@@ -716,9 +828,15 @@ export interface operations {
     listUsers: {
         parameters: {
             query?: {
-                /** @description Maximum number of users to return */
+                /**
+                 * @description Maximum number of users to return
+                 * @example 20
+                 */
                 limit?: number;
-                /** @description Pagination offset */
+                /**
+                 * @description Pagination offset
+                 * @example 0
+                 */
                 offset?: number;
             };
             header?: never;
@@ -733,6 +851,18 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": 1,
+                     *         "username": "johndoe",
+                     *         "first_name": "John",
+                     *         "last_name": "Doe",
+                     *         "email": "johndoe@mail.com",
+                     *         "created_at": "2020-01-01T00:00:00Z"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["User"][];
                 };
             };
@@ -766,6 +896,15 @@ export interface operations {
         /** @description Create a new user */
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "username": "johndoe",
+                 *       "first_name": "John",
+                 *       "last_name": "Doe",
+                 *       "password": "Secure123!",
+                 *       "email": "johndoe@mail.com"
+                 *     }
+                 */
                 "application/json": components["schemas"]["CreateUserRequest"];
             };
         };
@@ -776,6 +915,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": 1,
+                     *       "username": "johndoe",
+                     *       "first_name": "John",
+                     *       "last_name": "Doe",
+                     *       "email": "johndoe@mail.com",
+                     *       "created_at": "2020-01-01T00:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["CreateUserResponse"];
                 };
             };
@@ -809,6 +958,11 @@ export interface operations {
         /** @description Reset password */
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "email": "johndoe@mail.com"
+                 *     }
+                 */
                 "application/json": components["schemas"]["ResetPasswordRequest"];
             };
         };
@@ -852,6 +1006,12 @@ export interface operations {
         /** @description Change password request */
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "old_password": "Secure123!",
+                 *       "new_password": "Secure1234!"
+                 *     }
+                 */
                 "application/json": components["schemas"]["ChangePasswordRequest"];
             };
         };
@@ -894,12 +1054,23 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Get a users feed */
+            /** @description User feed */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": 101,
+                     *         "content": "This is a comment",
+                     *         "like_count": 10,
+                     *         "created_at": "2020-01-01T00:00:00Z",
+                     *         "username": "johndoe"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["Comment"][];
                 };
             };
@@ -940,7 +1111,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description username of the user
+                 * @description Username of the user
                  * @example johndoe
                  */
                 username: string;
@@ -955,6 +1126,17 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": 123,
+                     *         "content": "This is a comment",
+                     *         "like_count": 3,
+                     *         "created_at": "2020-01-01T00:00:00Z",
+                     *         "username": "johndoe"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["Comment"][];
                 };
             };
@@ -984,7 +1166,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description username of the user
+                 * @description Username of the user
                  * @example johndoe
                  */
                 username: string;
@@ -999,6 +1181,18 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": 2,
+                     *         "username": "janedoe",
+                     *         "first_name": "Jane",
+                     *         "last_name": "Doe",
+                     *         "email": "janedoe@mail.com",
+                     *         "created_at": "2020-01-01T00:00:00Z"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["User"][];
                 };
             };
@@ -1028,7 +1222,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description username of the user
+                 * @description Username of the user
                  * @example johndoe
                  */
                 username: string;
@@ -1043,6 +1237,18 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": 3,
+                     *         "username": "editor1",
+                     *         "first_name": "Ed",
+                     *         "last_name": "Itor",
+                     *         "email": "editor1@mail.com",
+                     *         "created_at": "2020-01-01T00:00:00Z"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["User"][];
                 };
             };
@@ -1072,12 +1278,12 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description username of the user
+                 * @description Username of the user being followed
                  * @example johndoe
                  */
                 followedUsername: string;
                 /**
-                 * @description username of the follower
+                 * @description Username of the follower to add
                  * @example jackdoe
                  */
                 followerUsername: string;
@@ -1119,12 +1325,12 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description username of the user
+                 * @description Username of the user being followed
                  * @example johndoe
                  */
                 followedUsername: string;
                 /**
-                 * @description username of the follower
+                 * @description Username of the follower to remove
                  * @example jackdoe
                  */
                 followerUsername: string;
@@ -1166,7 +1372,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description username of the user
+                 * @description Username of the user
                  * @example johndoe
                  */
                 username: string;
@@ -1175,7 +1381,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Details about a user by ID */
+            /** @description User details by username */
             200: {
                 headers: {
                     /** @description A link to the next page of responses */
@@ -1221,7 +1427,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description username of the user
+                 * @description Username of the user
                  * @example johndoe
                  */
                 username: string;
@@ -1231,6 +1437,14 @@ export interface operations {
         /** @description Update a user */
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "username": "johndoe",
+                 *       "first_name": "John",
+                 *       "last_name": "Updated",
+                 *       "email": "johndoe@mail.com"
+                 *     }
+                 */
                 "application/json": components["schemas"]["User"];
             };
         };
@@ -1270,7 +1484,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description username of the user
+                 * @description Username of the user
                  * @example johndoe
                  */
                 username: string;
@@ -1279,7 +1493,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description User was deleted succesfully */
+            /** @description User was deleted successfully */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -1314,7 +1528,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description username of the user
+                 * @description Username of the user
                  * @example johndoe
                  */
                 username: string;
@@ -1329,6 +1543,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": 1,
+                     *         "name": "admin",
+                     *         "description": "Administrator role",
+                     *         "created_at": "2020-01-01T00:00:00Z"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["Role"][];
                 };
             };
@@ -1358,7 +1582,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description username of the user
+                 * @description Username of the user
                  * @example johndoe
                  */
                 username: string;
@@ -1424,6 +1648,15 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": 123,
+                     *       "content": "This is a comment",
+                     *       "like_count": 10,
+                     *       "created_at": "2020-01-01T00:00:00Z",
+                     *       "username": "johndoe"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Comment"];
                 };
             };
@@ -1457,6 +1690,12 @@ export interface operations {
         /** @description Create a new comment */
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "content": "This is a comment",
+                 *       "username": "johndoe"
+                 *     }
+                 */
                 "application/json": components["schemas"]["Comment"];
             };
         };
@@ -1505,6 +1744,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "access_token": "123token123",
+                     *       "token_type": "Bearer",
+                     *       "scopes": [
+                     *         "socialapp.users.list"
+                     *       ],
+                     *       "expires_in": 3600
+                     *     }
+                     */
                     "application/json": components["schemas"]["AccessToken"];
                 };
             };
@@ -1531,9 +1780,15 @@ export interface operations {
     listRoles: {
         parameters: {
             query?: {
-                /** @description The numbers of roles to return */
+                /**
+                 * @description The numbers of roles to return
+                 * @example 20
+                 */
                 limit?: number;
-                /** @description The number of items to skip before starting to collect the result */
+                /**
+                 * @description The number of items to skip before starting to collect the result
+                 * @example 0
+                 */
                 offset?: number;
             };
             header?: never;
@@ -1548,6 +1803,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": 1,
+                     *         "name": "admin",
+                     *         "description": "Administrator role",
+                     *         "created_at": "2020-01-01T00:00:00Z"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["Role"][];
                 };
             };
@@ -1581,6 +1846,12 @@ export interface operations {
         /** @description Create a new role */
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "name": "admin",
+                 *       "description": "Administrator role"
+                 *     }
+                 */
                 "application/json": components["schemas"]["Role"];
             };
         };
@@ -1635,6 +1906,14 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": 1,
+                     *       "name": "admin",
+                     *       "description": "Administrator role",
+                     *       "created_at": "2020-01-01T00:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Role"];
                 };
             };
@@ -1674,6 +1953,12 @@ export interface operations {
         /** @description Update a role */
         requestBody?: {
             content: {
+                /**
+                 * @example {
+                 *       "name": "admin",
+                 *       "description": "Administrator role"
+                 *     }
+                 */
                 "application/json": components["schemas"]["Role"];
             };
         };
@@ -1752,9 +2037,15 @@ export interface operations {
     listScopesForRole: {
         parameters: {
             query?: {
-                /** @description The numbers of scopes to return */
+                /**
+                 * @description The numbers of scopes to return
+                 * @example 20
+                 */
                 limit?: number;
-                /** @description The number of items to skip before starting to collect the result */
+                /**
+                 * @description The number of items to skip before starting to collect the result
+                 * @example 0
+                 */
                 offset?: number;
             };
             header?: never;
@@ -1775,6 +2066,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": 1,
+                     *         "name": "socialapp.roles.read",
+                     *         "description": "Read role records",
+                     *         "created_at": "2020-01-01T00:00:00Z"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["Scope"][];
                 };
             };
@@ -1937,9 +2238,15 @@ export interface operations {
     listScopes: {
         parameters: {
             query?: {
-                /** @description The numbers of scopes to return */
+                /**
+                 * @description The numbers of scopes to return
+                 * @example 20
+                 */
                 limit?: number;
-                /** @description The number of items to skip before starting to collect the result */
+                /**
+                 * @description The number of items to skip before starting to collect the result
+                 * @example 0
+                 */
                 offset?: number;
             };
             header?: never;
@@ -1954,6 +2261,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": 1,
+                     *         "name": "socialapp.roles.read",
+                     *         "description": "Read role records",
+                     *         "created_at": "2020-01-01T00:00:00Z"
+                     *       }
+                     *     ]
+                     */
                     "application/json": components["schemas"]["Scope"][];
                 };
             };
@@ -1987,6 +2304,12 @@ export interface operations {
         /** @description Create a new scope */
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "name": "socialapp.roles.read",
+                 *       "description": "Read role records"
+                 *     }
+                 */
                 "application/json": components["schemas"]["Scope"];
             };
         };
@@ -2041,6 +2364,14 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    /**
+                     * @example {
+                     *       "id": 1,
+                     *       "name": "socialapp.roles.read",
+                     *       "description": "Read role records",
+                     *       "created_at": "2020-01-01T00:00:00Z"
+                     *     }
+                     */
                     "application/json": components["schemas"]["Scope"];
                 };
             };
@@ -2080,6 +2411,12 @@ export interface operations {
         /** @description Update a scope */
         requestBody?: {
             content: {
+                /**
+                 * @example {
+                 *       "name": "socialapp.roles.read",
+                 *       "description": "Read role records"
+                 *     }
+                 */
                 "application/json": components["schemas"]["Scope"];
             };
         };
@@ -2275,6 +2612,12 @@ export interface operations {
         /** @description Create a new url */
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "alias": "example",
+                 *       "url": "https://example.com"
+                 *     }
+                 */
                 "application/json": components["schemas"]["URL"];
             };
         };

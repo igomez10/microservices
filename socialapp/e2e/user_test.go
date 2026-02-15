@@ -14,6 +14,8 @@ import (
 	"testing"
 	"time"
 
+	"log/slog"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/cache"
 	"github.com/igomez10/microservices/socialapp/internal/server"
@@ -26,7 +28,6 @@ import (
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	tcRedis "github.com/testcontainers/testcontainers-go/modules/redis"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"log/slog"
 )
 
 // TestEnv holds all the resources needed for e2e tests

@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -15,13 +15,19 @@ import (
 	"time"
 )
 
+// Role - Role assigned to users for authorization.
 type Role struct {
+
+	// Unique role identifier.
 	Id int64 `json:"id,omitempty"`
 
+	// Unique role name.
 	Name string `json:"name"`
 
+	// Description of what the role grants.
 	Description string `json:"description,omitempty"`
 
+	// Timestamp when the role was created.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 

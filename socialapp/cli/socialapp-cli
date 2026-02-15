@@ -8,7 +8,7 @@
 # ! openapi-generator (https://openapi-generator.tech)
 # ! FROM OPENAPI SPECIFICATION IN JSON.
 # !
-# ! Generator version: 7.17.0
+# ! Generator version: 7.19.0
 # !
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -697,8 +697,8 @@ echo "  $ops" | column -t -s ';'
     echo -e "${BOLD}${WHITE}[comment]${OFF}"
 read -r -d '' ops <<EOF
   ${CYAN}createComment${OFF};Create a new comment (AUTH)
-  ${CYAN}getComment${OFF};Returns details about a particular comment (AUTH)
-  ${CYAN}getUserFeed${OFF};Returns a users feed (AUTH)
+  ${CYAN}getComment${OFF};Get comment by ID (AUTH)
+  ${CYAN}getUserFeed${OFF};Get user feed (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
@@ -713,9 +713,9 @@ read -r -d '' ops <<EOF
   ${CYAN}addScopeToRole${OFF};Add a scope to a role (AUTH)
   ${CYAN}createRole${OFF};Create a new role (AUTH)
   ${CYAN}deleteRole${OFF};Delete a role (AUTH)
-  ${CYAN}getRole${OFF};Returns a role (AUTH)
+  ${CYAN}getRole${OFF};Get role by ID (AUTH)
   ${CYAN}listRoles${OFF};Returns a list of roles (AUTH)
-  ${CYAN}listScopesForRole${OFF};Returns a list of scopes for a role (AUTH)
+  ${CYAN}listScopesForRole${OFF};List role scopes (AUTH)
   ${CYAN}removeScopeFromRole${OFF};Remove a scope from a role (AUTH)
   ${CYAN}updateRole${OFF};Update a role (AUTH)
 EOF
@@ -725,18 +725,18 @@ echo "  $ops" | column -t -s ';'
 read -r -d '' ops <<EOF
   ${CYAN}createScope${OFF};Create a new scope (AUTH)
   ${CYAN}deleteScope${OFF};Delete a scope (AUTH)
-  ${CYAN}getScope${OFF};Returns a scope (AUTH)
-  ${CYAN}listScopes${OFF};Returns a list of scopes (AUTH)
+  ${CYAN}getScope${OFF};Get scope by ID (AUTH)
+  ${CYAN}listScopes${OFF};List scopes (AUTH)
   ${CYAN}updateScope${OFF};Update a scope (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
     echo -e "${BOLD}${WHITE}[uRL]${OFF}"
 read -r -d '' ops <<EOF
-  ${CYAN}createUrl${OFF};Create a new url (AUTH)
-  ${CYAN}deleteUrl${OFF};Delete a url (AUTH)
-  ${CYAN}getUrl${OFF};Get a url (AUTH)
-  ${CYAN}getUrlData${OFF};Returns a url metadata (AUTH)
+  ${CYAN}createUrl${OFF};Create URL alias (AUTH)
+  ${CYAN}deleteUrl${OFF};Delete URL alias (AUTH)
+  ${CYAN}getUrl${OFF};Redirect using URL alias (AUTH)
+  ${CYAN}getUrlData${OFF};Get URL metadata (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
@@ -749,14 +749,14 @@ read -r -d '' ops <<EOF
   ${CYAN}getFollowingUsers${OFF};Get all followed users for a user (AUTH)
   ${CYAN}getRolesForUser${OFF};Get all roles for a user (AUTH)
   ${CYAN}getUserByUsername${OFF};Get a particular user by username (AUTH)
-  ${CYAN}getUserComments${OFF};Gets all comments for a user (AUTH)
+  ${CYAN}getUserComments${OFF};List comments for a user (AUTH)
   ${CYAN}getUserFollowers${OFF};Get all followers for a user (AUTH)
   ${CYAN}listUsers${OFF};List users (AUTH)
   ${CYAN}resetPassword${OFF};Reset password (AUTH)
   ${CYAN}unfollowUser${OFF};Remove a user as a follower (AUTH)
   ${CYAN}updateRolesForUser${OFF};Update all roles for a user (AUTH)
   ${CYAN}updateUser${OFF};Update a user (AUTH)
-  ${CYAN}welcome${OFF};Welcome to the Socialapp API (AUTH)
+  ${CYAN}welcome${OFF};Get API welcome message (AUTH)
 EOF
 echo "  $ops" | column -t -s ';'
     echo ""
@@ -793,7 +793,8 @@ print_about() {
     echo ""
 read -r -d '' appdescription <<EOF
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization,
+and shortened URL operations.
 EOF
 echo "$appdescription" | paste -sd' ' - | fold -sw 80
 }
@@ -819,7 +820,7 @@ print_getAccessToken_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getAccessToken - Get an access token${OFF}${BLUE}(AUTH - BASIC)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Get an access token" | paste -sd' ' - | fold -sw 80
+    echo -e "Exchange HTTP basic credentials for an access token." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
@@ -839,7 +840,7 @@ print_createComment_help() {
     echo ""
     echo -e "${BOLD}${WHITE}createComment - Create a new comment${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Create a new comment" | paste -sd' ' - | fold -sw 80
+    echo -e "Create a new comment." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Create a new comment" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -860,9 +861,9 @@ print_createComment_help() {
 ##############################################################################
 print_getComment_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getComment - Returns details about a particular comment${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getComment - Get comment by ID${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Returns details about a particular comment" | paste -sd' ' - | fold -sw 80
+    echo -e "Get details for a specific comment." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - ID of the comment ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -884,14 +885,14 @@ print_getComment_help() {
 ##############################################################################
 print_getUserFeed_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUserFeed - Returns a users feed${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUserFeed - Get user feed${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Returns a users feed" | paste -sd' ' - | fold -sw 80
+    echo -e "Return the current user's feed." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
-    echo -e "${result_color_table[${code:0:1}]}  200;Get a users feed${OFF}" | paste -sd' ' - | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    echo -e "${result_color_table[${code:0:1}]}  200;User feed${OFF}" | paste -sd' ' - | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=401
     echo -e "${result_color_table[${code:0:1}]}  401;Unauthorized${OFF}" | paste -sd' ' - | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
@@ -906,10 +907,10 @@ print_getUserFollowers_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getUserFollowers - Get all followers for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Get all followers for a user" | paste -sd' ' - | fold -sw 80
+    echo -e "Get all followers for a specific user." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
@@ -928,7 +929,7 @@ print_addScopeToRole_help() {
     echo ""
     echo -e "${BOLD}${WHITE}addScopeToRole - Add a scope to a role${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Add a scope to a role" | paste -sd' ' - | fold -sw 80
+    echo -e "Add one or more scopes to a role." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The id of the role ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -956,7 +957,7 @@ print_createRole_help() {
     echo ""
     echo -e "${BOLD}${WHITE}createRole - Create a new role${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Create a new role" | paste -sd' ' - | fold -sw 80
+    echo -e "Create a new role." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Create a new role" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -999,9 +1000,9 @@ print_deleteRole_help() {
 ##############################################################################
 print_getRole_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getRole - Returns a role${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getRole - Get role by ID${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Returns a role" | paste -sd' ' - | fold -sw 80
+    echo -e "Get a role by ID." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The id of the role ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1023,7 +1024,7 @@ print_listRoles_help() {
     echo ""
     echo -e "${BOLD}${WHITE}listRoles - Returns a list of roles${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Returns a list of roles" | paste -sd' ' - | fold -sw 80
+    echo -e "List roles with offset-based pagination." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 20)${OFF} - The numbers of roles to return${YELLOW} Specify as: limit=value${OFF}" \
@@ -1046,9 +1047,9 @@ print_listRoles_help() {
 ##############################################################################
 print_listScopesForRole_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}listScopesForRole - Returns a list of scopes for a role${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}listScopesForRole - List role scopes${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Returns a list of scopes for a role" | paste -sd' ' - | fold -sw 80
+    echo -e "List scopes assigned to a role." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The id of the role ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1074,7 +1075,7 @@ print_removeScopeFromRole_help() {
     echo ""
     echo -e "${BOLD}${WHITE}removeScopeFromRole - Remove a scope from a role${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Remove a scope from a role" | paste -sd' ' - | fold -sw 80
+    echo -e "Remove a scope from a role." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}role_id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The id of the role ${YELLOW}Specify as: role_id=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1101,7 +1102,7 @@ print_updateRole_help() {
     echo ""
     echo -e "${BOLD}${WHITE}updateRole - Update a role${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Update a role" | paste -sd' ' - | fold -sw 80
+    echo -e "Update a role by ID." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - id of the role ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1125,7 +1126,7 @@ print_createScope_help() {
     echo ""
     echo -e "${BOLD}${WHITE}createScope - Create a new scope${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Create a new scope" | paste -sd' ' - | fold -sw 80
+    echo -e "Create a new scope." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Create a new scope" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1168,9 +1169,9 @@ print_deleteScope_help() {
 ##############################################################################
 print_getScope_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getScope - Returns a scope${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getScope - Get scope by ID${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Returns a scope" | paste -sd' ' - | fold -sw 80
+    echo -e "Get a scope by ID." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The id of the scope ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1190,9 +1191,9 @@ print_getScope_help() {
 ##############################################################################
 print_listScopes_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}listScopes - Returns a list of scopes${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}listScopes - List scopes${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Returns a list of scopes" | paste -sd' ' - | fold -sw 80
+    echo -e "List scopes with offset-based pagination." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 20)${OFF} - The numbers of scopes to return${YELLOW} Specify as: limit=value${OFF}" \
@@ -1217,7 +1218,7 @@ print_updateScope_help() {
     echo ""
     echo -e "${BOLD}${WHITE}updateScope - Update a scope${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Update a scope" | paste -sd' ' - | fold -sw 80
+    echo -e "Update a scope by ID." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}id${OFF} ${BLUE}[integer]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - id of the scope ${YELLOW}Specify as: id=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1239,9 +1240,9 @@ print_updateScope_help() {
 ##############################################################################
 print_createUrl_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}createUrl - Create a new url${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}createUrl - Create URL alias${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Returns a url" | paste -sd' ' - | fold -sw 80
+    echo -e "Create a new URL alias." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Create a new url" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1262,9 +1263,9 @@ print_createUrl_help() {
 ##############################################################################
 print_deleteUrl_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}deleteUrl - Delete a url${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}deleteUrl - Delete URL alias${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Delete a url" | paste -sd' ' - | fold -sw 80
+    echo -e "Delete a URL alias and its metadata." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}alias${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The alias of the url ${YELLOW}Specify as: alias=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1282,9 +1283,9 @@ print_deleteUrl_help() {
 ##############################################################################
 print_getUrl_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUrl - Get a url${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUrl - Redirect using URL alias${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Returns a url" | paste -sd' ' - | fold -sw 80
+    echo -e "Resolve an alias and redirect to the destination URL." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}alias${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The alias of the url ${YELLOW}Specify as: alias=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1306,9 +1307,9 @@ print_getUrl_help() {
 ##############################################################################
 print_getUrlData_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUrlData - Returns a url metadata${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUrlData - Get URL metadata${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Returns a url" | paste -sd' ' - | fold -sw 80
+    echo -e "Return metadata for a URL alias." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}alias${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - The alias of the url ${YELLOW}Specify as: alias=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1328,7 +1329,7 @@ print_changePassword_help() {
     echo ""
     echo -e "${BOLD}${WHITE}changePassword - Change password${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Change the password of the current user" | paste -sd' ' - | fold -sw 80
+    echo -e "Change the password for the authenticated user." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Change password request" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1351,7 +1352,7 @@ print_createUser_help() {
     echo ""
     echo -e "${BOLD}${WHITE}createUser - Create user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Create a new user in the system" | paste -sd' ' - | fold -sw 80
+    echo -e "Create a new user." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Create a new user" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1374,14 +1375,14 @@ print_deleteUser_help() {
     echo ""
     echo -e "${BOLD}${WHITE}deleteUser - Deletes a particular user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Deletes a particular user by username" | paste -sd' ' - | fold -sw 80
+    echo -e "Delete a user by username." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
-    echo -e "${result_color_table[${code:0:1}]}  200;User was deleted succesfully${OFF}" | paste -sd' ' - | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    echo -e "${result_color_table[${code:0:1}]}  200;User was deleted successfully${OFF}" | paste -sd' ' - | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=404
     echo -e "${result_color_table[${code:0:1}]}  404;Username not found${OFF}" | paste -sd' ' - | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
     code=0
@@ -1396,11 +1397,11 @@ print_followUser_help() {
     echo ""
     echo -e "${BOLD}${WHITE}followUser - Add a user as a follower${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Add a user as a follower of another user" | paste -sd' ' - | fold -sw 80
+    echo -e "Create a follower relationship between two users." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}followedUsername${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: followedUsername=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
-    echo -e "  * ${GREEN}followerUsername${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the follower ${YELLOW}Specify as: followerUsername=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}followedUsername${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the user being followed ${YELLOW}Specify as: followedUsername=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}followerUsername${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the follower to add ${YELLOW}Specify as: followerUsername=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
@@ -1419,10 +1420,10 @@ print_getFollowingUsers_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getFollowingUsers - Get all followed users for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Get all followed users for a user (users that the user is following)" | paste -sd' ' - | fold -sw 80
+    echo -e "Get all users followed by a specific user." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
@@ -1441,10 +1442,10 @@ print_getRolesForUser_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getRolesForUser - Get all roles for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Get all roles for a user" | paste -sd' ' - | fold -sw 80
+    echo -e "Get all roles assigned to a user." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
@@ -1463,14 +1464,14 @@ print_getUserByUsername_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getUserByUsername - Get a particular user by username${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Get a particular user by username" | paste -sd' ' - | fold -sw 80
+    echo -e "Get a user by username." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
-    echo -e "${result_color_table[${code:0:1}]}  200;Details about a user by ID${OFF}" | paste -sd' ' - | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
+    echo -e "${result_color_table[${code:0:1}]}  200;User details by username${OFF}" | paste -sd' ' - | column -t -s ';' | fold -sw 80 | sed '2,$s/^/       /'
         echo -e "       ${BOLD}${WHITE}Response headers${OFF}"
         echo -e "       ${BLUE}x-next${OFF} - A link to the next page of responses" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/        /'
     code=401
@@ -1487,12 +1488,12 @@ print_getUserByUsername_help() {
 ##############################################################################
 print_getUserComments_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}getUserComments - Gets all comments for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}getUserComments - List comments for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Gets all comments for a user" | paste -sd' ' - | fold -sw 80
+    echo -e "Get all comments for a specific user." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 20)${OFF} - How many items to return at one time (max 100)${YELLOW} Specify as: limit=value${OFF}" \
         | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: null)${OFF} - The number of items to skip before starting to collect the result set${YELLOW} Specify as: offset=value${OFF}" \
@@ -1515,10 +1516,10 @@ print_getUserFollowers_help() {
     echo ""
     echo -e "${BOLD}${WHITE}getUserFollowers - Get all followers for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Get all followers for a user" | paste -sd' ' - | fold -sw 80
+    echo -e "Get all followers for a specific user." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
@@ -1537,7 +1538,7 @@ print_listUsers_help() {
     echo ""
     echo -e "${BOLD}${WHITE}listUsers - List users${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "List all users in the system (paginated)" | paste -sd' ' - | fold -sw 80
+    echo -e "List users with offset-based pagination." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 20)${OFF} - Maximum number of users to return${YELLOW} Specify as: limit=value${OFF}" \
@@ -1562,7 +1563,7 @@ print_resetPassword_help() {
     echo ""
     echo -e "${BOLD}${WHITE}resetPassword - Reset password${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Reset the password of a user" | paste -sd' ' - | fold -sw 80
+    echo -e "Reset a user's password using their email address." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Reset password" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
@@ -1585,11 +1586,11 @@ print_unfollowUser_help() {
     echo ""
     echo -e "${BOLD}${WHITE}unfollowUser - Remove a user as a follower${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Remove a user as a follower of another user" | paste -sd' ' - | fold -sw 80
+    echo -e "Remove a follower relationship between two users." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}followedUsername${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: followedUsername=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
-    echo -e "  * ${GREEN}followerUsername${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the follower ${YELLOW}Specify as: followerUsername=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}followedUsername${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the user being followed ${YELLOW}Specify as: followedUsername=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}followerUsername${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the follower to remove ${YELLOW}Specify as: followerUsername=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
     code=200
@@ -1608,10 +1609,10 @@ print_updateRolesForUser_help() {
     echo ""
     echo -e "${BOLD}${WHITE}updateRolesForUser - Update all roles for a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Update all roles for a user" | paste -sd' ' - | fold -sw 80
+    echo -e "Replace all roles for a user." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF}${OFF} - Update all roles for a user" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo ""
@@ -1632,10 +1633,10 @@ print_updateUser_help() {
     echo ""
     echo -e "${BOLD}${WHITE}updateUser - Update a user${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Update a user by username" | paste -sd' ' - | fold -sw 80
+    echo -e "Update a user by username." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo -e "${BOLD}${WHITE}Parameters${OFF}"
-    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}username${OFF} ${BLUE}[string]${OFF} ${RED}(required)${OFF} ${CYAN}(default: null)${OFF} - Username of the user ${YELLOW}Specify as: username=value${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e "  * ${GREEN}body${OFF} ${BLUE}[application/json]${OFF} ${RED}(required)${OFF}${OFF} - Update a user" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
     echo ""
@@ -1654,9 +1655,9 @@ print_updateUser_help() {
 ##############################################################################
 print_welcome_help() {
     echo ""
-    echo -e "${BOLD}${WHITE}welcome - Welcome to the Socialapp API${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "${BOLD}${WHITE}welcome - Get API welcome message${OFF}${BLUE}(AUTH - OAuth2)${OFF}" | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e ""
-    echo -e "Welcome to the Socialapp API" | paste -sd' ' - | fold -sw 80
+    echo -e "Return a welcome message for the Socialapp API." | paste -sd' ' - | fold -sw 80
     echo -e ""
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"

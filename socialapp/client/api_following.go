@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -36,10 +36,10 @@ func (r FollowingAPIGetUserFollowersRequest) Execute() ([]User, *http.Response, 
 /*
 GetUserFollowers Get all followers for a user
 
-Get all followers for a user
+Get all followers for a specific user.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param username username of the user
+	@param username Username of the user
 	@return FollowingAPIGetUserFollowersRequest
 */
 func (a *FollowingAPIService) GetUserFollowers(ctx context.Context, username string) FollowingAPIGetUserFollowersRequest {

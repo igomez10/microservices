@@ -6,8 +6,8 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**createScope**](ScopeApi.md#createScope) | **POST** /v1/scopes | Create a new scope
 [**deleteScope**](ScopeApi.md#deleteScope) | **DELETE** /v1/scopes/{id} | Delete a scope
-[**getScope**](ScopeApi.md#getScope) | **GET** /v1/scopes/{id} | Returns a scope
-[**listScopes**](ScopeApi.md#listScopes) | **GET** /v1/scopes | Returns a list of scopes
+[**getScope**](ScopeApi.md#getScope) | **GET** /v1/scopes/{id} | Get scope by ID
+[**listScopes**](ScopeApi.md#listScopes) | **GET** /v1/scopes | List scopes
 [**updateScope**](ScopeApi.md#updateScope) | **PUT** /v1/scopes/{id} | Update a scope
 
 
@@ -16,7 +16,7 @@ Method | HTTP request | Description
 
 Create a new scope
 
-Create a new scope
+Create a new scope.
 
 ### Example
 
@@ -84,9 +84,9 @@ Name | Type | Description  | Notes
 
 ## getScope
 
-Returns a scope
+Get scope by ID
 
-Returns a scope
+Get a scope by ID.
 
 ### Example
 
@@ -119,9 +119,9 @@ Name | Type | Description  | Notes
 
 ## listScopes
 
-Returns a list of scopes
+List scopes
 
-Returns a list of scopes
+List scopes with offset-based pagination.
 
 ### Example
 
@@ -157,7 +157,7 @@ Name | Type | Description  | Notes
 
 Update a scope
 
-Update a scope
+Update a scope by ID.
 
 ### Example
 

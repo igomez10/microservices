@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -243,7 +243,7 @@ func (c *UserAPIController) OrderedRoutes() []Route {
 	}
 }
 
-// Welcome - Welcome to the Socialapp API
+// Welcome - Get API welcome message
 func (c *UserAPIController) Welcome(w http.ResponseWriter, r *http.Request) {
 	result, err := c.service.Welcome(r.Context())
 	// If an error occurred, encode the error with the status code
@@ -387,7 +387,7 @@ func (c *UserAPIController) ChangePassword(w http.ResponseWriter, r *http.Reques
 	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
 }
 
-// GetUserComments - Gets all comments for a user
+// GetUserComments - List comments for a user
 func (c *UserAPIController) GetUserComments(w http.ResponseWriter, r *http.Request) {
 	query, err := parseQuery(r.URL.RawQuery)
 	if err != nil {

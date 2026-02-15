@@ -12,7 +12,7 @@ Method | HTTP request | Description
 
 Get all followers for a user
 
-Get all followers for a user
+Get all followers for a specific user.
 
 ### Example
 
@@ -25,7 +25,7 @@ socialapp-cli getUserFollowers username=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **username** | **string** | username of the user | [default to null]
+ **username** | **string** | Username of the user | [default to null]
 
 ### Return type
 

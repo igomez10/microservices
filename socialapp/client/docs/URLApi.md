@@ -4,10 +4,10 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Method | HTTP request | Description
 ------------- | ------------- | -------------
-[**CreateUrl**](URLAPI.md#CreateUrl) | **Post** /v1/urls | Create a new url
-[**DeleteUrl**](URLAPI.md#DeleteUrl) | **Delete** /v1/urls/{alias} | Delete a url
-[**GetUrl**](URLAPI.md#GetUrl) | **Get** /v1/urls/{alias} | Get a url
-[**GetUrlData**](URLAPI.md#GetUrlData) | **Get** /v1/urls/{alias}/data | Returns a url metadata
+[**CreateUrl**](URLAPI.md#CreateUrl) | **Post** /v1/urls | Create URL alias
+[**DeleteUrl**](URLAPI.md#DeleteUrl) | **Delete** /v1/urls/{alias} | Delete URL alias
+[**GetUrl**](URLAPI.md#GetUrl) | **Get** /v1/urls/{alias} | Redirect using URL alias
+[**GetUrlData**](URLAPI.md#GetUrlData) | **Get** /v1/urls/{alias}/data | Get URL metadata
 
 
 
@@ -15,7 +15,7 @@ Method | HTTP request | Description
 
 > URL CreateUrl(ctx).URL(uRL).Execute()
 
-Create a new url
+Create URL alias
 
 
 
@@ -81,7 +81,7 @@ Name | Type | Description  | Notes
 
 > DeleteUrl(ctx, alias).Execute()
 
-Delete a url
+Delete URL alias
 
 
 
@@ -149,7 +149,7 @@ Name | Type | Description  | Notes
 
 > GetUrl(ctx, alias).Execute()
 
-Get a url
+Redirect using URL alias
 
 
 
@@ -217,7 +217,7 @@ Name | Type | Description  | Notes
 
 > URL GetUrlData(ctx, alias).Execute()
 
-Returns a url metadata
+Get URL metadata
 
 
 

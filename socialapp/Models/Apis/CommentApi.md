@@ -5,8 +5,8 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**createComment**](CommentApi.md#createComment) | **POST** /v1/comments | Create a new comment |
-| [**getComment**](CommentApi.md#getComment) | **GET** /v1/comments/{id} | Returns details about a particular comment |
-| [**getUserFeed**](CommentApi.md#getUserFeed) | **GET** /v1/feed | Returns a users feed |
+| [**getComment**](CommentApi.md#getComment) | **GET** /v1/comments/{id} | Get comment by ID |
+| [**getUserFeed**](CommentApi.md#getUserFeed) | **GET** /v1/feed | Get user feed |
 
 
 <a name="createComment"></a>
@@ -15,7 +15,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Create a new comment
 
-    Create a new comment
+    Create a new comment.
 
 ### Parameters
 
@@ -40,9 +40,9 @@ Create a new comment
 # **getComment**
 > Comment getComment(id)
 
-Returns details about a particular comment
+Get comment by ID
 
-    Returns details about a particular comment
+    Get details for a specific comment.
 
 ### Parameters
 
@@ -67,9 +67,9 @@ Returns details about a particular comment
 # **getUserFeed**
 > List getUserFeed()
 
-Returns a users feed
+Get user feed
 
-    Returns a users feed
+    Return the current user&#39;s feed.
 
 ### Parameters
 This endpoint does not need any parameter.

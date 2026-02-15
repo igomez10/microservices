@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -11,9 +11,13 @@
 
 package openapi
 
+// Error - Standard error payload returned by the API.
 type Error struct {
+
+	// HTTP-like error code.
 	Code int32 `json:"code"`
 
+	// Human-readable error message.
 	Message string `json:"message"`
 }
 

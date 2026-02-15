@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -98,15 +98,15 @@ func NewConfiguration() *Configuration {
 		Servers: ServerConfigurations{
 			{
 				URL:         "https://socialapp.gomezignacio.com",
-				Description: "No description provided",
+				Description: "Production",
 			},
 			{
 				URL:         "http://localhost:8080",
-				Description: "No description provided",
+				Description: "Local development (API server)",
 			},
 			{
 				URL:         "http://localhost:8085",
-				Description: "No description provided",
+				Description: "Local development (alternate port)",
 			},
 		},
 		OperationServers: map[string]ServerConfigurations{},

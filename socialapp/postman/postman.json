@@ -2,7 +2,7 @@
 	"info": {
 		"name": "Socialapp",
 		"description": {
-		    "content": "Socialapp is a generic social network.",
+		    "content": "Socialapp API for user management, social interactions, authorization,\nand shortened URL operations.\n",
 		    "type": "text/markdown"
 		},
 		"version": "1.0.0",
@@ -14,7 +14,7 @@
 	            "item": [
 	                        {
     "name": "/v1/roles",
-                "description": "Create a new role",
+                "description": "Create a new role.",
                  "item": [
                             {
                                 "name": "Create a new role",
@@ -36,7 +36,7 @@
     ],
     "body": {
     "mode": "raw",
-    "raw": "{\n \"id\": \"<number>\",\n \"name\": \"<string>\",\n \"description\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
+    "raw": "{\n  \"name\" : \"admin\",\n  \"description\" : \"Administrator role\"\n}",
     "options": {
     "raw": {
     "language": "json"
@@ -57,7 +57,7 @@
     "query": [
     ]
     },
-    "description": "Create a new role"
+    "description": "Create a new role."
 }
                                 ,"response": [
                             ]
@@ -66,7 +66,7 @@
                         },
 	                        {
     "name": "/v1/roles",
-                "description": "Returns a list of roles",
+                "description": "List roles with offset-based pagination.",
                  "item": [
                             {
                                 "name": "Returns a list of roles",
@@ -103,19 +103,19 @@
     "query": [
         {
         "key": "limit",
-        "value": "56",
+        "value": "20",
         "description": "The numbers of roles to return",
         "disabled": true
         },
         {
         "key": "offset",
-        "value": "56",
+        "value": "0",
         "description": "The number of items to skip before starting to collect the result",
         "disabled": true
         }
     ]
     },
-    "description": "Returns a list of roles"
+    "description": "List roles with offset-based pagination."
 }
                                 ,"response": [
                             ]
@@ -176,10 +176,10 @@
                         },
 	                        {
     "name": "/v1/roles/:id",
-                "description": "Returns a role",
+                "description": "Get a role by ID.",
                  "item": [
                             {
-                                "name": "Returns a role",
+                                "name": "Get role by ID",
                                 "request": {
     "method": "GET",
     "header": [
@@ -219,7 +219,7 @@
     "query": [
     ]
     },
-    "description": "Returns a role"
+    "description": "Get a role by ID."
 }
                                 ,"response": [
                             ]
@@ -228,7 +228,7 @@
                         },
 	                        {
     "name": "/v1/roles/:id",
-                "description": "Update a role",
+                "description": "Update a role by ID.",
                  "item": [
                             {
                                 "name": "Update a role",
@@ -250,7 +250,7 @@
     ],
     "body": {
     "mode": "raw",
-    "raw": "{\n \"id\": \"<number>\",\n \"name\": \"<string>\",\n \"description\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
+    "raw": "{\n  \"name\" : \"admin\",\n  \"description\" : \"Administrator role\"\n}",
     "options": {
     "raw": {
     "language": "json"
@@ -277,7 +277,7 @@
     "query": [
     ]
     },
-    "description": "Update a role"
+    "description": "Update a role by ID."
 }
                                 ,"response": [
                             ]
@@ -286,7 +286,7 @@
                         },
 	                        {
     "name": "/v1/roles/:id/scopes",
-                "description": "Add a scope to a role",
+                "description": "Add one or more scopes to a role.",
                  "item": [
                             {
                                 "name": "Add a scope to a role",
@@ -336,7 +336,7 @@
     "query": [
     ]
     },
-    "description": "Add a scope to a role"
+    "description": "Add one or more scopes to a role."
 }
                                 ,"response": [
                             ]
@@ -345,10 +345,10 @@
                         },
 	                        {
     "name": "/v1/roles/:id/scopes",
-                "description": "Returns a list of scopes for a role",
+                "description": "List scopes assigned to a role.",
                  "item": [
                             {
-                                "name": "Returns a list of scopes for a role",
+                                "name": "List role scopes",
                                 "request": {
     "method": "GET",
     "header": [
@@ -389,19 +389,19 @@
     "query": [
         {
         "key": "limit",
-        "value": "56",
+        "value": "20",
         "description": "The numbers of scopes to return",
         "disabled": true
         },
         {
         "key": "offset",
-        "value": "56",
+        "value": "0",
         "description": "The number of items to skip before starting to collect the result",
         "disabled": true
         }
     ]
     },
-    "description": "Returns a list of scopes for a role"
+    "description": "List scopes assigned to a role."
 }
                                 ,"response": [
                             ]
@@ -410,7 +410,7 @@
                         },
 	                        {
     "name": "/v1/roles/:role_id/scopes/:scope_id",
-                "description": "Remove a scope from a role",
+                "description": "Remove a scope from a role.",
                  "item": [
                             {
                                 "name": "Remove a scope from a role",
@@ -460,7 +460,7 @@
     "query": [
     ]
     },
-    "description": "Remove a scope from a role"
+    "description": "Remove a scope from a role."
 }
                                 ,"response": [
                             ]
@@ -474,7 +474,7 @@
 	            "item": [
 	                        {
     "name": "/v1/comments",
-                "description": "Create a new comment",
+                "description": "Create a new comment.",
                  "item": [
                             {
                                 "name": "Create a new comment",
@@ -496,7 +496,7 @@
     ],
     "body": {
     "mode": "raw",
-    "raw": "{\n \"id\": \"<number>\",\n \"content\": \"<string>\",\n \"like_count\": \"<number>\",\n \"created_at\": \"<string>\",\n \"username\": \"<string>\"\n}",
+    "raw": "{\n  \"content\" : \"This is a comment\",\n  \"username\" : \"johndoe\"\n}",
     "options": {
     "raw": {
     "language": "json"
@@ -517,7 +517,7 @@
     "query": [
     ]
     },
-    "description": "Create a new comment"
+    "description": "Create a new comment."
 }
                                 ,"response": [
                             ]
@@ -526,10 +526,10 @@
                         },
 	                        {
     "name": "/v1/comments/:id",
-                "description": "Returns details about a particular comment",
+                "description": "Get details for a specific comment.",
                  "item": [
                             {
-                                "name": "Returns details about a particular comment",
+                                "name": "Get comment by ID",
                                 "request": {
     "method": "GET",
     "header": [
@@ -569,7 +569,7 @@
     "query": [
     ]
     },
-    "description": "Returns details about a particular comment"
+    "description": "Get details for a specific comment."
 }
                                 ,"response": [
                             ]
@@ -578,10 +578,10 @@
                         },
 	                        {
     "name": "/v1/feed",
-                "description": "Returns a users feed",
+                "description": "Return the current user's feed.",
                  "item": [
                             {
-                                "name": "Returns a users feed",
+                                "name": "Get user feed",
                                 "request": {
     "method": "GET",
     "header": [
@@ -615,7 +615,7 @@
     "query": [
     ]
     },
-    "description": "Returns a users feed"
+    "description": "Return the current user's feed."
 }
                                 ,"response": [
                             ]
@@ -629,10 +629,10 @@
 	            "item": [
 	                        {
     "name": "/",
-                "description": "Welcome to the Socialapp API",
+                "description": "Return a welcome message for the Socialapp API.",
                  "item": [
                             {
-                                "name": "Welcome to the Socialapp API",
+                                "name": "Get API welcome message",
                                 "request": {
     "method": "GET",
     "header": [
@@ -665,7 +665,7 @@
     "query": [
     ]
     },
-    "description": "Welcome to the Socialapp API"
+    "description": "Return a welcome message for the Socialapp API."
 }
                                 ,"response": [
                             ]
@@ -674,7 +674,7 @@
                         },
 	                        {
     "name": "/v1/password",
-                "description": "Change the password of the current user",
+                "description": "Change the password for the authenticated user.",
                  "item": [
                             {
                                 "name": "Change password",
@@ -696,7 +696,7 @@
     ],
     "body": {
     "mode": "raw",
-    "raw": "{\n \"old_password\": \"<string>\",\n \"new_password\": \"<string>\"\n}",
+    "raw": "{\n  \"old_password\" : \"Secure123!\",\n  \"new_password\" : \"Secure1234!\"\n}",
     "options": {
     "raw": {
     "language": "json"
@@ -717,7 +717,7 @@
     "query": [
     ]
     },
-    "description": "Change the password of the current user"
+    "description": "Change the password for the authenticated user."
 }
                                 ,"response": [
                             ]
@@ -726,7 +726,7 @@
                         },
 	                        {
     "name": "/v1/password",
-                "description": "Reset the password of a user",
+                "description": "Reset a user's password using their email address.",
                  "item": [
                             {
                                 "name": "Reset password",
@@ -748,7 +748,7 @@
     ],
     "body": {
     "mode": "raw",
-    "raw": "{\n \"email\": \"<string>\"\n}",
+    "raw": "{\n  \"email\" : \"johndoe@mail.com\"\n}",
     "options": {
     "raw": {
     "language": "json"
@@ -769,7 +769,7 @@
     "query": [
     ]
     },
-    "description": "Reset the password of a user"
+    "description": "Reset a user's password using their email address."
 }
                                 ,"response": [
                             ]
@@ -778,7 +778,7 @@
                         },
 	                        {
     "name": "/v1/users",
-                "description": "Create a new user in the system",
+                "description": "Create a new user.",
                  "item": [
                             {
                                 "name": "Create user",
@@ -800,7 +800,7 @@
     ],
     "body": {
     "mode": "raw",
-    "raw": "{\n \"username\": \"<string>\",\n \"password\": \"<string>\",\n \"first_name\": \"<string>\",\n \"last_name\": \"<string>\",\n \"email\": \"<string>\"\n}",
+    "raw": "{\n  \"username\" : \"johndoe\",\n  \"first_name\" : \"John\",\n  \"last_name\" : \"Doe\",\n  \"password\" : \"Secure123!\",\n  \"email\" : \"johndoe@mail.com\"\n}",
     "options": {
     "raw": {
     "language": "json"
@@ -821,7 +821,7 @@
     "query": [
     ]
     },
-    "description": "Create a new user in the system"
+    "description": "Create a new user."
 }
                                 ,"response": [
                             ]
@@ -830,7 +830,7 @@
                         },
 	                        {
     "name": "/v1/users",
-                "description": "List all users in the system (paginated)",
+                "description": "List users with offset-based pagination.",
                  "item": [
                             {
                                 "name": "List users",
@@ -867,19 +867,19 @@
     "query": [
         {
         "key": "limit",
-        "value": "56",
+        "value": "20",
         "description": "Maximum number of users to return",
         "disabled": true
         },
         {
         "key": "offset",
-        "value": "56",
+        "value": "0",
         "description": "Pagination offset",
         "disabled": true
         }
     ]
     },
-    "description": "List all users in the system (paginated)"
+    "description": "List users with offset-based pagination."
 }
                                 ,"response": [
                             ]
@@ -888,7 +888,7 @@
                         },
 	                        {
     "name": "/v1/users/:followedUsername/followers/:followerUsername",
-                "description": "Add a user as a follower of another user",
+                "description": "Create a follower relationship between two users.",
                  "item": [
                             {
                                 "name": "Add a user as a follower",
@@ -927,18 +927,18 @@
         {
         "key": "followedUsername",
         "value": "",
-        "description": "username of the user"
+        "description": "Username of the user being followed"
         },
         {
         "key": "followerUsername",
         "value": "",
-        "description": "username of the follower"
+        "description": "Username of the follower to add"
         }
     ],
     "query": [
     ]
     },
-    "description": "Add a user as a follower of another user"
+    "description": "Create a follower relationship between two users."
 }
                                 ,"response": [
                             ]
@@ -947,7 +947,7 @@
                         },
 	                        {
     "name": "/v1/users/:followedUsername/followers/:followerUsername",
-                "description": "Remove a user as a follower of another user",
+                "description": "Remove a follower relationship between two users.",
                  "item": [
                             {
                                 "name": "Remove a user as a follower",
@@ -986,18 +986,18 @@
         {
         "key": "followedUsername",
         "value": "",
-        "description": "username of the user"
+        "description": "Username of the user being followed"
         },
         {
         "key": "followerUsername",
         "value": "",
-        "description": "username of the follower"
+        "description": "Username of the follower to remove"
         }
     ],
     "query": [
     ]
     },
-    "description": "Remove a user as a follower of another user"
+    "description": "Remove a follower relationship between two users."
 }
                                 ,"response": [
                             ]
@@ -1006,7 +1006,7 @@
                         },
 	                        {
     "name": "/v1/users/:username",
-                "description": "Deletes a particular user by username",
+                "description": "Delete a user by username.",
                  "item": [
                             {
                                 "name": "Deletes a particular user",
@@ -1043,13 +1043,13 @@
         {
         "key": "username",
         "value": "",
-        "description": "username of the user"
+        "description": "Username of the user"
         }
     ],
     "query": [
     ]
     },
-    "description": "Deletes a particular user by username"
+    "description": "Delete a user by username."
 }
                                 ,"response": [
                             ]
@@ -1058,7 +1058,7 @@
                         },
 	                        {
     "name": "/v1/users/:username",
-                "description": "Get a particular user by username",
+                "description": "Get a user by username.",
                  "item": [
                             {
                                 "name": "Get a particular user by username",
@@ -1095,13 +1095,13 @@
         {
         "key": "username",
         "value": "",
-        "description": "username of the user"
+        "description": "Username of the user"
         }
     ],
     "query": [
     ]
     },
-    "description": "Get a particular user by username"
+    "description": "Get a user by username."
 }
                                 ,"response": [
                             ]
@@ -1110,7 +1110,7 @@
                         },
 	                        {
     "name": "/v1/users/:username",
-                "description": "Update a user by username",
+                "description": "Update a user by username.",
                  "item": [
                             {
                                 "name": "Update a user",
@@ -1132,7 +1132,7 @@
     ],
     "body": {
     "mode": "raw",
-    "raw": "{\n \"id\": \"<number>\",\n \"username\": \"<string>\",\n \"first_name\": \"<string>\",\n \"last_name\": \"<string>\",\n \"email\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
+    "raw": "{\n  \"username\" : \"johndoe\",\n  \"first_name\" : \"John\",\n  \"last_name\" : \"Updated\",\n  \"email\" : \"johndoe@mail.com\"\n}",
     "options": {
     "raw": {
     "language": "json"
@@ -1153,13 +1153,13 @@
         {
         "key": "username",
         "value": "",
-        "description": "username of the user"
+        "description": "Username of the user"
         }
     ],
     "query": [
     ]
     },
-    "description": "Update a user by username"
+    "description": "Update a user by username."
 }
                                 ,"response": [
                             ]
@@ -1168,10 +1168,10 @@
                         },
 	                        {
     "name": "/v1/users/:username/comments",
-                "description": "Gets all comments for a user",
+                "description": "Get all comments for a specific user.",
                  "item": [
                             {
-                                "name": "Gets all comments for a user",
+                                "name": "List comments for a user",
                                 "request": {
     "method": "GET",
     "header": [
@@ -1206,7 +1206,7 @@
         {
         "key": "username",
         "value": "",
-        "description": "username of the user"
+        "description": "Username of the user"
         }
     ],
     "query": [
@@ -1224,7 +1224,7 @@
         }
     ]
     },
-    "description": "Gets all comments for a user"
+    "description": "Get all comments for a specific user."
 }
                                 ,"response": [
                             ]
@@ -1233,7 +1233,7 @@
                         },
 	                        {
     "name": "/v1/users/:username/followers",
-                "description": "Get all followers for a user",
+                "description": "Get all followers for a specific user.",
                  "item": [
                             {
                                 "name": "Get all followers for a user",
@@ -1271,13 +1271,13 @@
         {
         "key": "username",
         "value": "",
-        "description": "username of the user"
+        "description": "Username of the user"
         }
     ],
     "query": [
     ]
     },
-    "description": "Get all followers for a user"
+    "description": "Get all followers for a specific user."
 }
                                 ,"response": [
                             ]
@@ -1286,7 +1286,7 @@
                         },
 	                        {
     "name": "/v1/users/:username/followers",
-                "description": "Get all followers for a user",
+                "description": "Get all followers for a specific user.",
                  "item": [
                             {
                                 "name": "Get all followers for a user",
@@ -1324,13 +1324,13 @@
         {
         "key": "username",
         "value": "",
-        "description": "username of the user"
+        "description": "Username of the user"
         }
     ],
     "query": [
     ]
     },
-    "description": "Get all followers for a user"
+    "description": "Get all followers for a specific user."
 }
                                 ,"response": [
                             ]
@@ -1339,7 +1339,7 @@
                         },
 	                        {
     "name": "/v1/users/:username/following",
-                "description": "Get all followed users for a user (users that the user is following)",
+                "description": "Get all users followed by a specific user.",
                  "item": [
                             {
                                 "name": "Get all followed users for a user",
@@ -1377,13 +1377,13 @@
         {
         "key": "username",
         "value": "",
-        "description": "username of the user"
+        "description": "Username of the user"
         }
     ],
     "query": [
     ]
     },
-    "description": "Get all followed users for a user (users that the user is following)"
+    "description": "Get all users followed by a specific user."
 }
                                 ,"response": [
                             ]
@@ -1392,7 +1392,7 @@
                         },
 	                        {
     "name": "/v1/users/:username/roles",
-                "description": "Get all roles for a user",
+                "description": "Get all roles assigned to a user.",
                  "item": [
                             {
                                 "name": "Get all roles for a user",
@@ -1430,13 +1430,13 @@
         {
         "key": "username",
         "value": "",
-        "description": "username of the user"
+        "description": "Username of the user"
         }
     ],
     "query": [
     ]
     },
-    "description": "Get all roles for a user"
+    "description": "Get all roles assigned to a user."
 }
                                 ,"response": [
                             ]
@@ -1445,7 +1445,7 @@
                         },
 	                        {
     "name": "/v1/users/:username/roles",
-                "description": "Update all roles for a user",
+                "description": "Replace all roles for a user.",
                  "item": [
                             {
                                 "name": "Update all roles for a user",
@@ -1489,13 +1489,13 @@
         {
         "key": "username",
         "value": "",
-        "description": "username of the user"
+        "description": "Username of the user"
         }
     ],
     "query": [
     ]
     },
-    "description": "Update all roles for a user"
+    "description": "Replace all roles for a user."
 }
                                 ,"response": [
                             ]
@@ -1509,7 +1509,7 @@
 	            "item": [
 	                        {
     "name": "/v1/scopes",
-                "description": "Create a new scope",
+                "description": "Create a new scope.",
                  "item": [
                             {
                                 "name": "Create a new scope",
@@ -1531,7 +1531,7 @@
     ],
     "body": {
     "mode": "raw",
-    "raw": "{\n \"id\": \"<number>\",\n \"name\": \"<string>\",\n \"description\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
+    "raw": "{\n  \"name\" : \"socialapp.roles.read\",\n  \"description\" : \"Read role records\"\n}",
     "options": {
     "raw": {
     "language": "json"
@@ -1552,7 +1552,7 @@
     "query": [
     ]
     },
-    "description": "Create a new scope"
+    "description": "Create a new scope."
 }
                                 ,"response": [
                             ]
@@ -1561,10 +1561,10 @@
                         },
 	                        {
     "name": "/v1/scopes",
-                "description": "Returns a list of scopes",
+                "description": "List scopes with offset-based pagination.",
                  "item": [
                             {
-                                "name": "Returns a list of scopes",
+                                "name": "List scopes",
                                 "request": {
     "method": "GET",
     "header": [
@@ -1598,19 +1598,19 @@
     "query": [
         {
         "key": "limit",
-        "value": "56",
+        "value": "20",
         "description": "The numbers of scopes to return",
         "disabled": true
         },
         {
         "key": "offset",
-        "value": "56",
+        "value": "0",
         "description": "The number of items to skip before starting to collect the result",
         "disabled": true
         }
     ]
     },
-    "description": "Returns a list of scopes"
+    "description": "List scopes with offset-based pagination."
 }
                                 ,"response": [
                             ]
@@ -1671,10 +1671,10 @@
                         },
 	                        {
     "name": "/v1/scopes/:id",
-                "description": "Returns a scope",
+                "description": "Get a scope by ID.",
                  "item": [
                             {
-                                "name": "Returns a scope",
+                                "name": "Get scope by ID",
                                 "request": {
     "method": "GET",
     "header": [
@@ -1714,7 +1714,7 @@
     "query": [
     ]
     },
-    "description": "Returns a scope"
+    "description": "Get a scope by ID."
 }
                                 ,"response": [
                             ]
@@ -1723,7 +1723,7 @@
                         },
 	                        {
     "name": "/v1/scopes/:id",
-                "description": "Update a scope",
+                "description": "Update a scope by ID.",
                  "item": [
                             {
                                 "name": "Update a scope",
@@ -1745,7 +1745,7 @@
     ],
     "body": {
     "mode": "raw",
-    "raw": "{\n \"id\": \"<number>\",\n \"name\": \"<string>\",\n \"description\": \"<string>\",\n \"created_at\": \"<string>\"\n}",
+    "raw": "{\n  \"name\" : \"socialapp.roles.read\",\n  \"description\" : \"Read role records\"\n}",
     "options": {
     "raw": {
     "language": "json"
@@ -1772,7 +1772,7 @@
     "query": [
     ]
     },
-    "description": "Update a scope"
+    "description": "Update a scope by ID."
 }
                                 ,"response": [
                             ]
@@ -1786,7 +1786,7 @@
 	            "item": [
 	                        {
     "name": "/v1/oauth/token",
-                "description": "Get an access token",
+                "description": "Exchange HTTP basic credentials for an access token.",
                  "item": [
                             {
                                 "name": "Get an access token",
@@ -1824,7 +1824,7 @@
     "query": [
     ]
     },
-    "description": "Get an access token"
+    "description": "Exchange HTTP basic credentials for an access token."
 }
                                 ,"response": [
                             ]
@@ -1838,10 +1838,10 @@
 	            "item": [
 	                        {
     "name": "/v1/urls",
-                "description": "Returns a url",
+                "description": "Create a new URL alias.",
                  "item": [
                             {
-                                "name": "Create a new url",
+                                "name": "Create URL alias",
                                 "request": {
     "method": "POST",
     "header": [
@@ -1860,7 +1860,7 @@
     ],
     "body": {
     "mode": "raw",
-    "raw": "{\n \"url\": \"<string>\",\n \"alias\": \"<string>\",\n \"created_at\": \"<string>\",\n \"updated_at\": \"<string>\",\n \"deleted_at\": \"<string>\"\n}",
+    "raw": "{\n  \"alias\" : \"example\",\n  \"url\" : \"https://example.com\"\n}",
     "options": {
     "raw": {
     "language": "json"
@@ -1881,7 +1881,7 @@
     "query": [
     ]
     },
-    "description": "Returns a url"
+    "description": "Create a new URL alias."
 }
                                 ,"response": [
                             ]
@@ -1890,10 +1890,10 @@
                         },
 	                        {
     "name": "/v1/urls/:alias",
-                "description": "Delete a url",
+                "description": "Delete a URL alias and its metadata.",
                  "item": [
                             {
-                                "name": "Delete a url",
+                                "name": "Delete URL alias",
                                 "request": {
     "method": "DELETE",
     "header": [
@@ -1933,7 +1933,7 @@
     "query": [
     ]
     },
-    "description": "Delete a url"
+    "description": "Delete a URL alias and its metadata."
 }
                                 ,"response": [
                             ]
@@ -1942,10 +1942,10 @@
                         },
 	                        {
     "name": "/v1/urls/:alias",
-                "description": "Returns a url",
+                "description": "Resolve an alias and redirect to the destination URL.",
                  "item": [
                             {
-                                "name": "Get a url",
+                                "name": "Redirect using URL alias",
                                 "request": {
     "method": "GET",
     "header": [
@@ -1985,7 +1985,7 @@
     "query": [
     ]
     },
-    "description": "Returns a url"
+    "description": "Resolve an alias and redirect to the destination URL."
 }
                                 ,"response": [
                             ]
@@ -1994,10 +1994,10 @@
                         },
 	                        {
     "name": "/v1/urls/:alias/data",
-                "description": "Returns a url",
+                "description": "Return metadata for a URL alias.",
                  "item": [
                             {
-                                "name": "Returns a url metadata",
+                                "name": "Get URL metadata",
                                 "request": {
     "method": "GET",
     "header": [
@@ -2038,7 +2038,7 @@
     "query": [
     ]
     },
-    "description": "Returns a url"
+    "description": "Return metadata for a URL alias."
 }
                                 ,"response": [
                             ]

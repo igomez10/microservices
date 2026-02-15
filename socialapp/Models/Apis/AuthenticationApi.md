@@ -13,7 +13,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Get an access token
 
-    Get an access token
+    Exchange HTTP basic credentials for an access token.
 
 ### Parameters
 This endpoint does not need any parameter.

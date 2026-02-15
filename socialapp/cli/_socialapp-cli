@@ -10,7 +10,7 @@
 # !
 # ! Based on: https://github.com/Valodim/zsh-curl-completion/blob/master/_curl
 # !
-# ! Generator version: 7.17.0
+# ! Generator version: 7.19.0
 # !
 # !
 # ! Installation:
@@ -298,36 +298,36 @@ case $state in
     # Operations
     _values "Operations" \
             "getAccessToken[Get an access token]"             "createComment[Create a new comment]" \
-            "getComment[Returns details about a particular comment]" \
-            "getUserFeed[Returns a users feed]"             "getUserFollowers[Get all followers for a user]"             "addScopeToRole[Add a scope to a role]" \
+            "getComment[Get comment by ID]" \
+            "getUserFeed[Get user feed]"             "getUserFollowers[Get all followers for a user]"             "addScopeToRole[Add a scope to a role]" \
             "createRole[Create a new role]" \
             "deleteRole[Delete a role]" \
-            "getRole[Returns a role]" \
+            "getRole[Get role by ID]" \
             "listRoles[Returns a list of roles]" \
-            "listScopesForRole[Returns a list of scopes for a role]" \
+            "listScopesForRole[List role scopes]" \
             "removeScopeFromRole[Remove a scope from a role]" \
             "updateRole[Update a role]"             "createScope[Create a new scope]" \
             "deleteScope[Delete a scope]" \
-            "getScope[Returns a scope]" \
-            "listScopes[Returns a list of scopes]" \
-            "updateScope[Update a scope]"             "createUrl[Create a new url]" \
-            "deleteUrl[Delete a url]" \
-            "getUrl[Get a url]" \
-            "getUrlData[Returns a url metadata]"             "changePassword[Change password]" \
+            "getScope[Get scope by ID]" \
+            "listScopes[List scopes]" \
+            "updateScope[Update a scope]"             "createUrl[Create URL alias]" \
+            "deleteUrl[Delete URL alias]" \
+            "getUrl[Redirect using URL alias]" \
+            "getUrlData[Get URL metadata]"             "changePassword[Change password]" \
             "createUser[Create user]" \
             "deleteUser[Deletes a particular user]" \
             "followUser[Add a user as a follower]" \
             "getFollowingUsers[Get all followed users for a user]" \
             "getRolesForUser[Get all roles for a user]" \
             "getUserByUsername[Get a particular user by username]" \
-            "getUserComments[Gets all comments for a user]" \
+            "getUserComments[List comments for a user]" \
             "getUserFollowers[Get all followers for a user]" \
             "listUsers[List users]" \
             "resetPassword[Reset password]" \
             "unfollowUser[Remove a user as a follower]" \
             "updateRolesForUser[Update all roles for a user]" \
             "updateUser[Update a user]" \
-            "welcome[Welcome to the Socialapp API]" \
+            "welcome[Get API welcome message]" \
 
     _arguments "(--help)--help[Print information about operation]"
 
@@ -363,7 +363,7 @@ case $state in
       getUserFollowers)
         local -a _op_arguments
         _op_arguments=(
-          "username=:[PATH] username of the user"
+          "username=:[PATH] Username of the user"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
@@ -503,43 +503,43 @@ case $state in
       deleteUser)
         local -a _op_arguments
         _op_arguments=(
-          "username=:[PATH] username of the user"
+          "username=:[PATH] Username of the user"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       followUser)
         local -a _op_arguments
         _op_arguments=(
-          "followedUsername=:[PATH] username of the user"
-"followerUsername=:[PATH] username of the follower"
+          "followedUsername=:[PATH] Username of the user being followed"
+"followerUsername=:[PATH] Username of the follower to add"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       getFollowingUsers)
         local -a _op_arguments
         _op_arguments=(
-          "username=:[PATH] username of the user"
+          "username=:[PATH] Username of the user"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       getRolesForUser)
         local -a _op_arguments
         _op_arguments=(
-          "username=:[PATH] username of the user"
+          "username=:[PATH] Username of the user"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       getUserByUsername)
         local -a _op_arguments
         _op_arguments=(
-          "username=:[PATH] username of the user"
+          "username=:[PATH] Username of the user"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       getUserComments)
         local -a _op_arguments
         _op_arguments=(
-          "username=:[PATH] username of the user"
+          "username=:[PATH] Username of the user"
           "limit=:[QUERY] How many items to return at one time (max 100)"
 "offset=:[QUERY] The number of items to skip before starting to collect the result set"
           )
@@ -548,7 +548,7 @@ case $state in
       getUserFollowers)
         local -a _op_arguments
         _op_arguments=(
-          "username=:[PATH] username of the user"
+          "username=:[PATH] Username of the user"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
@@ -569,22 +569,22 @@ case $state in
       unfollowUser)
         local -a _op_arguments
         _op_arguments=(
-          "followedUsername=:[PATH] username of the user"
-"followerUsername=:[PATH] username of the follower"
+          "followedUsername=:[PATH] Username of the user being followed"
+"followerUsername=:[PATH] Username of the follower to remove"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       updateRolesForUser)
         local -a _op_arguments
         _op_arguments=(
-          "username=:[PATH] username of the user"
+          "username=:[PATH] Username of the user"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       updateUser)
         local -a _op_arguments
         _op_arguments=(
-          "username=:[PATH] username of the user"
+          "username=:[PATH] Username of the user"
                     )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;

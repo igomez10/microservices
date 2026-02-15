@@ -4,11 +4,11 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Username** | **string** |  | 
-**Password** | **string** |  | 
-**FirstName** | **string** |  | 
-**LastName** | **string** |  | 
-**Email** | **string** |  | 
+**Username** | **string** | Unique username for the account. | 
+**Password** | **string** | Plain-text password used during account creation. | 
+**FirstName** | **string** | User first name. | 
+**LastName** | **string** | User last name. | 
+**Email** | **string** | User email address. | 
 
 ## Methods
 

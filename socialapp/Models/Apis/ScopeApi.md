@@ -6,8 +6,8 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 |------------- | ------------- | -------------|
 | [**createScope**](ScopeApi.md#createScope) | **POST** /v1/scopes | Create a new scope |
 | [**deleteScope**](ScopeApi.md#deleteScope) | **DELETE** /v1/scopes/{id} | Delete a scope |
-| [**getScope**](ScopeApi.md#getScope) | **GET** /v1/scopes/{id} | Returns a scope |
-| [**listScopes**](ScopeApi.md#listScopes) | **GET** /v1/scopes | Returns a list of scopes |
+| [**getScope**](ScopeApi.md#getScope) | **GET** /v1/scopes/{id} | Get scope by ID |
+| [**listScopes**](ScopeApi.md#listScopes) | **GET** /v1/scopes | List scopes |
 | [**updateScope**](ScopeApi.md#updateScope) | **PUT** /v1/scopes/{id} | Update a scope |
 
 
@@ -17,7 +17,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Create a new scope
 
-    Create a new scope
+    Create a new scope.
 
 ### Parameters
 
@@ -69,9 +69,9 @@ null (empty response body)
 # **getScope**
 > Scope getScope(id)
 
-Returns a scope
+Get scope by ID
 
-    Returns a scope
+    Get a scope by ID.
 
 ### Parameters
 
@@ -96,9 +96,9 @@ Returns a scope
 # **listScopes**
 > List listScopes(limit, offset)
 
-Returns a list of scopes
+List scopes
 
-    Returns a list of scopes
+    List scopes with offset-based pagination.
 
 ### Parameters
 
@@ -126,7 +126,7 @@ Returns a list of scopes
 
 Update a scope
 
-    Update a scope
+    Update a scope by ID.
 
 ### Parameters
 

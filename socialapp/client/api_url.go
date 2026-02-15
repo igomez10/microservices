@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -40,9 +40,9 @@ func (r URLAPICreateUrlRequest) Execute() (*URL, *http.Response, error) {
 }
 
 /*
-CreateUrl Create a new url
+CreateUrl Create URL alias
 
-Returns a url
+Create a new URL alias.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return URLAPICreateUrlRequest
@@ -167,9 +167,9 @@ func (r URLAPIDeleteUrlRequest) Execute() (*http.Response, error) {
 }
 
 /*
-DeleteUrl Delete a url
+DeleteUrl Delete URL alias
 
-Delete a url
+Delete a URL alias and its metadata.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param alias The alias of the url
@@ -269,9 +269,9 @@ func (r URLAPIGetUrlRequest) Execute() (*http.Response, error) {
 }
 
 /*
-GetUrl Get a url
+GetUrl Redirect using URL alias
 
-Returns a url
+Resolve an alias and redirect to the destination URL.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param alias The alias of the url
@@ -371,9 +371,9 @@ func (r URLAPIGetUrlDataRequest) Execute() (*URL, *http.Response, error) {
 }
 
 /*
-GetUrlData Returns a url metadata
+GetUrlData Get URL metadata
 
-Returns a url
+Return metadata for a URL alias.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@param alias The alias of the url

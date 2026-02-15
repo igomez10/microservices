@@ -11,14 +11,14 @@ Method | HTTP request | Description
 [**getFollowingUsers**](UserApi.md#getFollowingUsers) | **GET** /v1/users/{username}/following | Get all followed users for a user
 [**getRolesForUser**](UserApi.md#getRolesForUser) | **GET** /v1/users/{username}/roles | Get all roles for a user
 [**getUserByUsername**](UserApi.md#getUserByUsername) | **GET** /v1/users/{username} | Get a particular user by username
-[**getUserComments**](UserApi.md#getUserComments) | **GET** /v1/users/{username}/comments | Gets all comments for a user
+[**getUserComments**](UserApi.md#getUserComments) | **GET** /v1/users/{username}/comments | List comments for a user
 [**getUserFollowers**](UserApi.md#getUserFollowers) | **GET** /v1/users/{username}/followers | Get all followers for a user
 [**listUsers**](UserApi.md#listUsers) | **GET** /v1/users | List users
 [**resetPassword**](UserApi.md#resetPassword) | **PUT** /v1/password | Reset password
 [**unfollowUser**](UserApi.md#unfollowUser) | **DELETE** /v1/users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower
 [**updateRolesForUser**](UserApi.md#updateRolesForUser) | **PUT** /v1/users/{username}/roles | Update all roles for a user
 [**updateUser**](UserApi.md#updateUser) | **PUT** /v1/users/{username} | Update a user
-[**welcome**](UserApi.md#welcome) | **GET** / | Welcome to the Socialapp API
+[**welcome**](UserApi.md#welcome) | **GET** / | Get API welcome message
 
 
 
@@ -26,7 +26,7 @@ Method | HTTP request | Description
 
 Change password
 
-Change the password of the current user
+Change the password for the authenticated user.
 
 ### Example
 
@@ -61,7 +61,7 @@ Name | Type | Description  | Notes
 
 Create user
 
-Create a new user in the system
+Create a new user.
 
 ### Example
 
@@ -96,7 +96,7 @@ Name | Type | Description  | Notes
 
 Deletes a particular user
 
-Deletes a particular user by username
+Delete a user by username.
 
 ### Example
 
@@ -109,7 +109,7 @@ socialapp-cli deleteUser username=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **username** | **string** | username of the user | [default to null]
+ **username** | **string** | Username of the user | [default to null]
 
 ### Return type
 
@@ -131,7 +131,7 @@ Name | Type | Description  | Notes
 
 Add a user as a follower
 
-Add a user as a follower of another user
+Create a follower relationship between two users.
 
 ### Example
 
@@ -144,8 +144,8 @@ socialapp-cli followUser followedUsername=value followerUsername=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **followedUsername** | **string** | username of the user | [default to null]
- **followerUsername** | **string** | username of the follower | [default to null]
+ **followedUsername** | **string** | Username of the user being followed | [default to null]
+ **followerUsername** | **string** | Username of the follower to add | [default to null]
 
 ### Return type
 
@@ -167,7 +167,7 @@ Name | Type | Description  | Notes
 
 Get all followed users for a user
 
-Get all followed users for a user (users that the user is following)
+Get all users followed by a specific user.
 
 ### Example
 
@@ -180,7 +180,7 @@ socialapp-cli getFollowingUsers username=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **username** | **string** | username of the user | [default to null]
+ **username** | **string** | Username of the user | [default to null]
 
 ### Return type
 
@@ -202,7 +202,7 @@ Name | Type | Description  | Notes
 
 Get all roles for a user
 
-Get all roles for a user
+Get all roles assigned to a user.
 
 ### Example
 
@@ -215,7 +215,7 @@ socialapp-cli getRolesForUser username=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **username** | **string** | username of the user | [default to null]
+ **username** | **string** | Username of the user | [default to null]
 
 ### Return type
 
@@ -237,7 +237,7 @@ Name | Type | Description  | Notes
 
 Get a particular user by username
 
-Get a particular user by username
+Get a user by username.
 
 ### Example
 
@@ -250,7 +250,7 @@ socialapp-cli getUserByUsername username=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **username** | **string** | username of the user | [default to null]
+ **username** | **string** | Username of the user | [default to null]
 
 ### Return type
 
@@ -270,9 +270,9 @@ Name | Type | Description  | Notes
 
 ## getUserComments
 
-Gets all comments for a user
+List comments for a user
 
-Gets all comments for a user
+Get all comments for a specific user.
 
 ### Example
 
@@ -285,7 +285,7 @@ socialapp-cli getUserComments username=value  limit=value  offset=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **username** | **string** | username of the user | [default to null]
+ **username** | **string** | Username of the user | [default to null]
  **limit** | **integer** | How many items to return at one time (max 100) | [optional] [default to 20]
  **offset** | **integer** | The number of items to skip before starting to collect the result set | [optional] [default to null]
 
@@ -309,7 +309,7 @@ Name | Type | Description  | Notes
 
 Get all followers for a user
 
-Get all followers for a user
+Get all followers for a specific user.
 
 ### Example
 
@@ -322,7 +322,7 @@ socialapp-cli getUserFollowers username=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **username** | **string** | username of the user | [default to null]
+ **username** | **string** | Username of the user | [default to null]
 
 ### Return type
 
@@ -344,7 +344,7 @@ Name | Type | Description  | Notes
 
 List users
 
-List all users in the system (paginated)
+List users with offset-based pagination.
 
 ### Example
 
@@ -380,7 +380,7 @@ Name | Type | Description  | Notes
 
 Reset password
 
-Reset the password of a user
+Reset a user's password using their email address.
 
 ### Example
 
@@ -415,7 +415,7 @@ Name | Type | Description  | Notes
 
 Remove a user as a follower
 
-Remove a user as a follower of another user
+Remove a follower relationship between two users.
 
 ### Example
 
@@ -428,8 +428,8 @@ socialapp-cli unfollowUser followedUsername=value followerUsername=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **followedUsername** | **string** | username of the user | [default to null]
- **followerUsername** | **string** | username of the follower | [default to null]
+ **followedUsername** | **string** | Username of the user being followed | [default to null]
+ **followerUsername** | **string** | Username of the follower to remove | [default to null]
 
 ### Return type
 
@@ -451,7 +451,7 @@ Name | Type | Description  | Notes
 
 Update all roles for a user
 
-Update all roles for a user
+Replace all roles for a user.
 
 ### Example
 
@@ -464,7 +464,7 @@ socialapp-cli updateRolesForUser username=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **username** | **string** | username of the user | [default to null]
+ **username** | **string** | Username of the user | [default to null]
  **requestBody** | [**array[string]**](string.md) | Update all roles for a user | [optional]
 
 ### Return type
@@ -487,7 +487,7 @@ Name | Type | Description  | Notes
 
 Update a user
 
-Update a user by username
+Update a user by username.
 
 ### Example
 
@@ -500,7 +500,7 @@ socialapp-cli updateUser username=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **username** | **string** | username of the user | [default to null]
+ **username** | **string** | Username of the user | [default to null]
  **user** | [**User**](User.md) | Update a user |
 
 ### Return type
@@ -521,9 +521,9 @@ Name | Type | Description  | Notes
 
 ## welcome
 
-Welcome to the Socialapp API
+Get API welcome message
 
-Welcome to the Socialapp API
+Return a welcome message for the Socialapp API.
 
 ### Example
 

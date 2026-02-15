@@ -7,9 +7,9 @@ Method | HTTP request | Description
 [**AddScopeToRole**](RoleAPI.md#AddScopeToRole) | **Post** /v1/roles/{id}/scopes | Add a scope to a role
 [**CreateRole**](RoleAPI.md#CreateRole) | **Post** /v1/roles | Create a new role
 [**DeleteRole**](RoleAPI.md#DeleteRole) | **Delete** /v1/roles/{id} | Delete a role
-[**GetRole**](RoleAPI.md#GetRole) | **Get** /v1/roles/{id} | Returns a role
+[**GetRole**](RoleAPI.md#GetRole) | **Get** /v1/roles/{id} | Get role by ID
 [**ListRoles**](RoleAPI.md#ListRoles) | **Get** /v1/roles | Returns a list of roles
-[**ListScopesForRole**](RoleAPI.md#ListScopesForRole) | **Get** /v1/roles/{id}/scopes | Returns a list of scopes for a role
+[**ListScopesForRole**](RoleAPI.md#ListScopesForRole) | **Get** /v1/roles/{id}/scopes | List role scopes
 [**RemoveScopeFromRole**](RoleAPI.md#RemoveScopeFromRole) | **Delete** /v1/roles/{role_id}/scopes/{scope_id} | Remove a scope from a role
 [**UpdateRole**](RoleAPI.md#UpdateRole) | **Put** /v1/roles/{id} | Update a role
 
@@ -36,7 +36,7 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | The id of the role
+	id := int64(123) // int64 | The id of the role
 	requestBody := []string{"Property_example"} // []string | Add a scope to a role
 
 	configuration := openapiclient.NewConfiguration()
@@ -55,7 +55,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | The id of the role | 
+**id** | **int64** | The id of the role | 
 
 ### Other Parameters
 
@@ -172,7 +172,7 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | id of the role
+	id := int64(123) // int64 | id of the role
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -190,7 +190,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | id of the role | 
+**id** | **int64** | id of the role | 
 
 ### Other Parameters
 
@@ -223,7 +223,7 @@ Name | Type | Description  | Notes
 
 > Role GetRole(ctx, id).Execute()
 
-Returns a role
+Get role by ID
 
 
 
@@ -240,7 +240,7 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | The id of the role
+	id := int64(123) // int64 | The id of the role
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -260,7 +260,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | The id of the role | 
+**id** | **int64** | The id of the role | 
 
 ### Other Parameters
 
@@ -310,8 +310,8 @@ import (
 )
 
 func main() {
-	limit := int32(56) // int32 | The numbers of roles to return (optional) (default to 20)
-	offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
+	limit := int32(20) // int32 | The numbers of roles to return (optional) (default to 20)
+	offset := int32(0) // int32 | The number of items to skip before starting to collect the result (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -361,7 +361,7 @@ Name | Type | Description  | Notes
 
 > []Scope ListScopesForRole(ctx, id).Limit(limit).Offset(offset).Execute()
 
-Returns a list of scopes for a role
+List role scopes
 
 
 
@@ -378,9 +378,9 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | The id of the role
-	limit := int32(56) // int32 | The numbers of scopes to return (optional) (default to 20)
-	offset := int32(56) // int32 | The number of items to skip before starting to collect the result (optional)
+	id := int64(123) // int64 | The id of the role
+	limit := int32(20) // int32 | The numbers of scopes to return (optional) (default to 20)
+	offset := int32(0) // int32 | The number of items to skip before starting to collect the result (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -400,7 +400,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | The id of the role | 
+**id** | **int64** | The id of the role | 
 
 ### Other Parameters
 
@@ -452,8 +452,8 @@ import (
 )
 
 func main() {
-	roleId := int32(123) // int32 | The id of the role
-	scopeId := int32(123) // int32 | The id of the scope
+	roleId := int64(123) // int64 | The id of the role
+	scopeId := int64(123) // int64 | The id of the scope
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -471,8 +471,8 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**roleId** | **int32** | The id of the role | 
-**scopeId** | **int32** | The id of the scope | 
+**roleId** | **int64** | The id of the role | 
+**scopeId** | **int64** | The id of the scope | 
 
 ### Other Parameters
 
@@ -523,7 +523,7 @@ import (
 )
 
 func main() {
-	id := int32(123) // int32 | id of the role
+	id := int64(123) // int64 | id of the role
 	role := *openapiclient.NewRole("Name_example") // Role | Update a role (optional)
 
 	configuration := openapiclient.NewConfiguration()
@@ -544,7 +544,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int32** | id of the role | 
+**id** | **int64** | id of the role | 
 
 ### Other Parameters
 

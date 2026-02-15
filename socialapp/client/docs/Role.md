@@ -4,10 +4,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Id** | Pointer to **int64** |  | [optional] 
-**Name** | **string** |  | 
-**Description** | Pointer to **string** |  | [optional] 
-**CreatedAt** | Pointer to **time.Time** |  | [optional] 
+**Id** | Pointer to **int64** | Unique role identifier. | [optional] 
+**Name** | **string** | Unique role name. | 
+**Description** | Pointer to **string** | Description of what the role grants. | [optional] 
+**CreatedAt** | Pointer to **time.Time** | Timestamp when the role was created. | [optional] 
 
 ## Methods
 

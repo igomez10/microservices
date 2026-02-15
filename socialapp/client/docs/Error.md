@@ -4,8 +4,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Code** | **int32** |  | 
-**Message** | **string** |  | 
+**Code** | **int32** | HTTP-like error code. | 
+**Message** | **string** | Human-readable error message. | 
 
 ## Methods
 

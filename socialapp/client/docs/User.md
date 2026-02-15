@@ -4,12 +4,12 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Id** | Pointer to **int64** |  | [optional] 
-**Username** | **string** |  | 
-**FirstName** | **string** |  | 
-**LastName** | **string** |  | 
-**Email** | **string** |  | 
-**CreatedAt** | Pointer to **time.Time** |  | [optional] 
+**Id** | Pointer to **int64** | Unique user identifier. | [optional] 
+**Username** | **string** | Unique username for the account. | 
+**FirstName** | **string** | User first name. | 
+**LastName** | **string** | User last name. | 
+**Email** | **string** | User email address. | 
+**CreatedAt** | Pointer to **time.Time** | Timestamp when the user was created. | [optional] 
 
 ## Methods
 

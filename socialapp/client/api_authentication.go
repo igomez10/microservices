@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -34,7 +34,7 @@ func (r AuthenticationAPIGetAccessTokenRequest) Execute() (*AccessToken, *http.R
 /*
 GetAccessToken Get an access token
 
-Get an access token
+Exchange HTTP basic credentials for an access token.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return AuthenticationAPIGetAccessTokenRequest

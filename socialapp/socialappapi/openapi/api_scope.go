@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -123,7 +123,7 @@ func (c *ScopeAPIController) OrderedRoutes() []Route {
 	}
 }
 
-// ListScopes - Returns a list of scopes
+// ListScopes - List scopes
 func (c *ScopeAPIController) ListScopes(w http.ResponseWriter, r *http.Request) {
 	query, err := parseQuery(r.URL.RawQuery)
 	if err != nil {
@@ -199,7 +199,7 @@ func (c *ScopeAPIController) CreateScope(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
 }
 
-// GetScope - Returns a scope
+// GetScope - Get scope by ID
 func (c *ScopeAPIController) GetScope(w http.ResponseWriter, r *http.Request) {
 	idParam, err := parseNumericParameter[int64](
 		chi.URLParam(r, "id"),

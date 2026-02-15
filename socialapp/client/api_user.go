@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -42,7 +42,7 @@ func (r UserAPIChangePasswordRequest) Execute() (*User, *http.Response, error) {
 /*
 ChangePassword Change password
 
-Change the password of the current user
+Change the password for the authenticated user.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return UserAPIChangePasswordRequest
@@ -173,7 +173,7 @@ func (r UserAPICreateUserRequest) Execute() (*CreateUserResponse, *http.Response
 /*
 CreateUser Create user
 
-Create a new user in the system
+Create a new user.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return UserAPICreateUserRequest
@@ -298,10 +298,10 @@ func (r UserAPIDeleteUserRequest) Execute() (*User, *http.Response, error) {
 /*
 DeleteUser Deletes a particular user
 
-Deletes a particular user by username
+Delete a user by username.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param username username of the user
+	@param username Username of the user
 	@return UserAPIDeleteUserRequest
 */
 func (a *UserAPIService) DeleteUser(ctx context.Context, username string) UserAPIDeleteUserRequest {
@@ -422,11 +422,11 @@ func (r UserAPIFollowUserRequest) Execute() (*http.Response, error) {
 /*
 FollowUser Add a user as a follower
 
-Add a user as a follower of another user
+Create a follower relationship between two users.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param followedUsername username of the user
-	@param followerUsername username of the follower
+	@param followedUsername Username of the user being followed
+	@param followerUsername Username of the follower to add
 	@return UserAPIFollowUserRequest
 */
 func (a *UserAPIService) FollowUser(ctx context.Context, followedUsername string, followerUsername string) UserAPIFollowUserRequest {
@@ -536,10 +536,10 @@ func (r UserAPIGetFollowingUsersRequest) Execute() ([]User, *http.Response, erro
 /*
 GetFollowingUsers Get all followed users for a user
 
-Get all followed users for a user (users that the user is following)
+Get all users followed by a specific user.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param username username of the user
+	@param username Username of the user
 	@return UserAPIGetFollowingUsersRequest
 */
 func (a *UserAPIService) GetFollowingUsers(ctx context.Context, username string) UserAPIGetFollowingUsersRequest {
@@ -659,10 +659,10 @@ func (r UserAPIGetRolesForUserRequest) Execute() ([]Role, *http.Response, error)
 /*
 GetRolesForUser Get all roles for a user
 
-Get all roles for a user
+Get all roles assigned to a user.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param username username of the user
+	@param username Username of the user
 	@return UserAPIGetRolesForUserRequest
 */
 func (a *UserAPIService) GetRolesForUser(ctx context.Context, username string) UserAPIGetRolesForUserRequest {
@@ -782,10 +782,10 @@ func (r UserAPIGetUserByUsernameRequest) Execute() (*User, *http.Response, error
 /*
 GetUserByUsername Get a particular user by username
 
-Get a particular user by username
+Get a user by username.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param username username of the user
+	@param username Username of the user
 	@return UserAPIGetUserByUsernameRequest
 */
 func (a *UserAPIService) GetUserByUsername(ctx context.Context, username string) UserAPIGetUserByUsernameRequest {
@@ -930,12 +930,12 @@ func (r UserAPIGetUserCommentsRequest) Execute() ([]Comment, *http.Response, err
 }
 
 /*
-GetUserComments Gets all comments for a user
+GetUserComments List comments for a user
 
-Gets all comments for a user
+Get all comments for a specific user.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param username username of the user
+	@param username Username of the user
 	@return UserAPIGetUserCommentsRequest
 */
 func (a *UserAPIService) GetUserComments(ctx context.Context, username string) UserAPIGetUserCommentsRequest {
@@ -1065,10 +1065,10 @@ func (r UserAPIGetUserFollowersRequest) Execute() ([]User, *http.Response, error
 /*
 GetUserFollowers Get all followers for a user
 
-Get all followers for a user
+Get all followers for a specific user.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param username username of the user
+	@param username Username of the user
 	@return UserAPIGetUserFollowersRequest
 */
 func (a *UserAPIService) GetUserFollowers(ctx context.Context, username string) UserAPIGetUserFollowersRequest {
@@ -1201,7 +1201,7 @@ func (r UserAPIListUsersRequest) Execute() ([]User, *http.Response, error) {
 /*
 ListUsers List users
 
-List all users in the system (paginated)
+List users with offset-based pagination.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return UserAPIListUsersRequest
@@ -1341,7 +1341,7 @@ func (r UserAPIResetPasswordRequest) Execute() (*User, *http.Response, error) {
 /*
 ResetPassword Reset password
 
-Reset the password of a user
+Reset a user's password using their email address.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return UserAPIResetPasswordRequest
@@ -1467,11 +1467,11 @@ func (r UserAPIUnfollowUserRequest) Execute() (*http.Response, error) {
 /*
 UnfollowUser Remove a user as a follower
 
-Remove a user as a follower of another user
+Remove a follower relationship between two users.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param followedUsername username of the user
-	@param followerUsername username of the follower
+	@param followedUsername Username of the user being followed
+	@param followerUsername Username of the follower to remove
 	@return UserAPIUnfollowUserRequest
 */
 func (a *UserAPIService) UnfollowUser(ctx context.Context, followedUsername string, followerUsername string) UserAPIUnfollowUserRequest {
@@ -1588,10 +1588,10 @@ func (r UserAPIUpdateRolesForUserRequest) Execute() ([]Role, *http.Response, err
 /*
 UpdateRolesForUser Update all roles for a user
 
-Update all roles for a user
+Replace all roles for a user.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param username username of the user
+	@param username Username of the user
 	@return UserAPIUpdateRolesForUserRequest
 */
 func (a *UserAPIService) UpdateRolesForUser(ctx context.Context, username string) UserAPIUpdateRolesForUserRequest {
@@ -1720,10 +1720,10 @@ func (r UserAPIUpdateUserRequest) Execute() (*User, *http.Response, error) {
 /*
 UpdateUser Update a user
 
-Update a user by username
+Update a user by username.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param username username of the user
+	@param username Username of the user
 	@return UserAPIUpdateUserRequest
 */
 func (a *UserAPIService) UpdateUser(ctx context.Context, username string) UserAPIUpdateUserRequest {
@@ -1845,9 +1845,9 @@ func (r UserAPIWelcomeRequest) Execute() (string, *http.Response, error) {
 }
 
 /*
-Welcome Welcome to the Socialapp API
+Welcome Get API welcome message
 
-Welcome to the Socialapp API
+Return a welcome message for the Socialapp API.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return UserAPIWelcomeRequest

@@ -7,9 +7,9 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 | [**addScopeToRole**](RoleApi.md#addScopeToRole) | **POST** /v1/roles/{id}/scopes | Add a scope to a role |
 | [**createRole**](RoleApi.md#createRole) | **POST** /v1/roles | Create a new role |
 | [**deleteRole**](RoleApi.md#deleteRole) | **DELETE** /v1/roles/{id} | Delete a role |
-| [**getRole**](RoleApi.md#getRole) | **GET** /v1/roles/{id} | Returns a role |
+| [**getRole**](RoleApi.md#getRole) | **GET** /v1/roles/{id} | Get role by ID |
 | [**listRoles**](RoleApi.md#listRoles) | **GET** /v1/roles | Returns a list of roles |
-| [**listScopesForRole**](RoleApi.md#listScopesForRole) | **GET** /v1/roles/{id}/scopes | Returns a list of scopes for a role |
+| [**listScopesForRole**](RoleApi.md#listScopesForRole) | **GET** /v1/roles/{id}/scopes | List role scopes |
 | [**removeScopeFromRole**](RoleApi.md#removeScopeFromRole) | **DELETE** /v1/roles/{role_id}/scopes/{scope_id} | Remove a scope from a role |
 | [**updateRole**](RoleApi.md#updateRole) | **PUT** /v1/roles/{id} | Update a role |
 
@@ -20,7 +20,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Add a scope to a role
 
-    Add a scope to a role
+    Add one or more scopes to a role.
 
 ### Parameters
 
@@ -48,7 +48,7 @@ null (empty response body)
 
 Create a new role
 
-    Create a new role
+    Create a new role.
 
 ### Parameters
 
@@ -100,9 +100,9 @@ null (empty response body)
 # **getRole**
 > Role getRole(id)
 
-Returns a role
+Get role by ID
 
-    Returns a role
+    Get a role by ID.
 
 ### Parameters
 
@@ -129,7 +129,7 @@ Returns a role
 
 Returns a list of roles
 
-    Returns a list of roles
+    List roles with offset-based pagination.
 
 ### Parameters
 
@@ -155,9 +155,9 @@ Returns a list of roles
 # **listScopesForRole**
 > List listScopesForRole(id, limit, offset)
 
-Returns a list of scopes for a role
+List role scopes
 
-    Returns a list of scopes for a role
+    List scopes assigned to a role.
 
 ### Parameters
 
@@ -186,7 +186,7 @@ Returns a list of scopes for a role
 
 Remove a scope from a role
 
-    Remove a scope from a role
+    Remove a scope from a role.
 
 ### Parameters
 
@@ -214,7 +214,7 @@ null (empty response body)
 
 Update a role
 
-    Update a role
+    Update a role by ID.
 
 ### Parameters
 

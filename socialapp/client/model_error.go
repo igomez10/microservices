@@ -1,7 +1,7 @@
 /*
 Socialapp
 
-Socialapp is a generic social network.
+Socialapp API for user management, social interactions, authorization, and shortened URL operations.
 
 API version: 1.0.0
 Contact: ignacio.gomez.arboleda@gmail.com
@@ -20,9 +20,11 @@ import (
 // checks if the Error type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &Error{}
 
-// Error struct for Error
+// Error Standard error payload returned by the API.
 type Error struct {
-	Code    int32  `json:"code"`
+	// HTTP-like error code.
+	Code int32 `json:"code"`
+	// Human-readable error message.
 	Message string `json:"message"`
 }
 

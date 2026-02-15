@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -11,9 +11,13 @@
 
 package openapi
 
+// ChangePasswordRequest - Request payload for changing a user's password.
 type ChangePasswordRequest struct {
+
+	// Current password.
 	OldPassword string `json:"old_password"`
 
+	// New password.
 	NewPassword string `json:"new_password"`
 }
 

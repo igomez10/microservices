@@ -4,10 +4,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**AccessToken** | **string** |  | 
-**TokenType** | **string** |  | 
-**Scopes** | Pointer to **[]string** |  | [optional] 
-**ExpiresIn** | **int32** |  | 
+**AccessToken** | **string** | Access token used for authenticated requests. | 
+**TokenType** | **string** | Type of token returned by the authorization server. | 
+**Scopes** | Pointer to **[]string** | Granted OAuth scopes. | [optional] 
+**ExpiresIn** | **int32** | Access token lifetime in seconds. | 
 
 ## Methods
 

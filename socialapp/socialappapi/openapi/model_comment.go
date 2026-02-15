@@ -3,7 +3,7 @@
 /*
  * Socialapp
  *
- * Socialapp is a generic social network.
+ * Socialapp API for user management, social interactions, authorization, and shortened URL operations.
  *
  * API version: 1.0.0
  * Contact: ignacio.gomez.arboleda@gmail.com
@@ -15,15 +15,22 @@ import (
 	"time"
 )
 
+// Comment - User-generated comment.
 type Comment struct {
+
+	// Unique comment identifier.
 	Id int64 `json:"id,omitempty"`
 
+	// Comment text.
 	Content string `json:"content"`
 
+	// Number of likes for the comment.
 	LikeCount int64 `json:"like_count,omitempty"`
 
+	// Timestamp when the comment was created.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 
+	// Username of the comment author.
 	Username string `json:"username"`
 }
 

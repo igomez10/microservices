@@ -11,14 +11,14 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 | [**getFollowingUsers**](UserApi.md#getFollowingUsers) | **GET** /v1/users/{username}/following | Get all followed users for a user |
 | [**getRolesForUser**](UserApi.md#getRolesForUser) | **GET** /v1/users/{username}/roles | Get all roles for a user |
 | [**getUserByUsername**](UserApi.md#getUserByUsername) | **GET** /v1/users/{username} | Get a particular user by username |
-| [**getUserComments**](UserApi.md#getUserComments) | **GET** /v1/users/{username}/comments | Gets all comments for a user |
+| [**getUserComments**](UserApi.md#getUserComments) | **GET** /v1/users/{username}/comments | List comments for a user |
 | [**getUserFollowers**](UserApi.md#getUserFollowers) | **GET** /v1/users/{username}/followers | Get all followers for a user |
 | [**listUsers**](UserApi.md#listUsers) | **GET** /v1/users | List users |
 | [**resetPassword**](UserApi.md#resetPassword) | **PUT** /v1/password | Reset password |
 | [**unfollowUser**](UserApi.md#unfollowUser) | **DELETE** /v1/users/{followedUsername}/followers/{followerUsername} | Remove a user as a follower |
 | [**updateRolesForUser**](UserApi.md#updateRolesForUser) | **PUT** /v1/users/{username}/roles | Update all roles for a user |
 | [**updateUser**](UserApi.md#updateUser) | **PUT** /v1/users/{username} | Update a user |
-| [**welcome**](UserApi.md#welcome) | **GET** / | Welcome to the Socialapp API |
+| [**welcome**](UserApi.md#welcome) | **GET** / | Get API welcome message |
 
 
 <a name="changePassword"></a>
@@ -27,7 +27,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 Change password
 
-    Change the password of the current user
+    Change the password for the authenticated user.
 
 ### Parameters
 
@@ -54,7 +54,7 @@ Change password
 
 Create user
 
-    Create a new user in the system
+    Create a new user.
 
 ### Parameters
 
@@ -81,13 +81,13 @@ Create user
 
 Deletes a particular user
 
-    Deletes a particular user by username
+    Delete a user by username.
 
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **username** | **String**| username of the user | [default to null] |
+| **username** | **String**| Username of the user | [default to null] |
 
 ### Return type
 
@@ -108,14 +108,14 @@ Deletes a particular user
 
 Add a user as a follower
 
-    Add a user as a follower of another user
+    Create a follower relationship between two users.
 
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **followedUsername** | **String**| username of the user | [default to null] |
-| **followerUsername** | **String**| username of the follower | [default to null] |
+| **followedUsername** | **String**| Username of the user being followed | [default to null] |
+| **followerUsername** | **String**| Username of the follower to add | [default to null] |
 
 ### Return type
 
@@ -136,13 +136,13 @@ null (empty response body)
 
 Get all followed users for a user
 
-    Get all followed users for a user (users that the user is following)
+    Get all users followed by a specific user.
 
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **username** | **String**| username of the user | [default to null] |
+| **username** | **String**| Username of the user | [default to null] |
 
 ### Return type
 
@@ -163,13 +163,13 @@ Get all followed users for a user
 
 Get all roles for a user
 
-    Get all roles for a user
+    Get all roles assigned to a user.
 
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **username** | **String**| username of the user | [default to null] |
+| **username** | **String**| Username of the user | [default to null] |
 
 ### Return type
 
@@ -190,13 +190,13 @@ Get all roles for a user
 
 Get a particular user by username
 
-    Get a particular user by username
+    Get a user by username.
 
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **username** | **String**| username of the user | [default to null] |
+| **username** | **String**| Username of the user | [default to null] |
 
 ### Return type
 
@@ -215,15 +215,15 @@ Get a particular user by username
 # **getUserComments**
 > List getUserComments(username, limit, offset)
 
-Gets all comments for a user
+List comments for a user
 
-    Gets all comments for a user
+    Get all comments for a specific user.
 
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **username** | **String**| username of the user | [default to null] |
+| **username** | **String**| Username of the user | [default to null] |
 | **limit** | **Integer**| How many items to return at one time (max 100) | [optional] [default to 20] |
 | **offset** | **Integer**| The number of items to skip before starting to collect the result set | [optional] [default to null] |
 
@@ -246,13 +246,13 @@ Gets all comments for a user
 
 Get all followers for a user
 
-    Get all followers for a user
+    Get all followers for a specific user.
 
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **username** | **String**| username of the user | [default to null] |
+| **username** | **String**| Username of the user | [default to null] |
 
 ### Return type
 
@@ -273,7 +273,7 @@ Get all followers for a user
 
 List users
 
-    List all users in the system (paginated)
+    List users with offset-based pagination.
 
 ### Parameters
 
@@ -301,7 +301,7 @@ List users
 
 Reset password
 
-    Reset the password of a user
+    Reset a user&#39;s password using their email address.
 
 ### Parameters
 
@@ -328,14 +328,14 @@ Reset password
 
 Remove a user as a follower
 
-    Remove a user as a follower of another user
+    Remove a follower relationship between two users.
 
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **followedUsername** | **String**| username of the user | [default to null] |
-| **followerUsername** | **String**| username of the follower | [default to null] |
+| **followedUsername** | **String**| Username of the user being followed | [default to null] |
+| **followerUsername** | **String**| Username of the follower to remove | [default to null] |
 
 ### Return type
 
@@ -356,13 +356,13 @@ null (empty response body)
 
 Update all roles for a user
 
-    Update all roles for a user
+    Replace all roles for a user.
 
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **username** | **String**| username of the user | [default to null] |
+| **username** | **String**| Username of the user | [default to null] |
 | **request\_body** | [**List**](../Models/string.md)| Update all roles for a user | [optional] |
 
 ### Return type
@@ -384,13 +384,13 @@ Update all roles for a user
 
 Update a user
 
-    Update a user by username
+    Update a user by username.
 
 ### Parameters
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **username** | **String**| username of the user | [default to null] |
+| **username** | **String**| Username of the user | [default to null] |
 | **User** | [**User**](../Models/User.md)| Update a user | |
 
 ### Return type
@@ -410,9 +410,9 @@ Update a user
 # **welcome**
 > String welcome()
 
-Welcome to the Socialapp API
+Get API welcome message
 
-    Welcome to the Socialapp API
+    Return a welcome message for the Socialapp API.
 
 ### Parameters
 This endpoint does not need any parameter.

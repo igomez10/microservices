@@ -4,11 +4,11 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Id** | Pointer to **int64** |  | [optional] 
-**Content** | **string** |  | 
-**LikeCount** | Pointer to **int64** |  | [optional] 
-**CreatedAt** | Pointer to **time.Time** |  | [optional] 
-**Username** | **string** |  | 
+**Id** | Pointer to **int64** | Unique comment identifier. | [optional] 
+**Content** | **string** | Comment text. | 
+**LikeCount** | Pointer to **int64** | Number of likes for the comment. | [optional] 
+**CreatedAt** | Pointer to **time.Time** | Timestamp when the comment was created. | [optional] 
+**Username** | **string** | Username of the comment author. | 
 
 ## Methods
 
