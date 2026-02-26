@@ -74,6 +74,11 @@ metrics_generator:
         - http.target
         - http.status_code
         - service.version
+    # Local blocks processor stores raw traces for exemplars/RED metrics.
+    local_blocks:
+      max_block_duration: 2h         # Evict blocks older than 2h
+      max_block_bytes: 1_500_000_000 # Hard cap ~1.5GB
+      flush_to_storage: false        # Keep local-only
   # The registry configuration determines how to process metrics.
   registry:
     collection_interval: 5s # Create new metrics every 5s.
