@@ -17,6 +17,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Trust any directory when running as root inside the container.
+# The repos are owned by the host user (ubuntu) so git would otherwise
+# refuse to run due to the ownership mismatch.
+RUN git config --system --add safe.directory '*'
+
 WORKDIR /app
 
 COPY requirements.txt .
