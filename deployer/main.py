@@ -1,6 +1,14 @@
 import asyncio
+import logging
 import os
 from typing import Literal
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S",
+)
+logger = logging.getLogger(__name__)
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import Response
@@ -19,21 +27,28 @@ DEPLOY_TOKEN = os.environ["DEPLOY_TOKEN"]
 MICROSERVICES_HOST_DIR = os.environ.get("MICROSERVICES_HOST_DIR", "/home/ubuntu/microservices")
 PUTTYKNIFE_HOST_DIR = os.environ.get("PUTTYKNIFE_HOST_DIR", "/home/ubuntu/puttyknife")
 
+def _git_commands(commit: str) -> list[str]:
+    return [
+        "git fetch --all",
+        f"git checkout {commit}",
+    ]
+
+
 PROJECT_CONFIGS: dict[str, dict] = {
     "socialapp": {
         "workdir": f"{MICROSERVICES_HOST_DIR}/socialapp",
-        "commands": [
-            "git pull",
-            "docker compose build",
-            "docker compose up -d --remove-orphans",
+        "commands": lambda commit: [
+            *_git_commands(commit),
+            "docker compose build socialapp frontend",
+            "docker compose up -d --no-deps socialapp frontend",
             "docker builder prune -f",
         ],
     },
     "urlshortener": {
         "workdir": f"{MICROSERVICES_HOST_DIR}/urlshortener",
-        "commands": [
-            "git pull",
-            "docker compose build",
+        "commands": lambda commit: [
+            *_git_commands(commit),
+            "docker compose build urlshortener",
             "docker compose down",
             "docker compose up -d",
             "docker builder prune -f",
@@ -41,10 +56,10 @@ PROJECT_CONFIGS: dict[str, dict] = {
     },
     "puttyknife": {
         "workdir": PUTTYKNIFE_HOST_DIR,
-        "commands": [
-            "git pull",
-            "docker compose build",
-            "docker compose up -d --remove-orphans",
+        "commands": lambda commit: [
+            *_git_commands(commit),
+            "docker compose build puttyknife-m2 puttyknife-fr-producer puttyknife-fincaraiz-consumer puttyknife-fincaraiz-elastic-producer prediction puttyknife-server streamlit-app",
+            "docker compose up -d --no-deps puttyknife-m2 puttyknife-fr-producer puttyknife-fincaraiz-consumer puttyknife-fincaraiz-elastic-producer prediction puttyknife-server streamlit-app",
             "docker builder prune -f",
         ],
     },
@@ -80,17 +95,19 @@ async def deploy(
 ):
     config = PROJECT_CONFIGS[req.project]
     workdir = config["workdir"]
-    commands = config["commands"]
+    commands = config["commands"](req.commit)
 
     env = os.environ.copy()
     env["GIT_SSH_COMMAND"] = "ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa"
 
     async with PROJECT_LOCKS[req.project]:
+        logger.info("deploy started project=%s commit=%s", req.project, req.commit)
         output: list[str] = []
         output.append(f"=== Deploying {req.project} (commit: {req.commit}) ===\n")
 
         for cmd in commands:
             output.append(f"\n$ {cmd}\n")
+            logger.info("running project=%s cmd=%r", req.project, cmd)
             try:
                 proc = await asyncio.create_subprocess_shell(
                     cmd,
@@ -103,6 +120,10 @@ async def deploy(
                 output.append(stdout.decode("utf-8", errors="replace"))
 
                 if proc.returncode != 0:
+                    logger.error(
+                        "command failed project=%s cmd=%r exit_code=%d",
+                        req.project, cmd, proc.returncode,
+                    )
                     output.append(
                         f"\n=== FAILED: '{cmd}' exited with code {proc.returncode} ===\n"
                     )
@@ -111,7 +132,10 @@ async def deploy(
                         status_code=500,
                         media_type="text/plain; charset=utf-8",
                     )
+
+                logger.info("command ok project=%s cmd=%r", req.project, cmd)
             except Exception as exc:
+                logger.exception("exception project=%s cmd=%r error=%s", req.project, cmd, exc)
                 output.append(f"\n=== ERROR running '{cmd}': {exc} ===\n")
                 return Response(
                     content="".join(output),
@@ -119,6 +143,7 @@ async def deploy(
                     media_type="text/plain; charset=utf-8",
                 )
 
+        logger.info("deploy succeeded project=%s commit=%s", req.project, req.commit)
         output.append(f"\n=== SUCCESS: {req.project} deployed ===\n")
         return Response(
             content="".join(output),

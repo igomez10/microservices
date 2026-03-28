@@ -1174,6 +1174,8 @@ services:
     restart: always
     cpus: 2
     mem_limit: 2g
+    ports:
+      - "8099:8099"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${MICROSERVICES_DIR:-/home/ubuntu/microservices}:${MICROSERVICES_DIR:-/home/ubuntu/microservices}
