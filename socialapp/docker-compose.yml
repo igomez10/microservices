@@ -665,6 +665,16 @@ services:
     container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
     restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kafkaui.rule=Host(`kafkaui.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.kafkaui.entrypoints=websecure"
+      - "traefik.http.routers.kafkaui.tls=true"
+      - "traefik.http.routers.kafkaui.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.kafkaui-http.rule=Host(`kafkaui.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.kafkaui-http.entrypoints=web"
+      - "traefik.http.routers.kafkaui-http.middlewares=https-redirect"
+      - "traefik.http.services.kafkaui.loadbalancer.server.port=8080"
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=broker1:9092,broker2:9092,broker3:9092
@@ -817,6 +827,16 @@ services:
     init: true
     container_name: unleash
     image: unleashorg/unleash-server:6
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.unleash.rule=Host(`unleash.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.unleash.entrypoints=websecure"
+      - "traefik.http.routers.unleash.tls=true"
+      - "traefik.http.routers.unleash.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.unleash-http.rule=Host(`unleash.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.unleash-http.entrypoints=web"
+      - "traefik.http.routers.unleash-http.middlewares=https-redirect"
+      - "traefik.http.services.unleash.loadbalancer.server.port=4242"
     ports:
       - "4242:4242"
     environment:
@@ -975,6 +995,16 @@ services:
   portainer:
     container_name: portainer
     image: portainer/portainer-ce:latest
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.portainer-http.rule=Host(`portainer.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.portainer-http.entrypoints=web"
+      - "traefik.http.routers.portainer-http.middlewares=https-redirect"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
     ports:
       - "9000:9000"
     volumes:
@@ -1142,8 +1172,8 @@ services:
       dockerfile: Dockerfile
     container_name: deployer
     restart: always
-    cpus: 0.5
-    mem_limit: 512m
+    cpus: 2
+    mem_limit: 2g
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${MICROSERVICES_DIR:-/home/ubuntu/microservices}:${MICROSERVICES_DIR:-/home/ubuntu/microservices}
