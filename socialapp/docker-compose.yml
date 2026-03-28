@@ -347,7 +347,7 @@ services:
     image: prom/prometheus:v2.50.1
     volumes:
       - ./prometheus/:/etc/prometheus/:ro
-      - prometheus_data:/prometheus
+      - ${PROMETHEUS_DATA_DIR:-prometheus_data}:/prometheus
     command:
       - "--storage.tsdb.retention.size=3GB"
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -872,7 +872,7 @@ services:
     command: ["-config.file=/etc/tempo.yaml"]
     volumes:
       - "./tempo/tempo.yaml:/etc/tempo.yaml"
-      - tempo_data:/var/tempo
+      - ${TEMPO_DATA_DIR:-tempo_data}:/var/tempo
     restart: unless-stopped
     cpus: 2
     mem_limit: 4096m
