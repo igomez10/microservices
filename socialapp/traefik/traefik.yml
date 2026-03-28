@@ -31,6 +31,16 @@ certificatesResolvers:
         # used during the challenge
         entryPoint: web
 
+  letsencrypt-dns:
+    acme:
+      email: u393vy+12c8gljgemypk@sharklasers.com
+      storage: /letsencrypt/acme-dns.json
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
+
 providers:
   docker:
     endpoint: "unix:///var/run/docker.sock"
