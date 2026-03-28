@@ -98,7 +98,7 @@ async def deploy(
     commands = config["commands"](req.commit)
 
     env = os.environ.copy()
-    env["GIT_SSH_COMMAND"] = "ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa"
+    env["GIT_SSH_COMMAND"] = "ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa -F /dev/null"
 
     async with PROJECT_LOCKS[req.project]:
         logger.info("deploy started project=%s commit=%s", req.project, req.commit)
