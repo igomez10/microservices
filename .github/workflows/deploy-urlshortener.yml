@@ -1,4 +1,4 @@
-name: URLShortener SSH and Docker Compose
+name: URLShortener Deploy
 
 on:
   push:
@@ -13,18 +13,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Set up SSH connection
-        uses: webfactory/ssh-agent@v0.5.2
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Make deploy
+      - name: Deploy
         env:
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_PORT: ${{ secrets.SSH_PORT }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
-          cd urlshortener
-          make deploy
+          curl --silent --show-error --fail-with-body --max-time 600 \
+            -X POST https://deployer.gomezignacio.com/deploy \
+            -H "Authorization: Bearer $DEPLOY_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"project\": \"urlshortener\", \"commit\": \"${{ github.sha }}\"}"

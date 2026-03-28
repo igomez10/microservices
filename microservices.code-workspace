@@ -4,9 +4,6 @@
 			"path": ".circleci"
 		},
 		{
-			"path": "bitcoinprice"
-		},
-		{
 			"path": "loadgenerator"
 		},
 		{
@@ -32,9 +29,6 @@
 		},
 		{
 			"path": "../microservices-docker-elk"
-		},
-		{
-			"path": "../clones-microservices"
 		}
 	],
 	"settings": {

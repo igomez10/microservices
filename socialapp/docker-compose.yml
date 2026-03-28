@@ -1135,3 +1135,46 @@ services:
         labels: "service_name"
         max-size: "10m"
         max-file: "3"
+
+  deployer:
+    build:
+      context: ../deployer
+      dockerfile: Dockerfile
+    container_name: deployer
+    restart: always
+    cpus: 0.5
+    mem_limit: 512m
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${MICROSERVICES_DIR:-/home/ubuntu/microservices}:${MICROSERVICES_DIR:-/home/ubuntu/microservices}
+      - ${PUTTYKNIFE_DIR:-/home/ubuntu/puttyknife}:${PUTTYKNIFE_DIR:-/home/ubuntu/puttyknife}
+      - ${HOME_DIR:-/home/ubuntu}/.ssh:/root/.ssh:ro
+      - ${HOME_DIR:-/home/ubuntu}/.gitconfig:/root/.gitconfig:ro
+    environment:
+      - MICROSERVICES_HOST_DIR=${MICROSERVICES_DIR:-/home/ubuntu/microservices}
+      - PUTTYKNIFE_HOST_DIR=${PUTTYKNIFE_DIR:-/home/ubuntu/puttyknife}
+    env_file:
+      - path: ../deployer/.env
+        required: false
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.deployer.rule=Host(`deployer.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.deployer.entrypoints=websecure"
+      - "traefik.http.routers.deployer.tls=true"
+      - "traefik.http.routers.deployer.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.deployer-http.rule=Host(`deployer.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.deployer-http.entrypoints=web"
+      - "traefik.http.routers.deployer-http.middlewares=https-redirect"
+      - "traefik.http.services.deployer.loadbalancer.server.port=8099"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
+        labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
