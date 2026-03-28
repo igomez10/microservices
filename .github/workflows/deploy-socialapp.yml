@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  ci:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,14 +32,16 @@ jobs:
           cd socialapp
           APP_HOST=$APP_HOST make test-ci
 
-      # - name: Run contract tests
-      #   run: ./scripts/run-contract-tests.sh
-
       - name: Run e2e tests
         run: |
           cd socialapp
           make test-e2e
 
+  deploy:
+    needs: ci
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Deploy
         env:
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
