@@ -39,8 +39,10 @@ PROJECT_CONFIGS: dict[str, dict] = {
         "workdir": f"{MICROSERVICES_HOST_DIR}/socialapp",
         "commands": lambda commit: [
             *_git_commands(commit),
-            "docker compose build socialapp frontend",
-            "docker compose up -d --no-deps socialapp frontend",
+            "docker compose build socialapp",
+            "docker compose up -d --no-deps socialapp",
+            "docker compose build frontend",
+            "docker compose up -d --no-deps frontend",
             "docker builder prune -f",
         ],
     },
@@ -58,8 +60,20 @@ PROJECT_CONFIGS: dict[str, dict] = {
         "workdir": PUTTYKNIFE_HOST_DIR,
         "commands": lambda commit: [
             *_git_commands(commit),
-            "docker compose build puttyknife-m2 puttyknife-fr-producer puttyknife-fincaraiz-consumer puttyknife-fincaraiz-elastic-producer prediction puttyknife-server streamlit-app",
-            "docker compose up -d --no-deps puttyknife-m2 puttyknife-fr-producer puttyknife-fincaraiz-consumer puttyknife-fincaraiz-elastic-producer prediction puttyknife-server streamlit-app",
+            "docker compose build puttyknife-m2",
+            "docker compose up -d --no-deps puttyknife-m2",
+            "docker compose build puttyknife-fr-producer",
+            "docker compose up -d --no-deps puttyknife-fr-producer",
+            "docker compose build puttyknife-fincaraiz-consumer",
+            "docker compose up -d --no-deps puttyknife-fincaraiz-consumer",
+            "docker compose build puttyknife-fincaraiz-elastic-producer",
+            "docker compose up -d --no-deps puttyknife-fincaraiz-elastic-producer",
+            "docker compose build prediction",
+            "docker compose up -d --no-deps prediction",
+            "docker compose build puttyknife-server",
+            "docker compose up -d --no-deps puttyknife-server",
+            "docker compose build streamlit-app",
+            "docker compose up -d --no-deps streamlit-app",
             "docker builder prune -f",
         ],
     },
@@ -116,7 +130,19 @@ async def deploy(
                     cwd=workdir,
                     env=env,
                 )
-                stdout, _ = await proc.communicate()
+                try:
+                    stdout, _ = await asyncio.wait_for(proc.communicate(), timeout=300)
+                except asyncio.TimeoutError:
+                    proc.kill()
+                    await proc.communicate()
+                    logger.error("command timed out project=%s cmd=%r", req.project, cmd)
+                    output.append(f"\n=== TIMEOUT: '{cmd}' exceeded 5 minutes ===\n")
+                    return Response(
+                        content="".join(output),
+                        status_code=500,
+                        media_type="text/plain; charset=utf-8",
+                    )
+
                 output.append(stdout.decode("utf-8", errors="replace"))
 
                 if proc.returncode != 0:
