@@ -295,6 +295,16 @@ services:
       - ./grafana/provisioning/:/etc/grafana/provisioning/
     env_file:
       - ./grafana/config.monitoring
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.routers.grafana.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.grafana-http.rule=Host(`grafana.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.grafana-http.entrypoints=web"
+      - "traefik.http.routers.grafana-http.middlewares=https-redirect"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     restart: always
     healthcheck:
       test:
@@ -1025,6 +1035,8 @@ services:
   traefik:
     container_name: traefik
     image: traefik:v3.6.4
+    environment:
+      - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     ports:
       - "80:80"
       - "443:443"
@@ -1068,7 +1080,7 @@ services:
       - "traefik.http.routers.whoamiinternal.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
       - "traefik.http.routers.whoamiinternal.entrypoints=websecure"
       - "traefik.http.routers.whoamiinternal.tls=true"
-      - "traefik.http.routers.whoamiinternal.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.whoamiinternal.tls.certresolver=letsencrypt-dns"
       # HTTP router with redirect
       - "traefik.http.routers.whoamiinternal-http.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
       - "traefik.http.routers.whoamiinternal-http.entrypoints=web"
