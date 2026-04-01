@@ -1166,6 +1166,72 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  vllm:
+    image: vllm/vllm-openai-cpu:latest-arm64
+    container_name: vllm
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+      - VLLM_CPU_OMP_THREADS_BIND=0,1,2,3
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
+        labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
+
+  chat:
+    container_name: lobe-chat
+    image: lobehub/lobe-chat
+    restart: always
+    ports:
+      - "3210:3210"
+    depends_on:
+      - vllm
+    environment:
+      - OPENAI_API_KEY=placeholder
+      - OPENAI_PROXY_URL=http://vllm:8000/v1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lobechat.rule=Host(`lobechat.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.lobechat.entrypoints=websecure"
+      - "traefik.http.routers.lobechat.tls=true"
+      - "traefik.http.routers.lobechat.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.lobechat-http.rule=Host(`lobechat.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.lobechat-http.entrypoints=web"
+      - "traefik.http.routers.lobechat-http.middlewares=https-redirect"
+      - "traefik.http.services.lobechat.loadbalancer.server.port=3210"
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
+        labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
+
   deployer:
     build:
       context: ../deployer
