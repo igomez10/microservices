@@ -1191,7 +1191,7 @@ services:
         max-file: "3"
 
   chat:
-    container_name: lobe-chat
+    container_name: chat
     image: lobehub/lobe-chat
     restart: always
     ports:
@@ -1203,14 +1203,14 @@ services:
       - OPENAI_PROXY_URL=http://vllm:8000/v1
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.lobechat.rule=Host(`lobechat.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.lobechat.entrypoints=websecure"
-      - "traefik.http.routers.lobechat.tls=true"
-      - "traefik.http.routers.lobechat.tls.certresolver=letsencrypt-dns"
-      - "traefik.http.routers.lobechat-http.rule=Host(`lobechat.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.lobechat-http.entrypoints=web"
-      - "traefik.http.routers.lobechat-http.middlewares=https-redirect"
-      - "traefik.http.services.lobechat.loadbalancer.server.port=3210"
+      - "traefik.http.routers.chat.rule=Host(`chat.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.chat.entrypoints=websecure"
+      - "traefik.http.routers.chat.tls=true"
+      - "traefik.http.routers.chat.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.chat-http.rule=Host(`chat.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.chat-http.entrypoints=web"
+      - "traefik.http.routers.chat-http.middlewares=https-redirect"
+      - "traefik.http.services.chat.loadbalancer.server.port=3210"
     deploy:
       resources:
         limits:
