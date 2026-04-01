@@ -1174,6 +1174,14 @@ services:
       - "8000:8000"
     volumes:
       - ~/.cache/huggingface:/root/.cache/huggingface
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
     environment:
       - HF_TOKEN=${HF_TOKEN}
       - VLLM_CPU_OMP_THREADS_BIND=0,1,2,3
