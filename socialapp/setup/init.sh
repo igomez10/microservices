@@ -12,7 +12,7 @@ curl -X POST "http://elasticsearch:9200/_security/role/logstash_writer" \
     ]
   }'
 
-# create role property_writer 
+# create role property_writer
 curl -X POST "http://elasticsearch:9200/_security/role/property_writer" \
   -H "Content-Type: application/json" \
   -u "elastic:${ELASTIC_PASSWORD}" \
