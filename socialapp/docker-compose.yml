@@ -1176,51 +1176,51 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  vllm:
-    image: vllm/vllm-openai-cpu:latest-arm64
-    container_name: vllm
-    restart: always
-    ports:
-      - "8000:8000"
-    volumes:
-      - ~/.cache/huggingface:/root/.cache/huggingface
-    deploy:
-      resources:
-        limits:
-          cpus: "2"
-          memory: 4G
-        reservations:
-          cpus: "0.5"
-          memory: 512M
-    command:
-      - "Qwen/Qwen3-0.6B"
-      - "--max-model-len=16384"
-    environment:
-      - HF_TOKEN=${HF_TOKEN}
-      - VLLM_CPU_OMP_THREADS_BIND=0-3
-      - VLLM_CPU_KVCACHE_SPACE=2
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.vllm.rule=Host(`vllm.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.vllm.entrypoints=websecure"
-      - "traefik.http.routers.vllm.tls=true"
-      - "traefik.http.routers.vllm.tls.certresolver=letsencrypt-dns"
-      - "traefik.http.routers.vllm-http.rule=Host(`vllm.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.vllm-http.entrypoints=web"
-      - "traefik.http.routers.vllm-http.middlewares=https-redirect"
-      - "traefik.http.services.vllm.loadbalancer.server.port=8000"
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "5000"
-        loki-retries: "3"
-        loki-max-backoff: "1000ms"
-        loki-timeout: "1000ms"
-        loki-batch-wait: "5s"
-        labels: "service_name"
-        max-size: "10m"
-        max-file: "3"
+  # vllm:
+  #   image: vllm/vllm-openai-cpu:latest-arm64
+  #   container_name: vllm
+  #   restart: always
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - ~/.cache/huggingface:/root/.cache/huggingface
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: "2"
+  #         memory: 4G
+  #       reservations:
+  #         cpus: "0.5"
+  #         memory: 512M
+  #   command:
+  #     - "Qwen/Qwen3-0.6B"
+  #     - "--max-model-len=16384"
+  #   environment:
+  #     - HF_TOKEN=${HF_TOKEN}
+  #     - VLLM_CPU_OMP_THREADS_BIND=0-3
+  #     - VLLM_CPU_KVCACHE_SPACE=2
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.vllm.rule=Host(`vllm.internal.${EXPOSED_HOST}`)"
+  #     - "traefik.http.routers.vllm.entrypoints=websecure"
+  #     - "traefik.http.routers.vllm.tls=true"
+  #     - "traefik.http.routers.vllm.tls.certresolver=letsencrypt-dns"
+  #     - "traefik.http.routers.vllm-http.rule=Host(`vllm.internal.${EXPOSED_HOST}`)"
+  #     - "traefik.http.routers.vllm-http.entrypoints=web"
+  #     - "traefik.http.routers.vllm-http.middlewares=https-redirect"
+  #     - "traefik.http.services.vllm.loadbalancer.server.port=8000"
+  #   logging:
+  #     driver: loki
+  #     options:
+  #       loki-url: "http://localhost:3100/loki/api/v1/push"
+  #       loki-batch-size: "5000"
+  #       loki-retries: "3"
+  #       loki-max-backoff: "1000ms"
+  #       loki-timeout: "1000ms"
+  #       loki-batch-wait: "5s"
+  #       labels: "service_name"
+  #       max-size: "10m"
+  #       max-file: "3"
 
   deployer:
     build:
