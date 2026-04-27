@@ -18,6 +18,8 @@ export const operations = [
   'getComment',
   'searchComments',
   'createComment',
+  'likeComment',
+  'unlikeComment',
   'getAccessToken',
   'listRoles',
   'createRole',
