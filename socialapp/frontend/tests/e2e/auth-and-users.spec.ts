@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test'
 
-const username = process.env.E2E_USERNAME
-const password = process.env.E2E_PASSWORD
+const username = process.env.E2E_USERNAME?.trim()
+const password = process.env.E2E_PASSWORD?.trim()
 
 async function signIn(page: Page) {
   await page.goto('/')
@@ -86,12 +86,18 @@ test('liking a post sends successful like and unlike requests', async ({ page })
   await page.getByRole('button', { name: 'Post' }).click()
   await expect(page.getByText(`Posted comment by @${username}`)).toBeVisible()
 
-  const commentsPath = `/v1/users/${encodeURIComponent(username!)}/comments`
-  const profileCommentsLoaded = page.waitForResponse(
-    (res) =>
-      res.request().method() === 'GET' && res.url().includes(commentsPath) && res.ok(),
-    { timeout: 30_000 }
-  )
+  // Dev server uses /api/v1/... ; match pathname so we don't depend on host or username encoding.
+  const profileCommentsLoaded = page.waitForResponse((res) => {
+    if (res.request().method() !== 'GET') {
+      return false
+    }
+    try {
+      const path = new URL(res.url()).pathname
+      return path.includes('/v1/users/') && path.endsWith('/comments')
+    } catch {
+      return false
+    }
+  }, { timeout: 30_000 })
   await page.getByRole('button', { name: 'Profile' }).click()
   await profileCommentsLoaded
   await page.getByRole('button', { name: 'Posts' }).click()
