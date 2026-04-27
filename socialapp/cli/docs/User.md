@@ -3,7 +3,7 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **integer** |  | [optional] [default to null]
+**id** | **string** |  | [optional] [default to null]
 **username** | **string** |  | [default to null]
 **firstUnderscorename** | **string** |  | [default to null]
 **lastUnderscorename** | **string** |  | [default to null]

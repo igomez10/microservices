@@ -1,16 +1,25 @@
 package converter
 
 import (
+	"strconv"
+
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
 
+// formatID renders an int64 database identifier as the JSON-string form used
+// on the API surface (see openapi.yaml — int64 fields are serialized as
+// strings to avoid precision loss in JS clients).
+func formatID(id int64) string {
+	return strconv.FormatInt(id, 10)
+}
+
 func FromDBCmtToAPICmt(comment db.Comment, user db.User) openapi.Comment {
 	cmnt := openapi.Comment{
-		Id:        comment.ID,
+		Id:        formatID(comment.ID),
 		Content:   comment.Content,
-		LikeCount: int64(comment.LikeCount),
+		LikeCount: formatID(comment.LikeCount),
 		CreatedAt: comment.CreatedAt.Time,
 		Username:  user.Username,
 	}
@@ -19,7 +28,7 @@ func FromDBCmtToAPICmt(comment db.Comment, user db.User) openapi.Comment {
 }
 func FromPGXDBRoleToAPIRole(dbRole dbpgx.Role) openapi.Role {
 	apiRole := openapi.Role{
-		Id:          dbRole.ID,
+		Id:          formatID(dbRole.ID),
 		Name:        dbRole.Name,
 		Description: dbRole.Description,
 		CreatedAt:   dbRole.CreatedAt.Time,
@@ -30,7 +39,7 @@ func FromPGXDBRoleToAPIRole(dbRole dbpgx.Role) openapi.Role {
 
 func FromDBRoleToAPIRole(dbRole db.Role) openapi.Role {
 	apiRole := openapi.Role{
-		Id:          dbRole.ID,
+		Id:          formatID(dbRole.ID),
 		Name:        dbRole.Name,
 		Description: dbRole.Description,
 		CreatedAt:   dbRole.CreatedAt.Time,
@@ -53,7 +62,7 @@ func FromDBUserToAPIUser(u db.User) openapi.User {
 
 func FromDBScopeToAPIScope(dbScope db.Scope) openapi.Scope {
 	apiScope := openapi.Scope{
-		Id:          dbScope.ID,
+		Id:          formatID(dbScope.ID),
 		Name:        dbScope.Name,
 		Description: dbScope.Description,
 		CreatedAt:   dbScope.CreatedAt.Time,

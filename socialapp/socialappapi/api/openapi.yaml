@@ -799,7 +799,8 @@ paths:
         required: true
         schema:
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         style: simple
       responses:
         "200":
@@ -933,6 +934,93 @@ paths:
       - OAuth2:
         - socialapp.comments.create
       summary: Create a new comment
+      tags:
+      - Comment
+  /like:
+    delete:
+      description: Remove a like from a comment as the authenticated user.
+      operationId: unlikeComment
+      requestBody:
+        content:
+          application/json:
+            example:
+              comment_id: 123
+            schema:
+              $ref: "#/components/schemas/LikeRequest"
+        description: Comment unlike request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+          description: Updated comment with the new like count
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Comment not found
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.comments.update
+      summary: Unlike a comment
+      tags:
+      - Comment
+    post:
+      description: Like a comment as the authenticated user.
+      operationId: likeComment
+      requestBody:
+        content:
+          application/json:
+            example:
+              comment_id: 123
+            schema:
+              $ref: "#/components/schemas/LikeRequest"
+        description: Comment like request
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+          description: Updated comment with the new like count
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unauthorized
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Comment not found
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unexpected error
+      security:
+      - OAuth2:
+        - socialapp.comments.update
+      summary: Like a comment
       tags:
       - Comment
   /v1/oauth/token:
@@ -1080,7 +1168,8 @@ paths:
         required: true
         schema:
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         style: simple
       responses:
         "200":
@@ -1115,7 +1204,8 @@ paths:
         required: true
         schema:
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         style: simple
       responses:
         "200":
@@ -1159,7 +1249,8 @@ paths:
         required: true
         schema:
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         style: simple
       requestBody:
         content:
@@ -1208,7 +1299,8 @@ paths:
         required: true
         schema:
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         style: simple
       - description: The numbers of scopes to return
         example: 20
@@ -1277,7 +1369,8 @@ paths:
         required: true
         schema:
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         style: simple
       requestBody:
         content:
@@ -1337,7 +1430,8 @@ paths:
         required: true
         schema:
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         style: simple
       - description: The id of the scope
         example: 123
@@ -1347,7 +1441,8 @@ paths:
         required: true
         schema:
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         style: simple
       responses:
         "204":
@@ -1493,7 +1588,8 @@ paths:
         required: true
         schema:
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         style: simple
       responses:
         "204":
@@ -1528,7 +1624,8 @@ paths:
         required: true
         schema:
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         style: simple
       responses:
         "200":
@@ -1572,7 +1669,8 @@ paths:
         required: true
         schema:
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         style: simple
       requestBody:
         content:
@@ -1787,7 +1885,8 @@ components:
         id:
           description: Unique user identifier.
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         username:
           description: Unique username for the account.
           type: string
@@ -1824,7 +1923,8 @@ components:
         id:
           description: Unique user identifier.
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         username:
           description: Unique username for the account.
           type: string
@@ -1856,14 +1956,16 @@ components:
         id:
           description: Unique comment identifier.
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         content:
           description: Comment text.
           type: string
         like_count:
           description: Number of likes for the comment.
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         created_at:
           description: Timestamp when the comment was created.
           format: date-time
@@ -1874,6 +1976,18 @@ components:
       required:
       - content
       - username
+    LikeRequest:
+      description: Like or unlike a comment.
+      example:
+        comment_id: 123
+      properties:
+        comment_id:
+          description: Unique identifier of the comment.
+          format: int64
+          pattern: ^-?\d+$
+          type: string
+      required:
+      - comment_id
     AccessToken:
       description: OAuth access token response.
       example:
@@ -1950,7 +2064,8 @@ components:
         id:
           description: Unique role identifier.
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         name:
           description: Unique role name.
           type: string
@@ -1973,7 +2088,8 @@ components:
         id:
           description: Unique scope identifier.
           format: int64
-          type: integer
+          pattern: ^-?\d+$
+          type: string
         name:
           description: "Scope name (for example, `socialapp.roles.read`)."
           type: string

@@ -78,7 +78,9 @@ Class | Method | HTTP request | Description
 *CommentAPI* | [**CreateComment**](docs/CommentAPI.md#createcomment) | **Post** /v1/comments | Create a new comment
 *CommentAPI* | [**GetComment**](docs/CommentAPI.md#getcomment) | **Get** /v1/comments/{id} | Get comment by ID
 *CommentAPI* | [**GetUserFeed**](docs/CommentAPI.md#getuserfeed) | **Get** /v1/feed | Get user feed
+*CommentAPI* | [**LikeComment**](docs/CommentAPI.md#likecomment) | **Post** /like | Like a comment
 *CommentAPI* | [**SearchComments**](docs/CommentAPI.md#searchcomments) | **Get** /v1/comments | Search comments
+*CommentAPI* | [**UnlikeComment**](docs/CommentAPI.md#unlikecomment) | **Delete** /like | Unlike a comment
 *FollowingAPI* | [**GetUserFollowers**](docs/FollowingAPI.md#getuserfollowers) | **Get** /v1/users/{username}/followers | Get all followers for a user
 *RoleAPI* | [**AddScopeToRole**](docs/RoleAPI.md#addscopetorole) | **Post** /v1/roles/{id}/scopes | Add a scope to a role
 *RoleAPI* | [**CreateRole**](docs/RoleAPI.md#createrole) | **Post** /v1/roles | Create a new role
@@ -122,6 +124,7 @@ Class | Method | HTTP request | Description
  - [CreateUserRequest](docs/CreateUserRequest.md)
  - [CreateUserResponse](docs/CreateUserResponse.md)
  - [Error](docs/Error.md)
+ - [LikeRequest](docs/LikeRequest.md)
  - [ResetPasswordRequest](docs/ResetPasswordRequest.md)
  - [Role](docs/Role.md)
  - [Scope](docs/Scope.md)

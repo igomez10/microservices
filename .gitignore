@@ -46,3 +46,6 @@ socialapp/logs/frontend-debug.log
 .gocache/README
 .gocache/trim.txt
 .gocache/*
+socialapp/.fuse_hidden0000000e00000001
+socialapp/logs/socialapp-debug.log
+socialapp/.fuse_hidden0000001000000002

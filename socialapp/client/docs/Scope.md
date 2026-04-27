@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Id** | Pointer to **int64** | Unique scope identifier. | [optional] 
+**Id** | Pointer to **string** | Unique scope identifier. | [optional] 
 **Name** | **string** | Scope name (for example, &#x60;socialapp.roles.read&#x60;). | 
 **Description** | **string** | Description of the permission granted by this scope. | 
 **CreatedAt** | Pointer to **time.Time** | Timestamp when the scope was created. | [optional] 
@@ -30,20 +30,20 @@ but it doesn't guarantee that properties required by API are set
 
 ### GetId
 
-`func (o *Scope) GetId() int64`
+`func (o *Scope) GetId() string`
 
 GetId returns the Id field if non-nil, zero value otherwise.
 
 ### GetIdOk
 
-`func (o *Scope) GetIdOk() (*int64, bool)`
+`func (o *Scope) GetIdOk() (*string, bool)`
 
 GetIdOk returns a tuple with the Id field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetId
 
-`func (o *Scope) SetId(v int64)`
+`func (o *Scope) SetId(v string)`
 
 SetId sets Id field to given value.
 

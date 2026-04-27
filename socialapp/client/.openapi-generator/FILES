@@ -21,6 +21,7 @@ docs/CreateUserRequest.md
 docs/CreateUserResponse.md
 docs/Error.md
 docs/FollowingAPI.md
+docs/LikeRequest.md
 docs/ResetPasswordRequest.md
 docs/Role.md
 docs/RoleAPI.md
@@ -39,6 +40,7 @@ model_comment.go
 model_create_user_request.go
 model_create_user_response.go
 model_error.go
+model_like_request.go
 model_reset_password_request.go
 model_role.go
 model_scope.go

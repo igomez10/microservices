@@ -73,7 +73,9 @@ _socialapp-cli()
     operations["createComment"]=1
     operations["getComment"]=1
     operations["getUserFeed"]=1
+    operations["likeComment"]=1
     operations["searchComments"]=1
+    operations["unlikeComment"]=1
     operations["getUserFollowers"]=1
     operations["addScopeToRole"]=1
     operations["createRole"]=1
@@ -115,7 +117,9 @@ _socialapp-cli()
     operation_parameters["createComment"]=""
     operation_parameters["getComment"]="id= "
     operation_parameters["getUserFeed"]=""
+    operation_parameters["likeComment"]=""
     operation_parameters["searchComments"]="username= start_time= end_time= "
+    operation_parameters["unlikeComment"]=""
     operation_parameters["getUserFollowers"]="username= "
     operation_parameters["addScopeToRole"]="id= "
     operation_parameters["createRole"]=""

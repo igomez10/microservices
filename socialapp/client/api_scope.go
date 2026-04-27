@@ -157,7 +157,7 @@ func (a *ScopeAPIService) CreateScopeExecute(r ScopeAPICreateScopeRequest) (*Sco
 type ScopeAPIDeleteScopeRequest struct {
 	ctx        context.Context
 	ApiService *ScopeAPIService
-	id         int64
+	id         string
 }
 
 func (r ScopeAPIDeleteScopeRequest) Execute() (*http.Response, error) {
@@ -173,7 +173,7 @@ Delete a scope
 	@param id id of the scope
 	@return ScopeAPIDeleteScopeRequest
 */
-func (a *ScopeAPIService) DeleteScope(ctx context.Context, id int64) ScopeAPIDeleteScopeRequest {
+func (a *ScopeAPIService) DeleteScope(ctx context.Context, id string) ScopeAPIDeleteScopeRequest {
 	return ScopeAPIDeleteScopeRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -268,7 +268,7 @@ func (a *ScopeAPIService) DeleteScopeExecute(r ScopeAPIDeleteScopeRequest) (*htt
 type ScopeAPIGetScopeRequest struct {
 	ctx        context.Context
 	ApiService *ScopeAPIService
-	id         int64
+	id         string
 }
 
 func (r ScopeAPIGetScopeRequest) Execute() (*Scope, *http.Response, error) {
@@ -284,7 +284,7 @@ Get a scope by ID.
 	@param id The id of the scope
 	@return ScopeAPIGetScopeRequest
 */
-func (a *ScopeAPIService) GetScope(ctx context.Context, id int64) ScopeAPIGetScopeRequest {
+func (a *ScopeAPIService) GetScope(ctx context.Context, id string) ScopeAPIGetScopeRequest {
 	return ScopeAPIGetScopeRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -534,7 +534,7 @@ func (a *ScopeAPIService) ListScopesExecute(r ScopeAPIListScopesRequest) ([]Scop
 type ScopeAPIUpdateScopeRequest struct {
 	ctx        context.Context
 	ApiService *ScopeAPIService
-	id         int64
+	id         string
 	scope      *Scope
 }
 
@@ -557,7 +557,7 @@ Update a scope by ID.
 	@param id id of the scope
 	@return ScopeAPIUpdateScopeRequest
 */
-func (a *ScopeAPIService) UpdateScope(ctx context.Context, id int64) ScopeAPIUpdateScopeRequest {
+func (a *ScopeAPIService) UpdateScope(ctx context.Context, id string) ScopeAPIUpdateScopeRequest {
 	return ScopeAPIUpdateScopeRequest{
 		ApiService: a,
 		ctx:        ctx,

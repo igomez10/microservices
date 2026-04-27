@@ -19,7 +19,7 @@ import (
 type Scope struct {
 
 	// Unique scope identifier.
-	Id int64 `json:"id,omitempty"`
+	Id string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
 
 	// Scope name (for example, `socialapp.roles.read`).
 	Name string `json:"name"`

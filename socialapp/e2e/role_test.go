@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"testing"
 	"time"
 
@@ -155,7 +156,7 @@ func TestGetRole_Success(t *testing.T) {
 	require.NoError(t, err)
 
 	// Now get the role by ID
-	getURL := fmt.Sprintf("%s/v1/roles/%d", env.BaseURL, createdRole.Id)
+	getURL := fmt.Sprintf("%s/v1/roles/%s", env.BaseURL, createdRole.Id)
 	getResp := makeAuthenticatedRequest(t, http.MethodGet, getURL, token, nil)
 	defer getResp.Body.Close()
 
@@ -269,7 +270,7 @@ func TestUpdateRole_Success(t *testing.T) {
 	updateBody, err := json.Marshal(updateRoleReq)
 	require.NoError(t, err)
 
-	updateURL := fmt.Sprintf("%s/v1/roles/%d", env.BaseURL, createdRole.Id)
+	updateURL := fmt.Sprintf("%s/v1/roles/%s", env.BaseURL, createdRole.Id)
 	updateResp := makeAuthenticatedRequest(t, http.MethodPut, updateURL, token, updateBody)
 	defer updateResp.Body.Close()
 
@@ -319,7 +320,7 @@ func TestDeleteRole_Success(t *testing.T) {
 	require.NoError(t, err)
 
 	// Delete the role
-	deleteURL := fmt.Sprintf("%s/v1/roles/%d", env.BaseURL, createdRole.Id)
+	deleteURL := fmt.Sprintf("%s/v1/roles/%s", env.BaseURL, createdRole.Id)
 	deleteResp := makeAuthenticatedRequest(t, http.MethodDelete, deleteURL, token, nil)
 	defer deleteResp.Body.Close()
 
@@ -401,6 +402,9 @@ func TestCreateRole_SnowflakeIDReturned(t *testing.T) {
 	err = json.Unmarshal(respBody, &createdRole)
 	require.NoError(t, err)
 
-	// Verify the ID is a valid positive int64 (snowflake IDs are positive)
-	assert.True(t, createdRole.Id > 0, "Role ID should be positive, got %d", createdRole.Id)
+	// Verify the ID is a valid positive int64 (snowflake IDs are positive).
+	// Role.Id is serialized as a JSON string (see openapi.yaml) — parse to int64 to compare.
+	roleID, parseErr := strconv.ParseInt(createdRole.Id, 10, 64)
+	require.NoError(t, parseErr, "Role ID should be numeric, got %q", createdRole.Id)
+	assert.True(t, roleID > 0, "Role ID should be positive, got %d", roleID)
 }

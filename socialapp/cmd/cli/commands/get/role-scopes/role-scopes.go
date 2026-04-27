@@ -55,8 +55,7 @@ func GetCmd() *cli.Command {
 			}
 
 			roleIDStr := cmd.Args().Get(0)
-			roleID, err := strconv.ParseInt(roleIDStr, 10, 32)
-			if err != nil {
+			if _, err := strconv.ParseInt(roleIDStr, 10, 32); err != nil {
 				return fmt.Errorf("invalid role ID: %v", err)
 			}
 
@@ -90,7 +89,7 @@ func GetCmd() *cli.Command {
 
 			apiClient := client.NewAPIClient(cfg)
 
-			scopes, httpResponse, err := apiClient.RoleAPI.ListScopesForRole(ctx, roleID).Limit(limit).Offset(offset).Execute()
+			scopes, httpResponse, err := apiClient.RoleAPI.ListScopesForRole(ctx, roleIDStr).Limit(limit).Offset(offset).Execute()
 			if err != nil {
 				if httpResponse != nil && httpResponse.Body != nil {
 					bodyBytes, _ := io.ReadAll(httpResponse.Body)

@@ -26,7 +26,7 @@ Add a scope to a role
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **id** | **Long**| The id of the role | [default to null] |
+| **id** | **String**| The id of the role | [default to null] |
 | **request\_body** | [**List**](../Models/string.md)| Add a scope to a role | |
 
 ### Return type
@@ -81,7 +81,7 @@ Delete a role
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **id** | **Long**| id of the role | [default to null] |
+| **id** | **String**| id of the role | [default to null] |
 
 ### Return type
 
@@ -108,7 +108,7 @@ Get role by ID
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **id** | **Long**| The id of the role | [default to null] |
+| **id** | **String**| The id of the role | [default to null] |
 
 ### Return type
 
@@ -163,7 +163,7 @@ List role scopes
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **id** | **Long**| The id of the role | [default to null] |
+| **id** | **String**| The id of the role | [default to null] |
 | **limit** | **Integer**| The numbers of scopes to return | [optional] [default to 20] |
 | **offset** | **Integer**| The number of items to skip before starting to collect the result | [optional] [default to null] |
 
@@ -192,8 +192,8 @@ Remove a scope from a role
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **role\_id** | **Long**| The id of the role | [default to null] |
-| **scope\_id** | **Long**| The id of the scope | [default to null] |
+| **role\_id** | **String**| The id of the role | [default to null] |
+| **scope\_id** | **String**| The id of the scope | [default to null] |
 
 ### Return type
 
@@ -220,7 +220,7 @@ Update a role
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **id** | **Long**| id of the role | [default to null] |
+| **id** | **String**| id of the role | [default to null] |
 | **Role** | [**Role**](../Models/Role.md)| Update a role | [optional] |
 
 ### Return type

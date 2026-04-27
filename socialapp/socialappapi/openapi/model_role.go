@@ -19,7 +19,7 @@ import (
 type Role struct {
 
 	// Unique role identifier.
-	Id int64 `json:"id,omitempty"`
+	Id string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
 
 	// Unique role name.
 	Name string `json:"name"`

@@ -201,12 +201,9 @@ func (c *ScopeAPIController) CreateScope(w http.ResponseWriter, r *http.Request)
 
 // GetScope - Get scope by ID
 func (c *ScopeAPIController) GetScope(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseNumericParameter[int64](
-		chi.URLParam(r, "id"),
-		WithRequire[int64](parseInt64),
-	)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		c.errorHandler(w, r, &RequiredError{"id"}, nil)
 		return
 	}
 	result, err := c.service.GetScope(r.Context(), idParam)
@@ -221,12 +218,9 @@ func (c *ScopeAPIController) GetScope(w http.ResponseWriter, r *http.Request) {
 
 // UpdateScope - Update a scope
 func (c *ScopeAPIController) UpdateScope(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseNumericParameter[int64](
-		chi.URLParam(r, "id"),
-		WithRequire[int64](parseInt64),
-	)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		c.errorHandler(w, r, &RequiredError{"id"}, nil)
 		return
 	}
 	var scopeParam Scope
@@ -256,12 +250,9 @@ func (c *ScopeAPIController) UpdateScope(w http.ResponseWriter, r *http.Request)
 
 // DeleteScope - Delete a scope
 func (c *ScopeAPIController) DeleteScope(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseNumericParameter[int64](
-		chi.URLParam(r, "id"),
-		WithRequire[int64](parseInt64),
-	)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		c.errorHandler(w, r, &RequiredError{"id"}, nil)
 		return
 	}
 	result, err := c.service.DeleteScope(r.Context(), idParam)

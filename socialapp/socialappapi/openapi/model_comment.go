@@ -19,13 +19,13 @@ import (
 type Comment struct {
 
 	// Unique comment identifier.
-	Id int64 `json:"id,omitempty"`
+	Id string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
 
 	// Comment text.
 	Content string `json:"content"`
 
 	// Number of likes for the comment.
-	LikeCount int64 `json:"like_count,omitempty"`
+	LikeCount string `json:"like_count,omitempty" validate:"regexp=^-?\\\\d+$"`
 
 	// Timestamp when the comment was created.
 	CreatedAt time.Time `json:"created_at,omitempty"`

@@ -7,7 +7,9 @@ Method | HTTP request | Description
 [**createComment**](CommentApi.md#createComment) | **POST** /v1/comments | Create a new comment
 [**getComment**](CommentApi.md#getComment) | **GET** /v1/comments/{id} | Get comment by ID
 [**getUserFeed**](CommentApi.md#getUserFeed) | **GET** /v1/feed | Get user feed
+[**likeComment**](CommentApi.md#likeComment) | **POST** /like | Like a comment
 [**searchComments**](CommentApi.md#searchComments) | **GET** /v1/comments | Search comments
+[**unlikeComment**](CommentApi.md#unlikeComment) | **DELETE** /like | Unlike a comment
 
 
 
@@ -63,7 +65,7 @@ socialapp-cli getComment id=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **integer** | ID of the comment | [default to null]
+ **id** | **string** | ID of the comment | [default to null]
 
 ### Return type
 
@@ -113,6 +115,41 @@ This endpoint does not need any parameter.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 
+## likeComment
+
+Like a comment
+
+Like a comment as the authenticated user.
+
+### Example
+
+```bash
+socialapp-cli likeComment
+```
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **likeRequest** | [**LikeRequest**](LikeRequest.md) | Comment like request |
+
+### Return type
+
+[**Comment**](Comment.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+
 ## searchComments
 
 Search comments
@@ -145,6 +182,41 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
 - **Content-Type**: Not Applicable
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+
+## unlikeComment
+
+Unlike a comment
+
+Remove a like from a comment as the authenticated user.
+
+### Example
+
+```bash
+socialapp-cli unlikeComment
+```
+
+### Parameters
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **likeRequest** | [**LikeRequest**](LikeRequest.md) | Comment unlike request |
+
+### Return type
+
+[**Comment**](Comment.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)

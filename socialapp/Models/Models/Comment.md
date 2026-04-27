@@ -3,9 +3,9 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-| **id** | **Long** | Unique comment identifier. | [optional] [default to null] |
+| **id** | **String** | Unique comment identifier. | [optional] [default to null] |
 | **content** | **String** | Comment text. | [default to null] |
-| **like\_count** | **Long** | Number of likes for the comment. | [optional] [default to null] |
+| **like\_count** | **String** | Number of likes for the comment. | [optional] [default to null] |
 | **created\_at** | **Date** | Timestamp when the comment was created. | [optional] [default to null] |
 | **username** | **String** | Username of the comment author. | [default to null] |
 

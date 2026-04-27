@@ -125,10 +125,11 @@ compose-up:
 start-dev-server:
 	reflex -r .go -s --decoration="fancy" --  go run ./...
 
+# Loads .env_vscode_debug (not .env) so host-side URL shortener and IDE debug settings stay in one place.
 start-dev-server-debug:
 	mkdir -p logs
 	reflex -r .go -s --decoration="fancy" -- sh -c '\
-		if [ -f ./.env ]; then set -a; . ./.env; set +a; fi; \
+		if [ -f ./.env_vscode_debug ]; then set -a; . ./.env_vscode_debug; set +a; fi; \
 		PORT=$${PORT:-8085} \
 		LOG_LEVEL=$${LOG_LEVEL:-debug} \
 		DATABASE_URL=$${DATABASE_URL:-postgres://postgres:password@localhost:5432/socialapp?sslmode=disable} \
@@ -138,6 +139,7 @@ start-dev-server-debug:
 		PROPERTIES_SUBDOMAIN=$${PROPERTIES_SUBDOMAIN:-http://properties.localhost} \
 		PUTTYKNIFE_URL=$${PUTTYKNIFE_URL:-http://localhost:8096} \
 		PUTTYKNIFE_DOMAIN=$${PUTTYKNIFE_DOMAIN:-puttyknife-server.localhost} \
+		URL_SHORTENER=$${URL_SHORTENER:-http://localhost:8089} \
 		URLSHORTENER_URL=$${URLSHORTENER_URL:-http://localhost:8089} \
 		URLSHORTENER_SUBDOMAIN=$${URLSHORTENER_SUBDOMAIN:-http://localhost:8089} \
 		SOCIALAPP_SUBDOMAIN=$${SOCIALAPP_SUBDOMAIN:-http://localhost:$${PORT:-8085}} \
@@ -154,9 +156,13 @@ build:
 test-unit:
 	go test $$(go list ./... | grep -v -E '/(e2e|integration_tests|contracts|pkg/controller/url)$$')
 
-# Run integration tests
+# Run integration tests (requires a running API; default APP_HOST matches start-dev-server-debug PORT)
 test-integration:
-	go test -v ./integration_tests/... -timeout 300s
+	APP_HOST=$${APP_HOST:-http://localhost:8085} go test -v ./integration_tests/... -timeout 300s
+
+# Run integration tests against local server
+test-integration-local:
+	APP_HOST=http://localhost:8085 go test -v ./integration_tests/... -timeout 300s
 
 # Run end-to-end tests
 test-e2e:

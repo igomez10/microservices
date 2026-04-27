@@ -37,6 +37,24 @@ CREATE INDEX IF NOT EXISTS comments_deleted_at_idx ON comments (deleted_at);
 CREATE INDEX IF NOT EXISTS comments_created_at_idx ON comments (created_at);
 CREATE INDEX IF NOT EXISTS comments_user_id_created_at_idx ON comments (user_id, created_at DESC);
 
+CREATE SEQUENCE IF NOT EXISTS likes_id_seq;
+CREATE TABLE IF NOT EXISTS likes (
+    id BIGINT NOT NULL PRIMARY KEY DEFAULT nextval('likes_id_seq'::regclass),
+    user_id BIGINT NOT NULL,
+    comment_id BIGINT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP NULL,
+    CONSTRAINT likes_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT likes_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES comments(id)
+);
+CREATE INDEX IF NOT EXISTS likes_user_id_idx ON likes (user_id);
+CREATE INDEX IF NOT EXISTS likes_comment_id_idx ON likes (comment_id);
+CREATE INDEX IF NOT EXISTS likes_deleted_at_idx ON likes (deleted_at);
+CREATE INDEX IF NOT EXISTS likes_comment_id_deleted_at_idx ON likes (comment_id, deleted_at);
+CREATE UNIQUE INDEX IF NOT EXISTS likes_user_id_comment_id_active_uidx
+ON likes (user_id, comment_id)
+WHERE deleted_at IS NULL;
+
 CREATE SEQUENCE IF NOT EXISTS followers_id_seq;
 CREATE TABLE IF NOT EXISTS followers (
     id BIGINT NOT NULL DEFAULT nextval('followers_id_seq'::regclass) PRIMARY KEY,

@@ -32,7 +32,7 @@ socialapp-cli addScopeToRole id=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **integer** | The id of the role | [default to null]
+ **id** | **string** | The id of the role | [default to null]
  **requestBody** | [**array[string]**](string.md) | Add a scope to a role |
 
 ### Return type
@@ -103,7 +103,7 @@ socialapp-cli deleteRole id=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **integer** | id of the role | [default to null]
+ **id** | **string** | id of the role | [default to null]
 
 ### Return type
 
@@ -138,7 +138,7 @@ socialapp-cli getRole id=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **integer** | The id of the role | [default to null]
+ **id** | **string** | The id of the role | [default to null]
 
 ### Return type
 
@@ -209,7 +209,7 @@ socialapp-cli listScopesForRole id=value  limit=value  offset=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **integer** | The id of the role | [default to null]
+ **id** | **string** | The id of the role | [default to null]
  **limit** | **integer** | The numbers of scopes to return | [optional] [default to 20]
  **offset** | **integer** | The number of items to skip before starting to collect the result | [optional] [default to null]
 
@@ -246,8 +246,8 @@ socialapp-cli removeScopeFromRole role_id=value scope_id=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **roleId** | **integer** | The id of the role | [default to null]
- **scopeId** | **integer** | The id of the scope | [default to null]
+ **roleId** | **string** | The id of the role | [default to null]
+ **scopeId** | **string** | The id of the scope | [default to null]
 
 ### Return type
 
@@ -282,7 +282,7 @@ socialapp-cli updateRole id=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **integer** | id of the role | [default to null]
+ **id** | **string** | id of the role | [default to null]
  **role** | [**Role**](Role.md) | Update a role | [optional]
 
 ### Return type

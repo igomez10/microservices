@@ -19,7 +19,7 @@ func (s *CommentMock) CreateComment(_ context.Context, _ openapi.Comment) (opena
 	return s.responseToReturn, s.errorToReturn
 }
 
-func (s *CommentMock) GetComment(_ context.Context, _ int64) (openapi.ImplResponse, error) {
+func (s *CommentMock) GetComment(_ context.Context, _ string) (openapi.ImplResponse, error) {
 	s.counter++
 	return s.responseToReturn, s.errorToReturn
 }
@@ -30,6 +30,16 @@ func (s *CommentMock) SearchComments(_ context.Context, _ string, _ time.Time, _
 }
 
 func (s *CommentMock) GetUserFeed(_ context.Context) (openapi.ImplResponse, error) {
+	s.counter++
+	return s.responseToReturn, s.errorToReturn
+}
+
+func (s *CommentMock) LikeComment(_ context.Context, _ openapi.LikeRequest) (openapi.ImplResponse, error) {
+	s.counter++
+	return s.responseToReturn, s.errorToReturn
+}
+
+func (s *CommentMock) UnlikeComment(_ context.Context, _ openapi.LikeRequest) (openapi.ImplResponse, error) {
 	s.counter++
 	return s.responseToReturn, s.errorToReturn
 }

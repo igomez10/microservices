@@ -272,6 +272,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/like": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Like a comment
+         * @description Like a comment as the authenticated user.
+         */
+        post: operations["likeComment"];
+        /**
+         * Unlike a comment
+         * @description Remove a like from a comment as the authenticated user.
+         */
+        delete: operations["unlikeComment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/oauth/token": {
         parameters: {
             query?: never;
@@ -549,7 +573,7 @@ export interface components {
              * Format: int64
              * @description Unique user identifier.
              */
-            id: number;
+            id: string;
             /** @description Unique username for the account. */
             username: string;
             /** @description User first name. */
@@ -582,7 +606,7 @@ export interface components {
              * Format: int64
              * @description Unique user identifier.
              */
-            id?: number;
+            id?: string;
             /** @description Unique username for the account. */
             username: string;
             /** @description User first name. */
@@ -612,14 +636,14 @@ export interface components {
              * Format: int64
              * @description Unique comment identifier.
              */
-            id?: number;
+            id?: string;
             /** @description Comment text. */
             content: string;
             /**
              * Format: int64
              * @description Number of likes for the comment.
              */
-            like_count?: number;
+            like_count?: string;
             /**
              * Format: date-time
              * @description Timestamp when the comment was created.
@@ -627,6 +651,19 @@ export interface components {
             created_at?: string;
             /** @description Username of the comment author. */
             username: string;
+        };
+        /**
+         * @description Like or unlike a comment.
+         * @example {
+         *       "comment_id": 123
+         *     }
+         */
+        LikeRequest: {
+            /**
+             * Format: int64
+             * @description Unique identifier of the comment.
+             */
+            comment_id: string;
         };
         /**
          * @description OAuth access token response.
@@ -700,7 +737,7 @@ export interface components {
              * Format: int64
              * @description Unique role identifier.
              */
-            id?: number;
+            id?: string;
             /** @description Unique role name. */
             name: string;
             /** @description Description of what the role grants. */
@@ -724,7 +761,7 @@ export interface components {
              * Format: int64
              * @description Unique scope identifier.
              */
-            id?: number;
+            id?: string;
             /** @description Scope name (for example, `socialapp.roles.read`). */
             name: string;
             /** @description Description of the permission granted by this scope. */
@@ -1638,7 +1675,7 @@ export interface operations {
                  * @description ID of the comment
                  * @example 123
                  */
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -1760,6 +1797,120 @@ export interface operations {
             };
             /** @description Unauthorized */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    likeComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Comment like request */
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "comment_id": 123
+                 *     }
+                 */
+                "application/json": components["schemas"]["LikeRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated comment with the new like count */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Comment"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Comment not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    unlikeComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Comment unlike request */
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "comment_id": 123
+                 *     }
+                 */
+                "application/json": components["schemas"]["LikeRequest"];
+            };
+        };
+        responses: {
+            /** @description Updated comment with the new like count */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Comment"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Comment not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1943,7 +2094,7 @@ export interface operations {
                  * @description The id of the role
                  * @example 123
                  */
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -1995,7 +2146,7 @@ export interface operations {
                  * @description id of the role
                  * @example 123
                  */
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2050,7 +2201,7 @@ export interface operations {
                  * @description id of the role
                  * @example 123
                  */
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2103,7 +2254,7 @@ export interface operations {
                  * @description The id of the role
                  * @example 123
                  */
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2157,7 +2308,7 @@ export interface operations {
                  * @description The id of the role
                  * @example 123
                  */
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2228,12 +2379,12 @@ export interface operations {
                  * @description The id of the role
                  * @example 123
                  */
-                role_id: number;
+                role_id: string;
                 /**
                  * @description The id of the scope
                  * @example 123
                  */
-                scope_id: number;
+                scope_id: string;
             };
             cookie?: never;
         };
@@ -2401,7 +2552,7 @@ export interface operations {
                  * @description The id of the scope
                  * @example 123
                  */
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2453,7 +2604,7 @@ export interface operations {
                  * @description id of the scope
                  * @example 123
                  */
-                id: number;
+                id: string;
             };
             cookie?: never;
         };
@@ -2508,7 +2659,7 @@ export interface operations {
                  * @description id of the scope
                  * @example 123
                  */
-                id: number;
+                id: string;
             };
             cookie?: never;
         };

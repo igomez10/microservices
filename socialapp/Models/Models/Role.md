@@ -3,7 +3,7 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-| **id** | **Long** | Unique role identifier. | [optional] [default to null] |
+| **id** | **String** | Unique role identifier. | [optional] [default to null] |
 | **name** | **String** | Unique role name. | [default to null] |
 | **description** | **String** | Description of what the role grants. | [optional] [default to null] |
 | **created\_at** | **Date** | Timestamp when the role was created. | [optional] [default to null] |

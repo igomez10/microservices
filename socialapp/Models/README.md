@@ -11,7 +11,9 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 | *CommentApi* | [**createComment**](Apis/CommentApi.md#createComment) | **POST** /v1/comments | Create a new comment |
 *CommentApi* | [**getComment**](Apis/CommentApi.md#getComment) | **GET** /v1/comments/{id} | Get comment by ID |
 *CommentApi* | [**getUserFeed**](Apis/CommentApi.md#getUserFeed) | **GET** /v1/feed | Get user feed |
+*CommentApi* | [**likeComment**](Apis/CommentApi.md#likeComment) | **POST** /like | Like a comment |
 *CommentApi* | [**searchComments**](Apis/CommentApi.md#searchComments) | **GET** /v1/comments | Search comments |
+*CommentApi* | [**unlikeComment**](Apis/CommentApi.md#unlikeComment) | **DELETE** /like | Unlike a comment |
 | *FollowingApi* | [**getUserFollowers**](Apis/FollowingApi.md#getUserFollowers) | **GET** /v1/users/{username}/followers | Get all followers for a user |
 | *RoleApi* | [**addScopeToRole**](Apis/RoleApi.md#addScopeToRole) | **POST** /v1/roles/{id}/scopes | Add a scope to a role |
 *RoleApi* | [**createRole**](Apis/RoleApi.md#createRole) | **POST** /v1/roles | Create a new role |
@@ -56,6 +58,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
  - [CreateUserRequest](./Models/CreateUserRequest.md)
  - [CreateUserResponse](./Models/CreateUserResponse.md)
  - [Error](./Models/Error.md)
+ - [LikeRequest](./Models/LikeRequest.md)
  - [ResetPasswordRequest](./Models/ResetPasswordRequest.md)
  - [Role](./Models/Role.md)
  - [Scope](./Models/Scope.md)

@@ -33,7 +33,7 @@ func TestUserAPI_CreateUserContract(t *testing.T) {
 		responseBuilder: func(r *consumer.V2ResponseBuilder) {
 			r.Header("Content-Type", matchers.String("application/json"))
 			r.JSONBody(matchers.StructMatcher{
-				"id":         matchers.Identifier(),
+				"id":         matchers.Regex("123", "^-?\\d+$"),
 				"username":   matchers.String("pact-user"),
 				"first_name": matchers.String("Pact"),
 				"last_name":  matchers.String("Tester"),
@@ -62,7 +62,7 @@ func TestCommentAPI_CreateCommentContract(t *testing.T) {
 		responseBuilder: func(r *consumer.V2ResponseBuilder) {
 			r.Header("Content-Type", matchers.String("application/json"))
 			r.JSONBody(matchers.StructMatcher{
-				"id":         matchers.Identifier(),
+				"id":         matchers.Regex("123", "^-?\\d+$"),
 				"username":   matchers.String("pact-user"),
 				"content":    matchers.String("Hello from Pact"),
 				"created_at": matchers.Timestamp(),
@@ -87,7 +87,7 @@ func TestCommentAPI_SearchCommentsContract(t *testing.T) {
 		responseBuilder: func(r *consumer.V2ResponseBuilder) {
 			r.Header("Content-Type", matchers.String("application/json"))
 			r.JSONBody(matchers.EachLike(matchers.StructMatcher{
-				"id":         matchers.Identifier(),
+				"id":         matchers.Regex("123", "^-?\\d+$"),
 				"username":   matchers.String("pact-user"),
 				"content":    matchers.String("Hello from Pact"),
 				"created_at": matchers.Timestamp(),
@@ -114,7 +114,7 @@ func TestScopeAPI_CreateScopeContract(t *testing.T) {
 		responseBuilder: func(r *consumer.V2ResponseBuilder) {
 			r.Header("Content-Type", matchers.String("application/json"))
 			r.JSONBody(matchers.StructMatcher{
-				"id":          matchers.Identifier(),
+				"id":          matchers.Regex("123", "^-?\\d+$"),
 				"name":        matchers.String("socialapp.read"),
 				"description": matchers.String("Read data from Socialapp"),
 				"created_at":  matchers.Timestamp(),

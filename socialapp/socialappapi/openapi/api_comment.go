@@ -77,6 +77,18 @@ func (c *CommentAPIController) Routes() Routes {
 			"/v1/comments",
 			c.CreateComment,
 		},
+		"LikeComment": Route{
+			"LikeComment",
+			strings.ToUpper("Post"),
+			"/like",
+			c.LikeComment,
+		},
+		"UnlikeComment": Route{
+			"UnlikeComment",
+			strings.ToUpper("Delete"),
+			"/like",
+			c.UnlikeComment,
+		},
 	}
 }
 
@@ -107,6 +119,18 @@ func (c *CommentAPIController) OrderedRoutes() []Route {
 			"/v1/comments",
 			c.CreateComment,
 		},
+		Route{
+			"LikeComment",
+			strings.ToUpper("Post"),
+			"/like",
+			c.LikeComment,
+		},
+		Route{
+			"UnlikeComment",
+			strings.ToUpper("Delete"),
+			"/like",
+			c.UnlikeComment,
+		},
 	}
 }
 
@@ -124,12 +148,9 @@ func (c *CommentAPIController) GetUserFeed(w http.ResponseWriter, r *http.Reques
 
 // GetComment - Get comment by ID
 func (c *CommentAPIController) GetComment(w http.ResponseWriter, r *http.Request) {
-	idParam, err := parseNumericParameter[int64](
-		chi.URLParam(r, "id"),
-		WithRequire[int64](parseInt64),
-	)
-	if err != nil {
-		c.errorHandler(w, r, &ParsingError{Param: "id", Err: err}, nil)
+	idParam := chi.URLParam(r, "id")
+	if idParam == "" {
+		c.errorHandler(w, r, &RequiredError{"id"}, nil)
 		return
 	}
 	result, err := c.service.GetComment(r.Context(), idParam)
@@ -206,6 +227,60 @@ func (c *CommentAPIController) CreateComment(w http.ResponseWriter, r *http.Requ
 		return
 	}
 	result, err := c.service.CreateComment(r.Context(), commentParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
+}
+
+// LikeComment - Like a comment
+func (c *CommentAPIController) LikeComment(w http.ResponseWriter, r *http.Request) {
+	var likeRequestParam LikeRequest
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&likeRequestParam); err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertLikeRequestRequired(likeRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertLikeRequestConstraints(likeRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.LikeComment(r.Context(), likeRequestParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
+}
+
+// UnlikeComment - Unlike a comment
+func (c *CommentAPIController) UnlikeComment(w http.ResponseWriter, r *http.Request) {
+	var likeRequestParam LikeRequest
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&likeRequestParam); err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertLikeRequestRequired(likeRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	if err := AssertLikeRequestConstraints(likeRequestParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.UnlikeComment(r.Context(), likeRequestParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

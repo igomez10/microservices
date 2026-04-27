@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Id** | **int64** | Unique user identifier. | 
+**Id** | **string** | Unique user identifier. | 
 **Username** | **string** | Unique username for the account. | 
 **FirstName** | **string** | User first name. | 
 **LastName** | **string** | User last name. | 
@@ -15,7 +15,7 @@ Name | Type | Description | Notes
 
 ### NewCreateUserResponse
 
-`func NewCreateUserResponse(id int64, username string, firstName string, lastName string, email string, createdAt time.Time, ) *CreateUserResponse`
+`func NewCreateUserResponse(id string, username string, firstName string, lastName string, email string, createdAt time.Time, ) *CreateUserResponse`
 
 NewCreateUserResponse instantiates a new CreateUserResponse object
 This constructor will assign default values to properties that have it defined,
@@ -32,20 +32,20 @@ but it doesn't guarantee that properties required by API are set
 
 ### GetId
 
-`func (o *CreateUserResponse) GetId() int64`
+`func (o *CreateUserResponse) GetId() string`
 
 GetId returns the Id field if non-nil, zero value otherwise.
 
 ### GetIdOk
 
-`func (o *CreateUserResponse) GetIdOk() (*int64, bool)`
+`func (o *CreateUserResponse) GetIdOk() (*string, bool)`
 
 GetIdOk returns a tuple with the Id field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetId
 
-`func (o *CreateUserResponse) SetId(v int64)`
+`func (o *CreateUserResponse) SetId(v string)`
 
 SetId sets Id field to given value.
 

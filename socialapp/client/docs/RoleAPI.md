@@ -36,7 +36,7 @@ import (
 )
 
 func main() {
-	id := int64(123) // int64 | The id of the role
+	id := "123" // string | The id of the role
 	requestBody := []string{"Property_example"} // []string | Add a scope to a role
 
 	configuration := openapiclient.NewConfiguration()
@@ -55,7 +55,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int64** | The id of the role | 
+**id** | **string** | The id of the role | 
 
 ### Other Parameters
 
@@ -172,7 +172,7 @@ import (
 )
 
 func main() {
-	id := int64(123) // int64 | id of the role
+	id := "123" // string | id of the role
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -190,7 +190,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int64** | id of the role | 
+**id** | **string** | id of the role | 
 
 ### Other Parameters
 
@@ -240,7 +240,7 @@ import (
 )
 
 func main() {
-	id := int64(123) // int64 | The id of the role
+	id := "123" // string | The id of the role
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -260,7 +260,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int64** | The id of the role | 
+**id** | **string** | The id of the role | 
 
 ### Other Parameters
 
@@ -378,7 +378,7 @@ import (
 )
 
 func main() {
-	id := int64(123) // int64 | The id of the role
+	id := "123" // string | The id of the role
 	limit := int32(20) // int32 | The numbers of scopes to return (optional) (default to 20)
 	offset := int32(0) // int32 | The number of items to skip before starting to collect the result (optional)
 
@@ -400,7 +400,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int64** | The id of the role | 
+**id** | **string** | The id of the role | 
 
 ### Other Parameters
 
@@ -452,8 +452,8 @@ import (
 )
 
 func main() {
-	roleId := int64(123) // int64 | The id of the role
-	scopeId := int64(123) // int64 | The id of the scope
+	roleId := "123" // string | The id of the role
+	scopeId := "123" // string | The id of the scope
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -471,8 +471,8 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**roleId** | **int64** | The id of the role | 
-**scopeId** | **int64** | The id of the scope | 
+**roleId** | **string** | The id of the role | 
+**scopeId** | **string** | The id of the scope | 
 
 ### Other Parameters
 
@@ -523,7 +523,7 @@ import (
 )
 
 func main() {
-	id := int64(123) // int64 | id of the role
+	id := "123" // string | id of the role
 	role := *openapiclient.NewRole("Name_example") // Role | Update a role (optional)
 
 	configuration := openapiclient.NewConfiguration()
@@ -544,7 +544,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int64** | id of the role | 
+**id** | **string** | id of the role | 
 
 ### Other Parameters
 

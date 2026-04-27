@@ -43,8 +43,7 @@ func GetCmd() *cli.Command {
 			}
 
 			scopeIDStr := cmd.Args().Get(0)
-			scopeID, err := strconv.ParseInt(scopeIDStr, 10, 32)
-			if err != nil {
+			if _, err := strconv.ParseInt(scopeIDStr, 10, 32); err != nil {
 				return fmt.Errorf("invalid scope ID: %v", err)
 			}
 
@@ -75,7 +74,7 @@ func GetCmd() *cli.Command {
 
 			apiClient := client.NewAPIClient(cfg)
 
-			scope, httpResponse, err := apiClient.ScopeAPI.GetScope(ctx, scopeID).Execute()
+			scope, httpResponse, err := apiClient.ScopeAPI.GetScope(ctx, scopeIDStr).Execute()
 			if err != nil {
 				if httpResponse != nil && httpResponse.Body != nil {
 					bodyBytes, _ := io.ReadAll(httpResponse.Body)

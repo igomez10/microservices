@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"testing"
 	"time"
 
@@ -91,8 +92,11 @@ func TestCreateScope_SnowflakeIDReturned(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify the ID is a valid positive int64 (snowflake IDs are positive)
-	assert.True(t, createdScope.Id > 0, "Scope ID should be positive, got %d", createdScope.Id)
-	assert.True(t, createdScope.Id > 1000000, "Scope ID should be a large number, got %d", createdScope.Id)
+	// Scope.Id is serialized as a JSON string (see openapi.yaml) — parse to int64 to compare.
+	scopeID, parseErr := strconv.ParseInt(createdScope.Id, 10, 64)
+	require.NoError(t, parseErr, "Scope ID should be numeric, got %q", createdScope.Id)
+	assert.True(t, scopeID > 0, "Scope ID should be positive, got %d", scopeID)
+	assert.True(t, scopeID > 1000000, "Scope ID should be a large number, got %d", scopeID)
 }
 
 // TestCreateScope_DuplicateName tests creating a scope with duplicate name
@@ -167,7 +171,7 @@ func TestGetScope_Success(t *testing.T) {
 	require.NoError(t, err)
 
 	// Now get the scope by ID
-	getURL := fmt.Sprintf("%s/v1/scopes/%d", env.BaseURL, createdScope.Id)
+	getURL := fmt.Sprintf("%s/v1/scopes/%s", env.BaseURL, createdScope.Id)
 	getResp := makeAuthenticatedRequest(t, http.MethodGet, getURL, token, nil)
 	defer getResp.Body.Close()
 
@@ -318,7 +322,7 @@ func TestUpdateScope_Success(t *testing.T) {
 	updateBody, err := json.Marshal(updateScopeReq)
 	require.NoError(t, err)
 
-	updateURL := fmt.Sprintf("%s/v1/scopes/%d", env.BaseURL, createdScope.Id)
+	updateURL := fmt.Sprintf("%s/v1/scopes/%s", env.BaseURL, createdScope.Id)
 	updateResp := makeAuthenticatedRequest(t, http.MethodPut, updateURL, token, updateBody)
 	defer updateResp.Body.Close()
 
@@ -394,7 +398,7 @@ func TestDeleteScope_Success(t *testing.T) {
 	require.NoError(t, err)
 
 	// Delete the scope
-	deleteURL := fmt.Sprintf("%s/v1/scopes/%d", env.BaseURL, createdScope.Id)
+	deleteURL := fmt.Sprintf("%s/v1/scopes/%s", env.BaseURL, createdScope.Id)
 	deleteResp := makeAuthenticatedRequest(t, http.MethodDelete, deleteURL, token, nil)
 	defer deleteResp.Body.Close()
 

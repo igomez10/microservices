@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"testing"
 	"time"
 
@@ -92,6 +93,9 @@ func (m *MockQuerier) CreateCommentForUser(ctx context.Context, dbtx db.DBTX, ar
 func (m *MockQuerier) CreateCommentForUserWithID(ctx context.Context, dbtx db.DBTX, arg db.CreateCommentForUserWithIDParams) (db.Comment, error) {
 	return db.Comment{ID: arg.ID}, nil
 }
+func (m *MockQuerier) CreateLike(ctx context.Context, dbtx db.DBTX, arg db.CreateLikeParams) error {
+	return nil
+}
 func (m *MockQuerier) CreateCredential(ctx context.Context, dbtx db.DBTX, arg db.CreateCredentialParams) (db.Credential, error) {
 	return db.Credential{}, nil
 }
@@ -126,6 +130,9 @@ func (m *MockQuerier) CreateUser(ctx context.Context, dbtx db.DBTX, arg db.Creat
 	return db.User{}, nil
 }
 func (m *MockQuerier) DeleteComment(ctx context.Context, dbtx db.DBTX, id int64) error { return nil }
+func (m *MockQuerier) DeleteLike(ctx context.Context, dbtx db.DBTX, arg db.DeleteLikeParams) error {
+	return nil
+}
 func (m *MockQuerier) DeleteCredential(ctx context.Context, dbtx db.DBTX, id int64) error {
 	return nil
 }
@@ -147,8 +154,8 @@ func (m *MockQuerier) DeleteUserToRole(ctx context.Context, dbtx db.DBTX, arg db
 func (m *MockQuerier) FollowUser(ctx context.Context, dbtx db.DBTX, arg db.FollowUserParams) error {
 	return nil
 }
-func (m *MockQuerier) GetComment(ctx context.Context, dbtx db.DBTX, id int64) (db.Comment, error) {
-	return db.Comment{}, nil
+func (m *MockQuerier) GetComment(ctx context.Context, dbtx db.DBTX, id int64) (db.GetCommentRow, error) {
+	return db.GetCommentRow{}, nil
 }
 func (m *MockQuerier) GetCredential(ctx context.Context, dbtx db.DBTX, publicKey string) (db.Credential, error) {
 	return db.Credential{}, nil
@@ -174,13 +181,13 @@ func (m *MockQuerier) GetURLFromAlias(ctx context.Context, dbtx db.DBTX, alias s
 func (m *MockQuerier) GetUserByID(ctx context.Context, dbtx db.DBTX, id int64) (db.User, error) {
 	return db.User{}, nil
 }
-func (m *MockQuerier) GetUserComments(ctx context.Context, dbtx db.DBTX, arg db.GetUserCommentsParams) ([]db.Comment, error) {
+func (m *MockQuerier) GetUserComments(ctx context.Context, dbtx db.DBTX, arg db.GetUserCommentsParams) ([]db.GetUserCommentsRow, error) {
 	return nil, nil
 }
 func (m *MockQuerier) GetUserRoles(ctx context.Context, dbtx db.DBTX, id int64) ([]db.Role, error) {
 	return nil, nil
 }
-func (m *MockQuerier) ListComment(ctx context.Context, dbtx db.DBTX, arg db.ListCommentParams) ([]db.Comment, error) {
+func (m *MockQuerier) ListComment(ctx context.Context, dbtx db.DBTX, arg db.ListCommentParams) ([]db.ListCommentRow, error) {
 	return nil, nil
 }
 func (m *MockQuerier) ListRoleScopes(ctx context.Context, dbtx db.DBTX, arg db.ListRoleScopesParams) ([]db.Scope, error) {
@@ -193,6 +200,9 @@ func (m *MockQuerier) ListScopes(ctx context.Context, dbtx db.DBTX, arg db.ListS
 	return nil, nil
 }
 func (m *MockQuerier) ListUsers(ctx context.Context, dbtx db.DBTX, arg db.ListUsersParams) ([]db.User, error) {
+	return nil, nil
+}
+func (m *MockQuerier) SearchComments(ctx context.Context, dbtx db.DBTX, arg db.SearchCommentsParams) ([]db.SearchCommentsRow, error) {
 	return nil, nil
 }
 func (m *MockQuerier) UnfollowUser(ctx context.Context, dbtx db.DBTX, arg db.UnfollowUserParams) error {
@@ -298,6 +308,7 @@ func TestCreateUser_DeterministicID(t *testing.T) {
 
 func TestCreateUser_IDInResponse(t *testing.T) {
 	expectedID := int64(7654321098765432109)
+	expectedIDStr := strconv.FormatInt(expectedID, 10)
 
 	t.Run("response contains correct ID", func(t *testing.T) {
 		// Simulate the response construction that happens in CreateUser
@@ -310,8 +321,10 @@ func TestCreateUser_IDInResponse(t *testing.T) {
 			CreatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
 		}
 
+		// IDs are serialized as JSON strings to avoid JS precision loss for
+		// values above 2^53 (the snowflake ID above is well past that bound).
 		res := openapi.CreateUserResponse{
-			Id:        createdUser.ID,
+			Id:        strconv.FormatInt(createdUser.ID, 10),
 			Username:  createdUser.Username,
 			FirstName: createdUser.FirstName,
 			LastName:  createdUser.LastName,
@@ -319,8 +332,8 @@ func TestCreateUser_IDInResponse(t *testing.T) {
 			CreatedAt: createdUser.CreatedAt.Time,
 		}
 
-		if res.Id != expectedID {
-			t.Errorf("Expected response ID %d, got %d", expectedID, res.Id)
+		if res.Id != expectedIDStr {
+			t.Errorf("Expected response ID %q, got %q", expectedIDStr, res.Id)
 		}
 	})
 }
@@ -369,7 +382,7 @@ func TestCreateUser_ResponseStatusOK(t *testing.T) {
 
 	// This is the response that CreateUser returns on success
 	response := openapi.Response(expectedStatus, openapi.CreateUserResponse{
-		Id:        123,
+		Id:        "123",
 		Username:  "testuser",
 		FirstName: "Test",
 		LastName:  "User",

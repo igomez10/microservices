@@ -75,3 +75,35 @@ test('posting from feed clears the textarea and shows a posted comment notice', 
   await expect(page.getByText(`Posted comment by @${username}`)).toBeVisible()
   await expect(page.getByText(comment, { exact: false })).toBeVisible()
 })
+
+test('liking a post sends successful like and unlike requests', async ({ page }) => {
+  await signIn(page)
+  await page.getByRole('button', { name: 'Feed' }).click()
+
+  const comment = `Playwright like test ${Date.now()}`
+  const textarea = page.getByPlaceholder("What's on your mind?")
+  await textarea.fill(comment)
+  await page.getByRole('button', { name: 'Post' }).click()
+  await expect(page.getByText(`Posted comment by @${username}`)).toBeVisible()
+
+  await page.getByRole('button', { name: 'Profile' }).click()
+  await page.getByRole('button', { name: 'Posts' }).click()
+
+  const targetPost = page.locator('.comment-item').filter({ hasText: comment }).first()
+  await expect(targetPost).toBeVisible()
+
+  const likeButton = targetPost.locator('.comment-like-button')
+  const likeResponsePromise = page.waitForResponse((response) => {
+    return response.url().includes('/like') && response.request().method() === 'POST'
+  })
+  await likeButton.click()
+  const likeResponse = await likeResponsePromise
+  expect(likeResponse.status()).toBe(200)
+
+  const unlikeResponsePromise = page.waitForResponse((response) => {
+    return response.url().includes('/like') && response.request().method() === 'DELETE'
+  })
+  await likeButton.click()
+  const unlikeResponse = await unlikeResponsePromise
+  expect(unlikeResponse.status()).toBe(200)
+})

@@ -19,7 +19,7 @@ import (
 type User struct {
 
 	// Unique user identifier.
-	Id int64 `json:"id,omitempty"`
+	Id string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
 
 	// Unique username for the account.
 	Username string `json:"username"`

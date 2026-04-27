@@ -3,9 +3,9 @@
 ## Properties
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **integer** |  | [optional] [default to null]
+**id** | **string** |  | [optional] [default to null]
 **content** | **string** |  | [default to null]
-**likeUnderscorecount** | **integer** |  | [optional] [default to null]
+**likeUnderscorecount** | **string** |  | [optional] [default to null]
 **createdUnderscoreat** | **string** |  | [optional] [default to null]
 **username** | **string** |  | [default to null]
 

@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -185,7 +186,7 @@ func (s *UserApiService) CreateUser(ctx context.Context, createUserReq openapi.C
 	}
 
 	res := openapi.CreateUserResponse{
-		Id:        createdUser.ID,
+		Id:        strconv.FormatInt(createdUser.ID, 10),
 		Username:  createdUser.Username,
 		FirstName: createdUser.FirstName,
 		LastName:  createdUser.LastName,
@@ -290,7 +291,13 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string, l
 
 	apiComments := make([]openapi.Comment, len(dbComments))
 	for i := range dbComments {
-		apiComments[i] = converter.FromDBCmtToAPICmt(dbComments[i], dbuser)
+		apiComments[i] = openapi.Comment{
+			Id:        strconv.FormatInt(dbComments[i].ID, 10),
+			Content:   dbComments[i].Content,
+			LikeCount: strconv.FormatInt(dbComments[i].LikeCount, 10),
+			CreatedAt: dbComments[i].CreatedAt.Time,
+			Username:  dbuser.Username,
+		}
 	}
 
 	return openapi.Response(http.StatusOK, apiComments), nil

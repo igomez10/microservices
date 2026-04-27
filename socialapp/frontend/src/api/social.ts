@@ -11,6 +11,7 @@ export type ResetPasswordRequest = components['schemas']['ResetPasswordRequest']
 export type Role = components['schemas']['Role']
 export type Scope = components['schemas']['Scope']
 export type URLRecord = components['schemas']['URL']
+export type LikeRequest = components['schemas']['LikeRequest']
 
 export type ApiContext = {
   baseUrl: string
@@ -86,6 +87,10 @@ export function createSocialApi(ctx: ApiContext) {
     }): Promise<ApiResponse<Comment[]>> => authed({ path: '/v1/comments', method: 'GET', queryParams: params }),
     createComment: (body: Comment): Promise<ApiResponse<Comment>> =>
       authed({ path: '/v1/comments', method: 'POST', body }),
+    likeComment: (body: LikeRequest): Promise<ApiResponse<Comment>> =>
+      authed({ path: '/like', method: 'POST', body }),
+    unlikeComment: (body: LikeRequest): Promise<ApiResponse<Comment>> =>
+      authed({ path: '/like', method: 'DELETE', body }),
     listRoles: (params?: { limit?: number; offset?: number }): Promise<ApiResponse<Role[]>> =>
       authed({ path: '/v1/roles', method: 'GET', queryParams: params }),
     createRole: (body: Role): Promise<ApiResponse<Role>> => authed({ path: '/v1/roles', method: 'POST', body }),

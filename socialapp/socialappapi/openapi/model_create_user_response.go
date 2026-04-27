@@ -19,7 +19,7 @@ import (
 type CreateUserResponse struct {
 
 	// Unique user identifier.
-	Id int64 `json:"id"`
+	Id string `json:"id" validate:"regexp=^-?\\\\d+$"`
 
 	// Unique username for the account.
 	Username string `json:"username"`

@@ -84,6 +84,9 @@ func (m *mockDB) CreateComment(ctx context.Context, dbtx db.DBTX, arg db.CreateC
 func (m *mockDB) CreateCommentForUser(ctx context.Context, dbtx db.DBTX, arg db.CreateCommentForUserParams) (db.Comment, error) {
 	return db.Comment{}, nil
 }
+func (m *mockDB) CreateLike(ctx context.Context, dbtx db.DBTX, arg db.CreateLikeParams) error {
+	return nil
+}
 func (m *mockDB) CreateCredential(ctx context.Context, dbtx db.DBTX, arg db.CreateCredentialParams) (db.Credential, error) {
 	return db.Credential{}, nil
 }
@@ -109,6 +112,9 @@ func (m *mockDB) CreateUserToRole(ctx context.Context, dbtx db.DBTX, arg db.Crea
 	return db.UsersToRole{}, nil
 }
 func (m *mockDB) DeleteComment(ctx context.Context, dbtx db.DBTX, id int64) error {
+	return nil
+}
+func (m *mockDB) DeleteLike(ctx context.Context, dbtx db.DBTX, arg db.DeleteLikeParams) error {
 	return nil
 }
 func (m *mockDB) DeleteCredential(ctx context.Context, dbtx db.DBTX, id int64) error {
@@ -138,8 +144,8 @@ func (m *mockDB) DeleteUserToRole(ctx context.Context, dbtx db.DBTX, arg db.Dele
 func (m *mockDB) FollowUser(ctx context.Context, dbtx db.DBTX, arg db.FollowUserParams) error {
 	return nil
 }
-func (m *mockDB) GetComment(ctx context.Context, dbtx db.DBTX, id int64) (db.Comment, error) {
-	return db.Comment{}, nil
+func (m *mockDB) GetComment(ctx context.Context, dbtx db.DBTX, id int64) (db.GetCommentRow, error) {
+	return db.GetCommentRow{}, nil
 }
 func (m *mockDB) GetCredential(ctx context.Context, dbtx db.DBTX, publicKey string) (db.Credential, error) {
 	return db.Credential{}, nil
@@ -178,7 +184,7 @@ func (m *mockDB) GetUserByUsername(ctx context.Context, dbtx db.DBTX, username s
 	}
 	return db.User{}, pgx.ErrNoRows
 }
-func (m *mockDB) GetUserComments(ctx context.Context, dbtx db.DBTX, arg db.GetUserCommentsParams) ([]db.Comment, error) {
+func (m *mockDB) GetUserComments(ctx context.Context, dbtx db.DBTX, arg db.GetUserCommentsParams) ([]db.GetUserCommentsRow, error) {
 	return nil, nil
 }
 func (m *mockDB) GetUserRoles(ctx context.Context, dbtx db.DBTX, id int64) ([]db.Role, error) {
@@ -188,7 +194,7 @@ func (m *mockDB) GetUserRoles(ctx context.Context, dbtx db.DBTX, id int64) ([]db
 	}
 	return nil, pgx.ErrNoRows
 }
-func (m *mockDB) ListComment(ctx context.Context, dbtx db.DBTX, arg db.ListCommentParams) ([]db.Comment, error) {
+func (m *mockDB) ListComment(ctx context.Context, dbtx db.DBTX, arg db.ListCommentParams) ([]db.ListCommentRow, error) {
 	return nil, nil
 }
 func (m *mockDB) SearchComments(ctx context.Context, dbtx db.DBTX, arg db.SearchCommentsParams) ([]db.SearchCommentsRow, error) {

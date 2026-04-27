@@ -781,8 +781,8 @@ func SearchCommentsLifecycle(ctx context.Context) error {
 		if len(results) != 1 {
 			return fmt.Errorf("Expected 1 comment for username search, got %d", len(results))
 		}
-		if results[0].Id != createdFirst.Id {
-			return fmt.Errorf("Expected comment id %d, got %d", createdFirst.Id, results[0].Id)
+		if results[0].GetId() != createdFirst.GetId() {
+			return fmt.Errorf("Expected comment id %s, got %s", createdFirst.GetId(), results[0].GetId())
 		}
 		if results[0].Username != username1 {
 			return fmt.Errorf("Expected username %s, got %s", username1, results[0].Username)
@@ -807,11 +807,11 @@ func SearchCommentsLifecycle(ctx context.Context) error {
 		if len(results) < 2 {
 			return fmt.Errorf("Expected at least 2 comments in time window, got %d", len(results))
 		}
-		if results[0].Id != createdSecond.Id {
-			return fmt.Errorf("Expected newest comment id %d, got %d", createdSecond.Id, results[0].Id)
+		if results[0].GetId() != createdSecond.GetId() {
+			return fmt.Errorf("Expected newest comment id %s, got %s", createdSecond.GetId(), results[0].GetId())
 		}
-		if results[1].Id != createdFirst.Id {
-			return fmt.Errorf("Expected second newest comment id %d, got %d", createdFirst.Id, results[1].Id)
+		if results[1].GetId() != createdFirst.GetId() {
+			return fmt.Errorf("Expected second newest comment id %s, got %s", createdFirst.GetId(), results[1].GetId())
 		}
 		return nil
 	}(); err != nil {

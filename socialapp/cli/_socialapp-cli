@@ -300,7 +300,9 @@ case $state in
             "getAccessToken[Get an access token]"             "createComment[Create a new comment]" \
             "getComment[Get comment by ID]" \
             "getUserFeed[Get user feed]" \
-            "searchComments[Search comments]"             "getUserFollowers[Get all followers for a user]"             "addScopeToRole[Add a scope to a role]" \
+            "likeComment[Like a comment]" \
+            "searchComments[Search comments]" \
+            "unlikeComment[Unlike a comment]"             "getUserFollowers[Get all followers for a user]"             "addScopeToRole[Add a scope to a role]" \
             "createRole[Create a new role]" \
             "deleteRole[Delete a role]" \
             "getRole[Get role by ID]" \
@@ -361,6 +363,12 @@ case $state in
                               )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
+      likeComment)
+        local -a _op_arguments
+        _op_arguments=(
+                              )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
       searchComments)
         local -a _op_arguments
         _op_arguments=(
@@ -368,6 +376,12 @@ case $state in
 "start_time=:[QUERY] Return comments created at or after this timestamp."
 "end_time=:[QUERY] Return comments created at or before this timestamp."
           )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      unlikeComment)
+        local -a _op_arguments
+        _op_arguments=(
+                              )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       getUserFollowers)

@@ -7,7 +7,9 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 | [**createComment**](CommentApi.md#createComment) | **POST** /v1/comments | Create a new comment |
 | [**getComment**](CommentApi.md#getComment) | **GET** /v1/comments/{id} | Get comment by ID |
 | [**getUserFeed**](CommentApi.md#getUserFeed) | **GET** /v1/feed | Get user feed |
+| [**likeComment**](CommentApi.md#likeComment) | **POST** /like | Like a comment |
 | [**searchComments**](CommentApi.md#searchComments) | **GET** /v1/comments | Search comments |
+| [**unlikeComment**](CommentApi.md#unlikeComment) | **DELETE** /like | Unlike a comment |
 
 
 <a name="createComment"></a>
@@ -49,7 +51,7 @@ Get comment by ID
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **id** | **Long**| ID of the comment | [default to null] |
+| **id** | **String**| ID of the comment | [default to null] |
 
 ### Return type
 
@@ -88,6 +90,33 @@ This endpoint does not need any parameter.
 - **Content-Type**: Not defined
 - **Accept**: application/json
 
+<a name="likeComment"></a>
+# **likeComment**
+> Comment likeComment(LikeRequest)
+
+Like a comment
+
+    Like a comment as the authenticated user.
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **LikeRequest** | [**LikeRequest**](../Models/LikeRequest.md)| Comment like request | |
+
+### Return type
+
+[**Comment**](../Models/Comment.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
 <a name="searchComments"></a>
 # **searchComments**
 > List searchComments(username, start\_time, end\_time)
@@ -115,5 +144,32 @@ Search comments
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="unlikeComment"></a>
+# **unlikeComment**
+> Comment unlikeComment(LikeRequest)
+
+Unlike a comment
+
+    Remove a like from a comment as the authenticated user.
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **LikeRequest** | [**LikeRequest**](../Models/LikeRequest.md)| Comment unlike request | |
+
+### Return type
+
+[**Comment**](../Models/Comment.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 

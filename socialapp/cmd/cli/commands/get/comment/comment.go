@@ -50,8 +50,7 @@ func GetCmd() *cli.Command {
 				return fmt.Errorf("comment id argument is required")
 			}
 			commentIDStr := c.Args().Get(0)
-			commentID, err := strconv.ParseInt(commentIDStr, 10, 32)
-			if err != nil {
+			if _, err := strconv.ParseInt(commentIDStr, 10, 32); err != nil {
 				return fmt.Errorf("invalid comment id: %v", err)
 			}
 
@@ -72,7 +71,7 @@ func GetCmd() *cli.Command {
 
 			clnt := client.NewAPIClient(configuration)
 
-			comment, res, err := clnt.CommentAPI.GetComment(ctx, commentID).Execute()
+			comment, res, err := clnt.CommentAPI.GetComment(ctx, commentIDStr).Execute()
 			if err != nil {
 				fmt.Printf("Full HTTP response: %v\n", res)
 				return fmt.Errorf("error when calling `CommentAPI.GetComment`: %v", err)

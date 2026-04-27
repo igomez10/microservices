@@ -74,7 +74,7 @@ func GetCmd() *cli.Command {
 
 			apiClient := client.NewAPIClient(cfg)
 
-			httpResponse, err := apiClient.RoleAPI.DeleteRole(ctx, roleID).Execute()
+			httpResponse, err := apiClient.RoleAPI.DeleteRole(ctx, roleIDStr).Execute()
 			if err != nil {
 				bodyBytes, _ := io.ReadAll(httpResponse.Body)
 				fmt.Printf("Error: %v\nResponse: %s\n", err, string(bodyBytes))

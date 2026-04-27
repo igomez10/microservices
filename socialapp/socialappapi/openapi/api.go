@@ -32,6 +32,8 @@ type CommentAPIRouter interface {
 	GetComment(http.ResponseWriter, *http.Request)
 	SearchComments(http.ResponseWriter, *http.Request)
 	CreateComment(http.ResponseWriter, *http.Request)
+	LikeComment(http.ResponseWriter, *http.Request)
+	UnlikeComment(http.ResponseWriter, *http.Request)
 }
 
 // FollowingAPIRouter defines the required methods for binding the api requests to a responses for the FollowingAPI
@@ -111,9 +113,11 @@ type AuthenticationAPIServicer interface {
 // and updated with the logic required for the API.
 type CommentAPIServicer interface {
 	GetUserFeed(context.Context) (ImplResponse, error)
-	GetComment(context.Context, int64) (ImplResponse, error)
+	GetComment(context.Context, string) (ImplResponse, error)
 	SearchComments(context.Context, string, time.Time, time.Time) (ImplResponse, error)
 	CreateComment(context.Context, Comment) (ImplResponse, error)
+	LikeComment(context.Context, LikeRequest) (ImplResponse, error)
+	UnlikeComment(context.Context, LikeRequest) (ImplResponse, error)
 }
 
 // FollowingAPIServicer defines the api actions for the FollowingAPI service
@@ -131,12 +135,12 @@ type FollowingAPIServicer interface {
 type RoleAPIServicer interface {
 	ListRoles(context.Context, int32, int32) (ImplResponse, error)
 	CreateRole(context.Context, Role) (ImplResponse, error)
-	GetRole(context.Context, int64) (ImplResponse, error)
-	UpdateRole(context.Context, int64, Role) (ImplResponse, error)
-	DeleteRole(context.Context, int64) (ImplResponse, error)
-	ListScopesForRole(context.Context, int64, int32, int32) (ImplResponse, error)
-	AddScopeToRole(context.Context, int64, []string) (ImplResponse, error)
-	RemoveScopeFromRole(context.Context, int64, int64) (ImplResponse, error)
+	GetRole(context.Context, string) (ImplResponse, error)
+	UpdateRole(context.Context, string, Role) (ImplResponse, error)
+	DeleteRole(context.Context, string) (ImplResponse, error)
+	ListScopesForRole(context.Context, string, int32, int32) (ImplResponse, error)
+	AddScopeToRole(context.Context, string, []string) (ImplResponse, error)
+	RemoveScopeFromRole(context.Context, string, string) (ImplResponse, error)
 }
 
 // ScopeAPIServicer defines the api actions for the ScopeAPI service
@@ -146,9 +150,9 @@ type RoleAPIServicer interface {
 type ScopeAPIServicer interface {
 	ListScopes(context.Context, int32, int32) (ImplResponse, error)
 	CreateScope(context.Context, Scope) (ImplResponse, error)
-	GetScope(context.Context, int64) (ImplResponse, error)
-	UpdateScope(context.Context, int64, Scope) (ImplResponse, error)
-	DeleteScope(context.Context, int64) (ImplResponse, error)
+	GetScope(context.Context, string) (ImplResponse, error)
+	UpdateScope(context.Context, string, Scope) (ImplResponse, error)
+	DeleteScope(context.Context, string) (ImplResponse, error)
 }
 
 // URLAPIServicer defines the api actions for the URLAPI service

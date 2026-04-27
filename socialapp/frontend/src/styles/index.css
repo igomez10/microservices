@@ -397,6 +397,18 @@ p {
   color: var(--text-tertiary);
 }
 
+.comment-like-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.comment-like-button:hover:not(:disabled),
+.comment-like-button.liked {
+  color: var(--text-primary);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;

@@ -24,11 +24,11 @@ var _ MappedNullable = &Comment{}
 // Comment User-generated comment.
 type Comment struct {
 	// Unique comment identifier.
-	Id *int64 `json:"id,omitempty"`
+	Id *string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
 	// Comment text.
 	Content string `json:"content"`
 	// Number of likes for the comment.
-	LikeCount *int64 `json:"like_count,omitempty"`
+	LikeCount *string `json:"like_count,omitempty" validate:"regexp=^-?\\\\d+$"`
 	// Timestamp when the comment was created.
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	// Username of the comment author.
@@ -57,9 +57,9 @@ func NewCommentWithDefaults() *Comment {
 }
 
 // GetId returns the Id field value if set, zero value otherwise.
-func (o *Comment) GetId() int64 {
+func (o *Comment) GetId() string {
 	if o == nil || IsNil(o.Id) {
-		var ret int64
+		var ret string
 		return ret
 	}
 	return *o.Id
@@ -67,7 +67,7 @@ func (o *Comment) GetId() int64 {
 
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *Comment) GetIdOk() (*int64, bool) {
+func (o *Comment) GetIdOk() (*string, bool) {
 	if o == nil || IsNil(o.Id) {
 		return nil, false
 	}
@@ -83,8 +83,8 @@ func (o *Comment) HasId() bool {
 	return false
 }
 
-// SetId gets a reference to the given int64 and assigns it to the Id field.
-func (o *Comment) SetId(v int64) {
+// SetId gets a reference to the given string and assigns it to the Id field.
+func (o *Comment) SetId(v string) {
 	o.Id = &v
 }
 
@@ -113,9 +113,9 @@ func (o *Comment) SetContent(v string) {
 }
 
 // GetLikeCount returns the LikeCount field value if set, zero value otherwise.
-func (o *Comment) GetLikeCount() int64 {
+func (o *Comment) GetLikeCount() string {
 	if o == nil || IsNil(o.LikeCount) {
-		var ret int64
+		var ret string
 		return ret
 	}
 	return *o.LikeCount
@@ -123,7 +123,7 @@ func (o *Comment) GetLikeCount() int64 {
 
 // GetLikeCountOk returns a tuple with the LikeCount field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *Comment) GetLikeCountOk() (*int64, bool) {
+func (o *Comment) GetLikeCountOk() (*string, bool) {
 	if o == nil || IsNil(o.LikeCount) {
 		return nil, false
 	}
@@ -139,8 +139,8 @@ func (o *Comment) HasLikeCount() bool {
 	return false
 }
 
-// SetLikeCount gets a reference to the given int64 and assigns it to the LikeCount field.
-func (o *Comment) SetLikeCount(v int64) {
+// SetLikeCount gets a reference to the given string and assigns it to the LikeCount field.
+func (o *Comment) SetLikeCount(v string) {
 	o.LikeCount = &v
 }
 

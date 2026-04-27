@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"testing"
 	"time"
 
@@ -207,12 +208,14 @@ func createTestServer(t *testing.T, ctx context.Context, dbPool *pgxpool.Pool, r
 	return httptest.NewServer(router)
 }
 
-// TestUser represents a user created for testing purposes
+// TestUser represents a user created for testing purposes.
+// UserID is the snowflake ID as a decimal string — matches the JSON-string
+// form used on the API surface (see openapi.yaml).
 type TestUser struct {
 	Username string
 	Password string
 	Email    string
-	UserID   int64
+	UserID   string
 }
 
 // createTestUser creates a user via the API with known credentials.
@@ -511,7 +514,8 @@ func TestCreateUser_MultipleUsers(t *testing.T) {
 		},
 	}
 
-	createdIDs := make(map[int64]bool)
+	// IDs are JSON strings on the wire (see openapi.yaml).
+	createdIDs := make(map[string]bool)
 
 	for _, userReq := range users {
 		body, err := json.Marshal(userReq)
@@ -535,7 +539,7 @@ func TestCreateUser_MultipleUsers(t *testing.T) {
 		require.NoError(t, err)
 
 		// Verify ID is unique
-		assert.False(t, createdIDs[createUserResp.Id], "Duplicate ID found: %d", createUserResp.Id)
+		assert.False(t, createdIDs[createUserResp.Id], "Duplicate ID found: %s", createUserResp.Id)
 		createdIDs[createUserResp.Id] = true
 	}
 
@@ -575,12 +579,15 @@ func TestCreateUser_SnowflakeIDReturned(t *testing.T) {
 	err = json.Unmarshal(respBody, &createUserResp)
 	require.NoError(t, err)
 
-	// Verify the ID is a valid positive int64 (snowflake IDs are positive)
-	assert.True(t, createUserResp.Id > 0, "Snowflake ID should be positive, got %d", createUserResp.Id)
+	// IDs are serialized as JSON strings (see openapi.yaml) — parse to int64 for the
+	// numeric comparisons below.
+	userID, parseErr := strconv.ParseInt(createUserResp.Id, 10, 64)
+	require.NoError(t, parseErr, "Snowflake ID should be numeric, got %q", createUserResp.Id)
+	assert.True(t, userID > 0, "Snowflake ID should be positive, got %d", userID)
 
 	// Snowflake IDs are typically large numbers (> 1 million due to timestamp component)
 	// The epoch is 2020-01-01, so any ID generated after that will be substantial
-	assert.True(t, createUserResp.Id > 1000000, "Snowflake ID should be a large number, got %d", createUserResp.Id)
+	assert.True(t, userID > 1000000, "Snowflake ID should be a large number, got %d", userID)
 }
 
 // TestCreateUser_IDsMonotonicallyIncreasing verifies that IDs are monotonically increasing
@@ -588,6 +595,8 @@ func TestCreateUser_IDsMonotonicallyIncreasing(t *testing.T) {
 	env := setupTestEnv(t)
 	defer teardownTestEnv(t, env)
 
+	// IDs are serialized as JSON strings (see openapi.yaml) — parse to int64 to
+	// compare ordering.
 	var previousID int64 = 0
 
 	for i := 0; i < 5; i++ {
@@ -619,9 +628,12 @@ func TestCreateUser_IDsMonotonicallyIncreasing(t *testing.T) {
 		err = json.Unmarshal(respBody, &createUserResp)
 		require.NoError(t, err)
 
+		userID, parseErr := strconv.ParseInt(createUserResp.Id, 10, 64)
+		require.NoError(t, parseErr, "ID should be numeric, got %q", createUserResp.Id)
+
 		// Verify IDs are monotonically increasing
-		assert.True(t, createUserResp.Id > previousID,
-			"ID should be greater than previous: got %d, previous was %d", createUserResp.Id, previousID)
-		previousID = createUserResp.Id
+		assert.True(t, userID > previousID,
+			"ID should be greater than previous: got %d, previous was %d", userID, previousID)
+		previousID = userID
 	}
 }

@@ -3,6 +3,7 @@ package comment
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
@@ -16,6 +17,20 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+// parseAPIID parses an int64 ID that arrived on the API surface as a string
+// (see openapi.yaml: int64 fields are serialized as JSON strings to avoid
+// JS precision loss). Returns a 400 ApiError payload on parse failure.
+func parseAPIID(s string) (int64, *openapi.Error) {
+	id, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return 0, &openapi.Error{
+			Code:    http.StatusBadRequest,
+			Message: "invalid id: must be a numeric string",
+		}
+	}
+	return id, nil
+}
+
 // s *CommentService openapi.CommentApiServicer
 var _ openapi.CommentAPIServicer = (*CommentService)(nil)
 
@@ -23,6 +38,44 @@ type CommentService struct {
 	DB                 dbpgx.Querier
 	DBConn             dbpgx.DBTX
 	SnowflakeGenerator snowflake.IDGenerator
+}
+
+func (s *CommentService) loadAPIComment(ctx context.Context, id int64) (openapi.Comment, *openapi.Error, error) {
+	comment, err := s.DB.GetComment(ctx, s.DBConn, id)
+	if err != nil {
+		switch err {
+		case pgx.ErrNoRows:
+			return openapi.Comment{}, &openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "Comment not found",
+			}, nil
+		default:
+			logger := contexthelper.GetLoggerInContext(ctx)
+			logger.Error("Error getting comment", "error", err)
+			return openapi.Comment{}, &openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Error getting comment",
+			}, nil
+		}
+	}
+
+	user, err := s.DB.GetUserByID(ctx, s.DBConn, comment.UserID)
+	if err != nil {
+		logger := contexthelper.GetLoggerInContext(ctx)
+		logger.Error("Error getting username for comment author", "error", err)
+		return openapi.Comment{}, &openapi.Error{
+			Code:    http.StatusNotFound,
+			Message: "Error getting username for comment author",
+		}, nil
+	}
+
+	return openapi.Comment{
+		Id:        strconv.FormatInt(comment.ID, 10),
+		Content:   comment.Content,
+		LikeCount: strconv.FormatInt(comment.LikeCount, 10),
+		CreatedAt: comment.CreatedAt.Time,
+		Username:  user.Username,
+	}, nil, nil
 }
 
 func (s *CommentService) SearchComments(ctx context.Context, username string, startTime time.Time, endTime time.Time) (openapi.ImplResponse, error) {
@@ -66,9 +119,9 @@ func (s *CommentService) SearchComments(ctx context.Context, username string, st
 	apiComments := make([]openapi.Comment, len(dbComments))
 	for i := range dbComments {
 		apiComments[i] = openapi.Comment{
-			Id:        dbComments[i].ID,
+			Id:        strconv.FormatInt(dbComments[i].ID, 10),
 			Content:   dbComments[i].Content,
-			LikeCount: dbComments[i].LikeCount,
+			LikeCount: strconv.FormatInt(dbComments[i].LikeCount, 10),
 			CreatedAt: dbComments[i].CreatedAt.Time,
 			Username:  dbComments[i].Username,
 		}
@@ -130,39 +183,150 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comm
 	return openapi.Response(http.StatusOK, c), nil
 }
 
-func (s *CommentService) GetComment(ctx context.Context, id int64) (openapi.ImplResponse, error) {
+func (s *CommentService) GetComment(ctx context.Context, id string) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "CommentService.GetComment")
 	defer span.End()
-	comment, err := s.DB.GetComment(ctx, s.DBConn, id)
-	if err != nil {
-		switch err {
-		case pgx.ErrNoRows:
-			return openapi.Response(http.StatusNotFound, openapi.Error{
-				Code:    http.StatusNotFound,
-				Message: "Comment not found",
-			}), nil
-		default:
-			logger := contexthelper.GetLoggerInContext(ctx)
-			logger.Error("Error getting comment", "error", err)
-			return openapi.Response(http.StatusInternalServerError, openapi.Error{
-				Code:    http.StatusInternalServerError,
-				Message: "Error getting comment",
-			}), nil
-		}
+
+	commentID, parseErr := parseAPIID(id)
+	if parseErr != nil {
+		return openapi.Response(int(parseErr.Code), *parseErr), nil
 	}
-	// get username
-	user, errGetUser := s.DB.GetUserByID(ctx, s.DBConn, comment.UserID)
-	if errGetUser != nil {
-		logger := contexthelper.GetLoggerInContext(ctx)
-		logger.Error("Error getting username for comment author", "error", errGetUser)
-		return openapi.Response(http.StatusNotFound, openapi.Error{
-			Code:    http.StatusNotFound,
-			Message: "Error getting username for comment author",
+
+	comment, apiErr, err := s.loadAPIComment(ctx, commentID)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+	if apiErr != nil {
+		return openapi.Response(int(apiErr.Code), *apiErr), nil
+	}
+
+	return openapi.Response(http.StatusOK, comment), nil
+}
+
+func (s *CommentService) LikeComment(ctx context.Context, req openapi.LikeRequest) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CommentService.LikeComment")
+	defer span.End()
+	logger := contexthelper.GetLoggerInContext(ctx)
+
+	username, exists := contexthelper.GetUsernameInContext(ctx)
+	if !exists {
+		return openapi.Response(http.StatusUnauthorized, openapi.Error{
+			Code:    http.StatusUnauthorized,
+			Message: "Unauthorized",
 		}), nil
 	}
 
-	c := converter.FromDBCmtToAPICmt(comment, user)
-	return openapi.Response(http.StatusOK, c), nil
+	user, err := s.DB.GetUserByUsername(ctx, s.DBConn, username)
+	if err != nil {
+		switch err {
+		case pgx.ErrNoRows:
+			return openapi.Response(http.StatusUnauthorized, openapi.Error{
+				Code:    http.StatusUnauthorized,
+				Message: "Unauthorized",
+			}), nil
+		default:
+			logger.Error("Error getting user", "error", err)
+			return openapi.Response(http.StatusInternalServerError, openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Internal server error",
+			}), nil
+		}
+	}
+
+	commentID, parseErr := parseAPIID(req.CommentId)
+	if parseErr != nil {
+		return openapi.Response(int(parseErr.Code), *parseErr), nil
+	}
+
+	if _, apiErr, err := s.loadAPIComment(ctx, commentID); err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	} else if apiErr != nil {
+		return openapi.Response(int(apiErr.Code), *apiErr), nil
+	}
+
+	if err := s.DB.CreateLike(ctx, s.DBConn, db.CreateLikeParams{
+		UserID:    user.ID,
+		CommentID: commentID,
+	}); err != nil {
+		logger.Error("Error creating like", "error", err)
+		return openapi.Response(http.StatusInternalServerError, openapi.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error creating like",
+		}), nil
+	}
+
+	comment, apiErr, err := s.loadAPIComment(ctx, commentID)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+	if apiErr != nil {
+		return openapi.Response(int(apiErr.Code), *apiErr), nil
+	}
+
+	return openapi.Response(http.StatusOK, comment), nil
+}
+
+func (s *CommentService) UnlikeComment(ctx context.Context, req openapi.LikeRequest) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CommentService.UnlikeComment")
+	defer span.End()
+	logger := contexthelper.GetLoggerInContext(ctx)
+
+	username, exists := contexthelper.GetUsernameInContext(ctx)
+	if !exists {
+		return openapi.Response(http.StatusUnauthorized, openapi.Error{
+			Code:    http.StatusUnauthorized,
+			Message: "Unauthorized",
+		}), nil
+	}
+
+	user, err := s.DB.GetUserByUsername(ctx, s.DBConn, username)
+	if err != nil {
+		switch err {
+		case pgx.ErrNoRows:
+			return openapi.Response(http.StatusUnauthorized, openapi.Error{
+				Code:    http.StatusUnauthorized,
+				Message: "Unauthorized",
+			}), nil
+		default:
+			logger.Error("Error getting user", "error", err)
+			return openapi.Response(http.StatusInternalServerError, openapi.Error{
+				Code:    http.StatusInternalServerError,
+				Message: "Internal server error",
+			}), nil
+		}
+	}
+
+	commentID, parseErr := parseAPIID(req.CommentId)
+	if parseErr != nil {
+		return openapi.Response(int(parseErr.Code), *parseErr), nil
+	}
+
+	if _, apiErr, err := s.loadAPIComment(ctx, commentID); err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	} else if apiErr != nil {
+		return openapi.Response(int(apiErr.Code), *apiErr), nil
+	}
+
+	if err := s.DB.DeleteLike(ctx, s.DBConn, db.DeleteLikeParams{
+		UserID:    user.ID,
+		CommentID: commentID,
+	}); err != nil {
+		logger.Error("Error deleting like", "error", err)
+		return openapi.Response(http.StatusInternalServerError, openapi.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error deleting like",
+		}), nil
+	}
+
+	comment, apiErr, err := s.loadAPIComment(ctx, commentID)
+	if err != nil {
+		return openapi.Response(http.StatusInternalServerError, nil), err
+	}
+	if apiErr != nil {
+		return openapi.Response(int(apiErr.Code), *apiErr), nil
+	}
+
+	return openapi.Response(http.StatusOK, comment), nil
 }
 
 func (s *CommentService) GetUserFeed(ctx context.Context) (openapi.ImplResponse, error) {
@@ -223,7 +387,13 @@ func (s *CommentService) GetUserFeed(ctx context.Context) (openapi.ImplResponse,
 				// skip deleted comments
 				continue
 			}
-			apiComment := converter.FromDBCmtToAPICmt(currentComment, currentFollowedUser)
+			apiComment := openapi.Comment{
+				Id:        strconv.FormatInt(currentComment.ID, 10),
+				Content:   currentComment.Content,
+				LikeCount: strconv.FormatInt(currentComment.LikeCount, 10),
+				CreatedAt: currentComment.CreatedAt.Time,
+				Username:  currentFollowedUser.Username,
+			}
 			comments = append(comments, apiComment)
 		}
 	}

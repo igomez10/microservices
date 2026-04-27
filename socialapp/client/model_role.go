@@ -24,7 +24,7 @@ var _ MappedNullable = &Role{}
 // Role Role assigned to users for authorization.
 type Role struct {
 	// Unique role identifier.
-	Id *int64 `json:"id,omitempty"`
+	Id *string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
 	// Unique role name.
 	Name string `json:"name"`
 	// Description of what the role grants.
@@ -54,9 +54,9 @@ func NewRoleWithDefaults() *Role {
 }
 
 // GetId returns the Id field value if set, zero value otherwise.
-func (o *Role) GetId() int64 {
+func (o *Role) GetId() string {
 	if o == nil || IsNil(o.Id) {
-		var ret int64
+		var ret string
 		return ret
 	}
 	return *o.Id
@@ -64,7 +64,7 @@ func (o *Role) GetId() int64 {
 
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *Role) GetIdOk() (*int64, bool) {
+func (o *Role) GetIdOk() (*string, bool) {
 	if o == nil || IsNil(o.Id) {
 		return nil, false
 	}
@@ -80,8 +80,8 @@ func (o *Role) HasId() bool {
 	return false
 }
 
-// SetId gets a reference to the given int64 and assigns it to the Id field.
-func (o *Role) SetId(v int64) {
+// SetId gets a reference to the given string and assigns it to the Id field.
+func (o *Role) SetId(v string) {
 	o.Id = &v
 }
 

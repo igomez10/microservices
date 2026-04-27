@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"testing"
 	"time"
 
@@ -89,9 +90,13 @@ func TestCreateComment_SnowflakeIDReturned(t *testing.T) {
 	err = json.Unmarshal(respBody, &createdComment)
 	require.NoError(t, err)
 
-	// Verify the ID is a valid positive int64 (snowflake IDs are positive)
-	assert.True(t, createdComment.Id > 0, "Comment ID should be positive, got %d", createdComment.Id)
-	assert.True(t, createdComment.Id > 1000000, "Comment ID should be a large number, got %d", createdComment.Id)
+	// Verify the ID is a valid positive int64 (snowflake IDs are positive).
+	// Comment.Id is serialized as a JSON string on the wire (see openapi.yaml)
+	// to avoid precision loss in JS clients, so we parse it back to int64 here.
+	commentID, parseErr := strconv.ParseInt(createdComment.Id, 10, 64)
+	require.NoError(t, parseErr, "Comment ID should be numeric, got %q", createdComment.Id)
+	assert.True(t, commentID > 0, "Comment ID should be positive, got %d", commentID)
+	assert.True(t, commentID > 1000000, "Comment ID should be a large number, got %d", commentID)
 }
 
 // TestCreateComment_UserNotFound tests creating a comment for a non-existent user
@@ -152,8 +157,8 @@ func TestGetComment_Success(t *testing.T) {
 	err = json.Unmarshal(createBody, &createdComment)
 	require.NoError(t, err)
 
-	// Now get the comment by ID
-	getURL := fmt.Sprintf("%s/v1/comments/%d", env.BaseURL, createdComment.Id)
+	// Now get the comment by ID (Id is a string on the wire — see openapi.yaml)
+	getURL := fmt.Sprintf("%s/v1/comments/%s", env.BaseURL, createdComment.Id)
 	getResp := makeAuthenticatedRequest(t, http.MethodGet, getURL, token, nil)
 	defer getResp.Body.Close()
 
@@ -351,7 +356,7 @@ func TestSearchComments_ReturnsMostRecent20(t *testing.T) {
 	testUser := createAdminTestUser(t, env)
 	token := getAuthToken(t, env, testUser, scopes.SocialappCommentsCreate.String(), scopes.SocialappCommentsRead.String())
 
-	createdIDs := make([]int64, 0, 25)
+	createdIDs := make([]string, 0, 25)
 	for i := 0; i < 25; i++ {
 		body, err := json.Marshal(openapi.Comment{
 			Username: testUser.Username,

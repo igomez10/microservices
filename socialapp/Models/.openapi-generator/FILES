@@ -12,6 +12,7 @@ Models/Comment.md
 Models/CreateUserRequest.md
 Models/CreateUserResponse.md
 Models/Error.md
+Models/LikeRequest.md
 Models/ResetPasswordRequest.md
 Models/Role.md
 Models/Scope.md

@@ -26,7 +26,7 @@ type RoleAPIService service
 type RoleAPIAddScopeToRoleRequest struct {
 	ctx         context.Context
 	ApiService  *RoleAPIService
-	id          int64
+	id          string
 	requestBody *[]string
 }
 
@@ -49,7 +49,7 @@ Add one or more scopes to a role.
 	@param id The id of the role
 	@return RoleAPIAddScopeToRoleRequest
 */
-func (a *RoleAPIService) AddScopeToRole(ctx context.Context, id int64) RoleAPIAddScopeToRoleRequest {
+func (a *RoleAPIService) AddScopeToRole(ctx context.Context, id string) RoleAPIAddScopeToRoleRequest {
 	return RoleAPIAddScopeToRoleRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -302,7 +302,7 @@ func (a *RoleAPIService) CreateRoleExecute(r RoleAPICreateRoleRequest) (*Role, *
 type RoleAPIDeleteRoleRequest struct {
 	ctx        context.Context
 	ApiService *RoleAPIService
-	id         int64
+	id         string
 }
 
 func (r RoleAPIDeleteRoleRequest) Execute() (*http.Response, error) {
@@ -318,7 +318,7 @@ Delete a role
 	@param id id of the role
 	@return RoleAPIDeleteRoleRequest
 */
-func (a *RoleAPIService) DeleteRole(ctx context.Context, id int64) RoleAPIDeleteRoleRequest {
+func (a *RoleAPIService) DeleteRole(ctx context.Context, id string) RoleAPIDeleteRoleRequest {
 	return RoleAPIDeleteRoleRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -413,7 +413,7 @@ func (a *RoleAPIService) DeleteRoleExecute(r RoleAPIDeleteRoleRequest) (*http.Re
 type RoleAPIGetRoleRequest struct {
 	ctx        context.Context
 	ApiService *RoleAPIService
-	id         int64
+	id         string
 }
 
 func (r RoleAPIGetRoleRequest) Execute() (*Role, *http.Response, error) {
@@ -429,7 +429,7 @@ Get a role by ID.
 	@param id The id of the role
 	@return RoleAPIGetRoleRequest
 */
-func (a *RoleAPIService) GetRole(ctx context.Context, id int64) RoleAPIGetRoleRequest {
+func (a *RoleAPIService) GetRole(ctx context.Context, id string) RoleAPIGetRoleRequest {
 	return RoleAPIGetRoleRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -679,7 +679,7 @@ func (a *RoleAPIService) ListRolesExecute(r RoleAPIListRolesRequest) ([]Role, *h
 type RoleAPIListScopesForRoleRequest struct {
 	ctx        context.Context
 	ApiService *RoleAPIService
-	id         int64
+	id         string
 	limit      *int32
 	offset     *int32
 }
@@ -709,7 +709,7 @@ List scopes assigned to a role.
 	@param id The id of the role
 	@return RoleAPIListScopesForRoleRequest
 */
-func (a *RoleAPIService) ListScopesForRole(ctx context.Context, id int64) RoleAPIListScopesForRoleRequest {
+func (a *RoleAPIService) ListScopesForRole(ctx context.Context, id string) RoleAPIListScopesForRoleRequest {
 	return RoleAPIListScopesForRoleRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -826,8 +826,8 @@ func (a *RoleAPIService) ListScopesForRoleExecute(r RoleAPIListScopesForRoleRequ
 type RoleAPIRemoveScopeFromRoleRequest struct {
 	ctx        context.Context
 	ApiService *RoleAPIService
-	roleId     int64
-	scopeId    int64
+	roleId     string
+	scopeId    string
 }
 
 func (r RoleAPIRemoveScopeFromRoleRequest) Execute() (*http.Response, error) {
@@ -844,7 +844,7 @@ Remove a scope from a role.
 	@param scopeId The id of the scope
 	@return RoleAPIRemoveScopeFromRoleRequest
 */
-func (a *RoleAPIService) RemoveScopeFromRole(ctx context.Context, roleId int64, scopeId int64) RoleAPIRemoveScopeFromRoleRequest {
+func (a *RoleAPIService) RemoveScopeFromRole(ctx context.Context, roleId string, scopeId string) RoleAPIRemoveScopeFromRoleRequest {
 	return RoleAPIRemoveScopeFromRoleRequest{
 		ApiService: a,
 		ctx:        ctx,
@@ -963,7 +963,7 @@ func (a *RoleAPIService) RemoveScopeFromRoleExecute(r RoleAPIRemoveScopeFromRole
 type RoleAPIUpdateRoleRequest struct {
 	ctx        context.Context
 	ApiService *RoleAPIService
-	id         int64
+	id         string
 	role       *Role
 }
 
@@ -986,7 +986,7 @@ Update a role by ID.
 	@param id id of the role
 	@return RoleAPIUpdateRoleRequest
 */
-func (a *RoleAPIService) UpdateRole(ctx context.Context, id int64) RoleAPIUpdateRoleRequest {
+func (a *RoleAPIService) UpdateRole(ctx context.Context, id string) RoleAPIUpdateRoleRequest {
 	return RoleAPIUpdateRoleRequest{
 		ApiService: a,
 		ctx:        ctx,

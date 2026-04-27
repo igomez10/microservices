@@ -81,7 +81,7 @@ func GetCmd() *cli.Command {
 
 			apiClient := client.NewAPIClient(cfg)
 
-			httpResponse, err := apiClient.RoleAPI.RemoveScopeFromRole(ctx, roleID, scopeID).Execute()
+			httpResponse, err := apiClient.RoleAPI.RemoveScopeFromRole(ctx, roleIDStr, scopeIDStr).Execute()
 			if err != nil {
 				bodyBytes, _ := io.ReadAll(httpResponse.Body)
 				fmt.Printf("Error: %v\nResponse: %s\n", err, string(bodyBytes))

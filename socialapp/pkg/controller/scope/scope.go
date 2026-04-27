@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
@@ -15,6 +16,20 @@ import (
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 )
+
+// parseAPIID parses an int64 ID that arrived on the API surface as a string
+// (see openapi.yaml: int64 fields are serialized as JSON strings to avoid
+// JS precision loss). Returns a 400 ApiError payload on parse failure.
+func parseAPIID(s string) (int64, *openapi.Error) {
+	id, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return 0, &openapi.Error{
+			Code:    http.StatusBadRequest,
+			Message: "invalid id: must be a numeric string",
+		}
+	}
+	return id, nil
+}
 
 // s *ScopeApiService openapi.ScopeApiServicer
 var _ openapi.ScopeAPIServicer = (*ScopeApiService)(nil)
@@ -80,10 +95,14 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 	}, nil
 }
 
-func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int64) (openapi.ImplResponse, error) {
+func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeIDStr string) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "DeleteScope")
 	defer span.End()
-	logger := contexthelper.GetLoggerInContext(ctx).With("scope_id", int(scopeID))
+	scopeID, parseErr := parseAPIID(scopeIDStr)
+	if parseErr != nil {
+		return openapi.Response(int(parseErr.Code), *parseErr), nil
+	}
+	logger := contexthelper.GetLoggerInContext(ctx).With("scope_id", scopeID)
 
 	//verify scope exists
 	scope, err := s.DB.GetScope(ctx, s.DBConn, scopeID)
@@ -120,13 +139,16 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeID int64) (opena
 
 }
 
-func (s *ScopeApiService) GetScope(ctx context.Context, scopeID int64) (openapi.ImplResponse, error) {
+func (s *ScopeApiService) GetScope(ctx context.Context, scopeIDStr string) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "GetScope")
 	defer span.End()
-	logger := contexthelper.GetLoggerInContext(ctx).With("scope_id", int(scopeID))
+	scopeID, parseErr := parseAPIID(scopeIDStr)
+	if parseErr != nil {
+		return openapi.Response(int(parseErr.Code), *parseErr), nil
+	}
+	logger := contexthelper.GetLoggerInContext(ctx).With("scope_id", scopeID)
 
-	s.DB.GetScope(ctx, s.DBConn, int64(scopeID))
-	scope, err := s.DB.GetScope(ctx, s.DBConn, int64(scopeID))
+	scope, err := s.DB.GetScope(ctx, s.DBConn, scopeID)
 	if err != nil {
 		logger.Debug("failed to retrieve scope", "error", err)
 
@@ -184,16 +206,20 @@ func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset in
 	}, nil
 }
 
-func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeID int64, updatedScope openapi.Scope) (openapi.ImplResponse, error) {
+func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeIDStr string, updatedScope openapi.Scope) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "UpdateScope")
 	defer span.End()
+	scopeID, parseErr := parseAPIID(scopeIDStr)
+	if parseErr != nil {
+		return openapi.Response(int(parseErr.Code), *parseErr), nil
+	}
 	logger := contexthelper.GetLoggerInContext(ctx).With(
-		"scope_id", int(scopeID),
+		"scope_id", scopeID,
 		"updated_scope", fmt.Sprintf("%+v", updatedScope),
 	)
 
 	// get scope from db
-	scope, err := s.DB.GetScope(ctx, s.DBConn, int64(scopeID))
+	scope, err := s.DB.GetScope(ctx, s.DBConn, scopeID)
 	if err != nil {
 		logger.Error("failed to retrieve scope", "error", err)
 

@@ -50,7 +50,7 @@ Delete a scope
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **id** | **Long**| id of the scope | [default to null] |
+| **id** | **String**| id of the scope | [default to null] |
 
 ### Return type
 
@@ -77,7 +77,7 @@ Get scope by ID
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **id** | **Long**| The id of the scope | [default to null] |
+| **id** | **String**| The id of the scope | [default to null] |
 
 ### Return type
 
@@ -132,7 +132,7 @@ Update a scope
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **id** | **Long**| id of the scope | [default to null] |
+| **id** | **String**| id of the scope | [default to null] |
 | **Scope** | [**Scope**](../Models/Scope.md)| Update a scope | [optional] |
 
 ### Return type

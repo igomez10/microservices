@@ -54,15 +54,42 @@ SET deleted_at = NOW()
 WHERE username = $1 AND deleted_at IS NULL;
 
 -- name: GetComment :one
-SELECT * FROM comments
-WHERE id = $1 AND deleted_at IS NULL LIMIT 1;
+SELECT
+	c.id,
+	c.content,
+	COALESCE(l.like_count, 0)::BIGINT AS like_count,
+	c.user_id,
+	c.created_at,
+	c.updated_at,
+	c.deleted_at
+FROM comments c
+LEFT JOIN (
+	SELECT comment_id, COUNT(*)::BIGINT AS like_count
+	FROM likes
+	WHERE deleted_at IS NULL
+	GROUP BY comment_id
+) l ON l.comment_id = c.id
+WHERE c.id = $1 AND c.deleted_at IS NULL
+LIMIT 1;
 
 -- name: GetUserComments :many
 SELECT
-	c.*
+	c.id,
+	c.content,
+	COALESCE(l.like_count, 0)::BIGINT AS like_count,
+	c.user_id,
+	c.created_at,
+	c.updated_at,
+	c.deleted_at
 FROM
 	comments c JOIN users u
 	ON c.user_id = u.id
+	LEFT JOIN (
+		SELECT comment_id, COUNT(*)::BIGINT AS like_count
+		FROM likes
+		WHERE deleted_at IS NULL
+		GROUP BY comment_id
+	) l ON l.comment_id = c.id
 WHERE
 	u.username = $1
 	AND c.deleted_at IS NULL
@@ -73,18 +100,44 @@ LIMIT $2 OFFSET $3;
 	
 
 -- name: ListComment :many
-SELECT * FROM comments
-WHERE deleted_at IS NULL
+SELECT
+	c.id,
+	c.content,
+	COALESCE(l.like_count, 0)::BIGINT AS like_count,
+	c.user_id,
+	c.created_at,
+	c.updated_at,
+	c.deleted_at
+FROM comments c
+LEFT JOIN (
+	SELECT comment_id, COUNT(*)::BIGINT AS like_count
+	FROM likes
+	WHERE deleted_at IS NULL
+	GROUP BY comment_id
+) l ON l.comment_id = c.id
+WHERE c.deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2;
 
 -- name: SearchComments :many
 SELECT
-	c.*,
+	c.id,
+	c.content,
+	COALESCE(l.like_count, 0)::BIGINT AS like_count,
+	c.user_id,
+	c.created_at,
+	c.updated_at,
+	c.deleted_at,
 	u.username
 FROM
 	comments c
 	JOIN users u ON c.user_id = u.id
+	LEFT JOIN (
+		SELECT comment_id, COUNT(*)::BIGINT AS like_count
+		FROM likes
+		WHERE deleted_at IS NULL
+		GROUP BY comment_id
+	) l ON l.comment_id = c.id
 WHERE
 	c.deleted_at IS NULL
 	AND u.deleted_at IS NULL
@@ -123,6 +176,21 @@ RETURNING *;
 UPDATE comments
 SET deleted_at = NOW()
 WHERE id = $1 AND deleted_at IS NULL;
+
+-- name: CreateLike :exec
+INSERT INTO likes (
+  user_id, comment_id
+) VALUES (
+  $1, $2
+)
+ON CONFLICT DO NOTHING;
+
+-- name: DeleteLike :exec
+UPDATE likes
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND comment_id = $2
+  AND deleted_at IS NULL;
 
 -- name: FollowUser :exec
 INSERT INTO followers (

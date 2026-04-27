@@ -64,7 +64,7 @@ socialapp-cli deleteScope id=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **integer** | id of the scope | [default to null]
+ **id** | **string** | id of the scope | [default to null]
 
 ### Return type
 
@@ -99,7 +99,7 @@ socialapp-cli getScope id=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **integer** | The id of the scope | [default to null]
+ **id** | **string** | The id of the scope | [default to null]
 
 ### Return type
 
@@ -170,7 +170,7 @@ socialapp-cli updateScope id=value
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **id** | **integer** | id of the scope | [default to null]
+ **id** | **string** | id of the scope | [default to null]
  **scope** | [**Scope**](Scope.md) | Update a scope | [optional]
 
 ### Return type

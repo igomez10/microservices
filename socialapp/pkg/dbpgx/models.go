@@ -45,6 +45,14 @@ type Follower struct {
 	FollowedID int64 `json:"followed_id"`
 }
 
+type Like struct {
+	ID        int64            `json:"id"`
+	UserID    int64            `json:"user_id"`
+	CommentID int64            `json:"comment_id"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	DeletedAt pgtype.Timestamp `json:"deleted_at"`
+}
+
 type Role struct {
 	ID          int64            `json:"id"`
 	Name        string           `json:"name"`

@@ -313,6 +313,8 @@ export default function App() {
   const [postedCommentNotice, setPostedCommentNotice] = useState<Comment | null>(null)
   const [discoveryStatus, setDiscoveryStatus] = useState<StatusState>(initialStatus)
   const [discoveryItems, setDiscoveryItems] = useState<Comment[]>([])
+  const [likedCommentIds, setLikedCommentIds] = useState<Set<number>>(() => new Set())
+  const [likeStatus, setLikeStatus] = useState<StatusState>(initialStatus)
 
   const [commentLookupStatus, setCommentLookupStatus] = useState<StatusState>(initialStatus)
   const [commentLookupId, setCommentLookupId] = useState('')
@@ -529,6 +531,65 @@ export default function App() {
       error: res.error ?? '',
       loading: false
     })
+  }
+
+  const replaceCommentById = (items: Comment[], updatedComment: Comment) =>
+    items.map((item) => (item.id === updatedComment.id ? updatedComment : item))
+
+  const toggleCommentLike = async (comment: Comment) => {
+    if (!comment.id) {
+      return
+    }
+
+    const isLiked = likedCommentIds.has(comment.id)
+    setStatus(setLikeStatus, { ...initialStatus, loading: true })
+
+    const res = isLiked
+      ? await api.unlikeComment({ comment_id: comment.id })
+      : await api.likeComment({ comment_id: comment.id })
+
+    let updatedComment = res.data as Comment | undefined
+    if (!updatedComment && res.ok) {
+      const commentRes = await api.getComment(comment.id)
+      updatedComment = commentRes.data
+    }
+
+    if (updatedComment) {
+      setFeedItems((prev) => replaceCommentById(prev, updatedComment as Comment))
+      setDiscoveryItems((prev) => replaceCommentById(prev, updatedComment as Comment))
+      setProfileComments((prev) => replaceCommentById(prev, updatedComment as Comment))
+      setLikedCommentIds((prev) => {
+        const next = new Set(prev)
+        if (isLiked) {
+          next.delete(comment.id as number)
+        } else {
+          next.add(comment.id as number)
+        }
+        return next
+      })
+    }
+
+    setStatus(setLikeStatus, {
+      status: `${res.status} ${res.statusText}`,
+      error: res.error ?? '',
+      loading: false
+    })
+  }
+
+  const renderCommentLikeButton = (comment: Comment) => {
+    const isLiked = comment.id ? likedCommentIds.has(comment.id) : false
+    return (
+      <button
+        type="button"
+        className={`comment-action comment-like-button ${isLiked ? 'liked' : ''}`}
+        onClick={() => {
+          void toggleCommentLike(comment)
+        }}
+        disabled={likeStatus.loading || !comment.id}
+      >
+        {Icons.heart(14, isLiked)} {comment.like_count ?? 0}
+      </button>
+    )
   }
 
   const registerUser = async () => {
@@ -1140,7 +1201,7 @@ export default function App() {
                     </div>
                     <div className="comment-body">{comment.content}</div>
                     <div className="comment-actions">
-                      <span className="comment-action">{Icons.heart(14)} {comment.like_count ?? 0}</span>
+                      {renderCommentLikeButton(comment)}
                     </div>
                   </div>
                 ))
@@ -1403,6 +1464,7 @@ export default function App() {
                   </button>
                 </div>
                 {feedStatus.error ? <p className="error-text">{feedStatus.error}</p> : null}
+                {likeStatus.error ? <p className="error-text">{likeStatus.error}</p> : null}
                 {postedCommentNotice ? (
                   <pre className="highlight">
                     Posted comment by @{postedCommentNotice.username}
@@ -1438,7 +1500,7 @@ export default function App() {
                     </div>
                     <div className="comment-body">{item.content}</div>
                     <div className="comment-actions">
-                      <span className="comment-action">{Icons.heart(14)} {item.like_count ?? 0}</span>
+                      {renderCommentLikeButton(item)}
                     </div>
                   </div>
                 )
@@ -1466,6 +1528,7 @@ export default function App() {
 
             <div className="card card-flat">
               {discoveryStatus.error ? <p className="error-text">{discoveryStatus.error}</p> : null}
+              {likeStatus.error ? <p className="error-text">{likeStatus.error}</p> : null}
               {discoveryItems.map((item, index) => {
                 const knownUser = users.find((candidate) => candidate.username === item.username)
                 const avatarUser =
@@ -1490,7 +1553,7 @@ export default function App() {
                     </div>
                     <div className="comment-body">{item.content}</div>
                     <div className="comment-actions">
-                      <span className="comment-action">{Icons.heart(14)} {item.like_count ?? 0}</span>
+                      {renderCommentLikeButton(item)}
                     </div>
                   </div>
                 )

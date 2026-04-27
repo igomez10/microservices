@@ -230,6 +230,25 @@ func (q *Queries) CreateEventWithID(ctx context.Context, db DBTX, arg CreateEven
 	return err
 }
 
+const CreateLike = `-- name: CreateLike :exec
+INSERT INTO likes (
+  user_id, comment_id
+) VALUES (
+  $1, $2
+)
+ON CONFLICT DO NOTHING
+`
+
+type CreateLikeParams struct {
+	UserID    int64 `json:"user_id"`
+	CommentID int64 `json:"comment_id"`
+}
+
+func (q *Queries) CreateLike(ctx context.Context, db DBTX, arg CreateLikeParams) error {
+	_, err := db.Exec(ctx, CreateLike, arg.UserID, arg.CommentID)
+	return err
+}
+
 const CreateRole = `-- name: CreateRole :one
 INSERT INTO roles (name, description) 
 VALUES ($1, $2)
@@ -571,6 +590,24 @@ func (q *Queries) DeleteCredential(ctx context.Context, db DBTX, id int64) error
 	return err
 }
 
+const DeleteLike = `-- name: DeleteLike :exec
+UPDATE likes
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND comment_id = $2
+  AND deleted_at IS NULL
+`
+
+type DeleteLikeParams struct {
+	UserID    int64 `json:"user_id"`
+	CommentID int64 `json:"comment_id"`
+}
+
+func (q *Queries) DeleteLike(ctx context.Context, db DBTX, arg DeleteLikeParams) error {
+	_, err := db.Exec(ctx, DeleteLike, arg.UserID, arg.CommentID)
+	return err
+}
+
 const DeleteRole = `-- name: DeleteRole :exec
 UPDATE roles 
 SET deleted_at = NOW()
@@ -675,13 +712,38 @@ func (q *Queries) FollowUser(ctx context.Context, db DBTX, arg FollowUserParams)
 }
 
 const GetComment = `-- name: GetComment :one
-SELECT id, content, like_count, user_id, created_at, updated_at, deleted_at FROM comments
-WHERE id = $1 AND deleted_at IS NULL LIMIT 1
+SELECT
+	c.id,
+	c.content,
+	COALESCE(l.like_count, 0)::BIGINT AS like_count,
+	c.user_id,
+	c.created_at,
+	c.updated_at,
+	c.deleted_at
+FROM comments c
+LEFT JOIN (
+	SELECT comment_id, COUNT(*)::BIGINT AS like_count
+	FROM likes
+	WHERE deleted_at IS NULL
+	GROUP BY comment_id
+) l ON l.comment_id = c.id
+WHERE c.id = $1 AND c.deleted_at IS NULL
+LIMIT 1
 `
 
-func (q *Queries) GetComment(ctx context.Context, db DBTX, id int64) (Comment, error) {
+type GetCommentRow struct {
+	ID        int64            `json:"id"`
+	Content   string           `json:"content"`
+	LikeCount int64            `json:"like_count"`
+	UserID    int64            `json:"user_id"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	DeletedAt pgtype.Timestamp `json:"deleted_at"`
+}
+
+func (q *Queries) GetComment(ctx context.Context, db DBTX, id int64) (GetCommentRow, error) {
 	row := db.QueryRow(ctx, GetComment, id)
-	var i Comment
+	var i GetCommentRow
 	err := row.Scan(
 		&i.ID,
 		&i.Content,
@@ -983,10 +1045,22 @@ func (q *Queries) GetUserByUsername(ctx context.Context, db DBTX, username strin
 
 const GetUserComments = `-- name: GetUserComments :many
 SELECT
-	c.id, c.content, c.like_count, c.user_id, c.created_at, c.updated_at, c.deleted_at
+	c.id,
+	c.content,
+	COALESCE(l.like_count, 0)::BIGINT AS like_count,
+	c.user_id,
+	c.created_at,
+	c.updated_at,
+	c.deleted_at
 FROM
 	comments c JOIN users u
 	ON c.user_id = u.id
+	LEFT JOIN (
+		SELECT comment_id, COUNT(*)::BIGINT AS like_count
+		FROM likes
+		WHERE deleted_at IS NULL
+		GROUP BY comment_id
+	) l ON l.comment_id = c.id
 WHERE
 	u.username = $1
 	AND c.deleted_at IS NULL
@@ -1002,15 +1076,25 @@ type GetUserCommentsParams struct {
 	Offset   int32  `json:"offset"`
 }
 
-func (q *Queries) GetUserComments(ctx context.Context, db DBTX, arg GetUserCommentsParams) ([]Comment, error) {
+type GetUserCommentsRow struct {
+	ID        int64            `json:"id"`
+	Content   string           `json:"content"`
+	LikeCount int64            `json:"like_count"`
+	UserID    int64            `json:"user_id"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	DeletedAt pgtype.Timestamp `json:"deleted_at"`
+}
+
+func (q *Queries) GetUserComments(ctx context.Context, db DBTX, arg GetUserCommentsParams) ([]GetUserCommentsRow, error) {
 	rows, err := db.Query(ctx, GetUserComments, arg.Username, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Comment
+	var items []GetUserCommentsRow
 	for rows.Next() {
-		var i Comment
+		var i GetUserCommentsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Content,
@@ -1070,8 +1154,22 @@ func (q *Queries) GetUserRoles(ctx context.Context, db DBTX, id int64) ([]Role, 
 }
 
 const ListComment = `-- name: ListComment :many
-SELECT id, content, like_count, user_id, created_at, updated_at, deleted_at FROM comments
-WHERE deleted_at IS NULL
+SELECT
+	c.id,
+	c.content,
+	COALESCE(l.like_count, 0)::BIGINT AS like_count,
+	c.user_id,
+	c.created_at,
+	c.updated_at,
+	c.deleted_at
+FROM comments c
+LEFT JOIN (
+	SELECT comment_id, COUNT(*)::BIGINT AS like_count
+	FROM likes
+	WHERE deleted_at IS NULL
+	GROUP BY comment_id
+) l ON l.comment_id = c.id
+WHERE c.deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
 `
@@ -1081,15 +1179,25 @@ type ListCommentParams struct {
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) ListComment(ctx context.Context, db DBTX, arg ListCommentParams) ([]Comment, error) {
+type ListCommentRow struct {
+	ID        int64            `json:"id"`
+	Content   string           `json:"content"`
+	LikeCount int64            `json:"like_count"`
+	UserID    int64            `json:"user_id"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	DeletedAt pgtype.Timestamp `json:"deleted_at"`
+}
+
+func (q *Queries) ListComment(ctx context.Context, db DBTX, arg ListCommentParams) ([]ListCommentRow, error) {
 	rows, err := db.Query(ctx, ListComment, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Comment
+	var items []ListCommentRow
 	for rows.Next() {
-		var i Comment
+		var i ListCommentRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Content,
@@ -1280,11 +1388,23 @@ func (q *Queries) ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) (
 
 const SearchComments = `-- name: SearchComments :many
 SELECT
-	c.id, c.content, c.like_count, c.user_id, c.created_at, c.updated_at, c.deleted_at,
+	c.id,
+	c.content,
+	COALESCE(l.like_count, 0)::BIGINT AS like_count,
+	c.user_id,
+	c.created_at,
+	c.updated_at,
+	c.deleted_at,
 	u.username
 FROM
 	comments c
 	JOIN users u ON c.user_id = u.id
+	LEFT JOIN (
+		SELECT comment_id, COUNT(*)::BIGINT AS like_count
+		FROM likes
+		WHERE deleted_at IS NULL
+		GROUP BY comment_id
+	) l ON l.comment_id = c.id
 WHERE
 	c.deleted_at IS NULL
 	AND u.deleted_at IS NULL

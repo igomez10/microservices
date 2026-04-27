@@ -33,9 +33,9 @@ CREATE TABLE IF NOT EXISTS `change_password_request` (
 --
 
 CREATE TABLE IF NOT EXISTS `comment` (
-  `id` BIGINT DEFAULT NULL COMMENT 'Unique comment identifier.',
+  `id` TEXT DEFAULT NULL COMMENT 'Unique comment identifier.',
   `content` TEXT NOT NULL COMMENT 'Comment text.',
-  `like_count` BIGINT DEFAULT NULL COMMENT 'Number of likes for the comment.',
+  `like_count` TEXT DEFAULT NULL COMMENT 'Number of likes for the comment.',
   `created_at` DATETIME DEFAULT NULL COMMENT 'Timestamp when the comment was created.',
   `username` TEXT NOT NULL COMMENT 'Username of the comment author.'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='User-generated comment.. Original model name - Comment.';
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `create_user_request` (
 --
 
 CREATE TABLE IF NOT EXISTS `create_user_response` (
-  `id` BIGINT NOT NULL COMMENT 'Unique user identifier.',
+  `id` TEXT NOT NULL COMMENT 'Unique user identifier.',
   `username` TEXT NOT NULL COMMENT 'Unique username for the account.',
   `first_name` TEXT NOT NULL COMMENT 'User first name.',
   `last_name` TEXT NOT NULL COMMENT 'User last name.',
@@ -78,6 +78,15 @@ CREATE TABLE IF NOT EXISTS `error` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Standard error payload returned by the API.. Original model name - Error.';
 
 --
+-- Table structure for table `like_request` generated from model 'LikeRequest'
+-- Like or unlike a comment.
+--
+
+CREATE TABLE IF NOT EXISTS `like_request` (
+  `comment_id` TEXT NOT NULL COMMENT 'Unique identifier of the comment.'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Like or unlike a comment.. Original model name - LikeRequest.';
+
+--
 -- Table structure for table `reset_password_request` generated from model 'ResetPasswordRequest'
 -- Request payload for triggering a password reset.
 --
@@ -92,7 +101,7 @@ CREATE TABLE IF NOT EXISTS `reset_password_request` (
 --
 
 CREATE TABLE IF NOT EXISTS `role` (
-  `id` BIGINT DEFAULT NULL COMMENT 'Unique role identifier.',
+  `id` TEXT DEFAULT NULL COMMENT 'Unique role identifier.',
   `name` TEXT NOT NULL COMMENT 'Unique role name.',
   `description` TEXT DEFAULT NULL COMMENT 'Description of what the role grants.',
   `created_at` DATETIME DEFAULT NULL COMMENT 'Timestamp when the role was created.'
@@ -104,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `role` (
 --
 
 CREATE TABLE IF NOT EXISTS `scope` (
-  `id` BIGINT DEFAULT NULL COMMENT 'Unique scope identifier.',
+  `id` TEXT DEFAULT NULL COMMENT 'Unique scope identifier.',
   `name` TEXT NOT NULL COMMENT 'Scope name (for example, &#x60;socialapp.roles.read&#x60;).',
   `description` TEXT NOT NULL COMMENT 'Description of the permission granted by this scope.',
   `created_at` DATETIME DEFAULT NULL COMMENT 'Timestamp when the scope was created.'
@@ -129,7 +138,7 @@ CREATE TABLE IF NOT EXISTS `url` (
 --
 
 CREATE TABLE IF NOT EXISTS `user` (
-  `id` BIGINT DEFAULT NULL COMMENT 'Unique user identifier.',
+  `id` TEXT DEFAULT NULL COMMENT 'Unique user identifier.',
   `username` TEXT NOT NULL COMMENT 'Unique username for the account.',
   `first_name` TEXT NOT NULL COMMENT 'User first name.',
   `last_name` TEXT NOT NULL COMMENT 'User last name.',

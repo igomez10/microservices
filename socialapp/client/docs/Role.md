@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Id** | Pointer to **int64** | Unique role identifier. | [optional] 
+**Id** | Pointer to **string** | Unique role identifier. | [optional] 
 **Name** | **string** | Unique role name. | 
 **Description** | Pointer to **string** | Description of what the role grants. | [optional] 
 **CreatedAt** | Pointer to **time.Time** | Timestamp when the role was created. | [optional] 
@@ -30,20 +30,20 @@ but it doesn't guarantee that properties required by API are set
 
 ### GetId
 
-`func (o *Role) GetId() int64`
+`func (o *Role) GetId() string`
 
 GetId returns the Id field if non-nil, zero value otherwise.
 
 ### GetIdOk
 
-`func (o *Role) GetIdOk() (*int64, bool)`
+`func (o *Role) GetIdOk() (*string, bool)`
 
 GetIdOk returns a tuple with the Id field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetId
 
-`func (o *Role) SetId(v int64)`
+`func (o *Role) SetId(v string)`
 
 SetId sets Id field to given value.
 

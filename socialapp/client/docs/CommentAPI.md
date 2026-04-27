@@ -7,7 +7,9 @@ Method | HTTP request | Description
 [**CreateComment**](CommentAPI.md#CreateComment) | **Post** /v1/comments | Create a new comment
 [**GetComment**](CommentAPI.md#GetComment) | **Get** /v1/comments/{id} | Get comment by ID
 [**GetUserFeed**](CommentAPI.md#GetUserFeed) | **Get** /v1/feed | Get user feed
+[**LikeComment**](CommentAPI.md#LikeComment) | **Post** /like | Like a comment
 [**SearchComments**](CommentAPI.md#SearchComments) | **Get** /v1/comments | Search comments
+[**UnlikeComment**](CommentAPI.md#UnlikeComment) | **Delete** /like | Unlike a comment
 
 
 
@@ -98,7 +100,7 @@ import (
 )
 
 func main() {
-	id := int64(123) // int64 | ID of the comment
+	id := "123" // string | ID of the comment
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -118,7 +120,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**id** | **int64** | ID of the comment | 
+**id** | **string** | ID of the comment | 
 
 ### Other Parameters
 
@@ -208,6 +210,72 @@ Other parameters are passed through a pointer to a apiGetUserFeedRequest struct 
 [[Back to README]](../README.md)
 
 
+## LikeComment
+
+> Comment LikeComment(ctx).LikeRequest(likeRequest).Execute()
+
+Like a comment
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
+)
+
+func main() {
+	likeRequest := *openapiclient.NewLikeRequest("CommentId_example") // LikeRequest | Comment like request
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.CommentAPI.LikeComment(context.Background()).LikeRequest(likeRequest).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.LikeComment``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `LikeComment`: Comment
+	fmt.Fprintf(os.Stdout, "Response from `CommentAPI.LikeComment`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiLikeCommentRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **likeRequest** | [**LikeRequest**](LikeRequest.md) | Comment like request | 
+
+### Return type
+
+[**Comment**](Comment.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
 ## SearchComments
 
 > []Comment SearchComments(ctx).Username(username).StartTime(startTime).EndTime(endTime).Execute()
@@ -272,6 +340,72 @@ Name | Type | Description  | Notes
 ### HTTP request headers
 
 - **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)
+[[Back to Model list]](../README.md#documentation-for-models)
+[[Back to README]](../README.md)
+
+
+## UnlikeComment
+
+> Comment UnlikeComment(ctx).LikeRequest(likeRequest).Execute()
+
+Unlike a comment
+
+
+
+### Example
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"os"
+	openapiclient "github.com/igomez10/microservices/socialapp/client"
+)
+
+func main() {
+	likeRequest := *openapiclient.NewLikeRequest("CommentId_example") // LikeRequest | Comment unlike request
+
+	configuration := openapiclient.NewConfiguration()
+	apiClient := openapiclient.NewAPIClient(configuration)
+	resp, r, err := apiClient.CommentAPI.UnlikeComment(context.Background()).LikeRequest(likeRequest).Execute()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.UnlikeComment``: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+	// response from `UnlikeComment`: Comment
+	fmt.Fprintf(os.Stdout, "Response from `CommentAPI.UnlikeComment`: %v\n", resp)
+}
+```
+
+### Path Parameters
+
+
+
+### Other Parameters
+
+Other parameters are passed through a pointer to a apiUnlikeCommentRequest struct via the builder pattern
+
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **likeRequest** | [**LikeRequest**](LikeRequest.md) | Comment unlike request | 
+
+### Return type
+
+[**Comment**](Comment.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: application/json
 - **Accept**: application/json
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints)

@@ -5,6 +5,7 @@ Model/Comment.sql
 Model/CreateUserRequest.sql
 Model/CreateUserResponse.sql
 Model/Error.sql
+Model/LikeRequest.sql
 Model/ResetPasswordRequest.sql
 Model/Role.sql
 Model/Scope.sql

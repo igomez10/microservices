@@ -24,7 +24,7 @@ var _ MappedNullable = &Scope{}
 // Scope OAuth scope used for access control.
 type Scope struct {
 	// Unique scope identifier.
-	Id *int64 `json:"id,omitempty"`
+	Id *string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
 	// Scope name (for example, `socialapp.roles.read`).
 	Name string `json:"name"`
 	// Description of the permission granted by this scope.
@@ -55,9 +55,9 @@ func NewScopeWithDefaults() *Scope {
 }
 
 // GetId returns the Id field value if set, zero value otherwise.
-func (o *Scope) GetId() int64 {
+func (o *Scope) GetId() string {
 	if o == nil || IsNil(o.Id) {
-		var ret int64
+		var ret string
 		return ret
 	}
 	return *o.Id
@@ -65,7 +65,7 @@ func (o *Scope) GetId() int64 {
 
 // GetIdOk returns a tuple with the Id field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *Scope) GetIdOk() (*int64, bool) {
+func (o *Scope) GetIdOk() (*string, bool) {
 	if o == nil || IsNil(o.Id) {
 		return nil, false
 	}
@@ -81,8 +81,8 @@ func (o *Scope) HasId() bool {
 	return false
 }
 
-// SetId gets a reference to the given int64 and assigns it to the Id field.
-func (o *Scope) SetId(v int64) {
+// SetId gets a reference to the given string and assigns it to the Id field.
+func (o *Scope) SetId(v string) {
 	o.Id = &v
 }
 

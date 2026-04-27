@@ -24,7 +24,7 @@ var _ MappedNullable = &CreateUserResponse{}
 // CreateUserResponse Response payload returned after user creation.
 type CreateUserResponse struct {
 	// Unique user identifier.
-	Id int64 `json:"id"`
+	Id string `json:"id" validate:"regexp=^-?\\\\d+$"`
 	// Unique username for the account.
 	Username string `json:"username"`
 	// User first name.
@@ -43,7 +43,7 @@ type _CreateUserResponse CreateUserResponse
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewCreateUserResponse(id int64, username string, firstName string, lastName string, email string, createdAt time.Time) *CreateUserResponse {
+func NewCreateUserResponse(id string, username string, firstName string, lastName string, email string, createdAt time.Time) *CreateUserResponse {
 	this := CreateUserResponse{}
 	this.Id = id
 	this.Username = username
@@ -63,9 +63,9 @@ func NewCreateUserResponseWithDefaults() *CreateUserResponse {
 }
 
 // GetId returns the Id field value
-func (o *CreateUserResponse) GetId() int64 {
+func (o *CreateUserResponse) GetId() string {
 	if o == nil {
-		var ret int64
+		var ret string
 		return ret
 	}
 
@@ -74,7 +74,7 @@ func (o *CreateUserResponse) GetId() int64 {
 
 // GetIdOk returns a tuple with the Id field value
 // and a boolean to check if the value has been set.
-func (o *CreateUserResponse) GetIdOk() (*int64, bool) {
+func (o *CreateUserResponse) GetIdOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -82,7 +82,7 @@ func (o *CreateUserResponse) GetIdOk() (*int64, bool) {
 }
 
 // SetId sets field value
-func (o *CreateUserResponse) SetId(v int64) {
+func (o *CreateUserResponse) SetId(v string) {
 	o.Id = v
 }
 

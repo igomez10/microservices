@@ -4,9 +4,9 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Id** | Pointer to **int64** | Unique comment identifier. | [optional] 
+**Id** | Pointer to **string** | Unique comment identifier. | [optional] 
 **Content** | **string** | Comment text. | 
-**LikeCount** | Pointer to **int64** | Number of likes for the comment. | [optional] 
+**LikeCount** | Pointer to **string** | Number of likes for the comment. | [optional] 
 **CreatedAt** | Pointer to **time.Time** | Timestamp when the comment was created. | [optional] 
 **Username** | **string** | Username of the comment author. | 
 
@@ -31,20 +31,20 @@ but it doesn't guarantee that properties required by API are set
 
 ### GetId
 
-`func (o *Comment) GetId() int64`
+`func (o *Comment) GetId() string`
 
 GetId returns the Id field if non-nil, zero value otherwise.
 
 ### GetIdOk
 
-`func (o *Comment) GetIdOk() (*int64, bool)`
+`func (o *Comment) GetIdOk() (*string, bool)`
 
 GetIdOk returns a tuple with the Id field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetId
 
-`func (o *Comment) SetId(v int64)`
+`func (o *Comment) SetId(v string)`
 
 SetId sets Id field to given value.
 
@@ -76,20 +76,20 @@ SetContent sets Content field to given value.
 
 ### GetLikeCount
 
-`func (o *Comment) GetLikeCount() int64`
+`func (o *Comment) GetLikeCount() string`
 
 GetLikeCount returns the LikeCount field if non-nil, zero value otherwise.
 
 ### GetLikeCountOk
 
-`func (o *Comment) GetLikeCountOk() (*int64, bool)`
+`func (o *Comment) GetLikeCountOk() (*string, bool)`
 
 GetLikeCountOk returns a tuple with the LikeCount field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetLikeCount
 
-`func (o *Comment) SetLikeCount(v int64)`
+`func (o *Comment) SetLikeCount(v string)`
 
 SetLikeCount sets LikeCount field to given value.
 

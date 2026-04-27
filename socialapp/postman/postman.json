@@ -1110,6 +1110,108 @@
 	            "description": "Comment creation and retrieval operations",
 	            "item": [
 	                        {
+    "name": "/like",
+                "description": "Like a comment as the authenticated user.",
+                 "item": [
+                            {
+                                "name": "Like a comment",
+                                "request": {
+    "method": "POST",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n  \"comment_id\" : 123\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/like",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "like"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Like a comment as the authenticated user."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/like",
+                "description": "Remove a like from a comment as the authenticated user.",
+                 "item": [
+                            {
+                                "name": "Unlike a comment",
+                                "request": {
+    "method": "DELETE",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n  \"comment_id\" : 123\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/like",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "like"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Remove a like from a comment as the authenticated user."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        },
+	                        {
     "name": "/v1/comments",
                 "description": "Create a new comment.",
                  "item": [

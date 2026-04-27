@@ -18,6 +18,7 @@ type Querier interface {
 	CreateCredentialWithID(ctx context.Context, db DBTX, arg CreateCredentialWithIDParams) (Credential, error)
 	CreateEvent(ctx context.Context, db DBTX, arg CreateEventParams) error
 	CreateEventWithID(ctx context.Context, db DBTX, arg CreateEventWithIDParams) error
+	CreateLike(ctx context.Context, db DBTX, arg CreateLikeParams) error
 	CreateRole(ctx context.Context, db DBTX, arg CreateRoleParams) (Role, error)
 	CreateRoleScope(ctx context.Context, db DBTX, arg CreateRoleScopeParams) (RolesToScope, error)
 	CreateRoleScopeWithID(ctx context.Context, db DBTX, arg CreateRoleScopeWithIDParams) (RolesToScope, error)
@@ -31,6 +32,7 @@ type Querier interface {
 	CreateUserWithID(ctx context.Context, db DBTX, arg CreateUserWithIDParams) (User, error)
 	DeleteComment(ctx context.Context, db DBTX, id int64) error
 	DeleteCredential(ctx context.Context, db DBTX, id int64) error
+	DeleteLike(ctx context.Context, db DBTX, arg DeleteLikeParams) error
 	DeleteRole(ctx context.Context, db DBTX, id int64) error
 	DeleteRoleScope(ctx context.Context, db DBTX, arg DeleteRoleScopeParams) error
 	DeleteScope(ctx context.Context, db DBTX, id int64) error
@@ -39,7 +41,7 @@ type Querier interface {
 	DeleteUserByUsername(ctx context.Context, db DBTX, username string) error
 	DeleteUserToRole(ctx context.Context, db DBTX, arg DeleteUserToRoleParams) error
 	FollowUser(ctx context.Context, db DBTX, arg FollowUserParams) error
-	GetComment(ctx context.Context, db DBTX, id int64) (Comment, error)
+	GetComment(ctx context.Context, db DBTX, id int64) (GetCommentRow, error)
 	GetCredential(ctx context.Context, db DBTX, publicKey string) (Credential, error)
 	GetFollowedUsers(ctx context.Context, db DBTX, followerID int64) ([]User, error)
 	GetFollowers(ctx context.Context, db DBTX, followedID int64) ([]User, error)
@@ -52,9 +54,9 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, db DBTX, email string) (User, error)
 	GetUserByID(ctx context.Context, db DBTX, id int64) (User, error)
 	GetUserByUsername(ctx context.Context, db DBTX, username string) (User, error)
-	GetUserComments(ctx context.Context, db DBTX, arg GetUserCommentsParams) ([]Comment, error)
+	GetUserComments(ctx context.Context, db DBTX, arg GetUserCommentsParams) ([]GetUserCommentsRow, error)
 	GetUserRoles(ctx context.Context, db DBTX, id int64) ([]Role, error)
-	ListComment(ctx context.Context, db DBTX, arg ListCommentParams) ([]Comment, error)
+	ListComment(ctx context.Context, db DBTX, arg ListCommentParams) ([]ListCommentRow, error)
 	ListRoleScopes(ctx context.Context, db DBTX, arg ListRoleScopesParams) ([]Scope, error)
 	ListRoles(ctx context.Context, db DBTX, arg ListRolesParams) ([]Role, error)
 	ListScopes(ctx context.Context, db DBTX, arg ListScopesParams) ([]Scope, error)
