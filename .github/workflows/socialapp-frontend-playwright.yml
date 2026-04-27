@@ -40,6 +40,11 @@ jobs:
           cd socialapp/frontend
           npx playwright install --with-deps chromium
 
+      - name: Run frontend unit tests
+        run: |
+          cd socialapp/frontend
+          npm run test:unit
+
       - name: Run Playwright tests
         env:
           E2E_API_BASE_URL: https://socialapp.gomezignacio.com
