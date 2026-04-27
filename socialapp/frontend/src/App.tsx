@@ -1067,11 +1067,8 @@ export default function App() {
     if (!loggedIn || view !== 'profile' || !profileUsername) {
       return
     }
-    if (selectedUser?.username === profileUsername || profileStatus.loading) {
-      return
-    }
     void loadProfile(profileUsername)
-  }, [loggedIn, profileStatus.loading, profileUsername, selectedUser?.username, view])
+  }, [loggedIn, view, profileUsername])
 
   useEffect(() => {
     if (typeof window === 'undefined') {

@@ -102,8 +102,15 @@ generate-openapi:
 generate-frontend-types:
 	cd frontend && npm run generate:api
 
-frontend-test-e2e:
+# Playwright browser E2E (see frontend/playwright.config.ts). Requires E2E_USERNAME and E2E_PASSWORD
+# (export them or put them in ./.env). Optional: E2E_API_BASE_URL, E2E_BASE_URL. Vite is started automatically.
+# First-time setup: make playwright-install
+.PHONY: playwright frontend-test-e2e playwright-install
+frontend-test-e2e playwright:
 	if [ -f ./.env ]; then set -a; . ./.env; set +a; fi; cd frontend && npm run test:e2e
+
+playwright-install:
+	cd frontend && npx playwright install --with-deps chromium
 
 frontend-debug:
 	mkdir -p logs
