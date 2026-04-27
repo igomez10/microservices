@@ -102,6 +102,13 @@ generate-openapi:
 generate-frontend-types:
 	cd frontend && npm run generate:api
 
+frontend-test-e2e:
+	if [ -f ./.env ]; then set -a; . ./.env; set +a; fi; cd frontend && npm run test:e2e
+
+frontend-debug:
+	mkdir -p logs
+	cd frontend && VITE_DEV_PROXY_TARGET=https://socialapp.gomezignacio.com npm run dev -- --host 127.0.0.1 --debug 2>&1 | tee ../logs/frontend-debug.log
+
 
 sqlc-generate:
 	sqlc generate --file db/sqlc.yaml

@@ -42,3 +42,4 @@ socialapp/contracts/logs
 urlshortener/contracts/logs
 deployer/__pycache__/main.cpython-313.pyc
 deployer/__pycache__/test_main.cpython-313-pytest-8.3.4.pyc
+socialapp/logs/frontend-debug.log

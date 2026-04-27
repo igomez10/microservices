@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import AuthPanel from '@/components/AuthPanel'
-import { clearStored, readStored, writeStored } from '@/lib/storage'
+import { apiRequest } from '@/api/client'
+import { clearCookie, readCookie, readJwtPayload, writeCookie } from '@/lib/storage'
 import {
   createSocialApi,
+  type AccessToken,
   type Comment,
   type CreateUserRequest,
   type Role,
@@ -13,13 +15,70 @@ import {
 
 const DEFAULT_API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ??
-  (typeof window !== 'undefined' ? `${window.location.origin}/api` : 'http://localhost:8086')
+  (typeof window !== 'undefined' ? '/api' : 'http://127.0.0.1:5173/api')
 const DEFAULT_CLIENT_ID = import.meta.env.VITE_CLIENT_ID ?? ''
 const DEFAULT_CLIENT_SECRET = import.meta.env.VITE_CLIENT_SECRET ?? ''
-const DEFAULT_SCOPES = import.meta.env.VITE_OAUTH_SCOPES ?? ''
+const ALL_OAUTH_SCOPES = [
+  'shortly.url.create',
+  'shortly.url.delete',
+  'shortly.url.update',
+  'socialapp.comments.create',
+  'socialapp.comments.delete',
+  'socialapp.comments.list',
+  'socialapp.comments.read',
+  'socialapp.comments.update',
+  'socialapp.feed.read',
+  'socialapp.follower.create',
+  'socialapp.follower.delete',
+  'socialapp.follower.read',
+  'socialapp.followers.list',
+  'socialapp.following.list',
+  'socialapp.roles.create',
+  'socialapp.roles.delete',
+  'socialapp.roles.list',
+  'socialapp.roles.read',
+  'socialapp.roles.scopes.create',
+  'socialapp.roles.scopes.delete',
+  'socialapp.roles.scopes.list',
+  'socialapp.roles.update',
+  'socialapp.scopes.create',
+  'socialapp.scopes.delete',
+  'socialapp.scopes.list',
+  'socialapp.scopes.read',
+  'socialapp.scopes.update',
+  'socialapp.users.create',
+  'socialapp.users.delete',
+  'socialapp.users.list',
+  'socialapp.users.read',
+  'socialapp.users.roles.create',
+  'socialapp.users.roles.delete',
+  'socialapp.users.roles.list',
+  'socialapp.users.roles.update',
+  'socialapp.users.update'
+].join(' ')
+const DEFAULT_SCOPES = import.meta.env.VITE_OAUTH_SCOPES ?? ALL_OAUTH_SCOPES
 
-const BASE_URL_KEY = 'socialapp.baseUrl'
-const TOKEN_KEY = 'socialapp.token'
+const TOKEN_COOKIE = 'socialapp.token'
+const USERNAME_COOKIE = 'socialapp.username'
+const USERS_PER_PAGE = 20
+const USERS_PAGE_COUNT = 10
+
+function usernameFromToken(token?: string) {
+  if (!token) {
+    return ''
+  }
+
+  const payload = readJwtPayload(token)
+  const candidates = [
+    payload?.preferred_username,
+    payload?.username,
+    payload?.user_name,
+    payload?.sub
+  ]
+
+  const username = candidates.find((value) => typeof value === 'string' && value.trim().length > 0)
+  return typeof username === 'string' ? username : ''
+}
 
 type View = 'feed' | 'users' | 'profile' | 'admin' | 'settings'
 type AdminTab = 'roles' | 'scopes' | 'urls'
@@ -165,20 +224,31 @@ function Avatar({
 
 export default function App() {
   const [view, setView] = useState<View>('feed')
-  const [loggedIn, setLoggedIn] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(() => Boolean(readCookie(TOKEN_COOKIE)))
   const [isSignup, setIsSignup] = useState(false)
   const [adminTab, setAdminTab] = useState<AdminTab>('roles')
   const [settingsTab, setSettingsTab] = useState<SettingsTab>('auth')
   const [profileTab, setProfileTab] = useState<ProfileTab>('posts')
 
-  const [baseUrl, setBaseUrl] = useState(() => readStored(BASE_URL_KEY, DEFAULT_API_BASE_URL))
+  const [baseUrl] = useState(DEFAULT_API_BASE_URL)
   const [token, setToken] = useState<string | undefined>(() => {
-    const stored = readStored<string | undefined>(TOKEN_KEY, undefined)
+    const stored = readCookie(TOKEN_COOKIE)
     return stored && stored.length > 0 ? stored : undefined
   })
+  const [currentUsername, setCurrentUsername] = useState(() => {
+    const cookieUsername = readCookie(USERNAME_COOKIE)
+    if (cookieUsername) {
+      return cookieUsername
+    }
+    const tokenValue = readCookie(TOKEN_COOKIE)
+    return usernameFromToken(tokenValue)
+  })
+  const [profileUsername, setProfileUsername] = useState('')
   const [clientId, setClientId] = useState(DEFAULT_CLIENT_ID)
   const [clientSecret, setClientSecret] = useState(DEFAULT_CLIENT_SECRET)
   const [scopes, setScopes] = useState(DEFAULT_SCOPES)
+  const [loginForm, setLoginForm] = useState({ username: '', password: '' })
+  const [loginStatus, setLoginStatus] = useState<StatusState>(initialStatus)
 
   const api = useMemo(
     () =>
@@ -197,6 +267,8 @@ export default function App() {
   const [feedStatus, setFeedStatus] = useState<StatusState>(initialStatus)
   const [feedItems, setFeedItems] = useState<Comment[]>([])
   const [commentForm, setCommentForm] = useState({ username: '', content: '' })
+  const [isPostingComment, setIsPostingComment] = useState(false)
+  const [postedCommentNotice, setPostedCommentNotice] = useState<Comment | null>(null)
 
   const [commentLookupStatus, setCommentLookupStatus] = useState<StatusState>(initialStatus)
   const [commentLookupId, setCommentLookupId] = useState('')
@@ -205,6 +277,7 @@ export default function App() {
   const [usersStatus, setUsersStatus] = useState<StatusState>(initialStatus)
   const [users, setUsers] = useState<User[]>([])
   const [userSearch, setUserSearch] = useState('')
+  const [usersPage, setUsersPage] = useState(1)
   const [newUser, setNewUser] = useState<CreateUserRequest>({
     username: '',
     first_name: '',
@@ -259,15 +332,58 @@ export default function App() {
   const handleTokenChange = (value: string | undefined) => {
     setToken(value)
     if (value) {
-      writeStored(TOKEN_KEY, value)
+      writeCookie(TOKEN_COOKIE, value)
+      const inferredUsername = currentUsername || usernameFromToken(value)
+      if (inferredUsername) {
+        writeCookie(USERNAME_COOKIE, inferredUsername)
+        setCurrentUsername(inferredUsername)
+        if (!profileUsername) {
+          setProfileUsername(inferredUsername)
+        }
+      }
+      setLoggedIn(true)
     } else {
-      clearStored(TOKEN_KEY)
+      clearCookie(TOKEN_COOKIE)
+      clearCookie(USERNAME_COOKIE)
+      setCurrentUsername('')
+      setProfileUsername('')
+      setLoggedIn(false)
     }
   }
 
-  const handleBaseUrlChange = (value: string) => {
-    setBaseUrl(value)
-    writeStored(BASE_URL_KEY, value)
+  const loginWithBasicAuth = async () => {
+    if (!loginForm.username.trim() || !loginForm.password.trim()) {
+      setStatus(setLoginStatus, { status: '', error: 'Enter a username and password', loading: false })
+      return
+    }
+
+    setStatus(setLoginStatus, { ...initialStatus, loading: true })
+    const res = await apiRequest<AccessToken>({
+      baseUrl,
+      path: '/v1/oauth/token',
+      method: 'POST',
+      basicAuth: {
+        clientId: loginForm.username,
+        clientSecret: loginForm.password
+      },
+      queryParams: scopes ? { scope: scopes } : undefined
+    })
+
+    setStatus(setLoginStatus, {
+      status: `${res.status} ${res.statusText}`,
+      error: res.error ?? '',
+      loading: false
+    })
+
+    if (!res.ok || !res.data?.access_token) {
+      return
+    }
+
+    handleTokenChange(res.data.access_token)
+    writeCookie(USERNAME_COOKIE, loginForm.username.trim())
+    setCurrentUsername(loginForm.username.trim())
+    setProfileUsername(loginForm.username.trim())
+    setLoginForm((prev) => ({ ...prev, password: '' }))
   }
 
   const pingServer = async () => {
@@ -293,9 +409,14 @@ export default function App() {
   }
 
   const postComment = async () => {
-    setStatus(setFeedStatus, { ...feedStatus, loading: true })
+    if (!currentUsername) {
+      setStatus(setFeedStatus, { status: '', error: 'Missing current username', loading: false })
+      return
+    }
+    setIsPostingComment(true)
+    setPostedCommentNotice(null)
     const res = await api.createComment({
-      username: commentForm.username,
+      username: currentUsername,
       content: commentForm.content
     })
     setStatus(setFeedStatus, {
@@ -305,8 +426,10 @@ export default function App() {
     })
     if (res.ok) {
       setCommentForm({ username: '', content: '' })
+      setPostedCommentNotice(res.data ?? { username: currentUsername, content: commentForm.content })
       await loadFeed()
     }
+    setIsPostingComment(false)
   }
 
   const lookupComment = async () => {
@@ -325,10 +448,11 @@ export default function App() {
     })
   }
 
-  const loadUsers = async () => {
+  const loadUsers = async (page = usersPage) => {
     setStatus(setUsersStatus, { ...initialStatus, loading: true })
-    const res = await api.listUsers()
+    const res = await api.listUsers({ limit: USERS_PER_PAGE, offset: (page - 1) * USERS_PER_PAGE })
     setUsers(res.data ?? [])
+    setUsersPage(page)
     setStatus(setUsersStatus, {
       status: `${res.status} ${res.statusText}`,
       error: res.error ?? '',
@@ -783,8 +907,8 @@ export default function App() {
     user.username.toLowerCase().includes(userSearch.toLowerCase())
   )
 
-  const sidebarUser = selectedUser ?? users[0] ?? null
-  const canPost = commentForm.username.trim().length > 0 && commentForm.content.trim().length > 0
+  const sidebarUser = selectedUser ?? users.find((user) => user.username === currentUsername) ?? users[0] ?? null
+  const canPost = currentUsername.trim().length > 0 && commentForm.content.trim().length > 0
 
   useEffect(() => {
     if (!loggedIn) {
@@ -804,48 +928,45 @@ export default function App() {
     }
   }, [loggedIn, view, users.length, usersStatus.loading])
 
+  useEffect(() => {
+    if (currentUsername || !token) {
+      return
+    }
+    const inferredUsername = usernameFromToken(token)
+    if (inferredUsername) {
+      writeCookie(USERNAME_COOKIE, inferredUsername)
+      setCurrentUsername(inferredUsername)
+      if (!profileUsername) {
+        setProfileUsername(inferredUsername)
+      }
+    }
+  }, [currentUsername, profileUsername, token])
+
+  useEffect(() => {
+    if (!loggedIn || view !== 'profile' || !profileUsername) {
+      return
+    }
+    if (selectedUser?.username === profileUsername || profileStatus.loading) {
+      return
+    }
+    void loadProfile(profileUsername)
+  }, [loggedIn, profileStatus.loading, profileUsername, selectedUser?.username, view])
+
   const renderProfileWorkspace = () => {
     if (!selectedUser || !profileForm) {
       return (
         <div className="empty-state">
-          <div className="empty-state-text">Select a user to view their profile.</div>
+          <div className="empty-state-text">Loading your profile.</div>
         </div>
       )
     }
 
     return (
-      <div className="card animate-in">
+        <div className="card animate-in">
         <div className="card-body">
           <div className="flex-between">
             <h3>Profile</h3>
-            <div className="flex gap-8">
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={() => {
-                  void loadProfile(selectedUser.username)
-                }}
-              >
-                Refresh
-              </button>
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={() => {
-                  void updateProfile()
-                }}
-              >
-                Update
-              </button>
-              <button
-                className="btn btn-danger btn-sm"
-                onClick={() => {
-                  void deleteProfile()
-                }}
-              >
-                Delete
-              </button>
-            </div>
           </div>
-          {profileStatus.status ? <p className="small-muted">Status: {profileStatus.status}</p> : null}
           {profileStatus.error ? <p className="error-text">{profileStatus.error}</p> : null}
 
           <div className="profile-header compact">
@@ -1125,32 +1246,36 @@ export default function App() {
             ) : null}
 
             <label className="input-group">
-              <span className="input-label">Email</span>
-              <input className="input" type="email" placeholder="you@example.com" />
+              <span className="input-label">Username</span>
+              <input
+                className="input"
+                value={loginForm.username}
+                onChange={(event) => setLoginForm((prev) => ({ ...prev, username: event.target.value }))}
+                autoComplete="username"
+                placeholder="some2"
+              />
             </label>
 
             <label className="input-group">
               <span className="input-label">Password</span>
-              <input className="input" type="password" placeholder="********" />
-            </label>
-
-            <label className="input-group">
-              <span className="input-label">API Base URL</span>
               <input
-                className="input input-mono"
-                value={baseUrl}
-                onChange={(event) => handleBaseUrlChange(event.target.value)}
+                className="input"
+                type="password"
+                value={loginForm.password}
+                onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))}
+                autoComplete="current-password"
+                placeholder="********"
               />
             </label>
 
-            <button className="btn btn-primary login-submit" onClick={() => setLoggedIn(true)}>
-              {isSignup ? 'Create account' : 'Sign in'}
-            </button>
-
-            <div className="login-divider">or</div>
-
-            <button className="btn btn-secondary login-submit" onClick={() => setLoggedIn(true)}>
-              Continue with OAuth
+            <button
+              className="btn btn-primary login-submit"
+              onClick={() => {
+                void loginWithBasicAuth()
+              }}
+              disabled={loginStatus.loading}
+            >
+              {loginStatus.loading ? 'Signing in...' : isSignup ? 'Create account' : 'Sign in'}
             </button>
 
             <div className="login-footer">
@@ -1171,6 +1296,8 @@ export default function App() {
               )}
             </div>
 
+            {loginStatus.status ? <p className="small-muted">Status: {loginStatus.status}</p> : null}
+            {loginStatus.error ? <p className="error-text">Error: {loginStatus.error}</p> : null}
             <p className="small-muted">{token ? 'Stored token detected.' : 'No access token stored yet.'}</p>
           </div>
         </div>
@@ -1182,8 +1309,7 @@ export default function App() {
     { id: 'feed', label: 'Feed', icon: Icons.home },
     { id: 'users', label: 'Users', icon: Icons.users },
     { id: 'profile', label: 'Profile', icon: Icons.user },
-    { id: 'settings', label: 'Settings', icon: Icons.settings },
-    { id: 'admin', label: 'Admin', icon: Icons.shield }
+    { id: 'settings', label: 'Settings', icon: Icons.settings }
   ]
 
   return (
@@ -1191,7 +1317,6 @@ export default function App() {
       <aside className="sidebar">
         <div className="sidebar-brand">
           <h1>Socialapp</h1>
-          <span>v1.0.0</span>
         </div>
 
         <nav className="sidebar-nav">
@@ -1202,6 +1327,9 @@ export default function App() {
               className={`nav-item ${view === item.id ? 'active' : ''}`}
               onClick={() => {
                 setView(item.id)
+                if (item.id === 'profile' && currentUsername) {
+                  setProfileUsername(currentUsername)
+                }
                 if (item.id === 'admin') {
                   void loadRoles()
                 }
@@ -1224,7 +1352,7 @@ export default function App() {
             </div>
             <div className="sidebar-user-handle">{sidebarUser ? `@${sidebarUser.username}` : '@guest'}</div>
           </div>
-          <button className="btn btn-ghost btn-icon" style={{ padding: '4px' }} onClick={() => setLoggedIn(false)}>
+          <button className="btn btn-ghost btn-icon" style={{ padding: '4px' }} onClick={() => handleTokenChange(undefined)}>
             {Icons.logout(16)}
           </button>
         </div>
@@ -1239,42 +1367,19 @@ export default function App() {
                   <h2 className="page-title">Feed</h2>
                   <p className="page-subtitle">Posts from people in your network</p>
                 </div>
-                <div className="flex gap-8">
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => {
-                      void loadFeed()
-                    }}
-                    disabled={feedStatus.loading}
-                  >
-                    {feedStatus.loading ? 'Loading...' : 'Refresh feed'}
-                  </button>
-                  <span className="page-indicator">GET /v1/feed</span>
-                </div>
               </div>
             </div>
 
             <div className="compose-box animate-in">
               <Avatar
                 user={{
-                  username: commentForm.username || 'you',
-                  first_name: commentForm.username || 'Y',
+                  username: currentUsername || 'you',
+                  first_name: currentUsername || 'Y',
                   last_name: ''
                 }}
                 size="md"
               />
               <div className="compose-input">
-                <label className="input-group compact">
-                  <span className="input-label">Username</span>
-                  <input
-                    className="input input-mono"
-                    value={commentForm.username}
-                    onChange={(event) =>
-                      setCommentForm((prev) => ({ ...prev, username: event.target.value }))
-                    }
-                    placeholder="username"
-                  />
-                </label>
                 <textarea
                   className="compose-textarea"
                   rows={3}
@@ -1288,12 +1393,19 @@ export default function App() {
                     onClick={() => {
                       void postComment()
                     }}
-                    disabled={!canPost || feedStatus.loading}
+                    disabled={!canPost || isPostingComment}
                   >
-                    {feedStatus.loading ? 'Posting...' : 'Post'}
+                    {isPostingComment ? 'Posting...' : 'Post'}
                   </button>
                 </div>
                 {feedStatus.error ? <p className="error-text">{feedStatus.error}</p> : null}
+                {postedCommentNotice ? (
+                  <pre className="highlight">
+                    Posted comment by @{postedCommentNotice.username}
+                    {'\n'}
+                    {postedCommentNotice.content}
+                  </pre>
+                ) : null}
               </div>
             </div>
 
@@ -1335,61 +1447,6 @@ export default function App() {
               ) : null}
             </div>
 
-            <div className="page-body">
-              <div className="content-grid">
-                <div className="card animate-in delay-1">
-                  <div className="card-body">
-                    <div className="flex-between">
-                      <h3>Server</h3>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => {
-                          void pingServer()
-                        }}
-                        disabled={serverStatus.loading}
-                      >
-                        {serverStatus.loading ? 'Pinging...' : 'Ping server'}
-                      </button>
-                    </div>
-                    <p className="small-muted">{serverStatus.status || 'Ping the API root endpoint.'}</p>
-                    {serverStatus.error ? <p className="error-text">{serverStatus.error}</p> : null}
-                    {serverMessage ? <pre className="highlight">{serverMessage}</pre> : null}
-                  </div>
-                </div>
-
-                <div className="card animate-in delay-2">
-                  <div className="card-body">
-                    <div className="flex-between">
-                      <h3>Find Comment</h3>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => {
-                          void lookupComment()
-                        }}
-                        disabled={commentLookupStatus.loading}
-                      >
-                        Fetch
-                      </button>
-                    </div>
-                    <label className="input-group">
-                      <span className="input-label">Comment ID</span>
-                      <input
-                        className="input input-mono"
-                        value={commentLookupId}
-                        onChange={(event) => setCommentLookupId(event.target.value)}
-                      />
-                    </label>
-                    <p className="small-muted">{commentLookupStatus.status}</p>
-                    {commentLookupStatus.error ? <p className="error-text">{commentLookupStatus.error}</p> : null}
-                    {commentLookupResult ? (
-                      <pre className="highlight">{commentLookupResult.content}</pre>
-                    ) : (
-                      <p className="small-muted">No comment loaded.</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         )}
 
@@ -1401,7 +1458,6 @@ export default function App() {
                   <h2 className="page-title">Users</h2>
                   <p className="page-subtitle">Discover and manage users in the network</p>
                 </div>
-                <span className="page-indicator">GET /v1/users</span>
               </div>
             </div>
 
@@ -1423,7 +1479,7 @@ export default function App() {
                       <button
                         className="btn btn-secondary btn-sm"
                         onClick={() => {
-                          void loadUsers()
+                          void loadUsers(usersPage)
                         }}
                         disabled={usersStatus.loading}
                       >
@@ -1439,7 +1495,7 @@ export default function App() {
                           key={user.username}
                           className="user-row selectable"
                           onClick={() => {
-                            void loadProfile(user.username)
+                            setProfileUsername(user.username)
                             setView('profile')
                           }}
                         >
@@ -1458,70 +1514,25 @@ export default function App() {
                         <div className="empty-state-text">No users found</div>
                       </div>
                     )}
-                  </div>
-                </div>
-
-                <div className="card animate-in delay-2">
-                  <div className="card-body">
-                    <div className="flex-between">
-                      <h3>Register</h3>
-                      <button
-                        className="btn btn-primary btn-sm"
-                        onClick={() => {
-                          void registerUser()
-                        }}
-                        disabled={usersStatus.loading}
-                      >
-                        Create user
-                      </button>
+                    <div className="flex gap-8 mt-16" style={{ flexWrap: 'wrap', justifyContent: 'center' }}>
+                      {Array.from({ length: USERS_PAGE_COUNT }, (_, index) => index + 1).map((page) => (
+                        <button
+                          key={page}
+                          className={`btn btn-sm ${usersPage === page ? 'btn-primary' : 'btn-secondary'}`}
+                          onClick={() => {
+                            void loadUsers(page)
+                          }}
+                          disabled={usersStatus.loading}
+                        >
+                          {page}
+                        </button>
+                      ))}
                     </div>
-
-                    <label className="input-group">
-                      <span className="input-label">Username</span>
-                      <input
-                        className="input input-mono"
-                        value={newUser.username}
-                        onChange={(event) => setNewUser((prev) => ({ ...prev, username: event.target.value }))}
-                      />
-                    </label>
-                    <label className="input-group">
-                      <span className="input-label">First name</span>
-                      <input
-                        className="input"
-                        value={newUser.first_name}
-                        onChange={(event) => setNewUser((prev) => ({ ...prev, first_name: event.target.value }))}
-                      />
-                    </label>
-                    <label className="input-group">
-                      <span className="input-label">Last name</span>
-                      <input
-                        className="input"
-                        value={newUser.last_name}
-                        onChange={(event) => setNewUser((prev) => ({ ...prev, last_name: event.target.value }))}
-                      />
-                    </label>
-                    <label className="input-group">
-                      <span className="input-label">Email</span>
-                      <input
-                        className="input"
-                        value={newUser.email}
-                        onChange={(event) => setNewUser((prev) => ({ ...prev, email: event.target.value }))}
-                      />
-                    </label>
-                    <label className="input-group">
-                      <span className="input-label">Password</span>
-                      <input
-                        className="input"
-                        type="password"
-                        value={newUser.password}
-                        onChange={(event) => setNewUser((prev) => ({ ...prev, password: event.target.value }))}
-                      />
-                    </label>
                   </div>
                 </div>
+
               </div>
 
-              <div className="mt-24">{renderProfileWorkspace()}</div>
             </div>
           </div>
         )}
@@ -1532,41 +1543,13 @@ export default function App() {
               <div className="flex-between">
                 <div>
                   <h2 className="page-title">Profile</h2>
-                  <p className="page-subtitle">User details, followers, and roles</p>
+                  <p className="page-subtitle">Your account details, followers, and roles</p>
                 </div>
-                <span className="page-indicator">GET /v1/users/{'{username}'}</span>
               </div>
             </div>
 
             <div className="page-body">
-              <div className="card animate-in">
-                <div className="card-body">
-                  <div className="flex-between">
-                    <h3>Load user</h3>
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => {
-                        if (userRoleUsername) {
-                          void loadProfile(userRoleUsername)
-                        }
-                      }}
-                    >
-                      Load profile
-                    </button>
-                  </div>
-                  <label className="input-group">
-                    <span className="input-label">Username</span>
-                    <input
-                      className="input input-mono"
-                      value={userRoleUsername}
-                      onChange={(event) => setUserRoleUsername(event.target.value)}
-                      placeholder="username"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              <div className="mt-24">{renderProfileWorkspace()}</div>
+              {renderProfileWorkspace()}
             </div>
           </div>
         )}
@@ -1604,14 +1587,7 @@ export default function App() {
                 <div className="animate-in delay-1">
                   <div className="card">
                     <div className="card-body">
-                      <label className="input-group">
-                        <span className="input-label">API Base URL</span>
-                        <input
-                          className="input input-mono"
-                          value={baseUrl}
-                          onChange={(event) => handleBaseUrlChange(event.target.value)}
-                        />
-                      </label>
+                      <p className="small-muted">API endpoint configured via frontend environment.</p>
                       <div className="tag-list mt-16">
                         <span className="badge badge-default">{token ? 'Token set' : 'No token'}</span>
                       </div>

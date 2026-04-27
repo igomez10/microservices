@@ -1,6 +1,7 @@
 import { defineConfig } from '@playwright/test'
 
 const baseURL = process.env.E2E_BASE_URL ?? 'http://localhost:4173'
+const apiProxyTarget = process.env.E2E_API_BASE_URL ?? 'https://socialapp.gomezignacio.com'
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -14,7 +15,7 @@ export default defineConfig({
     ignoreHTTPSErrors: true
   },
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 4173',
+    command: `VITE_DEV_PROXY_TARGET=${apiProxyTarget} npm run dev -- --host 127.0.0.1 --port 4173`,
     url: baseURL,
     reuseExistingServer: !process.env.CI
   }
