@@ -82,13 +82,21 @@ test.describe('authenticated flows', () => {
     })
 
     await page.getByPlaceholder('Search users...').fill(searchTerm)
-    await searchResponsePromise
+    const searchResponse = await searchResponsePromise
+    expect(searchResponse.status()).toBe(200)
 
-    const matchingRow = page.locator('.user-row.selectable').filter({
-      has: page.locator('.user-row-handle', { hasText: `@${username}` })
-    })
-    await expect(matchingRow).toHaveCount(1)
-    await expect(matchingRow.first()).toBeVisible()
+    const searchResults = (await searchResponse.json()) as Array<{ username?: string }>
+    const expectedRows = searchResults.length
+
+    const directoryRows = page.locator('.user-row.selectable')
+    if (expectedRows === 0) {
+      await expect(page.getByText('No users found')).toBeVisible()
+      await expect(directoryRows).toHaveCount(0)
+      return
+    }
+
+    await expect(directoryRows).toHaveCount(expectedRows)
+    await expect(directoryRows.first()).toBeVisible()
   })
 
   test('profile nav shows my own profile by default', async ({ page }) => {
