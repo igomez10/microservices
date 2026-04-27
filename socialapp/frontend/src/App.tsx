@@ -126,6 +126,9 @@ function timeAgo(dateStr?: string) {
   if (diff < 3600) return `${Math.floor(diff / 60)}m`
   if (diff < 86400) return `${Math.floor(diff / 3600)}h`
   if (diff < 604800) return `${Math.floor(diff / 86400)}d`
+  if (then.getFullYear() !== now.getFullYear()) {
+    return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  }
   return then.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
