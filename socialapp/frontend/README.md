@@ -20,7 +20,7 @@ make generate-frontend-types
 
 ## Dev Server
 ```sh
-VITE_DEV_PROXY_TARGET=https://socialapp.gomezignacio.com npm run dev
+VITE_DEV_PROXY_TARGET=http://localhost:8085 npm run dev
 ```
 
 The frontend defaults to `/api` in the browser and uses the Vite dev proxy.
@@ -54,7 +54,7 @@ For local UI tests with the proxy, you can omit `E2E_API_BASE_URL` (defaults to 
 
 ## Environment Variables
 - `VITE_API_BASE_URL` (optional browser-visible override, default: `/api`)
-- `VITE_DEV_PROXY_TARGET` (dev-server proxy target, for example `https://socialapp.gomezignacio.com`)
+- `VITE_DEV_PROXY_TARGET` (dev-server proxy target, for example `http://localhost:8085`)
 - `VITE_CLIENT_ID`
 - `VITE_CLIENT_SECRET`
 - `VITE_OAUTH_SCOPES`

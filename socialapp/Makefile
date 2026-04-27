@@ -43,7 +43,7 @@ generate-openapi:
 	--additional-properties=router=chi
 	rm -rf socialappapi/openapi
 	mv socialappapi/go socialappapi/openapi
-	
+
 	# generate go client
 	rm -rf client
 	openapi-generator generate --input-spec openapi.yaml  \
@@ -64,7 +64,7 @@ generate-openapi:
 	openapi-generator generate -i openapi.yaml  \
 	--output Models \
 	--generator-name markdown
-	
+
 	# generate schema
 	rm -rf generated-schema
 	openapi-generator generate -i openapi.yaml  \
@@ -76,8 +76,8 @@ generate-openapi:
 	# format go code
 	go fmt ./...
 	goimports -w .
-	
-	# generate cli 
+
+	# generate cli
 	rm -rf cli
 	openapi-generator generate --input-spec openapi.yaml \
 		--generator-name bash \
@@ -107,7 +107,7 @@ frontend-test-e2e:
 
 frontend-debug:
 	mkdir -p logs
-	cd frontend && VITE_DEV_PROXY_TARGET=https://socialapp.gomezignacio.com npm run dev -- --host 127.0.0.1 --debug 2>&1 | tee ../logs/frontend-debug.log
+	cd frontend && VITE_DEV_PROXY_TARGET=http://localhost:8085 npm run dev -- --host 127.0.0.1 --debug 2>&1 | tee ../logs/frontend-debug.log
 
 
 sqlc-generate:
@@ -117,13 +117,35 @@ generate-scopes:
 	cd tools/scopegen && go run main.go -input ../../openapi.yaml -output ../../pkg/scopes/scopes.go
 	go fmt ./pkg/scopes/...
 	goimports -w ./pkg/scopes/
-	
+
 compose-up:
 	docker compose down && docker-compose up
 
 # export $(cat .env | xargs) &&  make start-dev-server
 start-dev-server:
 	reflex -r .go -s --decoration="fancy" --  go run ./...
+
+start-dev-server-debug:
+	mkdir -p logs
+	reflex -r .go -s --decoration="fancy" -- sh -c '\
+		if [ -f ./.env ]; then set -a; . ./.env; set +a; fi; \
+		PORT=$${PORT:-8085} \
+		LOG_LEVEL=$${LOG_LEVEL:-debug} \
+		DATABASE_URL=$${DATABASE_URL:-postgres://postgres:password@localhost:5432/socialapp?sslmode=disable} \
+		REDIS_URL=$${REDIS_URL:-redis://localhost:6379} \
+		OTEL_EXPORTER_OTLP_ENDPOINT=$${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317} \
+		LOGSTASH_HOST=$${LOGSTASH_HOST:-tcp://localhost:53000} \
+		PROPERTIES_SUBDOMAIN=$${PROPERTIES_SUBDOMAIN:-http://properties.localhost} \
+		PUTTYKNIFE_URL=$${PUTTYKNIFE_URL:-http://localhost:8096} \
+		PUTTYKNIFE_DOMAIN=$${PUTTYKNIFE_DOMAIN:-puttyknife-server.localhost} \
+		URLSHORTENER_URL=$${URLSHORTENER_URL:-http://localhost:8089} \
+		URLSHORTENER_SUBDOMAIN=$${URLSHORTENER_SUBDOMAIN:-http://localhost:8089} \
+		SOCIALAPP_SUBDOMAIN=$${SOCIALAPP_SUBDOMAIN:-http://localhost:$${PORT:-8085}} \
+		JWT_SECRET=$${JWT_SECRET:-secret} \
+		KIBANA_URL=$${KIBANA_URL:-http://localhost:5601} \
+		KIBANA_SUBDOMAIN=$${KIBANA_SUBDOMAIN:-kibana.localhost} \
+		LOCAL_SUBDOMAIN=$${LOCAL_SUBDOMAIN:-localhost:$${PORT:-8085}} \
+		dlv debug ./cmd --headless --listen=:2345 --api-version=2 --accept-multiclient --continue 2>&1 | tee logs/socialapp-debug.log'
 
 build:
 	go build ./...
@@ -180,7 +202,7 @@ tf-apply:
 	cd infrastructure && terraform apply -auto-approve
 
 build-push-integration-tests:
-	docker build . -f Integration.Dockerfile --platform=linux/arm64 -t igomeza/socialapptests 	
+	docker build . -f Integration.Dockerfile --platform=linux/arm64 -t igomeza/socialapptests
 	docker push igomeza/socialapptests
 
 deploy:

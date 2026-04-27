@@ -80,10 +80,47 @@ function usernameFromToken(token?: string) {
   return typeof username === 'string' ? username : ''
 }
 
-type View = 'feed' | 'users' | 'profile' | 'admin' | 'settings'
+type View = 'feed' | 'discovery' | 'users' | 'profile' | 'admin' | 'settings'
 type AdminTab = 'roles' | 'scopes' | 'urls'
 type SettingsTab = 'auth' | 'password' | 'danger'
 type ProfileTab = 'posts' | 'followers' | 'following' | 'roles'
+
+function viewFromPath(pathname: string): View {
+  switch (pathname) {
+    case '/discovery':
+      return 'discovery'
+    case '/users':
+      return 'users'
+    case '/profile':
+      return 'profile'
+    case '/settings':
+      return 'settings'
+    case '/admin':
+      return 'admin'
+    case '/':
+    case '/feed':
+    default:
+      return 'feed'
+  }
+}
+
+function pathFromView(view: View) {
+  switch (view) {
+    case 'discovery':
+      return '/discovery'
+    case 'users':
+      return '/users'
+    case 'profile':
+      return '/profile'
+    case 'settings':
+      return '/settings'
+    case 'admin':
+      return '/admin'
+    case 'feed':
+    default:
+      return '/feed'
+  }
+}
 
 type StatusState = {
   status: string
@@ -226,7 +263,9 @@ function Avatar({
 }
 
 export default function App() {
-  const [view, setView] = useState<View>('feed')
+  const [view, setView] = useState<View>(() =>
+    typeof window !== 'undefined' ? viewFromPath(window.location.pathname) : 'feed'
+  )
   const [loggedIn, setLoggedIn] = useState(() => Boolean(readCookie(TOKEN_COOKIE)))
   const [isSignup, setIsSignup] = useState(false)
   const [adminTab, setAdminTab] = useState<AdminTab>('roles')
@@ -272,6 +311,8 @@ export default function App() {
   const [commentForm, setCommentForm] = useState({ username: '', content: '' })
   const [isPostingComment, setIsPostingComment] = useState(false)
   const [postedCommentNotice, setPostedCommentNotice] = useState<Comment | null>(null)
+  const [discoveryStatus, setDiscoveryStatus] = useState<StatusState>(initialStatus)
+  const [discoveryItems, setDiscoveryItems] = useState<Comment[]>([])
 
   const [commentLookupStatus, setCommentLookupStatus] = useState<StatusState>(initialStatus)
   const [commentLookupId, setCommentLookupId] = useState('')
@@ -297,7 +338,6 @@ export default function App() {
   const [following, setFollowing] = useState<User[]>([])
   const [rolesForUser, setRolesForUser] = useState<Role[]>([])
   const [rolesInput, setRolesInput] = useState('')
-  const [followActor, setFollowActor] = useState('')
 
   const [rolesStatus, setRolesStatus] = useState<StatusState>(initialStatus)
   const [roles, setRoles] = useState<Role[]>([])
@@ -331,6 +371,17 @@ export default function App() {
 
   const setStatus = (setter: Dispatch<SetStateAction<StatusState>>, status: StatusState) =>
     setter(status)
+
+  const navigateToView = (nextView: View) => {
+    setView(nextView)
+    if (typeof window === 'undefined') {
+      return
+    }
+    const nextPath = pathFromView(nextView)
+    if (window.location.pathname !== nextPath) {
+      window.history.pushState({}, '', nextPath)
+    }
+  }
 
   const handleTokenChange = (value: string | undefined) => {
     setToken(value)
@@ -463,6 +514,44 @@ export default function App() {
     })
   }
 
+  const loadDiscovery = async () => {
+    setStatus(setDiscoveryStatus, { ...initialStatus, loading: true })
+
+    const usersRes = await api.listUsers({ limit: 100, offset: 0 })
+    const allUsers = usersRes.data ?? []
+
+    if (!usersRes.ok) {
+      setDiscoveryItems([])
+      setStatus(setDiscoveryStatus, {
+        status: `${usersRes.status} ${usersRes.statusText}`,
+        error: usersRes.error ?? '',
+        loading: false
+      })
+      return
+    }
+
+    const commentResponses = await Promise.all(
+      allUsers.map((user) => api.getUserComments(user.username))
+    )
+
+    const allComments = commentResponses
+      .flatMap((response) => response.data ?? [])
+      .sort((left, right) => {
+        const leftTime = left.created_at ? new Date(left.created_at).getTime() : 0
+        const rightTime = right.created_at ? new Date(right.created_at).getTime() : 0
+        return rightTime - leftTime
+      })
+
+    const commentError = commentResponses.find((response) => response.error)?.error ?? ''
+
+    setDiscoveryItems(allComments)
+    setStatus(setDiscoveryStatus, {
+      status: `${usersRes.status} ${usersRes.statusText}`,
+      error: commentError,
+      loading: false
+    })
+  }
+
   const registerUser = async () => {
     setStatus(setUsersStatus, { ...usersStatus, loading: true })
     const res = await api.createUser(newUser)
@@ -477,7 +566,7 @@ export default function App() {
       await loadUsers()
       if (createdUsername) {
         await loadProfile(createdUsername)
-        setView('profile')
+        navigateToView('profile')
       }
     }
   }
@@ -543,27 +632,7 @@ export default function App() {
       setSelectedUser(null)
       setProfileForm(null)
       await loadUsers()
-      setView('users')
-    }
-  }
-
-  const followSelectedUser = async (action: 'follow' | 'unfollow') => {
-    if (!selectedUser || !followActor) {
-      setStatus(setProfileStatus, { status: '', error: 'Provide follower username', loading: false })
-      return
-    }
-    setStatus(setProfileStatus, { ...profileStatus, loading: true })
-    const res =
-      action === 'follow'
-        ? await api.followUser(selectedUser.username, followActor)
-        : await api.unfollowUser(selectedUser.username, followActor)
-    setStatus(setProfileStatus, {
-      status: `${res.status} ${res.statusText}`,
-      error: res.error ?? '',
-      loading: false
-    })
-    if (res.ok) {
-      await loadProfile(selectedUser.username)
+      navigateToView('users')
     }
   }
 
@@ -926,6 +995,15 @@ export default function App() {
     if (!loggedIn) {
       return
     }
+    if (view === 'discovery' && discoveryItems.length === 0 && !discoveryStatus.loading) {
+      void loadDiscovery()
+    }
+  }, [discoveryItems.length, discoveryStatus.loading, loggedIn, view])
+
+  useEffect(() => {
+    if (!loggedIn) {
+      return
+    }
     if ((view === 'users' || view === 'profile') && users.length === 0 && !usersStatus.loading) {
       void loadUsers()
     }
@@ -954,6 +1032,32 @@ export default function App() {
     }
     void loadProfile(profileUsername)
   }, [loggedIn, profileStatus.loading, profileUsername, selectedUser?.username, view])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const desiredPath = pathFromView(view)
+    if (window.location.pathname !== desiredPath) {
+      window.history.replaceState({}, '', desiredPath)
+    }
+  }, [view])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    const syncViewFromLocation = () => {
+      setView(viewFromPath(window.location.pathname))
+    }
+
+    window.addEventListener('popstate', syncViewFromLocation)
+    return () => {
+      window.removeEventListener('popstate', syncViewFromLocation)
+    }
+  }, [])
 
   const renderProfileWorkspace = () => {
     if (!selectedUser || !profileForm) {
@@ -1035,36 +1139,6 @@ export default function App() {
                 }
               />
             </label>
-          </div>
-
-          <div className="section mt-24">
-            <div className="section-title">Follow actions</div>
-            <label className="input-group">
-              <span className="input-label">Follower username</span>
-              <input
-                className="input input-mono"
-                value={followActor}
-                onChange={(event) => setFollowActor(event.target.value)}
-              />
-            </label>
-            <div className="flex gap-8 mt-16">
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={() => {
-                  void followSelectedUser('follow')
-                }}
-              >
-                Follow
-              </button>
-              <button
-                className="btn btn-secondary btn-sm"
-                onClick={() => {
-                  void followSelectedUser('unfollow')
-                }}
-              >
-                Unfollow
-              </button>
-            </div>
           </div>
 
           <div className="tabs mt-24">
@@ -1169,44 +1243,6 @@ export default function App() {
 
           {profileTab === 'roles' && (
             <div className="animate-in" style={{ paddingTop: '16px' }}>
-              <div className="form-grid">
-                <label className="input-group">
-                  <span className="input-label">Username</span>
-                  <input
-                    className="input input-mono"
-                    value={userRoleUsername}
-                    onChange={(event) => setUserRoleUsername(event.target.value)}
-                  />
-                </label>
-                <label className="input-group">
-                  <span className="input-label">Role names (comma-separated)</span>
-                  <input
-                    className="input input-mono"
-                    value={rolesInput}
-                    onChange={(event) => setRolesInput(event.target.value)}
-                  />
-                </label>
-              </div>
-              <div className="flex gap-8 mt-16">
-                <button
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => {
-                    void fetchUserRoles()
-                  }}
-                >
-                  Fetch roles
-                </button>
-                <button
-                  className="btn btn-primary btn-sm"
-                  onClick={() => {
-                    void updateUserRoles()
-                  }}
-                >
-                  Update roles
-                </button>
-              </div>
-              {userRoleStatus.status ? <p className="small-muted">Status: {userRoleStatus.status}</p> : null}
-              {userRoleStatus.error ? <p className="error-text">{userRoleStatus.error}</p> : null}
               <div className="tag-list mt-16">
                 {rolesForUser.length > 0
                   ? rolesForUser.map((role) => (
@@ -1310,6 +1346,7 @@ export default function App() {
 
   const navItems: Array<{ id: View; label: string; icon: (size?: number) => JSX.Element }> = [
     { id: 'feed', label: 'Feed', icon: Icons.home },
+    { id: 'discovery', label: 'Discovery', icon: Icons.search },
     { id: 'users', label: 'Users', icon: Icons.users },
     { id: 'profile', label: 'Profile', icon: Icons.user },
     { id: 'settings', label: 'Settings', icon: Icons.settings }
@@ -1318,9 +1355,15 @@ export default function App() {
   return (
     <div className="app-root">
       <aside className="sidebar">
-        <div className="sidebar-brand">
+        <button
+          type="button"
+          className="sidebar-brand"
+          onClick={() => {
+            navigateToView('feed')
+          }}
+        >
           <h1>Socialapp</h1>
-        </div>
+        </button>
 
         <nav className="sidebar-nav">
           <div className="sidebar-section-label">Navigation</div>
@@ -1329,7 +1372,7 @@ export default function App() {
               key={item.id}
               className={`nav-item ${view === item.id ? 'active' : ''}`}
               onClick={() => {
-                setView(item.id)
+                navigateToView(item.id)
                 if (item.id === 'profile' && currentUsername) {
                   setProfileUsername(currentUsername)
                 }
@@ -1453,6 +1496,58 @@ export default function App() {
           </div>
         )}
 
+        {view === 'discovery' && (
+          <div>
+            <div className="page-header">
+              <div className="flex-between">
+                <div>
+                  <h2 className="page-title">Discovery</h2>
+                  <p className="page-subtitle">Latest public posts happening across the app</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="card card-flat">
+              {discoveryStatus.status ? <div className="panel-status">{discoveryStatus.status}</div> : null}
+              {discoveryStatus.error ? <p className="error-text">{discoveryStatus.error}</p> : null}
+              {discoveryItems.map((item, index) => {
+                const knownUser = users.find((candidate) => candidate.username === item.username)
+                const avatarUser =
+                  knownUser ??
+                  ({
+                    username: item.username,
+                    first_name: item.username,
+                    last_name: ''
+                  } as const)
+
+                return (
+                  <div key={`${item.username}-${item.id ?? item.content}-${index}`} className="comment-item">
+                    <div className="comment-header">
+                      <Avatar user={avatarUser} size="md" />
+                      <div className="comment-meta">
+                        <span className="comment-author">
+                          {knownUser ? `${knownUser.first_name} ${knownUser.last_name}` : item.username}
+                        </span>
+                        <span className="comment-handle">@{item.username}</span>
+                        <span className="comment-time">{timeAgo(item.created_at)}</span>
+                      </div>
+                    </div>
+                    <div className="comment-body">{item.content}</div>
+                    <div className="comment-actions">
+                      <span className="comment-action">{Icons.heart(14)} {item.like_count ?? 0}</span>
+                    </div>
+                  </div>
+                )
+              })}
+              {discoveryItems.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-state-text">No public posts discovered yet.</div>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        )}
+
         {view === 'users' && (
           <div>
             <div className="page-header">
@@ -1499,7 +1594,7 @@ export default function App() {
                           className="user-row selectable"
                           onClick={() => {
                             setProfileUsername(user.username)
-                            setView('profile')
+                            navigateToView('profile')
                           }}
                         >
                           <Avatar user={user} size="md" />
