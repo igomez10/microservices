@@ -68,7 +68,7 @@ test.describe('authenticated flows', () => {
     await signIn(page)
     await page.getByRole('button', { name: 'Users' }).click()
 
-    const searchTerm = username!.slice(0, Math.min(username!.length, 6))
+    const searchTerm = username!
     const searchResponsePromise = page.waitForResponse((response) => {
       if (response.request().method() !== 'GET') {
         return false
@@ -84,7 +84,11 @@ test.describe('authenticated flows', () => {
     await page.getByPlaceholder('Search users...').fill(searchTerm)
     await searchResponsePromise
 
-    await expect(page.getByText(`@${username}`, { exact: false }).first()).toBeVisible()
+    const matchingRow = page.locator('.user-row.selectable').filter({
+      has: page.locator('.user-row-handle', { hasText: `@${username}` })
+    })
+    await expect(matchingRow).toHaveCount(1)
+    await expect(matchingRow.first()).toBeVisible()
   })
 
   test('profile nav shows my own profile by default', async ({ page }) => {
