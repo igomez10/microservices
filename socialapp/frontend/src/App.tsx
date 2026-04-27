@@ -407,8 +407,11 @@ export default function App() {
     }
   }
 
-  const loginWithBasicAuth = async () => {
-    if (!loginForm.username.trim() || !loginForm.password.trim()) {
+  const loginWithBasicAuth = async (credentials?: { username?: string; password?: string }) => {
+    const username = credentials?.username?.trim() ?? loginForm.username.trim()
+    const password = credentials?.password?.trim() ?? loginForm.password.trim()
+
+    if (!username || !password) {
       setStatus(setLoginStatus, { status: '', error: 'Enter a username and password', loading: false })
       return
     }
@@ -419,8 +422,8 @@ export default function App() {
       path: '/v1/oauth/token',
       method: 'POST',
       basicAuth: {
-        clientId: loginForm.username,
-        clientSecret: loginForm.password
+        clientId: username,
+        clientSecret: password
       },
       queryParams: scopes ? { scope: scopes } : undefined
     })
@@ -436,9 +439,9 @@ export default function App() {
     }
 
     handleTokenChange(res.data.access_token)
-    writeCookie(USERNAME_COOKIE, loginForm.username.trim())
-    setCurrentUsername(loginForm.username.trim())
-    setProfileUsername(loginForm.username.trim())
+    writeCookie(USERNAME_COOKIE, username)
+    setCurrentUsername(username)
+    setProfileUsername(username)
     setLoginForm((prev) => ({ ...prev, password: '' }))
   }
 
@@ -593,21 +596,30 @@ export default function App() {
   }
 
   const registerUser = async () => {
-    setStatus(setUsersStatus, { ...usersStatus, loading: true })
+    const username = newUser.username.trim()
+    const password = newUser.password.trim()
+    const email = newUser.email.trim()
+    const firstName = newUser.first_name.trim()
+    const lastName = newUser.last_name.trim()
+
+    if (!username || !password || !email || !firstName || !lastName) {
+      setStatus(setLoginStatus, { status: '', error: 'Complete all registration fields', loading: false })
+      return
+    }
+
+    setStatus(setLoginStatus, { ...initialStatus, loading: true })
     const res = await api.createUser(newUser)
-    setStatus(setUsersStatus, {
+    setStatus(setLoginStatus, {
       status: `${res.status} ${res.statusText}`,
       error: res.error ?? '',
       loading: false
     })
     if (res.ok) {
-      const createdUsername = newUser.username
+      const createdUsername = username
       setNewUser({ username: '', first_name: '', last_name: '', password: '', email: '' })
-      await loadUsers()
-      if (createdUsername) {
-        await loadProfile(createdUsername)
-        navigateToView('profile')
-      }
+      setLoginForm({ username: createdUsername, password: '' })
+      setIsSignup(false)
+      await loginWithBasicAuth({ username: createdUsername, password })
     }
   }
 
@@ -1286,29 +1298,66 @@ export default function App() {
             <form
               onSubmit={(event) => {
                 event.preventDefault()
+                if (isSignup) {
+                  void registerUser()
+                  return
+                }
                 void loginWithBasicAuth()
               }}
             >
               {isSignup ? (
-                <div className="form-grid">
+                <>
+                  <div className="form-grid">
+                    <label className="input-group">
+                      <span className="input-label">First name</span>
+                      <input
+                        className="input"
+                        value={newUser.first_name}
+                        onChange={(event) => setNewUser((prev) => ({ ...prev, first_name: event.target.value }))}
+                        autoComplete="given-name"
+                        placeholder="John"
+                      />
+                    </label>
+                    <label className="input-group">
+                      <span className="input-label">Last name</span>
+                      <input
+                        className="input"
+                        value={newUser.last_name}
+                        onChange={(event) => setNewUser((prev) => ({ ...prev, last_name: event.target.value }))}
+                        autoComplete="family-name"
+                        placeholder="Doe"
+                      />
+                    </label>
+                  </div>
+
                   <label className="input-group">
-                    <span className="input-label">First name</span>
-                    <input className="input" placeholder="John" />
+                    <span className="input-label">Email</span>
+                    <input
+                      className="input"
+                      type="email"
+                      value={newUser.email}
+                      onChange={(event) => setNewUser((prev) => ({ ...prev, email: event.target.value }))}
+                      autoComplete="email"
+                      placeholder="john@example.com"
+                    />
                   </label>
-                  <label className="input-group">
-                    <span className="input-label">Last name</span>
-                    <input className="input" placeholder="Doe" />
-                  </label>
-                </div>
+                </>
               ) : null}
 
               <label className="input-group">
                 <span className="input-label">Username</span>
                 <input
                   className="input"
-                  value={loginForm.username}
-                  onChange={(event) => setLoginForm((prev) => ({ ...prev, username: event.target.value }))}
-                  autoComplete="username"
+                  value={isSignup ? newUser.username : loginForm.username}
+                  onChange={(event) => {
+                    const { value } = event.target
+                    if (isSignup) {
+                      setNewUser((prev) => ({ ...prev, username: value }))
+                      return
+                    }
+                    setLoginForm((prev) => ({ ...prev, username: value }))
+                  }}
+                  autoComplete={isSignup ? 'new-username' : 'username'}
                   placeholder="some2"
                 />
               </label>
@@ -1318,9 +1367,16 @@ export default function App() {
                 <input
                   className="input"
                   type="password"
-                  value={loginForm.password}
-                  onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))}
-                  autoComplete="current-password"
+                  value={isSignup ? newUser.password : loginForm.password}
+                  onChange={(event) => {
+                    const { value } = event.target
+                    if (isSignup) {
+                      setNewUser((prev) => ({ ...prev, password: value }))
+                      return
+                    }
+                    setLoginForm((prev) => ({ ...prev, password: value }))
+                  }}
+                  autoComplete={isSignup ? 'new-password' : 'current-password'}
                   placeholder="********"
                 />
               </label>
