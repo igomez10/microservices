@@ -16,6 +16,7 @@ export const operations = [
   'getRolesForUser',
   'updateRolesForUser',
   'getComment',
+  'searchComments',
   'createComment',
   'getAccessToken',
   'listRoles',

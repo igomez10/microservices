@@ -1314,7 +1314,6 @@ export default function App() {
               )}
             </div>
 
-            {loginStatus.status ? <p className="small-muted">Status: {loginStatus.status}</p> : null}
             {loginStatus.error ? <p className="error-text">Error: {loginStatus.error}</p> : null}
             <p className="small-muted">{token ? 'Stored token detected.' : 'No access token stored yet.'}</p>
           </div>
@@ -1435,7 +1434,6 @@ export default function App() {
             </div>
 
             <div className="card card-flat">
-              {feedStatus.status ? <div className="panel-status">{feedStatus.status}</div> : null}
               {feedItems.map((item, index) => {
                 const knownUser = users.find((candidate) => candidate.username === item.username)
                 const avatarUser =
@@ -1487,7 +1485,6 @@ export default function App() {
             </div>
 
             <div className="card card-flat">
-              {discoveryStatus.status ? <div className="panel-status">{discoveryStatus.status}</div> : null}
               {discoveryStatus.error ? <p className="error-text">{discoveryStatus.error}</p> : null}
               {discoveryItems.map((item, index) => {
                 const knownUser = users.find((candidate) => candidate.username === item.username)
@@ -1563,7 +1560,6 @@ export default function App() {
                         {usersStatus.loading ? 'Loading...' : 'Refresh'}
                       </button>
                     </div>
-                    {usersStatus.status ? <p className="small-muted">{usersStatus.status}</p> : null}
                     {usersStatus.error ? <p className="error-text">{usersStatus.error}</p> : null}
 
                     {filteredUsers.length > 0 ? (
@@ -1754,13 +1750,14 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="card">
-                    <div className="card-body">
-                      <h3>Password status</h3>
-                      <p className="small-muted">{passwordStatus.status || 'No password action yet.'}</p>
-                      {passwordStatus.error ? <p className="error-text">{passwordStatus.error}</p> : null}
+                  {passwordStatus.error ? (
+                    <div className="card">
+                      <div className="card-body">
+                        <h3>Password errors</h3>
+                        <p className="error-text">{passwordStatus.error}</p>
+                      </div>
                     </div>
-                  </div>
+                  ) : null}
                 </div>
               )}
 
@@ -1862,7 +1859,6 @@ export default function App() {
                         </div>
                       </div>
 
-                      <p className="small-muted">{rolesStatus.status}</p>
                       {rolesStatus.error ? <p className="error-text">{rolesStatus.error}</p> : null}
 
                       <div className="form-grid">
@@ -1950,7 +1946,6 @@ export default function App() {
                         </div>
                       </div>
 
-                      <p className="small-muted">{userRoleStatus.status}</p>
                       {userRoleStatus.error ? <p className="error-text">{userRoleStatus.error}</p> : null}
 
                       <div className="form-grid">
@@ -2026,7 +2021,6 @@ export default function App() {
                         </div>
                       </div>
 
-                      <p className="small-muted">{scopesStatus.status}</p>
                       {scopesStatus.error ? <p className="error-text">{scopesStatus.error}</p> : null}
 
                       <div className="form-grid">
@@ -2120,7 +2114,6 @@ export default function App() {
                         </div>
                       </div>
 
-                      <p className="small-muted">{roleScopesStatus.status}</p>
                       {roleScopesStatus.error ? <p className="error-text">{roleScopesStatus.error}</p> : null}
 
                       <div className="form-grid">
@@ -2281,16 +2274,16 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="card">
-                    <div className="card-body">
-                      <h3>URL status</h3>
-                      <p className="small-muted">{urlStatus.status || 'No URL action yet.'}</p>
-                      {urlStatus.error ? <p className="error-text">{urlStatus.error}</p> : null}
-                      {urlData ? (
-                        <p className="small-muted">Alias {urlData.alias} points to {urlData.url}</p>
-                      ) : null}
+                  {(urlStatus.error || urlData) ? (
+                    <div className="card">
+                      <div className="card-body">
+                        {urlStatus.error ? <p className="error-text">{urlStatus.error}</p> : null}
+                        {urlData ? (
+                          <p className="small-muted">Alias {urlData.alias} points to {urlData.url}</p>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
+                  ) : null}
                 </div>
               )}
             </div>

@@ -24,7 +24,6 @@ export default function AuthPanel({
   onClientSecret,
   onScopes
 }: AuthPanelProps) {
-  const [status, setStatus] = useState('')
   const [response, setResponse] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -32,7 +31,6 @@ export default function AuthPanel({
 
   const handleToken = async () => {
     setError('')
-    setStatus('')
     setResponse('')
     setIsLoading(true)
     try {
@@ -47,7 +45,6 @@ export default function AuthPanel({
         queryParams: scopes ? { scope: scopes } : undefined
       })
 
-      setStatus(`${res.status} ${res.statusText}`)
       if (res.data) {
         setResponse(formatJson(res.data))
       }
@@ -104,7 +101,6 @@ export default function AuthPanel({
         </button>
       </div>
 
-      {status ? <p className="small-muted">Status: {status}</p> : null}
       {!canRequestToken ? <p className="error-text">Provide client credentials to request a token.</p> : null}
       {error ? <p className="error-text">Error: {error}</p> : null}
       {response ? <pre className="highlight">{response}</pre> : null}
