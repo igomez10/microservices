@@ -1078,46 +1078,22 @@ export default function App() {
           </div>
 
           <div className="form-grid">
-            <label className="input-group">
+            <div className="input-group">
               <span className="input-label">Username</span>
-              <input
-                className="input input-mono"
-                value={profileForm.username}
-                onChange={(event) =>
-                  setProfileForm((prev) => (prev ? { ...prev, username: event.target.value } : prev))
-                }
-              />
-            </label>
-            <label className="input-group">
+              <div className="input input-mono">{profileForm.username}</div>
+            </div>
+            <div className="input-group">
               <span className="input-label">Email</span>
-              <input
-                className="input"
-                value={profileForm.email}
-                onChange={(event) =>
-                  setProfileForm((prev) => (prev ? { ...prev, email: event.target.value } : prev))
-                }
-              />
-            </label>
-            <label className="input-group">
+              <div className="input">{profileForm.email}</div>
+            </div>
+            <div className="input-group">
               <span className="input-label">First name</span>
-              <input
-                className="input"
-                value={profileForm.first_name}
-                onChange={(event) =>
-                  setProfileForm((prev) => (prev ? { ...prev, first_name: event.target.value } : prev))
-                }
-              />
-            </label>
-            <label className="input-group">
+              <div className="input">{profileForm.first_name}</div>
+            </div>
+            <div className="input-group">
               <span className="input-label">Last name</span>
-              <input
-                className="input"
-                value={profileForm.last_name}
-                onChange={(event) =>
-                  setProfileForm((prev) => (prev ? { ...prev, last_name: event.target.value } : prev))
-                }
-              />
-            </label>
+              <div className="input">{profileForm.last_name}</div>
+            </div>
           </div>
 
           <div className="tabs mt-24">
@@ -1249,52 +1225,56 @@ export default function App() {
           </div>
           <div className="login-card">
             <h2 className="login-title">{isSignup ? 'Create account' : 'Welcome back'}</h2>
-
-            {isSignup ? (
-              <div className="form-grid">
-                <label className="input-group">
-                  <span className="input-label">First name</span>
-                  <input className="input" placeholder="John" />
-                </label>
-                <label className="input-group">
-                  <span className="input-label">Last name</span>
-                  <input className="input" placeholder="Doe" />
-                </label>
-              </div>
-            ) : null}
-
-            <label className="input-group">
-              <span className="input-label">Username</span>
-              <input
-                className="input"
-                value={loginForm.username}
-                onChange={(event) => setLoginForm((prev) => ({ ...prev, username: event.target.value }))}
-                autoComplete="username"
-                placeholder="some2"
-              />
-            </label>
-
-            <label className="input-group">
-              <span className="input-label">Password</span>
-              <input
-                className="input"
-                type="password"
-                value={loginForm.password}
-                onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))}
-                autoComplete="current-password"
-                placeholder="********"
-              />
-            </label>
-
-            <button
-              className="btn btn-primary login-submit"
-              onClick={() => {
+            <form
+              onSubmit={(event) => {
+                event.preventDefault()
                 void loginWithBasicAuth()
               }}
-              disabled={loginStatus.loading}
             >
-              {loginStatus.loading ? 'Signing in...' : isSignup ? 'Create account' : 'Sign in'}
-            </button>
+              {isSignup ? (
+                <div className="form-grid">
+                  <label className="input-group">
+                    <span className="input-label">First name</span>
+                    <input className="input" placeholder="John" />
+                  </label>
+                  <label className="input-group">
+                    <span className="input-label">Last name</span>
+                    <input className="input" placeholder="Doe" />
+                  </label>
+                </div>
+              ) : null}
+
+              <label className="input-group">
+                <span className="input-label">Username</span>
+                <input
+                  className="input"
+                  value={loginForm.username}
+                  onChange={(event) => setLoginForm((prev) => ({ ...prev, username: event.target.value }))}
+                  autoComplete="username"
+                  placeholder="some2"
+                />
+              </label>
+
+              <label className="input-group">
+                <span className="input-label">Password</span>
+                <input
+                  className="input"
+                  type="password"
+                  value={loginForm.password}
+                  onChange={(event) => setLoginForm((prev) => ({ ...prev, password: event.target.value }))}
+                  autoComplete="current-password"
+                  placeholder="********"
+                />
+              </label>
+
+              <button
+                type="submit"
+                className="btn btn-primary login-submit"
+                disabled={loginStatus.loading}
+              >
+                {loginStatus.loading ? 'Signing in...' : isSignup ? 'Create account' : 'Sign in'}
+              </button>
+            </form>
 
             <div className="login-footer">
               {isSignup ? (
