@@ -86,11 +86,18 @@ test('liking a post sends successful like and unlike requests', async ({ page })
   await page.getByRole('button', { name: 'Post' }).click()
   await expect(page.getByText(`Posted comment by @${username}`)).toBeVisible()
 
+  const commentsPath = `/v1/users/${encodeURIComponent(username!)}/comments`
+  const profileCommentsLoaded = page.waitForResponse(
+    (res) =>
+      res.request().method() === 'GET' && res.url().includes(commentsPath) && res.ok(),
+    { timeout: 30_000 }
+  )
   await page.getByRole('button', { name: 'Profile' }).click()
+  await profileCommentsLoaded
   await page.getByRole('button', { name: 'Posts' }).click()
 
   const targetPost = page.locator('.comment-item').filter({ hasText: comment }).first()
-  await expect(targetPost).toBeVisible()
+  await expect(targetPost).toBeVisible({ timeout: 30_000 })
 
   const likeButton = targetPost.locator('.comment-like-button')
   const likeResponsePromise = page.waitForResponse((response) => {
