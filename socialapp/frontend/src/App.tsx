@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
+import { useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react'
 import AuthPanel from '@/components/AuthPanel'
 import { apiRequest } from '@/api/client'
 import { clearCookie, readCookie, readJwtPayload, writeCookie } from '@/lib/storage'
@@ -324,6 +324,8 @@ export default function App() {
   const [users, setUsers] = useState<User[]>([])
   const [userSearch, setUserSearch] = useState('')
   const [usersPage, setUsersPage] = useState(1)
+  const [usersLoaded, setUsersLoaded] = useState(false)
+  const usersRequestIdRef = useRef(0)
   const [newUser, setNewUser] = useState<CreateUserRequest>({
     username: '',
     first_name: '',
@@ -507,11 +509,25 @@ export default function App() {
     })
   }
 
-  const loadUsers = async (page = usersPage) => {
+  const loadUsers = async (page = usersPage, search = userSearch) => {
+    const requestID = usersRequestIdRef.current + 1
+    usersRequestIdRef.current = requestID
+    setUsersLoaded(false)
     setStatus(setUsersStatus, { ...initialStatus, loading: true })
-    const res = await api.listUsers({ limit: USERS_PER_PAGE, offset: (page - 1) * USERS_PER_PAGE })
+    const trimmedSearch = search.trim()
+    const res = await api.listUsers({
+      limit: USERS_PER_PAGE,
+      offset: (page - 1) * USERS_PER_PAGE,
+      search: trimmedSearch || undefined
+    })
+
+    if (requestID !== usersRequestIdRef.current) {
+      return
+    }
+
     setUsers(res.data ?? [])
     setUsersPage(page)
+    setUsersLoaded(true)
     setStatus(setUsersStatus, {
       status: `${res.status} ${res.statusText}`,
       error: res.error ?? '',
@@ -1027,10 +1043,6 @@ export default function App() {
     }
   }
 
-  const filteredUsers = users.filter((user) =>
-    user.username.toLowerCase().includes(userSearch.toLowerCase())
-  )
-
   const sidebarUser = selectedUser ?? users.find((user) => user.username === currentUsername) ?? users[0] ?? null
   const canPost = currentUsername.trim().length > 0 && commentForm.content.trim().length > 0
 
@@ -1056,10 +1068,25 @@ export default function App() {
     if (!loggedIn) {
       return
     }
-    if ((view === 'users' || view === 'profile') && users.length === 0 && !usersStatus.loading) {
+    if ((view === 'users' || view === 'profile') && !usersLoaded && !usersStatus.loading) {
       void loadUsers()
     }
-  }, [loggedIn, view, users.length, usersStatus.loading])
+  }, [loggedIn, view, usersLoaded, usersStatus.loading])
+
+  useEffect(() => {
+    if (!loggedIn || view !== 'users') {
+      return
+    }
+
+    setUsersLoaded(false)
+    const timer = window.setTimeout(() => {
+      void loadUsers(1, userSearch)
+    }, 200)
+
+    return () => {
+      window.clearTimeout(timer)
+    }
+  }, [api, loggedIn, userSearch, view])
 
   useEffect(() => {
     if (currentUsername || !token) {
@@ -1649,7 +1676,7 @@ export default function App() {
                       <button
                         className="btn btn-secondary btn-sm"
                         onClick={() => {
-                          void loadUsers(usersPage)
+                          void loadUsers(usersPage, userSearch)
                         }}
                         disabled={usersStatus.loading}
                       >
@@ -1658,8 +1685,8 @@ export default function App() {
                     </div>
                     {usersStatus.error ? <p className="error-text">{usersStatus.error}</p> : null}
 
-                    {filteredUsers.length > 0 ? (
-                      filteredUsers.map((user) => (
+                    {users.length > 0 ? (
+                      users.map((user) => (
                         <button
                           key={user.username}
                           className="user-row selectable"
@@ -1689,7 +1716,7 @@ export default function App() {
                           key={page}
                           className={`btn btn-sm ${usersPage === page ? 'btn-primary' : 'btn-secondary'}`}
                           onClick={() => {
-                            void loadUsers(page)
+                            void loadUsers(page, userSearch)
                           }}
                           disabled={usersStatus.loading}
                         >

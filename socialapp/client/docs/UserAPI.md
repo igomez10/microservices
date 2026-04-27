@@ -651,7 +651,7 @@ Name | Type | Description  | Notes
 
 ## ListUsers
 
-> []User ListUsers(ctx).Limit(limit).Offset(offset).Execute()
+> []User ListUsers(ctx).Limit(limit).Offset(offset).Search(search).Execute()
 
 List users
 
@@ -672,10 +672,11 @@ import (
 func main() {
 	limit := int32(20) // int32 | Maximum number of users to return (optional) (default to 20)
 	offset := int32(0) // int32 | Pagination offset (optional) (default to 0)
+	search := "john" // string | Case-insensitive user search across username, first name, last name, and email (optional) (default to "")
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
-	resp, r, err := apiClient.UserAPI.ListUsers(context.Background()).Limit(limit).Offset(offset).Execute()
+	resp, r, err := apiClient.UserAPI.ListUsers(context.Background()).Limit(limit).Offset(offset).Search(search).Execute()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `UserAPI.ListUsers``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -698,6 +699,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **limit** | **int32** | Maximum number of users to return | [default to 20]
  **offset** | **int32** | Pagination offset | [default to 0]
+ **search** | **string** | Case-insensitive user search across username, first name, last name, and email | [default to &quot;&quot;]
 
 ### Return type
 

@@ -1343,17 +1343,25 @@ func (q *Queries) ListScopes(ctx context.Context, db DBTX, arg ListScopesParams)
 const ListUsers = `-- name: ListUsers :many
 SELECT id, username, hashed_password, hashed_password_expires_at, salt, first_name, last_name, email, email_token, email_verified_at, created_at, updated_at, deleted_at FROM users
 WHERE deleted_at IS NULL
+  AND (
+    $3::text = ''
+    OR username ILIKE '%' || $3::text || '%'
+    OR first_name ILIKE '%' || $3::text || '%'
+    OR last_name ILIKE '%' || $3::text || '%'
+    OR email ILIKE '%' || $3::text || '%'
+  )
 ORDER BY created_at ASC
 LIMIT $1 OFFSET $2
 `
 
 type ListUsersParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+	Search string `json:"search"`
 }
 
 func (q *Queries) ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) ([]User, error) {
-	rows, err := db.Query(ctx, ListUsers, arg.Limit, arg.Offset)
+	rows, err := db.Query(ctx, ListUsers, arg.Limit, arg.Offset, arg.Search)
 	if err != nil {
 		return nil, err
 	}

@@ -66,6 +66,15 @@ describeIf('integration api', () => {
     const listRes = await authed({ path: '/v1/users', method: 'GET' })
     assertOk(listRes, 'listUsers')
 
+    const searchRes = await authed({
+      path: '/v1/users',
+      method: 'GET',
+      queryParams: { search: username }
+    })
+    assertOk(searchRes, 'searchUsers')
+    expect(Array.isArray(searchRes.data)).toBe(true)
+    expect(searchRes.data?.some((user) => user.username === username)).toBe(true)
+
     const rolesRes = await authed({
       path: '/v1/users/{username}/roles',
       method: 'GET',

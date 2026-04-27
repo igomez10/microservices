@@ -172,7 +172,7 @@ type URLAPIServicer interface {
 // and updated with the logic required for the API.
 type UserAPIServicer interface {
 	Welcome(context.Context) (ImplResponse, error)
-	ListUsers(context.Context, int32, int32) (ImplResponse, error)
+	ListUsers(context.Context, int32, int32, string) (ImplResponse, error)
 	CreateUser(context.Context, CreateUserRequest) (ImplResponse, error)
 	ResetPassword(context.Context, ResetPasswordRequest) (ImplResponse, error)
 	ChangePassword(context.Context, ChangePasswordRequest) (ImplResponse, error)

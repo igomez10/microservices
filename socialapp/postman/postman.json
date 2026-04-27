@@ -477,6 +477,12 @@
         "value": "0",
         "description": "Pagination offset",
         "disabled": true
+        },
+        {
+        "key": "search",
+        "value": "john",
+        "description": "Case-insensitive user search across username, first name, last name, and email",
+        "disabled": true
         }
     ]
     },

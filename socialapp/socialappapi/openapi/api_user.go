@@ -296,7 +296,16 @@ func (c *UserAPIController) ListUsers(w http.ResponseWriter, r *http.Request) {
 		var param int32 = 0
 		offsetParam = param
 	}
-	result, err := c.service.ListUsers(r.Context(), limitParam, offsetParam)
+	var searchParam string
+	if query.Has("search") {
+		param := query.Get("search")
+
+		searchParam = param
+	} else {
+		param := ""
+		searchParam = param
+	}
+	result, err := c.service.ListUsers(r.Context(), limitParam, offsetParam, searchParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

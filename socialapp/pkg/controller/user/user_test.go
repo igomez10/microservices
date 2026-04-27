@@ -32,6 +32,7 @@ type MockQuerier struct {
 	createUserWithIDFunc       func(ctx context.Context, db db.DBTX, arg db.CreateUserWithIDParams) (db.User, error)
 	createUserToRoleFunc       func(ctx context.Context, db db.DBTX, arg db.CreateUserToRoleParams) (db.UsersToRole, error)
 	createUserToRoleWithIDFunc func(ctx context.Context, db db.DBTX, arg db.CreateUserToRoleWithIDParams) (db.UsersToRole, error)
+	listUsersFunc              func(ctx context.Context, dbtx db.DBTX, arg db.ListUsersParams) ([]db.User, error)
 }
 
 func (m *MockQuerier) GetUserByUsername(ctx context.Context, dbtx db.DBTX, username string) (db.User, error) {
@@ -110,6 +111,9 @@ func (m *MockQuerier) CreateEventWithID(ctx context.Context, dbtx db.DBTX, arg d
 }
 func (m *MockQuerier) CreateRole(ctx context.Context, dbtx db.DBTX, arg db.CreateRoleParams) (db.Role, error) {
 	return db.Role{}, nil
+}
+func (m *MockQuerier) CreateRoleWithID(ctx context.Context, dbtx db.DBTX, arg db.CreateRoleWithIDParams) (db.Role, error) {
+	return db.Role{ID: arg.ID, Name: arg.Name, Description: arg.Description}, nil
 }
 func (m *MockQuerier) CreateRoleScope(ctx context.Context, dbtx db.DBTX, arg db.CreateRoleScopeParams) (db.RolesToScope, error) {
 	return db.RolesToScope{}, nil
@@ -200,6 +204,9 @@ func (m *MockQuerier) ListScopes(ctx context.Context, dbtx db.DBTX, arg db.ListS
 	return nil, nil
 }
 func (m *MockQuerier) ListUsers(ctx context.Context, dbtx db.DBTX, arg db.ListUsersParams) ([]db.User, error) {
+	if m.listUsersFunc != nil {
+		return m.listUsersFunc(ctx, dbtx, arg)
+	}
 	return nil, nil
 }
 func (m *MockQuerier) SearchComments(ctx context.Context, dbtx db.DBTX, arg db.SearchCommentsParams) ([]db.SearchCommentsRow, error) {
@@ -392,6 +399,54 @@ func TestCreateUser_ResponseStatusOK(t *testing.T) {
 
 	if response.Code != expectedStatus {
 		t.Errorf("Expected status %d, got %d", expectedStatus, response.Code)
+	}
+}
+
+func TestListUsers_PassesSearchToDatabase(t *testing.T) {
+	expectedSearch := "john"
+	mockQuerier := &MockQuerier{
+		listUsersFunc: func(ctx context.Context, dbtx db.DBTX, arg db.ListUsersParams) ([]db.User, error) {
+			if arg.Search != expectedSearch {
+				t.Fatalf("expected search %q, got %q", expectedSearch, arg.Search)
+			}
+			if arg.Limit != 20 {
+				t.Fatalf("expected limit 20, got %d", arg.Limit)
+			}
+			if arg.Offset != 40 {
+				t.Fatalf("expected offset 40, got %d", arg.Offset)
+			}
+			return []db.User{{
+				ID:        1,
+				Username:  "johnny",
+				FirstName: "John",
+				LastName:  "Appleseed",
+				Email:     "johnny@example.com",
+				CreatedAt: pgtype.Timestamp{Time: time.Now(), Valid: true},
+			}}, nil
+		},
+	}
+
+	service := &UserApiService{
+		DB: mockQuerier,
+	}
+
+	response, err := service.ListUsers(context.Background(), 20, 40, expectedSearch)
+	if err != nil {
+		t.Fatalf("ListUsers() returned error: %v", err)
+	}
+	if response.Code != http.StatusOK {
+		t.Fatalf("expected status %d, got %d", http.StatusOK, response.Code)
+	}
+
+	users, ok := response.Body.([]openapi.User)
+	if !ok {
+		t.Fatalf("expected []openapi.User response body, got %T", response.Body)
+	}
+	if len(users) != 1 {
+		t.Fatalf("expected 1 user, got %d", len(users))
+	}
+	if users[0].Username != "johnny" {
+		t.Fatalf("expected username johnny, got %q", users[0].Username)
 	}
 }
 

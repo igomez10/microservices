@@ -581,6 +581,7 @@ case $state in
         _op_arguments=(
                     "limit=:[QUERY] Maximum number of users to return"
 "offset=:[QUERY] Pagination offset"
+"search=:[QUERY] Case-insensitive user search across username, first name, last name, and email"
           )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;

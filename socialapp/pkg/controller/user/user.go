@@ -304,7 +304,7 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string, l
 }
 
 // ListUsers - Returns all the users
-func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32) (openapi.ImplResponse, error) {
+func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32, search string) (openapi.ImplResponse, error) {
 	logger := contexthelper.GetLoggerInContext(ctx)
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "ListUsers")
 	defer span.End()
@@ -318,6 +318,7 @@ func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32) (op
 	dbUsers, err := s.DB.ListUsers(ctx, s.DBConn, db.ListUsersParams{
 		Limit:  limit,
 		Offset: offset,
+		Search: search,
 	})
 	defer spanDBList.End()
 

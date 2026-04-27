@@ -17,10 +17,12 @@ import (
 
 	"log/slog"
 
+	"github.com/docker/go-connections/nat"
 	"github.com/go-redis/redis/v8"
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/cache"
 	"github.com/igomez10/microservices/socialapp/internal/server"
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	"github.com/igomez10/microservices/socialapp/pkg/scopes"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/assert"
@@ -59,9 +61,17 @@ func setupTestEnv(t *testing.T) *TestEnv {
 	)
 	require.NoError(t, err, "Failed to start PostgreSQL container")
 
-	// Get PostgreSQL connection string
-	pgConnStr, err := pgContainer.ConnectionString(ctx, "sslmode=disable")
-	require.NoError(t, err, "Failed to get PostgreSQL connection string")
+	// Resolve host/port explicitly instead of relying on the module helper.
+	// This avoids intermittent "port not found" failures from ConnectionString().
+	pgHost, err := pgContainer.Host(ctx)
+	require.NoError(t, err, "Failed to get PostgreSQL host")
+	pgPort, err := pgContainer.MappedPort(ctx, nat.Port("5432/tcp"))
+	require.NoError(t, err, "Failed to get PostgreSQL mapped port")
+	pgConnStr := fmt.Sprintf(
+		"postgres://postgres:password@%s:%s/socialapp?sslmode=disable",
+		pgHost,
+		pgPort.Port(),
+	)
 
 	// Connect to PostgreSQL
 	dbPool, err := pgxpool.New(ctx, pgConnStr)
@@ -81,9 +91,13 @@ func setupTestEnv(t *testing.T) *TestEnv {
 	)
 	require.NoError(t, err, "Failed to start Redis container")
 
-	// Get Redis connection string
-	redisConnStr, err := redisContainer.ConnectionString(ctx)
-	require.NoError(t, err, "Failed to get Redis connection string")
+	// Resolve host/port explicitly instead of relying on the module helper.
+	// This has been more stable in practice than ConnectionString() for this suite.
+	redisHost, err := redisContainer.Host(ctx)
+	require.NoError(t, err, "Failed to get Redis host")
+	redisPort, err := redisContainer.MappedPort(ctx, nat.Port("6379/tcp"))
+	require.NoError(t, err, "Failed to get Redis mapped port")
+	redisConnStr := fmt.Sprintf("redis://%s:%s", redisHost, redisPort.Port())
 
 	// Connect to Redis
 	redisOpts, err := redis.ParseURL(redisConnStr)
@@ -545,6 +559,66 @@ func TestCreateUser_MultipleUsers(t *testing.T) {
 
 	// All users should have unique IDs
 	assert.Len(t, createdIDs, len(users), "Expected %d unique IDs", len(users))
+}
+
+func TestListUsers_Search(t *testing.T) {
+	env := setupTestEnv(t)
+	defer teardownTestEnv(t, env)
+
+	testUser := createAdminTestUser(t, env)
+	token := getAuthToken(t, env, testUser, scopes.SocialappUsersList.String())
+
+	users := []openapi.CreateUserRequest{
+		{
+			Username:  "search_alpha",
+			Password:  "TestPassword123!",
+			FirstName: "Alice",
+			LastName:  "Searchable",
+			Email:     "alice.search@example.com",
+		},
+		{
+			Username:  "search_beta",
+			Password:  "TestPassword123!",
+			FirstName: "Bob",
+			LastName:  "Builder",
+			Email:     "bob.builder@example.com",
+		},
+		{
+			Username:  "gamma_user",
+			Password:  "TestPassword123!",
+			FirstName: "Carol",
+			LastName:  "Example",
+			Email:     "carol@example.com",
+		},
+	}
+
+	for _, userReq := range users {
+		body, err := json.Marshal(userReq)
+		require.NoError(t, err)
+
+		resp, err := http.Post(env.BaseURL+"/v1/users", "application/json", bytes.NewReader(body))
+		require.NoError(t, err)
+		resp.Body.Close()
+		require.Equal(t, http.StatusOK, resp.StatusCode)
+	}
+
+	req, err := http.NewRequest(http.MethodGet, env.BaseURL+"/v1/users?search=search", nil)
+	require.NoError(t, err)
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	defer resp.Body.Close()
+
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	var listedUsers []openapi.User
+	err = json.NewDecoder(resp.Body).Decode(&listedUsers)
+	require.NoError(t, err)
+
+	require.Len(t, listedUsers, 2)
+	assert.Equal(t, "search_alpha", listedUsers[0].Username)
+	assert.Equal(t, "search_beta", listedUsers[1].Username)
 }
 
 // TestCreateUser_SnowflakeIDReturned verifies that created users have valid snowflake IDs

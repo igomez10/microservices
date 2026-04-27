@@ -143,6 +143,7 @@ operation_parameters_minimum_occurrences["getUserComments:::offset"]=0
 operation_parameters_minimum_occurrences["getUserFollowers:::username"]=1
 operation_parameters_minimum_occurrences["listUsers:::limit"]=0
 operation_parameters_minimum_occurrences["listUsers:::offset"]=0
+operation_parameters_minimum_occurrences["listUsers:::search"]=0
 operation_parameters_minimum_occurrences["resetPassword:::ResetPasswordRequest"]=1
 operation_parameters_minimum_occurrences["unfollowUser:::followedUsername"]=1
 operation_parameters_minimum_occurrences["unfollowUser:::followerUsername"]=1
@@ -205,6 +206,7 @@ operation_parameters_maximum_occurrences["getUserComments:::offset"]=0
 operation_parameters_maximum_occurrences["getUserFollowers:::username"]=0
 operation_parameters_maximum_occurrences["listUsers:::limit"]=0
 operation_parameters_maximum_occurrences["listUsers:::offset"]=0
+operation_parameters_maximum_occurrences["listUsers:::search"]=0
 operation_parameters_maximum_occurrences["resetPassword:::ResetPasswordRequest"]=0
 operation_parameters_maximum_occurrences["unfollowUser:::followedUsername"]=0
 operation_parameters_maximum_occurrences["unfollowUser:::followerUsername"]=0
@@ -264,6 +266,7 @@ operation_parameters_collection_type["getUserComments:::offset"]=""
 operation_parameters_collection_type["getUserFollowers:::username"]=""
 operation_parameters_collection_type["listUsers:::limit"]=""
 operation_parameters_collection_type["listUsers:::offset"]=""
+operation_parameters_collection_type["listUsers:::search"]=""
 operation_parameters_collection_type["resetPassword:::ResetPasswordRequest"]=""
 operation_parameters_collection_type["unfollowUser:::followedUsername"]=""
 operation_parameters_collection_type["unfollowUser:::followerUsername"]=""
@@ -1639,6 +1642,8 @@ print_listUsers_help() {
     echo -e "  * ${GREEN}limit${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 20)${OFF} - Maximum number of users to return${YELLOW} Specify as: limit=value${OFF}" \
         | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo -e "  * ${GREEN}offset${OFF} ${BLUE}[integer]${OFF} ${CYAN}(default: 0)${OFF} - Pagination offset${YELLOW} Specify as: offset=value${OFF}" \
+        | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
+    echo -e "  * ${GREEN}search${OFF} ${BLUE}[string]${OFF} ${CYAN}(default: )${OFF} - Case-insensitive user search across username, first name, last name, and email${YELLOW} Specify as: search=value${OFF}" \
         | paste -sd' ' - | fold -sw 80 | sed '2,$s/^/    /'
     echo ""
     echo -e "${BOLD}${WHITE}Responses${OFF}"
@@ -3462,7 +3467,7 @@ call_listUsers() {
     local path_parameter_names=()
     # ignore error about 'query_parameter_names' being unused; passed by reference
     # shellcheck disable=SC2034
-    local query_parameter_names=(limit offset  )
+    local query_parameter_names=(limit offset search  )
     local path
 
     if ! path=$(build_request_path "/v1/users" path_parameter_names query_parameter_names); then

@@ -147,7 +147,7 @@ _socialapp-cli()
     operation_parameters["getUserByUsername"]="username= "
     operation_parameters["getUserComments"]="username= limit= offset= "
     operation_parameters["getUserFollowers"]="username= "
-    operation_parameters["listUsers"]="limit= offset= "
+    operation_parameters["listUsers"]="limit= offset= search= "
     operation_parameters["resetPassword"]=""
     operation_parameters["unfollowUser"]="followedUsername= followerUsername= "
     operation_parameters["updateRolesForUser"]="username= "

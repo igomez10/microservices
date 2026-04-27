@@ -879,6 +879,11 @@ export interface operations {
                  * @example 0
                  */
                 offset?: number;
+                /**
+                 * @description Case-insensitive user search across username, first name, last name, and email
+                 * @example john
+                 */
+                search?: string;
             };
             header?: never;
             path?: never;

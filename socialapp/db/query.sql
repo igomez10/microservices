@@ -14,6 +14,13 @@ WHERE username = $1 AND deleted_at IS NULL LIMIT 1;
 -- name: ListUsers :many
 SELECT * FROM users
 WHERE deleted_at IS NULL
+  AND (
+    sqlc.arg(search)::text = ''
+    OR username ILIKE '%' || sqlc.arg(search)::text || '%'
+    OR first_name ILIKE '%' || sqlc.arg(search)::text || '%'
+    OR last_name ILIKE '%' || sqlc.arg(search)::text || '%'
+    OR email ILIKE '%' || sqlc.arg(search)::text || '%'
+  )
 ORDER BY created_at ASC
 LIMIT $1 OFFSET $2;
 

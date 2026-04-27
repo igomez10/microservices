@@ -269,7 +269,7 @@ Get all followers for a user
 
 <a name="listUsers"></a>
 # **listUsers**
-> List listUsers(limit, offset)
+> List listUsers(limit, offset, search)
 
 List users
 
@@ -281,6 +281,7 @@ List users
 |------------- | ------------- | ------------- | -------------|
 | **limit** | **Integer**| Maximum number of users to return | [optional] [default to 20] |
 | **offset** | **Integer**| Pagination offset | [optional] [default to 0] |
+| **search** | **String**| Case-insensitive user search across username, first name, last name, and email | [optional] [default to ] |
 
 ### Return type
 

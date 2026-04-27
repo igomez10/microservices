@@ -64,6 +64,29 @@ test.describe('authenticated flows', () => {
     await expect(pageTwoButton).toHaveClass(/btn-primary/)
   })
 
+  test('searches users from the users section through the API', async ({ page }) => {
+    await signIn(page)
+    await page.getByRole('button', { name: 'Users' }).click()
+
+    const searchTerm = username!.slice(0, Math.min(username!.length, 6))
+    const searchResponsePromise = page.waitForResponse((response) => {
+      if (response.request().method() !== 'GET') {
+        return false
+      }
+      try {
+        const url = new URL(response.url())
+        return url.pathname.endsWith('/v1/users') && url.searchParams.get('search') === searchTerm
+      } catch {
+        return false
+      }
+    })
+
+    await page.getByPlaceholder('Search users...').fill(searchTerm)
+    await searchResponsePromise
+
+    await expect(page.getByText(`@${username}`, { exact: false }).first()).toBeVisible()
+  })
+
   test('profile nav shows my own profile by default', async ({ page }) => {
     await signIn(page)
     await page.getByRole('button', { name: 'Profile' }).click()

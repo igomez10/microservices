@@ -41,7 +41,7 @@ export function createSocialApi(ctx: ApiContext) {
         method: 'POST',
         queryParams: scopes ? { scope: scopes } : undefined
       }),
-    listUsers: (params?: { limit?: number; offset?: number }): Promise<ApiResponse<User[]>> =>
+    listUsers: (params?: { limit?: number; offset?: number; search?: string }): Promise<ApiResponse<User[]>> =>
       authed({ path: '/v1/users', method: 'GET', queryParams: params }),
     createUser: (body: CreateUserRequest): Promise<ApiResponse<CreateUserResponse>> =>
       authed({ path: '/v1/users', method: 'POST', body }),

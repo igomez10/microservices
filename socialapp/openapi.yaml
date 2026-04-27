@@ -102,6 +102,16 @@ paths:
             format: int32
             type: integer
           style: form
+        - description: Case-insensitive user search across username, first name, last name, and email
+          example: john
+          explode: true
+          in: query
+          name: search
+          required: false
+          schema:
+            default: ""
+            type: string
+          style: form
       responses:
         "200":
           content:

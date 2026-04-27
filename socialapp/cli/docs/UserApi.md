@@ -349,7 +349,7 @@ List users with offset-based pagination.
 ### Example
 
 ```bash
-socialapp-cli listUsers  limit=value  offset=value
+socialapp-cli listUsers  limit=value  offset=value  search=value
 ```
 
 ### Parameters
@@ -359,6 +359,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **limit** | **integer** | Maximum number of users to return | [optional] [default to 20]
  **offset** | **integer** | Pagination offset | [optional] [default to 0]
+ **search** | **string** | Case-insensitive user search across username, first name, last name, and email | [optional] [default to ]
 
 ### Return type
 

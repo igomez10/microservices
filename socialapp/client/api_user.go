@@ -1180,6 +1180,7 @@ type UserAPIListUsersRequest struct {
 	ApiService *UserAPIService
 	limit      *int32
 	offset     *int32
+	search     *string
 }
 
 // Maximum number of users to return
@@ -1191,6 +1192,12 @@ func (r UserAPIListUsersRequest) Limit(limit int32) UserAPIListUsersRequest {
 // Pagination offset
 func (r UserAPIListUsersRequest) Offset(offset int32) UserAPIListUsersRequest {
 	r.offset = &offset
+	return r
+}
+
+// Case-insensitive user search across username, first name, last name, and email
+func (r UserAPIListUsersRequest) Search(search string) UserAPIListUsersRequest {
+	r.search = &search
 	return r
 }
 
@@ -1248,6 +1255,13 @@ func (a *UserAPIService) ListUsersExecute(r UserAPIListUsersRequest) ([]User, *h
 		var defaultValue int32 = 0
 		parameterAddToHeaderOrQuery(localVarQueryParams, "offset", defaultValue, "form", "")
 		r.offset = &defaultValue
+	}
+	if r.search != nil {
+		parameterAddToHeaderOrQuery(localVarQueryParams, "search", r.search, "form", "")
+	} else {
+		var defaultValue string = ""
+		parameterAddToHeaderOrQuery(localVarQueryParams, "search", defaultValue, "form", "")
+		r.search = &defaultValue
 	}
 	// to determine the Content-Type header
 	localVarHTTPContentTypes := []string{}
