@@ -7,6 +7,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 | [**createComment**](CommentApi.md#createComment) | **POST** /v1/comments | Create a new comment |
 | [**getComment**](CommentApi.md#getComment) | **GET** /v1/comments/{id} | Get comment by ID |
 | [**getUserFeed**](CommentApi.md#getUserFeed) | **GET** /v1/feed | Get user feed |
+| [**searchComments**](CommentApi.md#searchComments) | **GET** /v1/comments | Search comments |
 
 
 <a name="createComment"></a>
@@ -73,6 +74,35 @@ Get user feed
 
 ### Parameters
 This endpoint does not need any parameter.
+
+### Return type
+
+[**List**](../Models/Comment.md)
+
+### Authorization
+
+[OAuth2](../README.md#OAuth2)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="searchComments"></a>
+# **searchComments**
+> List searchComments(username, start\_time, end\_time)
+
+Search comments
+
+    Search comments by author and creation time.
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **username** | **String**| Filter comments by the author&#39;s username. | [optional] [default to null] |
+| **start\_time** | **Date**| Return comments created at or after this timestamp. | [optional] [default to null] |
+| **end\_time** | **Date**| Return comments created at or before this timestamp. | [optional] [default to null] |
 
 ### Return type
 

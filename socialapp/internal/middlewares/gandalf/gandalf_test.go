@@ -191,6 +191,9 @@ func (m *mockDB) GetUserRoles(ctx context.Context, dbtx db.DBTX, id int64) ([]db
 func (m *mockDB) ListComment(ctx context.Context, dbtx db.DBTX, arg db.ListCommentParams) ([]db.Comment, error) {
 	return nil, nil
 }
+func (m *mockDB) SearchComments(ctx context.Context, dbtx db.DBTX, arg db.SearchCommentsParams) ([]db.SearchCommentsRow, error) {
+	return nil, nil
+}
 func (m *mockDB) ListRoleScopes(ctx context.Context, dbtx db.DBTX, arg db.ListRoleScopesParams) ([]db.Scope, error) {
 	if m.listRoleScopesFunc != nil {
 		conn, _ := dbtx.(*pgxpool.Pool)

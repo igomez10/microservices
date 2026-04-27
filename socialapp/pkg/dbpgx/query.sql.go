@@ -1278,6 +1278,70 @@ func (q *Queries) ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) (
 	return items, nil
 }
 
+const SearchComments = `-- name: SearchComments :many
+SELECT
+	c.id, c.content, c.like_count, c.user_id, c.created_at, c.updated_at, c.deleted_at,
+	u.username
+FROM
+	comments c
+	JOIN users u ON c.user_id = u.id
+WHERE
+	c.deleted_at IS NULL
+	AND u.deleted_at IS NULL
+	AND ($1 = '' OR u.username = $1)
+	AND c.created_at >= $2
+	AND c.created_at <= $3
+ORDER BY
+	c.created_at DESC
+LIMIT 20
+`
+
+type SearchCommentsParams struct {
+	Column1     interface{}      `json:"column_1"`
+	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	CreatedAt_2 pgtype.Timestamp `json:"created_at_2"`
+}
+
+type SearchCommentsRow struct {
+	ID        int64            `json:"id"`
+	Content   string           `json:"content"`
+	LikeCount int64            `json:"like_count"`
+	UserID    int64            `json:"user_id"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
+	UpdatedAt pgtype.Timestamp `json:"updated_at"`
+	DeletedAt pgtype.Timestamp `json:"deleted_at"`
+	Username  string           `json:"username"`
+}
+
+func (q *Queries) SearchComments(ctx context.Context, db DBTX, arg SearchCommentsParams) ([]SearchCommentsRow, error) {
+	rows, err := db.Query(ctx, SearchComments, arg.Column1, arg.CreatedAt, arg.CreatedAt_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SearchCommentsRow
+	for rows.Next() {
+		var i SearchCommentsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Content,
+			&i.LikeCount,
+			&i.UserID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Username,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const UnfollowUser = `-- name: UnfollowUser :exec
 DELETE FROM followers
 WHERE follower_id = $1 AND followed_id = $2

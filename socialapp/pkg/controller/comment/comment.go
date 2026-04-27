@@ -3,6 +3,7 @@ package comment
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
@@ -12,6 +13,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/pkg/snowflake"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 // s *CommentService openapi.CommentApiServicer
@@ -21,6 +23,58 @@ type CommentService struct {
 	DB                 dbpgx.Querier
 	DBConn             dbpgx.DBTX
 	SnowflakeGenerator snowflake.IDGenerator
+}
+
+func (s *CommentService) SearchComments(ctx context.Context, username string, startTime time.Time, endTime time.Time) (openapi.ImplResponse, error) {
+	ctx, span := tracerhelper.GetTracer().Start(ctx, "CommentService.SearchComments")
+	defer span.End()
+
+	logger := contexthelper.GetLoggerInContext(ctx)
+
+	if startTime.IsZero() {
+		startTime = time.Unix(0, 0).UTC()
+	}
+	if endTime.IsZero() {
+		endTime = time.Date(9999, time.December, 31, 23, 59, 59, 0, time.UTC)
+	}
+	if startTime.After(endTime) {
+		return openapi.Response(http.StatusBadRequest, openapi.Error{
+			Code:    http.StatusBadRequest,
+			Message: "start_time must be before or equal to end_time",
+		}), nil
+	}
+
+	dbComments, err := s.DB.SearchComments(ctx, s.DBConn, db.SearchCommentsParams{
+		Column1: username,
+		CreatedAt: pgtype.Timestamp{
+			Time:  startTime,
+			Valid: true,
+		},
+		CreatedAt_2: pgtype.Timestamp{
+			Time:  endTime,
+			Valid: true,
+		},
+	})
+	if err != nil {
+		logger.Error("Error searching comments", "error", err)
+		return openapi.Response(http.StatusInternalServerError, openapi.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Error searching comments",
+		}), nil
+	}
+
+	apiComments := make([]openapi.Comment, len(dbComments))
+	for i := range dbComments {
+		apiComments[i] = openapi.Comment{
+			Id:        dbComments[i].ID,
+			Content:   dbComments[i].Content,
+			LikeCount: dbComments[i].LikeCount,
+			CreatedAt: dbComments[i].CreatedAt.Time,
+			Username:  dbComments[i].Username,
+		}
+	}
+
+	return openapi.Response(http.StatusOK, apiComments), nil
 }
 
 func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comment) (openapi.ImplResponse, error) {

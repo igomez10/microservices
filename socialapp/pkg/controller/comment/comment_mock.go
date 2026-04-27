@@ -2,6 +2,7 @@ package comment
 
 import (
 	"context"
+	"time"
 
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 )
@@ -18,17 +19,17 @@ func (s *CommentMock) CreateComment(_ context.Context, _ openapi.Comment) (opena
 	return s.responseToReturn, s.errorToReturn
 }
 
-func (s *CommentMock) GetComment(_ context.Context, _ int32) (openapi.ImplResponse, error) {
+func (s *CommentMock) GetComment(_ context.Context, _ int64) (openapi.ImplResponse, error) {
 	s.counter++
 	return s.responseToReturn, s.errorToReturn
 }
 
-func (s *CommentMock) GetUserComments(_ context.Context, _ string) (openapi.ImplResponse, error) {
+func (s *CommentMock) SearchComments(_ context.Context, _ string, _ time.Time, _ time.Time) (openapi.ImplResponse, error) {
 	s.counter++
 	return s.responseToReturn, s.errorToReturn
 }
 
-func (s *CommentMock) GetUserFeed(_ context.Context, _ string) (openapi.ImplResponse, error) {
+func (s *CommentMock) GetUserFeed(_ context.Context) (openapi.ImplResponse, error) {
 	s.counter++
 	return s.responseToReturn, s.errorToReturn
 }

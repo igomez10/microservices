@@ -842,6 +842,63 @@ paths:
       tags:
         - Comment
   /v1/comments:
+    get:
+      description: Search comments by author and creation time.
+      operationId: searchComments
+      parameters:
+        - description: Filter comments by the author's username.
+          explode: true
+          in: query
+          name: username
+          required: false
+          schema:
+            type: string
+          style: form
+        - description: Return comments created at or after this timestamp.
+          explode: true
+          in: query
+          name: start_time
+          required: false
+          schema:
+            format: date-time
+            type: string
+          style: form
+        - description: Return comments created at or before this timestamp.
+          explode: true
+          in: query
+          name: end_time
+          required: false
+          schema:
+            format: date-time
+            type: string
+          style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/Comment"
+                type: array
+          description: The most recent matching comments
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unauthorized
+        default:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+          description: Unexpected error
+      security:
+        - OAuth2:
+            - socialapp.comments.read
+      summary: Search comments
+      tags:
+        - Comment
     post:
       description: Create a new comment.
       operationId: createComment

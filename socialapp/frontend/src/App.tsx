@@ -516,38 +516,17 @@ export default function App() {
 
   const loadDiscovery = async () => {
     setStatus(setDiscoveryStatus, { ...initialStatus, loading: true })
+    const res = await api.searchComments()
+    const sortedComments = [...(res.data ?? [])].sort((left, right) => {
+      const leftTime = left.created_at ? new Date(left.created_at).getTime() : 0
+      const rightTime = right.created_at ? new Date(right.created_at).getTime() : 0
+      return rightTime - leftTime
+    })
 
-    const usersRes = await api.listUsers({ limit: 100, offset: 0 })
-    const allUsers = usersRes.data ?? []
-
-    if (!usersRes.ok) {
-      setDiscoveryItems([])
-      setStatus(setDiscoveryStatus, {
-        status: `${usersRes.status} ${usersRes.statusText}`,
-        error: usersRes.error ?? '',
-        loading: false
-      })
-      return
-    }
-
-    const commentResponses = await Promise.all(
-      allUsers.map((user) => api.getUserComments(user.username))
-    )
-
-    const allComments = commentResponses
-      .flatMap((response) => response.data ?? [])
-      .sort((left, right) => {
-        const leftTime = left.created_at ? new Date(left.created_at).getTime() : 0
-        const rightTime = right.created_at ? new Date(right.created_at).getTime() : 0
-        return rightTime - leftTime
-      })
-
-    const commentError = commentResponses.find((response) => response.error)?.error ?? ''
-
-    setDiscoveryItems(allComments)
+    setDiscoveryItems(sortedComments)
     setStatus(setDiscoveryStatus, {
-      status: `${usersRes.status} ${usersRes.statusText}`,
-      error: commentError,
+      status: `${res.status} ${res.statusText}`,
+      error: res.error ?? '',
       loading: false
     })
   }

@@ -78,6 +78,23 @@ WHERE deleted_at IS NULL
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2;
 
+-- name: SearchComments :many
+SELECT
+	c.*,
+	u.username
+FROM
+	comments c
+	JOIN users u ON c.user_id = u.id
+WHERE
+	c.deleted_at IS NULL
+	AND u.deleted_at IS NULL
+	AND ($1 = '' OR u.username = $1)
+	AND c.created_at >= $2
+	AND c.created_at <= $3
+ORDER BY
+	c.created_at DESC
+LIMIT 20;
+
 -- name: CreateComment :one
 INSERT INTO comments (
   user_id, content

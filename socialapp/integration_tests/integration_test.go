@@ -48,6 +48,12 @@ func TestGetExpectedFeed(t *testing.T) {
 	}
 }
 
+func TestSearchComments(t *testing.T) {
+	if err := SearchCommentsLifecycle(context.Background()); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestGetAccessToken(t *testing.T) {
 	if err := GetAccessToken(context.Background()); err != nil {
 		t.Fatal(err)

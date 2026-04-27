@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -64,6 +65,12 @@ func (c *CommentAPIController) Routes() Routes {
 			"/v1/comments/{id}",
 			c.GetComment,
 		},
+		"SearchComments": Route{
+			"SearchComments",
+			strings.ToUpper("Get"),
+			"/v1/comments",
+			c.SearchComments,
+		},
 		"CreateComment": Route{
 			"CreateComment",
 			strings.ToUpper("Post"),
@@ -87,6 +94,12 @@ func (c *CommentAPIController) OrderedRoutes() []Route {
 			strings.ToUpper("Get"),
 			"/v1/comments/{id}",
 			c.GetComment,
+		},
+		Route{
+			"SearchComments",
+			strings.ToUpper("Get"),
+			"/v1/comments",
+			c.SearchComments,
 		},
 		Route{
 			"CreateComment",
@@ -120,6 +133,52 @@ func (c *CommentAPIController) GetComment(w http.ResponseWriter, r *http.Request
 		return
 	}
 	result, err := c.service.GetComment(r.Context(), idParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
+}
+
+// SearchComments - Search comments
+func (c *CommentAPIController) SearchComments(w http.ResponseWriter, r *http.Request) {
+	query, err := parseQuery(r.URL.RawQuery)
+	if err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	var usernameParam string
+	if query.Has("username") {
+		param := query.Get("username")
+
+		usernameParam = param
+	} else {
+	}
+	var startTimeParam time.Time
+	if query.Has("start_time") {
+		param, err := parseTime(query.Get("start_time"))
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Param: "start_time", Err: err}, nil)
+			return
+		}
+
+		startTimeParam = param
+	} else {
+	}
+	var endTimeParam time.Time
+	if query.Has("end_time") {
+		param, err := parseTime(query.Get("end_time"))
+		if err != nil {
+			c.errorHandler(w, r, &ParsingError{Param: "end_time", Err: err}, nil)
+			return
+		}
+
+		endTimeParam = param
+	} else {
+	}
+	result, err := c.service.SearchComments(r.Context(), usernameParam, startTimeParam, endTimeParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

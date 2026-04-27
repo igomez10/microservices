@@ -14,6 +14,7 @@ package openapi
 import (
 	"context"
 	"net/http"
+	"time"
 )
 
 // AuthenticationAPIRouter defines the required methods for binding the api requests to a responses for the AuthenticationAPI
@@ -29,6 +30,7 @@ type AuthenticationAPIRouter interface {
 type CommentAPIRouter interface {
 	GetUserFeed(http.ResponseWriter, *http.Request)
 	GetComment(http.ResponseWriter, *http.Request)
+	SearchComments(http.ResponseWriter, *http.Request)
 	CreateComment(http.ResponseWriter, *http.Request)
 }
 
@@ -110,6 +112,7 @@ type AuthenticationAPIServicer interface {
 type CommentAPIServicer interface {
 	GetUserFeed(context.Context) (ImplResponse, error)
 	GetComment(context.Context, int64) (ImplResponse, error)
+	SearchComments(context.Context, string, time.Time, time.Time) (ImplResponse, error)
 	CreateComment(context.Context, Comment) (ImplResponse, error)
 }
 

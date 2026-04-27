@@ -10,7 +10,7 @@
 # !
 # ! Based on: https://github.com/Valodim/zsh-curl-completion/blob/master/_curl
 # !
-# ! Generator version: 7.19.0
+# ! Generator version: 7.21.0
 # !
 # !
 # ! Installation:
@@ -299,7 +299,8 @@ case $state in
     _values "Operations" \
             "getAccessToken[Get an access token]"             "createComment[Create a new comment]" \
             "getComment[Get comment by ID]" \
-            "getUserFeed[Get user feed]"             "getUserFollowers[Get all followers for a user]"             "addScopeToRole[Add a scope to a role]" \
+            "getUserFeed[Get user feed]" \
+            "searchComments[Search comments]"             "getUserFollowers[Get all followers for a user]"             "addScopeToRole[Add a scope to a role]" \
             "createRole[Create a new role]" \
             "deleteRole[Delete a role]" \
             "getRole[Get role by ID]" \
@@ -358,6 +359,15 @@ case $state in
         local -a _op_arguments
         _op_arguments=(
                               )
+        _describe -t actions 'operations' _op_arguments -S '' && ret=0
+        ;;
+      searchComments)
+        local -a _op_arguments
+        _op_arguments=(
+                    "username=:[QUERY] Filter comments by the author&#39;s username."
+"start_time=:[QUERY] Return comments created at or after this timestamp."
+"end_time=:[QUERY] Return comments created at or before this timestamp."
+          )
         _describe -t actions 'operations' _op_arguments -S '' && ret=0
         ;;
       getUserFollowers)

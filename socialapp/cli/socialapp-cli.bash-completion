@@ -8,7 +8,7 @@
 # ! openapi-generator (https://openapi-generator.tech)
 # ! FROM OPENAPI SPECIFICATION IN JSON.
 # !
-# ! Generator version: 7.19.0
+# ! Generator version: 7.21.0
 # !
 # !
 # ! System wide installation:
@@ -73,6 +73,7 @@ _socialapp-cli()
     operations["createComment"]=1
     operations["getComment"]=1
     operations["getUserFeed"]=1
+    operations["searchComments"]=1
     operations["getUserFollowers"]=1
     operations["addScopeToRole"]=1
     operations["createRole"]=1
@@ -114,6 +115,7 @@ _socialapp-cli()
     operation_parameters["createComment"]=""
     operation_parameters["getComment"]="id= "
     operation_parameters["getUserFeed"]=""
+    operation_parameters["searchComments"]="username= start_time= end_time= "
     operation_parameters["getUserFollowers"]="username= "
     operation_parameters["addScopeToRole"]="id= "
     operation_parameters["createRole"]=""

@@ -107,6 +107,7 @@ Class | Method | HTTP request | Description
 *CommentApi* | [**createComment**](docs/CommentApi.md#createcomment) | **POST** /v1/comments | Create a new comment
 *CommentApi* | [**getComment**](docs/CommentApi.md#getcomment) | **GET** /v1/comments/{id} | Get comment by ID
 *CommentApi* | [**getUserFeed**](docs/CommentApi.md#getuserfeed) | **GET** /v1/feed | Get user feed
+*CommentApi* | [**searchComments**](docs/CommentApi.md#searchcomments) | **GET** /v1/comments | Search comments
 *FollowingApi* | [**getUserFollowers**](docs/FollowingApi.md#getuserfollowers) | **GET** /v1/users/{username}/followers | Get all followers for a user
 *RoleApi* | [**addScopeToRole**](docs/RoleApi.md#addscopetorole) | **POST** /v1/roles/{id}/scopes | Add a scope to a role
 *RoleApi* | [**createRole**](docs/RoleApi.md#createrole) | **POST** /v1/roles | Create a new role

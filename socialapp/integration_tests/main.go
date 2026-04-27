@@ -200,6 +200,10 @@ func main() {
 		finishedSuccessfully = false
 		slog.Error("error GetExpectedFeed", "error", err)
 	}
+	if err := SearchCommentsLifecycle(ctx); err != nil {
+		finishedSuccessfully = false
+		slog.Error("error SearchCommentsLifecycle", "error", err)
+	}
 	if err := GetAccessToken(ctx); err != nil {
 		finishedSuccessfully = false
 		slog.Error("error GetAccessToken", "error", err)
@@ -683,6 +687,137 @@ func GetExpectedFeed(ctx context.Context) error {
 	}(); err != nil {
 		return err
 	}
+	return nil
+}
+
+func SearchCommentsLifecycle(ctx context.Context) error {
+	ctx, span := getTracer().Start(ctx, "SearchCommentsLifecycle")
+	defer span.End()
+
+	opts := Setup()
+	opts = append(opts, WithSkipCache())
+	configuration := NewDefaultConfiguration(opts...)
+	httpClient := getHTTPClient()
+	configuration.HTTPClient = httpClient
+	proxyCtx := context.WithValue(ctx, oauth2.HTTPClient, httpClient)
+
+	apiClient = client.NewAPIClient(configuration)
+
+	username1 := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
+	password1 := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
+	email1 := fmt.Sprintf("%s-1@example.com", username1)
+	user1 := *client.NewCreateUserRequest(username1, password1, "Search", "AuthorOne", email1)
+
+	username2 := fmt.Sprintf("Test-%d-search", time.Now().UnixNano())
+	password2 := fmt.Sprintf("Secret-%d", time.Now().UnixNano())
+	email2 := fmt.Sprintf("%s-2@example.com", username2)
+	user2 := *client.NewCreateUserRequest(username2, password2, "Search", "AuthorTwo", email2)
+
+	if err := func() error {
+		_, r1, err1 := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(user1).Execute()
+		if err1 != nil {
+			return fmt.Errorf("Error when calling `UserAPI.CreateUser` for user1: %v\n %+v\n", err1, r1)
+		}
+		_, r2, err2 := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(user2).Execute()
+		if err2 != nil {
+			return fmt.Errorf("Error when calling `UserAPI.CreateUser` for user2: %v\n %+v\n", err2, r2)
+		}
+		return nil
+	}(); err != nil {
+		return err
+	}
+
+	conf1 := clientcredentials.Config{
+		ClientID:     username1,
+		ClientSecret: password1,
+		Scopes: []string{
+			scopes.SocialappCommentsCreate.String(),
+			scopes.SocialappCommentsRead.String(),
+		},
+		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
+	}
+	oauth2Ctx1, err := getOAuth2Context(proxyCtx, conf1)
+	if err != nil {
+		return fmt.Errorf("Error getting oauth2 context for user1: %v", err)
+	}
+
+	conf2 := clientcredentials.Config{
+		ClientID:     username2,
+		ClientSecret: password2,
+		Scopes: []string{
+			scopes.SocialappCommentsCreate.String(),
+		},
+		TokenURL: configuration.Servers[0].URL + "/v1/oauth/token",
+	}
+	oauth2Ctx2, err := getOAuth2Context(proxyCtx, conf2)
+	if err != nil {
+		return fmt.Errorf("Error getting oauth2 context for user2: %v", err)
+	}
+
+	firstWindowStart := time.Now().UTC()
+	firstComment := *client.NewComment("search-first", username1)
+	createdFirst, r, err := apiClient.CommentAPI.CreateComment(oauth2Ctx1).Comment(firstComment).Execute()
+	if err != nil {
+		return fmt.Errorf("Error when calling `CommentAPI.CreateComment` for user1: %v\n %+v\n", err, r)
+	}
+
+	time.Sleep(25 * time.Millisecond)
+
+	secondComment := *client.NewComment("search-second", username2)
+	createdSecond, r, err := apiClient.CommentAPI.CreateComment(oauth2Ctx2).Comment(secondComment).Execute()
+	if err != nil {
+		return fmt.Errorf("Error when calling `CommentAPI.CreateComment` for user2: %v\n %+v\n", err, r)
+	}
+	secondWindowEnd := time.Now().UTC()
+
+	if err := func() error {
+		results, res, err := apiClient.CommentAPI.SearchComments(oauth2Ctx1).Username(username1).Execute()
+		if err != nil {
+			return fmt.Errorf("Error when calling `CommentAPI.SearchComments` by username: %v\n %+v\n", err, res)
+		}
+		if res.StatusCode != http.StatusOK {
+			return fmt.Errorf("Expected status code %d, got %d", http.StatusOK, res.StatusCode)
+		}
+		if len(results) != 1 {
+			return fmt.Errorf("Expected 1 comment for username search, got %d", len(results))
+		}
+		if results[0].Id != createdFirst.Id {
+			return fmt.Errorf("Expected comment id %d, got %d", createdFirst.Id, results[0].Id)
+		}
+		if results[0].Username != username1 {
+			return fmt.Errorf("Expected username %s, got %s", username1, results[0].Username)
+		}
+		return nil
+	}(); err != nil {
+		return err
+	}
+
+	if err := func() error {
+		results, res, err := apiClient.CommentAPI.
+			SearchComments(oauth2Ctx1).
+			StartTime(firstWindowStart).
+			EndTime(secondWindowEnd).
+			Execute()
+		if err != nil {
+			return fmt.Errorf("Error when calling `CommentAPI.SearchComments` by time window: %v\n %+v\n", err, res)
+		}
+		if res.StatusCode != http.StatusOK {
+			return fmt.Errorf("Expected status code %d, got %d", http.StatusOK, res.StatusCode)
+		}
+		if len(results) < 2 {
+			return fmt.Errorf("Expected at least 2 comments in time window, got %d", len(results))
+		}
+		if results[0].Id != createdSecond.Id {
+			return fmt.Errorf("Expected newest comment id %d, got %d", createdSecond.Id, results[0].Id)
+		}
+		if results[1].Id != createdFirst.Id {
+			return fmt.Errorf("Expected second newest comment id %d, got %d", createdFirst.Id, results[1].Id)
+		}
+		return nil
+	}(); err != nil {
+		return err
+	}
+
 	return nil
 }
 

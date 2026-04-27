@@ -10,14 +10,15 @@
 	},
 	"item": [
 	        {
-	            "name": "Role",
+	            "name": "URL",
+	            "description": "Short URL creation, redirect, and metadata operations",
 	            "item": [
 	                        {
-    "name": "/v1/roles",
-                "description": "Create a new role.",
+    "name": "/v1/urls",
+                "description": "Create a new URL alias.",
                  "item": [
                             {
-                                "name": "Create a new role",
+                                "name": "Create URL alias",
                                 "request": {
     "method": "POST",
     "header": [
@@ -36,7 +37,7 @@
     ],
     "body": {
     "mode": "raw",
-    "raw": "{\n  \"name\" : \"admin\",\n  \"description\" : \"Administrator role\"\n}",
+    "raw": "{\n  \"alias\" : \"example\",\n  \"url\" : \"https://example.com\"\n}",
     "options": {
     "raw": {
     "language": "json"
@@ -44,20 +45,20 @@
     }
     },
     "url": {
-    "raw": "{{baseUrl}}/v1/roles",
+    "raw": "{{baseUrl}}/v1/urls",
     "host": [
     "{{baseUrl}}"
     ],
     "path": [
         "v1",
-        "roles"
+        "urls"
     ],
     "variable": [
     ],
     "query": [
     ]
     },
-    "description": "Create a new role."
+    "description": "Create a new URL alias."
 }
                                 ,"response": [
                             ]
@@ -65,69 +66,11 @@
                             ]
                         },
 	                        {
-    "name": "/v1/roles",
-                "description": "List roles with offset-based pagination.",
+    "name": "/v1/urls/:alias",
+                "description": "Delete a URL alias and its metadata.",
                  "item": [
                             {
-                                "name": "Returns a list of roles",
-                                "request": {
-    "method": "GET",
-    "header": [
-        {
-        "key": "Accept",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        }
-    ],
-    "body": {
-    "mode": "raw",
-    "raw": "",
-    "options": {
-    "raw": {
-    "language": "json"
-    }
-    }
-    },
-    "url": {
-    "raw": "{{baseUrl}}/v1/roles",
-    "host": [
-    "{{baseUrl}}"
-    ],
-    "path": [
-        "v1",
-        "roles"
-    ],
-    "variable": [
-    ],
-    "query": [
-        {
-        "key": "limit",
-        "value": "20",
-        "description": "The numbers of roles to return",
-        "disabled": true
-        },
-        {
-        "key": "offset",
-        "value": "0",
-        "description": "The number of items to skip before starting to collect the result",
-        "disabled": true
-        }
-    ]
-    },
-    "description": "List roles with offset-based pagination."
-}
-                                ,"response": [
-                            ]
-                            }
-                            ]
-                        },
-	                        {
-    "name": "/v1/roles/:id",
-                "description": "Delete a role",
-                 "item": [
-                            {
-                                "name": "Delete a role",
+                                "name": "Delete URL alias",
                                 "request": {
     "method": "DELETE",
     "header": [
@@ -148,26 +91,26 @@
     }
     },
     "url": {
-    "raw": "{{baseUrl}}/v1/roles/:id",
+    "raw": "{{baseUrl}}/v1/urls/:alias",
     "host": [
     "{{baseUrl}}"
     ],
     "path": [
         "v1",
-        "roles",
-        ":id"
+        "urls",
+        ":alias"
     ],
     "variable": [
         {
-        "key": "id",
+        "key": "alias",
         "value": "",
-        "description": "id of the role"
+        "description": "The alias of the url"
         }
     ],
     "query": [
     ]
     },
-    "description": "Delete a role"
+    "description": "Delete a URL alias and its metadata."
 }
                                 ,"response": [
                             ]
@@ -175,11 +118,11 @@
                             ]
                         },
 	                        {
-    "name": "/v1/roles/:id",
-                "description": "Get a role by ID.",
+    "name": "/v1/urls/:alias",
+                "description": "Resolve an alias and redirect to the destination URL.",
                  "item": [
                             {
-                                "name": "Get role by ID",
+                                "name": "Redirect using URL alias",
                                 "request": {
     "method": "GET",
     "header": [
@@ -200,26 +143,26 @@
     }
     },
     "url": {
-    "raw": "{{baseUrl}}/v1/roles/:id",
+    "raw": "{{baseUrl}}/v1/urls/:alias",
     "host": [
     "{{baseUrl}}"
     ],
     "path": [
         "v1",
-        "roles",
-        ":id"
+        "urls",
+        ":alias"
     ],
     "variable": [
         {
-        "key": "id",
+        "key": "alias",
         "value": "",
-        "description": "The id of the role"
+        "description": "The alias of the url"
         }
     ],
     "query": [
     ]
     },
-    "description": "Get a role by ID."
+    "description": "Resolve an alias and redirect to the destination URL."
 }
                                 ,"response": [
                             ]
@@ -227,128 +170,11 @@
                             ]
                         },
 	                        {
-    "name": "/v1/roles/:id",
-                "description": "Update a role by ID.",
+    "name": "/v1/urls/:alias/data",
+                "description": "Return metadata for a URL alias.",
                  "item": [
                             {
-                                "name": "Update a role",
-                                "request": {
-    "method": "PUT",
-    "header": [
-        {
-        "key": "Content-Type",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        },
-        {
-        "key": "Accept",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        }
-    ],
-    "body": {
-    "mode": "raw",
-    "raw": "{\n  \"name\" : \"admin\",\n  \"description\" : \"Administrator role\"\n}",
-    "options": {
-    "raw": {
-    "language": "json"
-    }
-    }
-    },
-    "url": {
-    "raw": "{{baseUrl}}/v1/roles/:id",
-    "host": [
-    "{{baseUrl}}"
-    ],
-    "path": [
-        "v1",
-        "roles",
-        ":id"
-    ],
-    "variable": [
-        {
-        "key": "id",
-        "value": "",
-        "description": "id of the role"
-        }
-    ],
-    "query": [
-    ]
-    },
-    "description": "Update a role by ID."
-}
-                                ,"response": [
-                            ]
-                            }
-                            ]
-                        },
-	                        {
-    "name": "/v1/roles/:id/scopes",
-                "description": "Add one or more scopes to a role.",
-                 "item": [
-                            {
-                                "name": "Add a scope to a role",
-                                "request": {
-    "method": "POST",
-    "header": [
-        {
-        "key": "Content-Type",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        },
-        {
-        "key": "Accept",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        }
-    ],
-    "body": {
-    "mode": "raw",
-    "raw": "[ \"socialapp.roles.read\", \"socialapp.roles.update\" ]",
-    "options": {
-    "raw": {
-    "language": "json"
-    }
-    }
-    },
-    "url": {
-    "raw": "{{baseUrl}}/v1/roles/:id/scopes",
-    "host": [
-    "{{baseUrl}}"
-    ],
-    "path": [
-        "v1",
-        "roles",
-        ":id",
-        "scopes"
-    ],
-    "variable": [
-        {
-        "key": "id",
-        "value": "",
-        "description": "The id of the role"
-        }
-    ],
-    "query": [
-    ]
-    },
-    "description": "Add one or more scopes to a role."
-}
-                                ,"response": [
-                            ]
-                            }
-                            ]
-                        },
-	                        {
-    "name": "/v1/roles/:id/scopes",
-                "description": "List scopes assigned to a role.",
-                 "item": [
-                            {
-                                "name": "List role scopes",
+                                "name": "Get URL metadata",
                                 "request": {
     "method": "GET",
     "header": [
@@ -369,253 +195,27 @@
     }
     },
     "url": {
-    "raw": "{{baseUrl}}/v1/roles/:id/scopes",
+    "raw": "{{baseUrl}}/v1/urls/:alias/data",
     "host": [
     "{{baseUrl}}"
     ],
     "path": [
         "v1",
-        "roles",
-        ":id",
-        "scopes"
+        "urls",
+        ":alias",
+        "data"
     ],
     "variable": [
         {
-        "key": "id",
+        "key": "alias",
         "value": "",
-        "description": "The id of the role"
-        }
-    ],
-    "query": [
-        {
-        "key": "limit",
-        "value": "20",
-        "description": "The numbers of scopes to return",
-        "disabled": true
-        },
-        {
-        "key": "offset",
-        "value": "0",
-        "description": "The number of items to skip before starting to collect the result",
-        "disabled": true
-        }
-    ]
-    },
-    "description": "List scopes assigned to a role."
-}
-                                ,"response": [
-                            ]
-                            }
-                            ]
-                        },
-	                        {
-    "name": "/v1/roles/:role_id/scopes/:scope_id",
-                "description": "Remove a scope from a role.",
-                 "item": [
-                            {
-                                "name": "Remove a scope from a role",
-                                "request": {
-    "method": "DELETE",
-    "header": [
-        {
-        "key": "Accept",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        }
-    ],
-    "body": {
-    "mode": "raw",
-    "raw": "",
-    "options": {
-    "raw": {
-    "language": "json"
-    }
-    }
-    },
-    "url": {
-    "raw": "{{baseUrl}}/v1/roles/:role_id/scopes/:scope_id",
-    "host": [
-    "{{baseUrl}}"
-    ],
-    "path": [
-        "v1",
-        "roles",
-        ":role_id",
-        "scopes",
-        ":scope_id"
-    ],
-    "variable": [
-        {
-        "key": "roleId",
-        "value": "",
-        "description": "The id of the role"
-        },
-        {
-        "key": "scopeId",
-        "value": "",
-        "description": "The id of the scope"
+        "description": "The alias of the url"
         }
     ],
     "query": [
     ]
     },
-    "description": "Remove a scope from a role."
-}
-                                ,"response": [
-                            ]
-                            }
-                            ]
-                        }
-	                    ]
-	        },
-	        {
-	            "name": "Comment",
-	            "item": [
-	                        {
-    "name": "/v1/comments",
-                "description": "Create a new comment.",
-                 "item": [
-                            {
-                                "name": "Create a new comment",
-                                "request": {
-    "method": "POST",
-    "header": [
-        {
-        "key": "Content-Type",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        },
-        {
-        "key": "Accept",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        }
-    ],
-    "body": {
-    "mode": "raw",
-    "raw": "{\n  \"content\" : \"This is a comment\",\n  \"username\" : \"johndoe\"\n}",
-    "options": {
-    "raw": {
-    "language": "json"
-    }
-    }
-    },
-    "url": {
-    "raw": "{{baseUrl}}/v1/comments",
-    "host": [
-    "{{baseUrl}}"
-    ],
-    "path": [
-        "v1",
-        "comments"
-    ],
-    "variable": [
-    ],
-    "query": [
-    ]
-    },
-    "description": "Create a new comment."
-}
-                                ,"response": [
-                            ]
-                            }
-                            ]
-                        },
-	                        {
-    "name": "/v1/comments/:id",
-                "description": "Get details for a specific comment.",
-                 "item": [
-                            {
-                                "name": "Get comment by ID",
-                                "request": {
-    "method": "GET",
-    "header": [
-        {
-        "key": "Accept",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        }
-    ],
-    "body": {
-    "mode": "raw",
-    "raw": "",
-    "options": {
-    "raw": {
-    "language": "json"
-    }
-    }
-    },
-    "url": {
-    "raw": "{{baseUrl}}/v1/comments/:id",
-    "host": [
-    "{{baseUrl}}"
-    ],
-    "path": [
-        "v1",
-        "comments",
-        ":id"
-    ],
-    "variable": [
-        {
-        "key": "id",
-        "value": "",
-        "description": "ID of the comment"
-        }
-    ],
-    "query": [
-    ]
-    },
-    "description": "Get details for a specific comment."
-}
-                                ,"response": [
-                            ]
-                            }
-                            ]
-                        },
-	                        {
-    "name": "/v1/feed",
-                "description": "Return the current user's feed.",
-                 "item": [
-                            {
-                                "name": "Get user feed",
-                                "request": {
-    "method": "GET",
-    "header": [
-        {
-        "key": "Accept",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        }
-    ],
-    "body": {
-    "mode": "raw",
-    "raw": "",
-    "options": {
-    "raw": {
-    "language": "json"
-    }
-    }
-    },
-    "url": {
-    "raw": "{{baseUrl}}/v1/feed",
-    "host": [
-    "{{baseUrl}}"
-    ],
-    "path": [
-        "v1",
-        "feed"
-    ],
-    "variable": [
-    ],
-    "query": [
-    ]
-    },
-    "description": "Return the current user's feed."
+    "description": "Return metadata for a URL alias."
 }
                                 ,"response": [
                             ]
@@ -626,6 +226,7 @@
 	        },
 	        {
 	            "name": "User",
+	            "description": "User account lifecycle and profile operations",
 	            "item": [
 	                        {
     "name": "/",
@@ -1505,7 +1106,689 @@
 	                    ]
 	        },
 	        {
+	            "name": "Comment",
+	            "description": "Comment creation and retrieval operations",
+	            "item": [
+	                        {
+    "name": "/v1/comments",
+                "description": "Create a new comment.",
+                 "item": [
+                            {
+                                "name": "Create a new comment",
+                                "request": {
+    "method": "POST",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n  \"content\" : \"This is a comment\",\n  \"username\" : \"johndoe\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/comments",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "comments"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Create a new comment."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/comments",
+                "description": "Search comments by author and creation time.",
+                 "item": [
+                            {
+                                "name": "Search comments",
+                                "request": {
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/comments",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "comments"
+    ],
+    "variable": [
+    ],
+    "query": [
+        {
+        "key": "username",
+        "value": "username_example",
+        "description": "Filter comments by the author's username.",
+        "disabled": true
+        },
+        {
+        "key": "startTime",
+        "value": "2013-10-20T19:20:30+01:00",
+        "description": "Return comments created at or after this timestamp.",
+        "disabled": true
+        },
+        {
+        "key": "endTime",
+        "value": "2013-10-20T19:20:30+01:00",
+        "description": "Return comments created at or before this timestamp.",
+        "disabled": true
+        }
+    ]
+    },
+    "description": "Search comments by author and creation time."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/comments/:id",
+                "description": "Get details for a specific comment.",
+                 "item": [
+                            {
+                                "name": "Get comment by ID",
+                                "request": {
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/comments/:id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "comments",
+        ":id"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "ID of the comment"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Get details for a specific comment."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/feed",
+                "description": "Return the current user's feed.",
+                 "item": [
+                            {
+                                "name": "Get user feed",
+                                "request": {
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/feed",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "feed"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Return the current user's feed."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        }
+	                    ]
+	        },
+	        {
+	            "name": "Role",
+	            "description": "Role administration operations",
+	            "item": [
+	                        {
+    "name": "/v1/roles",
+                "description": "Create a new role.",
+                 "item": [
+                            {
+                                "name": "Create a new role",
+                                "request": {
+    "method": "POST",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n  \"name\" : \"admin\",\n  \"description\" : \"Administrator role\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles"
+    ],
+    "variable": [
+    ],
+    "query": [
+    ]
+    },
+    "description": "Create a new role."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/roles",
+                "description": "List roles with offset-based pagination.",
+                 "item": [
+                            {
+                                "name": "Returns a list of roles",
+                                "request": {
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles"
+    ],
+    "variable": [
+    ],
+    "query": [
+        {
+        "key": "limit",
+        "value": "20",
+        "description": "The numbers of roles to return",
+        "disabled": true
+        },
+        {
+        "key": "offset",
+        "value": "0",
+        "description": "The number of items to skip before starting to collect the result",
+        "disabled": true
+        }
+    ]
+    },
+    "description": "List roles with offset-based pagination."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/roles/:id",
+                "description": "Delete a role",
+                 "item": [
+                            {
+                                "name": "Delete a role",
+                                "request": {
+    "method": "DELETE",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles/:id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles",
+        ":id"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "id of the role"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Delete a role"
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/roles/:id",
+                "description": "Get a role by ID.",
+                 "item": [
+                            {
+                                "name": "Get role by ID",
+                                "request": {
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles/:id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles",
+        ":id"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "The id of the role"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Get a role by ID."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/roles/:id",
+                "description": "Update a role by ID.",
+                 "item": [
+                            {
+                                "name": "Update a role",
+                                "request": {
+    "method": "PUT",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "{\n  \"name\" : \"admin\",\n  \"description\" : \"Administrator role\"\n}",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles/:id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles",
+        ":id"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "id of the role"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Update a role by ID."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/roles/:id/scopes",
+                "description": "Add one or more scopes to a role.",
+                 "item": [
+                            {
+                                "name": "Add a scope to a role",
+                                "request": {
+    "method": "POST",
+    "header": [
+        {
+        "key": "Content-Type",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        },
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "[ \"socialapp.roles.read\", \"socialapp.roles.update\" ]",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles/:id/scopes",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles",
+        ":id",
+        "scopes"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "The id of the role"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Add one or more scopes to a role."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/roles/:id/scopes",
+                "description": "List scopes assigned to a role.",
+                 "item": [
+                            {
+                                "name": "List role scopes",
+                                "request": {
+    "method": "GET",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles/:id/scopes",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles",
+        ":id",
+        "scopes"
+    ],
+    "variable": [
+        {
+        "key": "id",
+        "value": "",
+        "description": "The id of the role"
+        }
+    ],
+    "query": [
+        {
+        "key": "limit",
+        "value": "20",
+        "description": "The numbers of scopes to return",
+        "disabled": true
+        },
+        {
+        "key": "offset",
+        "value": "0",
+        "description": "The number of items to skip before starting to collect the result",
+        "disabled": true
+        }
+    ]
+    },
+    "description": "List scopes assigned to a role."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        },
+	                        {
+    "name": "/v1/roles/:role_id/scopes/:scope_id",
+                "description": "Remove a scope from a role.",
+                 "item": [
+                            {
+                                "name": "Remove a scope from a role",
+                                "request": {
+    "method": "DELETE",
+    "header": [
+        {
+        "key": "Accept",
+        "value": "application/json",
+        "description": "",
+        "disabled": false
+        }
+    ],
+    "body": {
+    "mode": "raw",
+    "raw": "",
+    "options": {
+    "raw": {
+    "language": "json"
+    }
+    }
+    },
+    "url": {
+    "raw": "{{baseUrl}}/v1/roles/:role_id/scopes/:scope_id",
+    "host": [
+    "{{baseUrl}}"
+    ],
+    "path": [
+        "v1",
+        "roles",
+        ":role_id",
+        "scopes",
+        ":scope_id"
+    ],
+    "variable": [
+        {
+        "key": "roleId",
+        "value": "",
+        "description": "The id of the role"
+        },
+        {
+        "key": "scopeId",
+        "value": "",
+        "description": "The id of the scope"
+        }
+    ],
+    "query": [
+    ]
+    },
+    "description": "Remove a scope from a role."
+}
+                                ,"response": [
+                            ]
+                            }
+                            ]
+                        }
+	                    ]
+	        },
+	        {
 	            "name": "Scope",
+	            "description": "OAuth scope administration operations",
 	            "item": [
 	                        {
     "name": "/v1/scopes",
@@ -1783,6 +2066,7 @@
 	        },
 	        {
 	            "name": "Authentication",
+	            "description": "Authentication and access token operations",
 	            "item": [
 	                        {
     "name": "/v1/oauth/token",
@@ -1825,220 +2109,6 @@
     ]
     },
     "description": "Exchange HTTP basic credentials for an access token."
-}
-                                ,"response": [
-                            ]
-                            }
-                            ]
-                        }
-	                    ]
-	        },
-	        {
-	            "name": "URL",
-	            "item": [
-	                        {
-    "name": "/v1/urls",
-                "description": "Create a new URL alias.",
-                 "item": [
-                            {
-                                "name": "Create URL alias",
-                                "request": {
-    "method": "POST",
-    "header": [
-        {
-        "key": "Content-Type",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        },
-        {
-        "key": "Accept",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        }
-    ],
-    "body": {
-    "mode": "raw",
-    "raw": "{\n  \"alias\" : \"example\",\n  \"url\" : \"https://example.com\"\n}",
-    "options": {
-    "raw": {
-    "language": "json"
-    }
-    }
-    },
-    "url": {
-    "raw": "{{baseUrl}}/v1/urls",
-    "host": [
-    "{{baseUrl}}"
-    ],
-    "path": [
-        "v1",
-        "urls"
-    ],
-    "variable": [
-    ],
-    "query": [
-    ]
-    },
-    "description": "Create a new URL alias."
-}
-                                ,"response": [
-                            ]
-                            }
-                            ]
-                        },
-	                        {
-    "name": "/v1/urls/:alias",
-                "description": "Delete a URL alias and its metadata.",
-                 "item": [
-                            {
-                                "name": "Delete URL alias",
-                                "request": {
-    "method": "DELETE",
-    "header": [
-        {
-        "key": "Accept",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        }
-    ],
-    "body": {
-    "mode": "raw",
-    "raw": "",
-    "options": {
-    "raw": {
-    "language": "json"
-    }
-    }
-    },
-    "url": {
-    "raw": "{{baseUrl}}/v1/urls/:alias",
-    "host": [
-    "{{baseUrl}}"
-    ],
-    "path": [
-        "v1",
-        "urls",
-        ":alias"
-    ],
-    "variable": [
-        {
-        "key": "alias",
-        "value": "",
-        "description": "The alias of the url"
-        }
-    ],
-    "query": [
-    ]
-    },
-    "description": "Delete a URL alias and its metadata."
-}
-                                ,"response": [
-                            ]
-                            }
-                            ]
-                        },
-	                        {
-    "name": "/v1/urls/:alias",
-                "description": "Resolve an alias and redirect to the destination URL.",
-                 "item": [
-                            {
-                                "name": "Redirect using URL alias",
-                                "request": {
-    "method": "GET",
-    "header": [
-        {
-        "key": "Accept",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        }
-    ],
-    "body": {
-    "mode": "raw",
-    "raw": "",
-    "options": {
-    "raw": {
-    "language": "json"
-    }
-    }
-    },
-    "url": {
-    "raw": "{{baseUrl}}/v1/urls/:alias",
-    "host": [
-    "{{baseUrl}}"
-    ],
-    "path": [
-        "v1",
-        "urls",
-        ":alias"
-    ],
-    "variable": [
-        {
-        "key": "alias",
-        "value": "",
-        "description": "The alias of the url"
-        }
-    ],
-    "query": [
-    ]
-    },
-    "description": "Resolve an alias and redirect to the destination URL."
-}
-                                ,"response": [
-                            ]
-                            }
-                            ]
-                        },
-	                        {
-    "name": "/v1/urls/:alias/data",
-                "description": "Return metadata for a URL alias.",
-                 "item": [
-                            {
-                                "name": "Get URL metadata",
-                                "request": {
-    "method": "GET",
-    "header": [
-        {
-        "key": "Accept",
-        "value": "application/json",
-        "description": "",
-        "disabled": false
-        }
-    ],
-    "body": {
-    "mode": "raw",
-    "raw": "",
-    "options": {
-    "raw": {
-    "language": "json"
-    }
-    }
-    },
-    "url": {
-    "raw": "{{baseUrl}}/v1/urls/:alias/data",
-    "host": [
-    "{{baseUrl}}"
-    ],
-    "path": [
-        "v1",
-        "urls",
-        ":alias",
-        "data"
-    ],
-    "variable": [
-        {
-        "key": "alias",
-        "value": "",
-        "description": "The alias of the url"
-        }
-    ],
-    "query": [
-    ]
-    },
-    "description": "Return metadata for a URL alias."
 }
                                 ,"response": [
                             ]

@@ -255,7 +255,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Search comments
+         * @description Search comments by author and creation time.
+         */
+        get: operations["searchComments"];
         put?: never;
         /**
          * Create a new comment
@@ -1658,6 +1662,51 @@ export interface operations {
                      *     }
                      */
                     "application/json": components["schemas"]["Comment"];
+                };
+            };
+            /** @description Unauthorized */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unexpected error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    searchComments: {
+        parameters: {
+            query?: {
+                /** @description Filter comments by the author's username. */
+                username?: string;
+                /** @description Return comments created at or after this timestamp. */
+                start_time?: string;
+                /** @description Return comments created at or before this timestamp. */
+                end_time?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The most recent matching comments */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Comment"][];
                 };
             };
             /** @description Unauthorized */

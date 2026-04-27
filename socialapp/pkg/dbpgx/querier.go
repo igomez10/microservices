@@ -59,6 +59,7 @@ type Querier interface {
 	ListRoles(ctx context.Context, db DBTX, arg ListRolesParams) ([]Role, error)
 	ListScopes(ctx context.Context, db DBTX, arg ListScopesParams) ([]Scope, error)
 	ListUsers(ctx context.Context, db DBTX, arg ListUsersParams) ([]User, error)
+	SearchComments(ctx context.Context, db DBTX, arg SearchCommentsParams) ([]SearchCommentsRow, error)
 	UnfollowUser(ctx context.Context, db DBTX, arg UnfollowUserParams) error
 	UpdateRole(ctx context.Context, db DBTX, arg UpdateRoleParams) error
 	UpdateScope(ctx context.Context, db DBTX, arg UpdateScopeParams) (pgconn.CommandTag, error)

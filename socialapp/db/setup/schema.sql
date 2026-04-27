@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS comments (
 CREATE INDEX IF NOT EXISTS comments_user_id_idx ON comments (user_id);
 CREATE INDEX IF NOT EXISTS comments_deleted_at_idx ON comments (deleted_at);
 CREATE INDEX IF NOT EXISTS comments_created_at_idx ON comments (created_at);
+CREATE INDEX IF NOT EXISTS comments_user_id_created_at_idx ON comments (user_id, created_at DESC);
 
 CREATE SEQUENCE IF NOT EXISTS followers_id_seq;
 CREATE TABLE IF NOT EXISTS followers (

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"testing"
 	"time"
 
@@ -265,6 +266,123 @@ func TestGetUserFeed_EmptyFeed(t *testing.T) {
 
 	// Feed should be empty
 	assert.Equal(t, 0, len(feedComments), "Feed should be empty when user has no followed users")
+}
+
+func TestSearchComments_ByUserAndTime(t *testing.T) {
+	env := setupTestEnv(t)
+	defer teardownTestEnv(t, env)
+
+	user1 := createAdminTestUser(t, env)
+	user2 := createAdminTestUser(t, env)
+
+	token1 := getAuthToken(t, env, user1, scopes.SocialappCommentsCreate.String(), scopes.SocialappCommentsRead.String())
+	token2 := getAuthToken(t, env, user2, scopes.SocialappCommentsCreate.String())
+
+	createComment := func(token string, username string, content string) openapi.Comment {
+		t.Helper()
+
+		body, err := json.Marshal(openapi.Comment{
+			Username: username,
+			Content:  content,
+		})
+		require.NoError(t, err)
+
+		resp := makeAuthenticatedRequest(t, http.MethodPost, env.BaseURL+"/v1/comments", token, body)
+		defer resp.Body.Close()
+
+		respBody, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, resp.StatusCode, "Failed to create comment: %s", string(respBody))
+
+		var created openapi.Comment
+		require.NoError(t, json.Unmarshal(respBody, &created))
+		return created
+	}
+
+	first := createComment(token1, user1.Username, "first by user1")
+	time.Sleep(10 * time.Millisecond)
+	second := createComment(token2, user2.Username, "by user2")
+	time.Sleep(10 * time.Millisecond)
+	third := createComment(token1, user1.Username, "second by user1")
+
+	t.Run("filters by username", func(t *testing.T) {
+		searchURL := fmt.Sprintf("%s/v1/comments?username=%s", env.BaseURL, url.QueryEscape(user1.Username))
+		resp := makeAuthenticatedRequest(t, http.MethodGet, searchURL, token1, nil)
+		defer resp.Body.Close()
+
+		respBody, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, resp.StatusCode, "search failed: %s", string(respBody))
+
+		var comments []openapi.Comment
+		require.NoError(t, json.Unmarshal(respBody, &comments))
+		require.Len(t, comments, 2)
+		assert.Equal(t, third.Id, comments[0].Id)
+		assert.Equal(t, first.Id, comments[1].Id)
+		for _, comment := range comments {
+			assert.Equal(t, user1.Username, comment.Username)
+		}
+	})
+
+	t.Run("filters by time window", func(t *testing.T) {
+		values := url.Values{}
+		values.Set("start_time", second.CreatedAt.Add(-time.Millisecond).Format(time.RFC3339Nano))
+		values.Set("end_time", second.CreatedAt.Add(time.Millisecond).Format(time.RFC3339Nano))
+
+		resp := makeAuthenticatedRequest(t, http.MethodGet, env.BaseURL+"/v1/comments?"+values.Encode(), token1, nil)
+		defer resp.Body.Close()
+
+		respBody, err := io.ReadAll(resp.Body)
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, resp.StatusCode, "search failed: %s", string(respBody))
+
+		var comments []openapi.Comment
+		require.NoError(t, json.Unmarshal(respBody, &comments))
+		require.Len(t, comments, 1)
+		assert.Equal(t, second.Id, comments[0].Id)
+		assert.Equal(t, user2.Username, comments[0].Username)
+	})
+}
+
+func TestSearchComments_ReturnsMostRecent20(t *testing.T) {
+	env := setupTestEnv(t)
+	defer teardownTestEnv(t, env)
+
+	testUser := createAdminTestUser(t, env)
+	token := getAuthToken(t, env, testUser, scopes.SocialappCommentsCreate.String(), scopes.SocialappCommentsRead.String())
+
+	createdIDs := make([]int64, 0, 25)
+	for i := 0; i < 25; i++ {
+		body, err := json.Marshal(openapi.Comment{
+			Username: testUser.Username,
+			Content:  fmt.Sprintf("comment-%02d", i),
+		})
+		require.NoError(t, err)
+
+		resp := makeAuthenticatedRequest(t, http.MethodPost, env.BaseURL+"/v1/comments", token, body)
+		respBody, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, resp.StatusCode, "Failed to create comment: %s", string(respBody))
+
+		var created openapi.Comment
+		require.NoError(t, json.Unmarshal(respBody, &created))
+		createdIDs = append(createdIDs, created.Id)
+		time.Sleep(5 * time.Millisecond)
+	}
+
+	resp := makeAuthenticatedRequest(t, http.MethodGet, env.BaseURL+"/v1/comments", token, nil)
+	defer resp.Body.Close()
+
+	respBody, err := io.ReadAll(resp.Body)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode, "search failed: %s", string(respBody))
+
+	var comments []openapi.Comment
+	require.NoError(t, json.Unmarshal(respBody, &comments))
+	require.Len(t, comments, 20)
+	assert.Equal(t, createdIDs[24], comments[0].Id)
+	assert.Equal(t, createdIDs[5], comments[19].Id)
 }
 
 // TestCreateComment_Unauthorized tests creating a comment without authentication

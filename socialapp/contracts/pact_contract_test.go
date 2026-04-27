@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/pact-foundation/pact-go/v2/consumer"
 	"github.com/pact-foundation/pact-go/v2/matchers"
@@ -71,6 +72,31 @@ func TestCommentAPI_CreateCommentContract(t *testing.T) {
 	})
 }
 
+func TestCommentAPI_SearchCommentsContract(t *testing.T) {
+	runConsumerContract(t, "socialapp-client", "socialapp", contractSpec{
+		providerState:  "comments can be searched",
+		description:    "a request to search comments by username and time",
+		requestMethod:  consumer.Method(http.MethodGet),
+		requestPath:    "/v1/comments",
+		responseStatus: http.StatusOK,
+		requestBuilder: func(r *consumer.V2RequestBuilder) {
+			r.Query("username", matchers.String("pact-user"))
+			r.Query("start_time", matchers.Timestamp())
+			r.Query("end_time", matchers.Timestamp())
+		},
+		responseBuilder: func(r *consumer.V2ResponseBuilder) {
+			r.Header("Content-Type", matchers.String("application/json"))
+			r.JSONBody(matchers.EachLike(matchers.StructMatcher{
+				"id":         matchers.Identifier(),
+				"username":   matchers.String("pact-user"),
+				"content":    matchers.String("Hello from Pact"),
+				"created_at": matchers.Timestamp(),
+			}, 1))
+		},
+		executionHandler: executeSearchComments,
+	})
+}
+
 func TestScopeAPI_CreateScopeContract(t *testing.T) {
 	runConsumerContract(t, "socialapp-client", "socialapp", contractSpec{
 		providerState:  "a scope can be created",
@@ -122,6 +148,19 @@ func executeCreateScope(config consumer.MockServerConfig) error {
 		Description: "Read data from Socialapp",
 	}
 	_, _, err := apiClient.ScopeAPI.CreateScope(context.Background()).Scope(scope).Execute()
+	return err
+}
+
+func executeSearchComments(config consumer.MockServerConfig) error {
+	apiClient := newSocialappClient(config)
+	startTime := time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC)
+	endTime := startTime.Add(24 * time.Hour)
+	_, _, err := apiClient.CommentAPI.
+		SearchComments(context.Background()).
+		Username("pact-user").
+		StartTime(startTime).
+		EndTime(endTime).
+		Execute()
 	return err
 }
 
