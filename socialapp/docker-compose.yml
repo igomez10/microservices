@@ -358,6 +358,16 @@ services:
       - "9090:9090"
     expose:
       - 9090
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.tls=true"
+      - "traefik.http.routers.prometheus.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.prometheus-http.rule=Host(`prometheus.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.prometheus-http.entrypoints=web"
+      - "traefik.http.routers.prometheus-http.middlewares=https-redirect"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
     restart: always
     healthcheck:
       test:
@@ -977,6 +987,16 @@ services:
     restart: unless-stopped
     ports:
       - "3100:3100"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.loki.rule=Host(`loki.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.loki.entrypoints=websecure"
+      - "traefik.http.routers.loki.tls=true"
+      - "traefik.http.routers.loki.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.loki-http.rule=Host(`loki.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.loki-http.entrypoints=web"
+      - "traefik.http.routers.loki-http.middlewares=https-redirect"
+      - "traefik.http.services.loki.loadbalancer.server.port=3100"
     volumes:
       - ./loki/loki-config.yaml:/etc/loki/local-config.yaml
       - loki_data:/loki
