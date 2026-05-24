@@ -48,7 +48,6 @@ jobs:
           make test-ci
 
       - name: Run backend e2e tests
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
           cd socialapp
           make test-e2e
