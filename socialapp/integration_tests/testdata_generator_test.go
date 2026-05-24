@@ -74,6 +74,22 @@ func TestGeminiGeneratorParsesJSON(t *testing.T) {
 	}
 }
 
+func TestGeminiGeneratorParsesFencedJSON(t *testing.T) {
+	gen := NewGeminiTestDataGenerator(&mockGeminiClient{
+		response: "```json\n{\"content\":\"hello from llm\",\"username\":\"llm-user\"}\n```",
+	})
+	comment, err := gen.GenerateComment(context.Background(), CommentGenerationInput{
+		FallbackContent:  "fallback-comment",
+		FallbackUsername: "fallback-user",
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if comment.Content != "hello from llm" || comment.Username != "llm-user" {
+		t.Fatalf("unexpected generated comment: %+v", comment)
+	}
+}
+
 func TestFallbackGeneratorUsesDefaultOnPrimaryFailure(t *testing.T) {
 	primary := NewGeminiTestDataGenerator(&mockGeminiClient{err: errors.New("boom")})
 	fallback := &DefaultTestDataGenerator{}

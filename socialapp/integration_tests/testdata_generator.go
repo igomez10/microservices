@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"regexp"
 	"strings"
@@ -95,7 +96,7 @@ email=%q`, in.FallbackUsername, in.FallbackFirstName, in.FallbackLastName, in.Fa
 		LastName  string `json:"last_name"`
 		Email     string `json:"email"`
 	}
-	if err := json.Unmarshal([]byte(resp), &candidate); err != nil {
+	if err := json.Unmarshal([]byte(extractJSONObject(resp)), &candidate); err != nil {
 		return GeneratedUserData{}, fmt.Errorf("invalid gemini user payload: %w", err)
 	}
 
@@ -124,7 +125,7 @@ username=%q`, in.FallbackContent, in.FallbackUsername)
 		Content  string `json:"content"`
 		Username string `json:"username"`
 	}
-	if err := json.Unmarshal([]byte(resp), &candidate); err != nil {
+	if err := json.Unmarshal([]byte(extractJSONObject(resp)), &candidate); err != nil {
 		return GeneratedCommentData{}, fmt.Errorf("invalid gemini comment payload: %w", err)
 	}
 
@@ -208,7 +209,25 @@ func sanitizeIdentifier(value string) string {
 }
 
 func slogError(msg string, err error) {
-	// Keep generator internals decoupled from lifecycle test assertions.
-	// Errors are intentionally logged and then fallback path is used.
-	fmt.Printf("WARN: %s: %v\n", msg, err)
+	slog.Warn(msg, "error", err)
+}
+
+func extractJSONObject(text string) string {
+	trimmed := strings.TrimSpace(text)
+	if strings.HasPrefix(trimmed, "```") {
+		lines := strings.Split(trimmed, "\n")
+		if len(lines) >= 3 {
+			lines = lines[1:]
+			if strings.HasPrefix(strings.TrimSpace(lines[len(lines)-1]), "```") {
+				lines = lines[:len(lines)-1]
+			}
+			trimmed = strings.TrimSpace(strings.Join(lines, "\n"))
+		}
+	}
+	start := strings.Index(trimmed, "{")
+	end := strings.LastIndex(trimmed, "}")
+	if start >= 0 && end > start {
+		return trimmed[start : end+1]
+	}
+	return trimmed
 }

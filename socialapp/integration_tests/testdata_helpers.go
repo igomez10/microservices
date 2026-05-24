@@ -2,11 +2,18 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 
 	"github.com/igomez10/microservices/socialapp/client"
 )
 
-var testDataGenerator = NewTestDataGeneratorFromEnv()
+var testDataGenerator TestDataGenerator = &DefaultTestDataGenerator{}
+
+func configureTestDataGenerator() {
+	testDataGenerator = NewTestDataGeneratorFromEnv()
+	slog.Info("configured integration test data generator", "type", fmt.Sprintf("%T", testDataGenerator))
+}
 
 func generatedUser(
 	ctx context.Context,
