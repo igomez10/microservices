@@ -47,6 +47,12 @@ jobs:
           cd socialapp
           make test-ci
 
+      - name: Run backend e2e tests
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          cd socialapp
+          make test-e2e
+
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/mainline'
     needs: lint-and-test
