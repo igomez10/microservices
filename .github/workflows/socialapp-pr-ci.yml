@@ -1,0 +1,42 @@
+name: Socialapp PR CI
+
+on:
+  pull_request:
+    paths:
+      - "socialapp/**"
+      - ".github/workflows/socialapp-pr-ci.yml"
+  workflow_dispatch:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+          cache-dependency-path: socialapp/go.sum
+
+      - name: Check gofmt
+        run: |
+          cd socialapp
+          UNFORMATTED="$(gofmt -l $(find . -name '*.go' -not -path './socialappapi/*' -not -path './client/*'))"
+          if [ -n "$UNFORMATTED" ]; then
+            echo "These files are not gofmt-formatted:"
+            echo "$UNFORMATTED"
+            exit 1
+          fi
+
+      - name: Run go vet
+        run: |
+          cd socialapp
+          go vet ./...
+
+      - name: Run unit tests
+        run: |
+          cd socialapp
+          make test-ci
