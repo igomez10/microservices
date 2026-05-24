@@ -17,3 +17,5 @@ _config.yml
 Dockerfile
 Integration.Dockerfile
 docker-compose.yml
+.git*
+logs/*

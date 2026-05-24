@@ -40,8 +40,6 @@ func (b *Beacon) Middleware(next http.Handler) http.Handler {
 		attributes := attribute.NewSet(
 			attribute.String("pattern", contexthelper.GetRequestPatternInContext(r.Context())),
 			attribute.String("method", r.Method),
-			attribute.String("user_agent", r.UserAgent()),
-			attribute.String("request_host", r.Host),
 			attribute.Int("status_code", customW.StatusCode),
 		)
 		hist, err := beaconMeter.Float64Histogram("http_server_response_duration",
