@@ -21,14 +21,14 @@ type GeminiClient struct {
 
 func NewGeminiClient(ctx context.Context, cfg GeminiClientConfig) (*GeminiClient, error) {
 	if strings.TrimSpace(cfg.APIKey) == "" {
-		return nil, fmt.Errorf("missing GEMINI_API_KEY")
+		return nil, fmt.Errorf("missing GOOGLE_CLOUD_API_KEY")
 	}
 	if strings.TrimSpace(cfg.Model) == "" {
 		cfg.Model = defaultGeminiModel
 	}
 	c, err := genai.NewClient(ctx, &genai.ClientConfig{
 		APIKey:  cfg.APIKey,
-		Backend: genai.BackendGeminiAPI,
+		Backend: genai.BackendVertexAI,
 	})
 	if err != nil {
 		return nil, err
@@ -47,6 +47,7 @@ func (c *GeminiClient) Generate(ctx context.Context, prompt string) (string, err
 		genai.Text(prompt),
 		&genai.GenerateContentConfig{
 			Temperature: &temperature,
+			ResponseJsonSchema: ,
 		},
 	)
 	if err != nil {

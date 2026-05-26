@@ -20,6 +20,8 @@ func (m *mockGeminiClient) Generate(_ context.Context, _ string) (string, error)
 }
 
 func TestNewTestDataGeneratorFromEnv_DefaultWhenNoAPIKey(t *testing.T) {
+	t.Setenv("GOOGLE_CLOUD_API_KEY", "")
+	t.Setenv("GOOGLE_API_KEY", "")
 	t.Setenv("GEMINI_API_KEY", "")
 	t.Setenv("GEMINI_MODEL", "")
 
@@ -110,9 +112,15 @@ func TestFallbackGeneratorUsesDefaultOnPrimaryFailure(t *testing.T) {
 }
 
 func TestNewTestDataGeneratorFromEnv_DefaultOnClientInitFailure(t *testing.T) {
-	prev := os.Getenv("GEMINI_API_KEY")
-	defer os.Setenv("GEMINI_API_KEY", prev)
-	t.Setenv("GEMINI_API_KEY", " ")
+	prevCloud := os.Getenv("GOOGLE_CLOUD_API_KEY")
+	prevGoogle := os.Getenv("GOOGLE_API_KEY")
+	prevGemini := os.Getenv("GEMINI_API_KEY")
+	defer os.Setenv("GOOGLE_CLOUD_API_KEY", prevCloud)
+	defer os.Setenv("GOOGLE_API_KEY", prevGoogle)
+	defer os.Setenv("GEMINI_API_KEY", prevGemini)
+	t.Setenv("GOOGLE_CLOUD_API_KEY", " ")
+	t.Setenv("GOOGLE_API_KEY", "")
+	t.Setenv("GEMINI_API_KEY", "")
 	gen := NewTestDataGeneratorFromEnv()
 	if _, ok := gen.(*DefaultTestDataGenerator); !ok {
 		t.Fatalf("expected default generator when key is blank, got %T", gen)

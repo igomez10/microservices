@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	defaultGeminiModel = "gemini-2.5-flash"
+	defaultGeminiModel = "gemini-2.5-flash-lite"
 )
 
 var validIdentifierChars = regexp.MustCompile(`[^a-zA-Z0-9._-]+`)
@@ -77,13 +77,15 @@ func NewGeminiTestDataGenerator(client GeminiModelClient) *GeminiTestDataGenerat
 }
 
 func (g *GeminiTestDataGenerator) GenerateUser(ctx context.Context, in UserGenerationInput) (GeneratedUserData, error) {
+	seed := time.Now().UnixNano()
 	prompt := fmt.Sprintf(`Return ONLY valid compact JSON with keys "username","first_name","last_name","email".
+SEED=%d
 Generate realistic testing values. Keep username URL-safe and <= 64 chars.
 Fallback values:
 username=%q
 first_name=%q
 last_name=%q
-email=%q`, in.FallbackUsername, in.FallbackFirstName, in.FallbackLastName, in.FallbackEmail)
+email=%q`, seed, in.FallbackUsername, in.FallbackFirstName, in.FallbackLastName, in.FallbackEmail)
 
 	resp, err := g.client.Generate(ctx, prompt)
 	if err != nil {
@@ -110,11 +112,13 @@ email=%q`, in.FallbackUsername, in.FallbackFirstName, in.FallbackLastName, in.Fa
 }
 
 func (g *GeminiTestDataGenerator) GenerateComment(ctx context.Context, in CommentGenerationInput) (GeneratedCommentData, error) {
+	seed := time.Now().UnixNano()
 	prompt := fmt.Sprintf(`Return ONLY valid compact JSON with keys "content","username".
+SEED=%d
 Generate one short social comment for test data.
 Fallback values:
 content=%q
-username=%q`, in.FallbackContent, in.FallbackUsername)
+username=%q`, seed, in.FallbackContent, in.FallbackUsername)
 
 	resp, err := g.client.Generate(ctx, prompt)
 	if err != nil {
@@ -164,7 +168,7 @@ func (g *FallbackTestDataGenerator) GenerateComment(ctx context.Context, in Comm
 }
 
 func NewTestDataGeneratorFromEnv() TestDataGenerator {
-	apiKey := strings.TrimSpace(os.Getenv("GEMINI_API_KEY"))
+	apiKey := resolveLLMAPIKeyFromEnv()
 	model := strings.TrimSpace(os.Getenv("GEMINI_MODEL"))
 	if apiKey == "" {
 		return &DefaultTestDataGenerator{}
@@ -188,6 +192,18 @@ func NewTestDataGeneratorFromEnv() TestDataGenerator {
 		NewGeminiTestDataGenerator(geminiClient),
 		&DefaultTestDataGenerator{},
 	)
+}
+
+func resolveLLMAPIKeyFromEnv() string {
+	// Primary key per requested setup format.
+	if key := strings.TrimSpace(os.Getenv("GOOGLE_CLOUD_API_KEY")); key != "" {
+		return key
+	}
+	// Backward compatible fallbacks.
+	if key := strings.TrimSpace(os.Getenv("GOOGLE_API_KEY")); key != "" {
+		return key
+	}
+	return strings.TrimSpace(os.Getenv("GEMINI_API_KEY"))
 }
 
 func firstNonEmpty(value, fallback string) string {
