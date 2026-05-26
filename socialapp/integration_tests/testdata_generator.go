@@ -9,10 +9,13 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/igomez10/microservices/socialapp/pkg/llm"
+	"google.golang.org/genai"
 )
 
 const (
-	defaultGeminiModel = "gemini-2.5-flash-lite"
+	defaultGeminiModel = llm.DefaultGeminiModel
 )
 
 var validIdentifierChars = regexp.MustCompile(`[^a-zA-Z0-9._-]+`)
@@ -66,6 +69,32 @@ func (d *DefaultTestDataGenerator) GenerateComment(_ context.Context, in Comment
 
 type GeminiModelClient interface {
 	Generate(ctx context.Context, prompt string) (string, error)
+}
+
+type LLMProviderClient struct {
+	provider llm.Provider
+	model    string
+}
+
+func NewLLMProviderClient(provider llm.Provider, model string) *LLMProviderClient {
+	return &LLMProviderClient{
+		provider: provider,
+		model:    model,
+	}
+}
+
+func (c *LLMProviderClient) Generate(ctx context.Context, prompt string) (string, error) {
+	temperature := float32(0.2)
+	resp, err := c.provider.Generate(ctx, llm.GenerateRequest{
+		Model:            c.model,
+		Prompt:           prompt,
+		Temperature:      &temperature,
+		ResponseMIMEType: "application/json",
+	})
+	if err != nil {
+		return "", err
+	}
+	return resp.Text, nil
 }
 
 type GeminiTestDataGenerator struct {
@@ -179,9 +208,10 @@ func NewTestDataGeneratorFromEnv() TestDataGenerator {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	geminiClient, err := NewGeminiClient(ctx, GeminiClientConfig{
-		APIKey: apiKey,
-		Model:  model,
+	provider, err := llm.NewGeminiProvider(ctx, llm.GeminiConfig{
+		APIKey:  apiKey,
+		Model:   model,
+		Backend: genai.BackendVertexAI,
 	})
 	if err != nil {
 		slogError("gemini client init failed, using default generator", err)
@@ -189,7 +219,7 @@ func NewTestDataGeneratorFromEnv() TestDataGenerator {
 	}
 
 	return NewFallbackTestDataGenerator(
-		NewGeminiTestDataGenerator(geminiClient),
+		NewGeminiTestDataGenerator(NewLLMProviderClient(provider, model)),
 		&DefaultTestDataGenerator{},
 	)
 }

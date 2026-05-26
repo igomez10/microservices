@@ -5,6 +5,9 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/igomez10/microservices/socialapp/pkg/llm"
+	"google.golang.org/genai"
 )
 
 func TestLiveLLMGeneratesUserAndCommentFields(t *testing.T) {
@@ -25,15 +28,16 @@ func TestLiveLLMGeneratesUserAndCommentFields(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	client, err := NewGeminiClient(ctx, GeminiClientConfig{
-		APIKey: apiKey,
-		Model:  model,
+	provider, err := llm.NewGeminiProvider(ctx, llm.GeminiConfig{
+		APIKey:  apiKey,
+		Model:   model,
+		Backend: genai.BackendVertexAI,
 	})
 	if err != nil {
 		t.Fatalf("failed to create gemini client: %v", err)
 	}
 
-	generator := NewGeminiTestDataGenerator(client)
+	generator := NewGeminiTestDataGenerator(NewLLMProviderClient(provider, model))
 
 	userData, err := generator.GenerateUser(ctx, UserGenerationInput{
 		FallbackUsername:  "test-live-user-fallback",
