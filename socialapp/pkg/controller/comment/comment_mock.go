@@ -14,7 +14,7 @@ type CommentMock struct {
 	errorToReturn    error
 }
 
-func (s *CommentMock) CreateComment(_ context.Context, _ openapi.Comment) (openapi.ImplResponse, error) {
+func (s *CommentMock) CreateComment(_ context.Context, _ openapi.CreateCommentRequest) (openapi.ImplResponse, error) {
 	s.counter++
 	return s.responseToReturn, s.errorToReturn
 }

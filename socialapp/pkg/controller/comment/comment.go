@@ -134,6 +134,21 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Crea
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateComment")
 	defer span.End()
 	logger := contexthelper.GetLoggerInContext(ctx)
+
+	authenticatedUsername, exists := contexthelper.GetUsernameInContext(ctx)
+	if !exists {
+		return openapi.Response(http.StatusUnauthorized, openapi.Error{
+			Code:    http.StatusUnauthorized,
+			Message: "Unauthorized",
+		}), nil
+	}
+	if comment.Username != authenticatedUsername {
+		return openapi.Response(http.StatusForbidden, openapi.Error{
+			Code:    http.StatusForbidden,
+			Message: "Forbidden",
+		}), nil
+	}
+
 	// validate user exists
 	user, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, comment.Username)
 	if errGetUser != nil {
