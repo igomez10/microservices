@@ -30,7 +30,7 @@ socialapp-cli createComment
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **comment** | [**Comment**](Comment.md) | Create a new comment |
+ **createCommentRequest** | [**CreateCommentRequest**](CreateCommentRequest.md) | Create a new comment |
 
 ### Return type
 

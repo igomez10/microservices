@@ -130,7 +130,7 @@ func (s *CommentService) SearchComments(ctx context.Context, username string, st
 	return openapi.Response(http.StatusOK, apiComments), nil
 }
 
-func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Comment) (openapi.ImplResponse, error) {
+func (s *CommentService) CreateComment(ctx context.Context, comment openapi.CreateCommentRequest) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateComment")
 	defer span.End()
 	logger := contexthelper.GetLoggerInContext(ctx)

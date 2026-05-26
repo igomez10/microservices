@@ -55,6 +55,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
  - [AccessToken](./Models/AccessToken.md)
  - [ChangePasswordRequest](./Models/ChangePasswordRequest.md)
  - [Comment](./Models/Comment.md)
+ - [CreateCommentRequest](./Models/CreateCommentRequest.md)
  - [CreateUserRequest](./Models/CreateUserRequest.md)
  - [CreateUserResponse](./Models/CreateUserResponse.md)
  - [Error](./Models/Error.md)

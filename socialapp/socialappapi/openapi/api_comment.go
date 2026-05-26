@@ -211,22 +211,22 @@ func (c *CommentAPIController) SearchComments(w http.ResponseWriter, r *http.Req
 
 // CreateComment - Create a new comment
 func (c *CommentAPIController) CreateComment(w http.ResponseWriter, r *http.Request) {
-	var commentParam Comment
+	var createCommentRequestParam CreateCommentRequest
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&commentParam); err != nil {
+	if err := d.Decode(&createCommentRequestParam); err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertCommentRequired(commentParam); err != nil {
+	if err := AssertCreateCommentRequestRequired(createCommentRequestParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	if err := AssertCommentConstraints(commentParam); err != nil {
+	if err := AssertCreateCommentRequestConstraints(createCommentRequestParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.CreateComment(r.Context(), commentParam)
+	result, err := c.service.CreateComment(r.Context(), createCommentRequestParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

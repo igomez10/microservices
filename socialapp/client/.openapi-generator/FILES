@@ -17,6 +17,7 @@ docs/AuthenticationAPI.md
 docs/ChangePasswordRequest.md
 docs/Comment.md
 docs/CommentAPI.md
+docs/CreateCommentRequest.md
 docs/CreateUserRequest.md
 docs/CreateUserResponse.md
 docs/Error.md
@@ -37,6 +38,7 @@ go.sum
 model_access_token.go
 model_change_password_request.go
 model_comment.go
+model_create_comment_request.go
 model_create_user_request.go
 model_create_user_response.go
 model_error.go

@@ -133,11 +133,11 @@ func executeCreateUser(config consumer.MockServerConfig) error {
 
 func executeCreateComment(config consumer.MockServerConfig) error {
 	apiClient := newSocialappClient(config)
-	comment := client.Comment{
+	comment := client.CreateCommentRequest{
 		Username: "pact-user",
 		Content:  "Hello from Pact",
 	}
-	_, _, err := apiClient.CommentAPI.CreateComment(context.Background()).Comment(comment).Execute()
+	_, _, err := apiClient.CommentAPI.CreateComment(context.Background()).CreateCommentRequest(comment).Execute()
 	return err
 }
 

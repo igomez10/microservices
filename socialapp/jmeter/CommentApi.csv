@@ -1,2 +1,2 @@
-testCase,httpStatusCode,comment,id,likeRequest,username,startTime,endTime,likeRequest
+testCase,httpStatusCode,createCommentRequest,id,likeRequest,username,startTime,endTime,likeRequest
 Success,200,0,0,0,0,0,0,0

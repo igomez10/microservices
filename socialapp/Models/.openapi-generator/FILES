@@ -9,6 +9,7 @@ Apis/UserApi.md
 Models/AccessToken.md
 Models/ChangePasswordRequest.md
 Models/Comment.md
+Models/CreateCommentRequest.md
 Models/CreateUserRequest.md
 Models/CreateUserResponse.md
 Models/Error.md

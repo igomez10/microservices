@@ -150,6 +150,7 @@ Class | Method | HTTP request | Description
  - [AccessToken](docs/AccessToken.md)
  - [ChangePasswordRequest](docs/ChangePasswordRequest.md)
  - [Comment](docs/Comment.md)
+ - [CreateCommentRequest](docs/CreateCommentRequest.md)
  - [CreateUserRequest](docs/CreateUserRequest.md)
  - [CreateUserResponse](docs/CreateUserResponse.md)
  - [Error](docs/Error.md)

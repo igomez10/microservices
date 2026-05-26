@@ -533,6 +533,19 @@ export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         /**
+         * @description Request payload for creating a comment.
+         * @example {
+         *       "content": "This is a comment",
+         *       "username": "johndoe"
+         *     }
+         */
+        CreateCommentRequest: {
+            /** @description Text content of the comment. */
+            content: string;
+            /** @description Username of the comment author. */
+            username: string;
+        };
+        /**
          * @description Request payload for creating a user account.
          * @example {
          *       "username": "johndoe",
@@ -1787,7 +1800,7 @@ export interface operations {
                  *       "username": "johndoe"
                  *     }
                  */
-                "application/json": components["schemas"]["Comment"];
+                "application/json": components["schemas"]["CreateCommentRequest"];
             };
         };
         responses: {
