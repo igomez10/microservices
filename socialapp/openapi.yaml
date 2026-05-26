@@ -917,7 +917,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Comment"
+              $ref: "#/components/schemas/CreateCommentRequest"
             example:
               content: This is a comment
               username: johndoe
@@ -1846,6 +1846,23 @@ paths:
 
 components:
   schemas:
+    CreateCommentRequest:
+      description: Request payload for creating a comment.
+      example:
+        content: This is a comment
+        username: johndoe
+      properties:
+        content:
+          description: Text content of the comment.
+          type: string
+        username:
+          description: Username of the comment author.
+          type: string
+      required:
+        - content
+        - username
+      type: object
+
     CreateUserRequest:
       description: Request payload for creating a user account.
       example:

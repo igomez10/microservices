@@ -14,7 +14,7 @@ All URIs are relative to *https://socialapp.gomezignacio.com*
 
 <a name="createComment"></a>
 # **createComment**
-> Comment createComment(Comment)
+> Comment createComment(CreateCommentRequest)
 
 Create a new comment
 
@@ -24,7 +24,7 @@ Create a new comment
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **Comment** | [**Comment**](../Models/Comment.md)| Create a new comment | |
+| **CreateCommentRequest** | [**CreateCommentRequest**](../Models/CreateCommentRequest.md)| Create a new comment | |
 
 ### Return type
 

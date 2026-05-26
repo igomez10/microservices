@@ -7,6 +7,7 @@ docs/AuthenticationApi.md
 docs/ChangePasswordRequest.md
 docs/Comment.md
 docs/CommentApi.md
+docs/CreateCommentRequest.md
 docs/CreateUserRequest.md
 docs/CreateUserResponse.md
 docs/Error.md

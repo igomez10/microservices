@@ -15,7 +15,7 @@ Method | HTTP request | Description
 
 ## CreateComment
 
-> Comment CreateComment(ctx).Comment(comment).Execute()
+> Comment CreateComment(ctx).CreateCommentRequest(createCommentRequest).Execute()
 
 Create a new comment
 
@@ -34,11 +34,11 @@ import (
 )
 
 func main() {
-	comment := *openapiclient.NewComment("Content_example", "Username_example") // Comment | Create a new comment
+	createCommentRequest := *openapiclient.NewCreateCommentRequest("Content_example", "Username_example") // CreateCommentRequest | Create a new comment
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
-	resp, r, err := apiClient.CommentAPI.CreateComment(context.Background()).Comment(comment).Execute()
+	resp, r, err := apiClient.CommentAPI.CreateComment(context.Background()).CreateCommentRequest(createCommentRequest).Execute()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `CommentAPI.CreateComment``: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
@@ -59,7 +59,7 @@ Other parameters are passed through a pointer to a apiCreateCommentRequest struc
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **comment** | [**Comment**](Comment.md) | Create a new comment | 
+ **createCommentRequest** | [**CreateCommentRequest**](CreateCommentRequest.md) | Create a new comment | 
 
 ### Return type
 

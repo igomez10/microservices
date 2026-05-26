@@ -130,7 +130,25 @@ compose-up:
 
 # export $(cat .env | xargs) &&  make start-dev-server
 start-dev-server:
-	reflex -r .go -s --decoration="fancy" --  go run ./...
+		if [ -f ./.env_vscode_debug ]; then set -a; . ./.env_vscode_debug; set +a; fi; \
+	PORT=$${PORT:-8085} \
+	LOG_LEVEL=$${LOG_LEVEL:-debug} \
+	DATABASE_URL=$${DATABASE_URL:-postgres://postgres:password@localhost:5432/socialapp?sslmode=disable} \
+	REDIS_URL=$${REDIS_URL:-redis://localhost:6379} \
+	OTEL_EXPORTER_OTLP_ENDPOINT=$${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4317} \
+	LOGSTASH_HOST=$${LOGSTASH_HOST:-tcp://localhost:53000} \
+	PROPERTIES_SUBDOMAIN=$${PROPERTIES_SUBDOMAIN:-http://properties.localhost} \
+	PUTTYKNIFE_URL=$${PUTTYKNIFE_URL:-http://localhost:8096} \
+	PUTTYKNIFE_DOMAIN=$${PUTTYKNIFE_DOMAIN:-puttyknife-server.localhost} \
+	URL_SHORTENER=$${URL_SHORTENER:-http://localhost:8089} \
+	URLSHORTENER_URL=$${URLSHORTENER_URL:-http://localhost:8089} \
+	URLSHORTENER_SUBDOMAIN=$${URLSHORTENER_SUBDOMAIN:-http://localhost:8089} \
+	SOCIALAPP_SUBDOMAIN=$${SOCIALAPP_SUBDOMAIN:-http://localhost:$${PORT:-8085}} \
+	JWT_SECRET=$${JWT_SECRET:-secret} \
+	KIBANA_URL=$${KIBANA_URL:-http://localhost:5601} \
+	KIBANA_SUBDOMAIN=$${KIBANA_SUBDOMAIN:-kibana.localhost} \
+	LOCAL_SUBDOMAIN=$${LOCAL_SUBDOMAIN:-localhost:$${PORT:-8085}} \
+	go run ./cmd
 
 # Loads .env_vscode_debug (not .env) so host-side URL shortener and IDE debug settings stay in one place.
 start-dev-server-debug:

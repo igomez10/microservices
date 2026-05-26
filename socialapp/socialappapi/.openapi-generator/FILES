@@ -16,6 +16,7 @@ go/logger.go
 go/model_access_token.go
 go/model_change_password_request.go
 go/model_comment.go
+go/model_create_comment_request.go
 go/model_create_user_request.go
 go/model_create_user_response.go
 go/model_error.go

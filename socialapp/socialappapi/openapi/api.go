@@ -115,7 +115,7 @@ type CommentAPIServicer interface {
 	GetUserFeed(context.Context) (ImplResponse, error)
 	GetComment(context.Context, string) (ImplResponse, error)
 	SearchComments(context.Context, string, time.Time, time.Time) (ImplResponse, error)
-	CreateComment(context.Context, Comment) (ImplResponse, error)
+	CreateComment(context.Context, CreateCommentRequest) (ImplResponse, error)
 	LikeComment(context.Context, LikeRequest) (ImplResponse, error)
 	UnlikeComment(context.Context, LikeRequest) (ImplResponse, error)
 }

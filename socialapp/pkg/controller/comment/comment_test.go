@@ -175,6 +175,48 @@ func TestLikeCommentRequiresAuthenticatedUser(t *testing.T) {
 	}
 }
 
+func TestCreateCommentAuthValidation(t *testing.T) {
+	service := &CommentService{}
+
+	testCases := []struct {
+		name         string
+		ctx          context.Context
+		request      openapi.CreateCommentRequest
+		expectedCode int
+	}{
+		{
+			name: "missing authenticated user in context",
+			ctx:  context.Background(),
+			request: openapi.CreateCommentRequest{
+				Username: "alice",
+				Content:  "hello",
+			},
+			expectedCode: http.StatusUnauthorized,
+		},
+		{
+			name: "body username does not match authenticated user",
+			ctx:  newCommentTestContext("alice"),
+			request: openapi.CreateCommentRequest{
+				Username: "mallory",
+				Content:  "impersonated",
+			},
+			expectedCode: http.StatusForbidden,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			res, err := service.CreateComment(tc.ctx, tc.request)
+			if err != nil {
+				t.Fatalf("CreateComment returned error: %v", err)
+			}
+			if res.Code != tc.expectedCode {
+				t.Fatalf("expected %d, got %d", tc.expectedCode, res.Code)
+			}
+		})
+	}
+}
+
 func TestLikeCommentReturnsNotFoundForMissingComment(t *testing.T) {
 	service := &CommentService{
 		DB: &stubQuerier{

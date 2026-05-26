@@ -8,7 +8,7 @@
 # ! openapi-generator (https://openapi-generator.tech)
 # ! FROM OPENAPI SPECIFICATION IN JSON.
 # !
-# ! Generator version: 7.21.0
+# ! Generator version: 7.22.0
 # !
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -96,7 +96,7 @@ declare -a result_color_table=( "$WHITE" "$WHITE" "$GREEN" "$YELLOW" "$WHITE" "$
 # 0 - optional
 # 1 - required
 declare -A operation_parameters_minimum_occurrences
-operation_parameters_minimum_occurrences["createComment:::Comment"]=1
+operation_parameters_minimum_occurrences["createComment:::CreateCommentRequest"]=1
 operation_parameters_minimum_occurrences["getComment:::id"]=1
 operation_parameters_minimum_occurrences["likeComment:::LikeRequest"]=1
 operation_parameters_minimum_occurrences["searchComments:::username"]=0
@@ -159,7 +159,7 @@ operation_parameters_minimum_occurrences["updateUser:::User"]=1
 # N - N values
 # 0 - unlimited
 declare -A operation_parameters_maximum_occurrences
-operation_parameters_maximum_occurrences["createComment:::Comment"]=0
+operation_parameters_maximum_occurrences["createComment:::CreateCommentRequest"]=0
 operation_parameters_maximum_occurrences["getComment:::id"]=0
 operation_parameters_maximum_occurrences["likeComment:::LikeRequest"]=0
 operation_parameters_maximum_occurrences["searchComments:::username"]=0
@@ -219,7 +219,7 @@ operation_parameters_maximum_occurrences["updateUser:::User"]=0
 # The type of collection for specifying multiple values for parameter:
 # - multi, csv, ssv, tsv
 declare -A operation_parameters_collection_type
-operation_parameters_collection_type["createComment:::Comment"]=""
+operation_parameters_collection_type["createComment:::CreateCommentRequest"]=""
 operation_parameters_collection_type["getComment:::id"]=""
 operation_parameters_collection_type["likeComment:::LikeRequest"]=""
 operation_parameters_collection_type["searchComments:::username"]=""

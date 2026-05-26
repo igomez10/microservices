@@ -640,10 +640,10 @@ func GetExpectedFeed(ctx context.Context) error {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
 	if err := func() error {
-		comment := *client.NewComment("Test comment", username2)
+		comment := *client.NewCreateCommentRequest("Test comment", username2)
 		_, r, err := apiClient.CommentAPI.
 			CreateComment(oauth2Ctx2).
-			Comment(comment).
+			CreateCommentRequest(comment).
 			Execute()
 		if err != nil {
 			return fmt.Errorf("Error when calling `UserAPI.PostComment`: %v\n %+v\n", err, r)
@@ -755,16 +755,16 @@ func SearchCommentsLifecycle(ctx context.Context) error {
 	}
 
 	firstWindowStart := time.Now().UTC()
-	firstComment := *client.NewComment("search-first", username1)
-	createdFirst, r, err := apiClient.CommentAPI.CreateComment(oauth2Ctx1).Comment(firstComment).Execute()
+	firstComment := *client.NewCreateCommentRequest("search-first", username1)
+	createdFirst, r, err := apiClient.CommentAPI.CreateComment(oauth2Ctx1).CreateCommentRequest(firstComment).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `CommentAPI.CreateComment` for user1: %v\n %+v\n", err, r)
 	}
 
 	time.Sleep(25 * time.Millisecond)
 
-	secondComment := *client.NewComment("search-second", username2)
-	createdSecond, r, err := apiClient.CommentAPI.CreateComment(oauth2Ctx2).Comment(secondComment).Execute()
+	secondComment := *client.NewCreateCommentRequest("search-second", username2)
+	createdSecond, r, err := apiClient.CommentAPI.CreateComment(oauth2Ctx2).CreateCommentRequest(secondComment).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `CommentAPI.CreateComment` for user2: %v\n %+v\n", err, r)
 	}

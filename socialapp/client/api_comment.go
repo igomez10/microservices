@@ -25,14 +25,14 @@ import (
 type CommentAPIService service
 
 type CommentAPICreateCommentRequest struct {
-	ctx        context.Context
-	ApiService *CommentAPIService
-	comment    *Comment
+	ctx                  context.Context
+	ApiService           *CommentAPIService
+	createCommentRequest *CreateCommentRequest
 }
 
 // Create a new comment
-func (r CommentAPICreateCommentRequest) Comment(comment Comment) CommentAPICreateCommentRequest {
-	r.comment = &comment
+func (r CommentAPICreateCommentRequest) CreateCommentRequest(createCommentRequest CreateCommentRequest) CommentAPICreateCommentRequest {
+	r.createCommentRequest = &createCommentRequest
 	return r
 }
 
@@ -76,8 +76,8 @@ func (a *CommentAPIService) CreateCommentExecute(r CommentAPICreateCommentReques
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
-	if r.comment == nil {
-		return localVarReturnValue, nil, reportError("comment is required and must be specified")
+	if r.createCommentRequest == nil {
+		return localVarReturnValue, nil, reportError("createCommentRequest is required and must be specified")
 	}
 
 	// to determine the Content-Type header
@@ -98,7 +98,7 @@ func (a *CommentAPIService) CreateCommentExecute(r CommentAPICreateCommentReques
 		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
 	}
 	// body params
-	localVarPostBody = r.comment
+	localVarPostBody = r.createCommentRequest
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return localVarReturnValue, nil, err

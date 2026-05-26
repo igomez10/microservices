@@ -41,6 +41,16 @@ CREATE TABLE IF NOT EXISTS `comment` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='User-generated comment.. Original model name - Comment.';
 
 --
+-- Table structure for table `create_comment_request` generated from model 'CreateCommentRequest'
+-- Request payload for creating a comment.
+--
+
+CREATE TABLE IF NOT EXISTS `create_comment_request` (
+  `content` TEXT NOT NULL COMMENT 'Text content of the comment.',
+  `username` TEXT NOT NULL COMMENT 'Username of the comment author.'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Request payload for creating a comment.. Original model name - CreateCommentRequest.';
+
+--
 -- Table structure for table `create_user_request` generated from model 'CreateUserRequest'
 -- Request payload for creating a user account.
 --

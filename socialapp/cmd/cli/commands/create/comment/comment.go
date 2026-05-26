@@ -76,12 +76,12 @@ func GetCmd() *cli.Command {
 
 			clnt := client.NewAPIClient(configuration)
 
-			commentReq := client.Comment{
+			commentReq := client.CreateCommentRequest{
 				Content:  content,
 				Username: author,
 			}
 
-			comment, res, err := clnt.CommentAPI.CreateComment(ctx).Comment(commentReq).Execute()
+			comment, res, err := clnt.CommentAPI.CreateComment(ctx).CreateCommentRequest(commentReq).Execute()
 			if err != nil {
 				fmt.Printf("Full HTTP response: %v\n", res)
 				return fmt.Errorf("error when calling `CommentAPI.CreateComment`: %v", err)
