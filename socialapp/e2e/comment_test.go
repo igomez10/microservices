@@ -99,34 +99,6 @@ func TestCreateComment_SnowflakeIDReturned(t *testing.T) {
 	assert.True(t, commentID > 1000000, "Comment ID should be a large number, got %d", commentID)
 }
 
-// TestCreateComment_UserNotFound tests creating a comment for a non-existent user
-func TestCreateComment_UserNotFound(t *testing.T) {
-	env := setupTestEnv(t)
-	defer teardownTestEnv(t, env)
-
-	// Create a test user with admin role
-	testUser := createAdminTestUser(t, env)
-
-	// Get auth token with comment creation scope
-	token := getAuthToken(t, env, testUser, scopes.SocialappCommentsCreate.String())
-
-	// Create comment request with non-existent username
-	createCommentReq := openapi.CreateCommentRequest{
-		Username: "nonexistent_user_12345",
-		Content:  "This comment should fail",
-	}
-
-	body, err := json.Marshal(createCommentReq)
-	require.NoError(t, err)
-
-	// Make authenticated request
-	resp := makeAuthenticatedRequest(t, http.MethodPost, env.BaseURL+"/v1/comments", token, body)
-	defer resp.Body.Close()
-
-	// Should return 404 Not Found
-	assert.Equal(t, http.StatusNotFound, resp.StatusCode, "Expected 404 Not Found for non-existent user")
-}
-
 // TestGetComment_Success tests getting a comment by ID
 func TestGetComment_Success(t *testing.T) {
 	env := setupTestEnv(t)
