@@ -5,6 +5,7 @@ export type AccessToken = components['schemas']['AccessToken']
 export type User = components['schemas']['User']
 export type CreateUserRequest = components['schemas']['CreateUserRequest']
 export type CreateUserResponse = components['schemas']['CreateUserResponse']
+export type CreateCommentRequest = components['schemas']['CreateCommentRequest']
 export type Comment = components['schemas']['Comment']
 export type ChangePasswordRequest = components['schemas']['ChangePasswordRequest']
 export type ResetPasswordRequest = components['schemas']['ResetPasswordRequest']
@@ -85,7 +86,7 @@ export function createSocialApi(ctx: ApiContext) {
       start_time?: string
       end_time?: string
     }): Promise<ApiResponse<Comment[]>> => authed({ path: '/v1/comments', method: 'GET', queryParams: params }),
-    createComment: (body: Comment): Promise<ApiResponse<Comment>> =>
+    createComment: (body: CreateCommentRequest): Promise<ApiResponse<Comment>> =>
       authed({ path: '/v1/comments', method: 'POST', body }),
     likeComment: (body: LikeRequest): Promise<ApiResponse<Comment>> =>
       authed({ path: '/like', method: 'POST', body }),
