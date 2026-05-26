@@ -29,7 +29,7 @@ func TestCreateComment_Success(t *testing.T) {
 	token := getAuthToken(t, env, testUser, scopes.SocialappCommentsCreate.String())
 
 	// Create comment request
-	createCommentReq := openapi.Comment{
+	createCommentReq := openapi.CreateCommentRequest{
 		Username: testUser.Username,
 		Content:  "This is a test comment",
 	}
@@ -71,7 +71,7 @@ func TestCreateComment_SnowflakeIDReturned(t *testing.T) {
 	// Get auth token with comment creation scope
 	token := getAuthToken(t, env, testUser, scopes.SocialappCommentsCreate.String())
 
-	createCommentReq := openapi.Comment{
+	createCommentReq := openapi.CreateCommentRequest{
 		Username: testUser.Username,
 		Content:  fmt.Sprintf("Snowflake test comment %d", time.Now().UnixNano()),
 	}
@@ -111,7 +111,7 @@ func TestCreateComment_UserNotFound(t *testing.T) {
 	token := getAuthToken(t, env, testUser, scopes.SocialappCommentsCreate.String())
 
 	// Create comment request with non-existent username
-	createCommentReq := openapi.Comment{
+	createCommentReq := openapi.CreateCommentRequest{
 		Username: "nonexistent_user_12345",
 		Content:  "This comment should fail",
 	}
@@ -139,7 +139,7 @@ func TestGetComment_Success(t *testing.T) {
 	token := getAuthToken(t, env, testUser, scopes.SocialappCommentsCreate.String(), scopes.SocialappCommentsRead.String())
 
 	// First create a comment
-	createCommentReq := openapi.Comment{
+	createCommentReq := openapi.CreateCommentRequest{
 		Username: testUser.Username,
 		Content:  "Comment for get test",
 	}
@@ -215,7 +215,7 @@ func TestGetUserFeed_Success(t *testing.T) {
 
 	// User2 creates a comment
 	token2 := getAuthToken(t, env, user2, scopes.SocialappCommentsCreate.String())
-	createCommentReq := openapi.Comment{
+	createCommentReq := openapi.CreateCommentRequest{
 		Username: user2.Username,
 		Content:  "Comment from followed user",
 	}
@@ -286,7 +286,7 @@ func TestSearchComments_ByUserAndTime(t *testing.T) {
 	createComment := func(token string, username string, content string) openapi.Comment {
 		t.Helper()
 
-		body, err := json.Marshal(openapi.Comment{
+		body, err := json.Marshal(openapi.CreateCommentRequest{
 			Username: username,
 			Content:  content,
 		})
@@ -358,7 +358,7 @@ func TestSearchComments_ReturnsMostRecent20(t *testing.T) {
 
 	createdIDs := make([]string, 0, 25)
 	for i := 0; i < 25; i++ {
-		body, err := json.Marshal(openapi.Comment{
+		body, err := json.Marshal(openapi.CreateCommentRequest{
 			Username: testUser.Username,
 			Content:  fmt.Sprintf("comment-%02d", i),
 		})
@@ -396,7 +396,7 @@ func TestCreateComment_Unauthorized(t *testing.T) {
 	defer teardownTestEnv(t, env)
 
 	// Create comment request
-	createCommentReq := openapi.Comment{
+	createCommentReq := openapi.CreateCommentRequest{
 		Username: "testuser",
 		Content:  "This should fail",
 	}
@@ -425,7 +425,7 @@ func TestCreateComment_WrongScope(t *testing.T) {
 	token := getAuthToken(t, env, testUser, scopes.SocialappCommentsRead.String())
 
 	// Create comment request
-	createCommentReq := openapi.Comment{
+	createCommentReq := openapi.CreateCommentRequest{
 		Username: testUser.Username,
 		Content:  "This should fail",
 	}
