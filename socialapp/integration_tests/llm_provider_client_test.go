@@ -11,7 +11,7 @@ func TestLLMProviderClientGenerate(t *testing.T) {
 	mock := llm.NewMockProvider()
 	mock.EnqueueResponse(llm.GenerateResponse{Text: `{"username":"alice"}`})
 
-	client := NewLLMProviderClient(mock, "gemini-test-model")
+	client := NewLLMProviderClient(mock, "llm-test-model")
 	text, err := client.Generate(context.Background(), "return json")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -24,7 +24,7 @@ func TestLLMProviderClientGenerate(t *testing.T) {
 	if len(reqs) != 1 {
 		t.Fatalf("expected one request, got %d", len(reqs))
 	}
-	if reqs[0].Model != "gemini-test-model" {
+	if reqs[0].Model != "llm-test-model" {
 		t.Fatalf("unexpected model: %q", reqs[0].Model)
 	}
 	if reqs[0].ResponseMIMEType != "application/json" {

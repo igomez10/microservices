@@ -84,7 +84,6 @@ func Setup() []ConfigurationOpts {
 	// with timestamp and caller
 	logger := slog.New(slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{AddSource: true}))
 	slog.SetDefault(logger)
-	configureTestDataGenerator()
 	return []ConfigurationOpts{
 		WithHost(testSetup),
 	}
