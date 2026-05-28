@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 CREATE SEQUENCE IF NOT EXISTS users_id_seq;
 CREATE TABLE IF NOT EXISTS users (
 	id BIGINT NOT NULL PRIMARY KEY DEFAULT nextval('users_id_seq'::regclass),
@@ -18,6 +20,10 @@ CREATE INDEX IF NOT EXISTS users_username_idx ON users (username);
 CREATE INDEX IF NOT EXISTS users_email_idx ON users (email);
 CREATE INDEX IF NOT EXISTS users_deleted_at_idx ON users (deleted_at);
 CREATE INDEX IF NOT EXISTS users_created_at_idx ON users (created_at);
+CREATE INDEX IF NOT EXISTS users_username_trgm_idx ON users USING GIN (username gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS users_first_name_trgm_idx ON users USING GIN (first_name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS users_last_name_trgm_idx ON users USING GIN (last_name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS users_email_trgm_idx ON users USING GIN (email gin_trgm_ops);
 
 CREATE SEQUENCE IF NOT EXISTS comments_id_seq;
 CREATE TABLE IF NOT EXISTS comments (
