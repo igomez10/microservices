@@ -51,11 +51,6 @@ func (p *GeminiProvider) Generate(ctx context.Context, req GenerateRequest) (Gen
 		return GenerateResponse{}, errors.New("prompt is required")
 	}
 
-	model := strings.TrimSpace(req.Model)
-	if model == "" {
-		model = p.model
-	}
-
 	cfg := &genai.GenerateContentConfig{}
 	if req.Temperature != 0 {
 		cfg.Temperature = &req.Temperature
@@ -68,7 +63,7 @@ func (p *GeminiProvider) Generate(ctx context.Context, req GenerateRequest) (Gen
 
 	resp, err := p.client.Models.GenerateContent(
 		ctx,
-		model,
+		p.model,
 		genai.Text(prompt),
 		cfg,
 	)

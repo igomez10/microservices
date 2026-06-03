@@ -38,16 +38,28 @@ type GeneratedCommentData struct {
 }
 
 type DataGenerator interface {
-	GenerateUser(ctx context.Context, in UserGenerationInput) (GeneratedUserData, error)
-	GenerateComment(ctx context.Context, in CommentGenerationInput) (GeneratedCommentData, error)
+	GenerateUser(ctx context.Context, in UserGenerationInput) (openapi.CreateUserRequest, error)
+	GenerateComment(ctx context.Context, in CommentGenerationInput) (openapi.CreateCommentRequest, error)
 }
 
 type LLMProviderClient struct {
 	provider llm.Provider
-	model    string
+	model    llm.Model
 }
 
-func NewLLMProviderClient(provider llm.Provider, model string) *LLMProviderClient {
+// GenerateComment implements [DataGenerator].
+func (c *LLMProviderClient) GenerateComment(ctx context.Context, in CommentGenerationInput) (openapi.CreateCommentRequest, error) {
+	panic("unimplemented")
+}
+
+// GenerateUser implements [DataGenerator].
+func (c *LLMProviderClient) GenerateUser(ctx context.Context, in UserGenerationInput) (openapi.CreateUserRequest, error) {
+	panic("unimplemented")
+}
+
+var _ DataGenerator = (*LLMProviderClient)(nil)
+
+func NewLLMProviderClient(provider llm.Provider, model llm.Model) *LLMProviderClient {
 	return &LLMProviderClient{
 		provider: provider,
 		model:    model,
@@ -121,7 +133,7 @@ email=%q`, seed, in.FallbackUsername, in.FallbackFirstName, in.FallbackLastName,
 	return parsed, nil
 }
 
-func (g *LLMTestDataGenerator) GenerateComment(ctx context.Context, in CommentGenerationInput) (openapi.Create, error) {
+func (g *LLMTestDataGenerator) GenerateComment(ctx context.Context, in CommentGenerationInput) (openapi.CreateCommentRequest, error) {
 	seed := time.Now().UnixNano()
 	prompt := fmt.Sprintf(`SEED=%d
 Generate realistic testing values. Keep URL-safe and <= 64 chars.
