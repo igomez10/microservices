@@ -942,6 +942,16 @@ services:
     depends_on:
       - tempo
       - prometheus
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.otel.rule=Host(`otel.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.otel.entrypoints=websecure"
+      - "traefik.http.routers.otel.tls=true"
+      - "traefik.http.routers.otel.tls.certresolver=letsencrypt-dns"
+      - "traefik.http.routers.otel-http.rule=Host(`otel.internal.${EXPOSED_HOST}`)"
+      - "traefik.http.routers.otel-http.entrypoints=web"
+      - "traefik.http.routers.otel-http.middlewares=https-redirect"
+      - "traefik.http.services.otel.loadbalancer.server.port=4318"
     logging:
       driver: loki
       options:
