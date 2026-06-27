@@ -1,12 +1,6 @@
 {
 	"folders": [
 		{
-			"path": ".circleci"
-		},
-		{
-			"path": "loadgenerator"
-		},
-		{
 			"path": "socialapp"
 		},
 		{
