@@ -94,14 +94,14 @@ groups:
           description: "Client error rate (4xx) is {{ $value | humanizePercentage }} (threshold: 5%). Check for API misuse or validation issues."
 
       - alert: HighClientErrorRateWarning
-        expr: (sum(rate(http_server_response_duration_count{status_code=~"4.."}[5m])) / sum(rate(http_server_response_duration_count[5m]))) > 0.01
+        expr: (sum(rate(http_server_response_duration_count{status_code=~"4.."}[5m])) / sum(rate(http_server_response_duration_count[5m]))) > 0.05
         for: 3m
         labels:
           severity: warning
           datacenter: socialapp
         annotations:
           summary: Elevated client error rate
-          description: "Client error rate (4xx) is {{ $value | humanizePercentage }} (threshold: 1%). Monitor for increasing errors."
+          description: "Client error rate (4xx) is {{ $value | humanizePercentage }} (threshold: 5%). Monitor for increasing errors."
 
       - alert: HighServerErrorRate
         expr: (sum(rate(http_server_response_duration_count{status_code=~"5.."}[5m])) / sum(rate(http_server_response_duration_count[5m]))) > 0.001
