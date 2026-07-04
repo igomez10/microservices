@@ -9,12 +9,15 @@ import (
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
+	"github.com/igomez10/microservices/socialapp/internal/eventRecorder"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	"github.com/igomez10/microservices/socialapp/pkg/events"
 	"github.com/igomez10/microservices/socialapp/pkg/snowflake"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // parseAPIID parses an int64 ID that arrived on the API surface as a string
@@ -36,7 +39,8 @@ var _ openapi.ScopeAPIServicer = (*ScopeApiService)(nil)
 
 type ScopeApiService struct {
 	DB                 db.Querier
-	DBConn             db.DBTX
+	DBConn             *pgxpool.Pool
+	EventRecorder      eventRecorder.EventRecorder
 	SnowflakeGenerator snowflake.IDGenerator
 }
 
@@ -63,7 +67,14 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 		Name:        newScope.Name,
 		Description: newScope.Description,
 	}
-	createdScope, err := s.DB.CreateScopeWithID(ctx, s.DBConn, params)
+	tx, err := s.DBConn.Begin(ctx)
+	if err != nil {
+		logger.Error("failed to start transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "Failed to create scope"}}, nil
+	}
+	defer tx.Rollback(ctx)
+
+	createdScope, err := s.DB.CreateScopeWithID(ctx, tx, params)
 	if err != nil {
 		logger.Error("failed to create scope", "error", err)
 
@@ -86,6 +97,21 @@ func (s *ScopeApiService) CreateScope(ctx context.Context, newScope openapi.Scop
 				Message: "Failed to create scope",
 			},
 		}, nil
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   createdScope.ID,
+		AggregateType: events.AggregateTypeScope,
+		EventType:     events.EventTypeScopeCreated,
+		Payload:       events.ScopeCreated{ScopeID: createdScope.ID, Name: createdScope.Name, Description: createdScope.Description},
+	}); err != nil {
+		logger.Error("failed to record event", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "Failed to create scope"}}, nil
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		logger.Error("failed to commit transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "Failed to create scope"}}, nil
 	}
 
 	apiscope := converter.FromDBScopeToAPIScope(createdScope)
@@ -118,8 +144,14 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeIDStr string) (o
 		}, nil
 	}
 
-	deleteErr := s.DB.DeleteScope(ctx, s.DBConn, scope.ID)
-	if deleteErr != nil {
+	tx, err := s.DBConn.Begin(ctx)
+	if err != nil {
+		logger.Error("failed to start transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to delete scope"}}, nil
+	}
+	defer tx.Rollback(ctx)
+
+	if deleteErr := s.DB.DeleteScope(ctx, tx, scope.ID); deleteErr != nil {
 		logger.Error("failed to retrieve created scope", "error", deleteErr)
 
 		return openapi.ImplResponse{
@@ -129,6 +161,21 @@ func (s *ScopeApiService) DeleteScope(ctx context.Context, scopeIDStr string) (o
 				Message: "failed to delete scope",
 			},
 		}, nil
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   scope.ID,
+		AggregateType: events.AggregateTypeScope,
+		EventType:     events.EventTypeScopeDeleted,
+		Payload:       events.ScopeDeleted{ScopeID: scope.ID, Name: scope.Name},
+	}); err != nil {
+		logger.Error("failed to record event", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to delete scope"}}, nil
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		logger.Error("failed to commit transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to delete scope"}}, nil
 	}
 
 	apiScope := converter.FromDBScopeToAPIScope(scope)
@@ -238,8 +285,15 @@ func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeIDStr string, up
 		Description: updatedScope.Description,
 	}
 
+	tx, err := s.DBConn.Begin(ctx)
+	if err != nil {
+		logger.Error("failed to start transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to update scope"}}, nil
+	}
+	defer tx.Rollback(ctx)
+
 	// update scope
-	_, err = s.DB.UpdateScope(ctx, s.DBConn, params)
+	_, err = s.DB.UpdateScope(ctx, tx, params)
 	if err != nil {
 		logger.Error("failed to update scope", "error", err)
 
@@ -253,7 +307,7 @@ func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeIDStr string, up
 	}
 
 	// get scope again
-	scope, err = s.DB.GetScope(ctx, s.DBConn, scope.ID)
+	scope, err = s.DB.GetScope(ctx, tx, scope.ID)
 	if err != nil {
 		logger.Error("failed to retrieve updated scope", "error", err)
 		return openapi.ImplResponse{
@@ -263,6 +317,21 @@ func (s *ScopeApiService) UpdateScope(ctx context.Context, scopeIDStr string, up
 				Message: "failed to find updated scope",
 			},
 		}, nil
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   scope.ID,
+		AggregateType: events.AggregateTypeScope,
+		EventType:     events.EventTypeScopeUpdated,
+		Payload:       events.ScopeUpdated{ScopeID: scope.ID, Name: scope.Name, Description: scope.Description},
+	}); err != nil {
+		logger.Error("failed to record event", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to update scope"}}, nil
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		logger.Error("failed to commit transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to update scope"}}, nil
 	}
 
 	return openapi.ImplResponse{

@@ -109,6 +109,9 @@ func (m *MockQuerier) CreateEvent(ctx context.Context, dbtx db.DBTX, arg db.Crea
 func (m *MockQuerier) CreateEventWithID(ctx context.Context, dbtx db.DBTX, arg db.CreateEventWithIDParams) error {
 	return nil
 }
+func (m *MockQuerier) GetLatestEventVersionForAggregate(ctx context.Context, dbtx db.DBTX, arg db.GetLatestEventVersionForAggregateParams) (int64, error) {
+	return 0, nil
+}
 func (m *MockQuerier) CreateRole(ctx context.Context, dbtx db.DBTX, arg db.CreateRoleParams) (db.Role, error) {
 	return db.Role{}, nil
 }

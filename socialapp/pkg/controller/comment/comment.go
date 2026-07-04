@@ -8,13 +8,16 @@ import (
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
+	"github.com/igomez10/microservices/socialapp/internal/eventRecorder"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	"github.com/igomez10/microservices/socialapp/pkg/events"
 	"github.com/igomez10/microservices/socialapp/pkg/snowflake"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // parseAPIID parses an int64 ID that arrived on the API surface as a string
@@ -36,7 +39,8 @@ var _ openapi.CommentAPIServicer = (*CommentService)(nil)
 
 type CommentService struct {
 	DB                 dbpgx.Querier
-	DBConn             dbpgx.DBTX
+	DBConn             *pgxpool.Pool
+	EventRecorder      eventRecorder.EventRecorder
 	SnowflakeGenerator snowflake.IDGenerator
 }
 
@@ -185,10 +189,46 @@ func (s *CommentService) CreateComment(ctx context.Context, comment openapi.Crea
 		Content:  comment.Content,
 	}
 
-	createdComment, err := s.DB.CreateCommentForUserWithID(ctx, s.DBConn, params)
+	tx, err := s.DBConn.Begin(ctx)
+	if err != nil {
+		logger.Error("Error starting transaction", "error", err)
+		return openapi.Response(http.StatusInternalServerError, openapi.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}), nil
+	}
+	defer tx.Rollback(ctx)
+
+	createdComment, err := s.DB.CreateCommentForUserWithID(ctx, tx, params)
 	if err != nil {
 		logger.Error("Error creating comment", "error", err)
 		return openapi.Response(http.StatusNotFound, openapi.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}), nil
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   createdComment.ID,
+		AggregateType: events.AggregateTypeComment,
+		EventType:     events.EventTypeCommentCreated,
+		Payload: events.CommentCreated{
+			CommentID:      createdComment.ID,
+			AuthorID:       user.ID,
+			AuthorUsername: user.Username,
+			Content:        createdComment.Content,
+		},
+	}); err != nil {
+		logger.Error("Error recording event", "error", err)
+		return openapi.Response(http.StatusInternalServerError, openapi.Error{
+			Code:    http.StatusInternalServerError,
+			Message: "Internal server error",
+		}), nil
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		logger.Error("Error committing transaction", "error", err)
+		return openapi.Response(http.StatusInternalServerError, openapi.Error{
 			Code:    http.StatusInternalServerError,
 			Message: "Internal server error",
 		}), nil

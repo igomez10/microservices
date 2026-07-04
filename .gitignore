@@ -49,3 +49,5 @@ socialapp/logs/frontend-debug.log
 socialapp/.fuse_hidden0000000e00000001
 socialapp/logs/socialapp-debug.log
 socialapp/.fuse_hidden0000001000000002
+
+socialapp/tmp/*

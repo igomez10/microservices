@@ -9,14 +9,17 @@ import (
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/converter"
+	"github.com/igomez10/microservices/socialapp/internal/eventRecorder"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	"github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	"github.com/igomez10/microservices/socialapp/pkg/events"
 	"github.com/igomez10/microservices/socialapp/pkg/snowflake"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // parseAPIID parses an int64 ID that arrived on the API surface as a string
@@ -39,7 +42,8 @@ var _ openapi.RoleAPIServicer = (*RoleApiService)(nil)
 
 type RoleApiService struct {
 	DB                 dbpgx.Querier
-	DBConn             dbpgx.DBTX
+	DBConn             *pgxpool.Pool
+	EventRecorder      eventRecorder.EventRecorder
 	SnowflakeGenerator snowflake.IDGenerator
 }
 
@@ -65,7 +69,14 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 		Name:        newRole.Name,
 		Description: newRole.Description,
 	}
-	createdRole, err := s.DB.CreateRoleWithID(ctx, s.DBConn, params)
+	tx, err := s.DBConn.Begin(ctx)
+	if err != nil {
+		logger.Error("failed to start transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "Failed to create role"}}, nil
+	}
+	defer tx.Rollback(ctx)
+
+	createdRole, err := s.DB.CreateRoleWithID(ctx, tx, params)
 	if err != nil {
 		logger.Error("Failed to create role", "error", err)
 
@@ -90,7 +101,7 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 		}, nil
 	}
 
-	role, err := s.DB.GetRole(ctx, s.DBConn, createdRole.ID)
+	role, err := s.DB.GetRole(ctx, tx, createdRole.ID)
 	if err != nil {
 		logger.Error("failed to retrieve created role", "error", err, "role_id", int(createdRole.ID))
 
@@ -101,6 +112,21 @@ func (s *RoleApiService) CreateRole(ctx context.Context, newRole openapi.Role) (
 				Message: "failed to find created role",
 			},
 		}, nil
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   createdRole.ID,
+		AggregateType: events.AggregateTypeRole,
+		EventType:     events.EventTypeRoleCreated,
+		Payload:       events.RoleCreated{RoleID: createdRole.ID, Name: newRole.Name, Description: newRole.Description},
+	}); err != nil {
+		logger.Error("failed to record event", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "Failed to create role"}}, nil
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		logger.Error("failed to commit transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "Failed to create role"}}, nil
 	}
 
 	apiRole := converter.FromDBRoleToAPIRole(role)
@@ -132,7 +158,14 @@ func (s *RoleApiService) DeleteRole(ctx context.Context, roleIDStr string) (open
 		}, nil
 	}
 
-	if err := s.DB.DeleteRole(ctx, s.DBConn, role.ID); err != nil {
+	tx, err := s.DBConn.Begin(ctx)
+	if err != nil {
+		logger.Error("failed to start transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to delete role"}}, nil
+	}
+	defer tx.Rollback(ctx)
+
+	if err := s.DB.DeleteRole(ctx, tx, role.ID); err != nil {
 		logger.Error("failed to retrieve created role", "error", err)
 
 		return openapi.ImplResponse{
@@ -142,6 +175,21 @@ func (s *RoleApiService) DeleteRole(ctx context.Context, roleIDStr string) (open
 				Message: "failed to delete role",
 			},
 		}, nil
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   role.ID,
+		AggregateType: events.AggregateTypeRole,
+		EventType:     events.EventTypeRoleDeleted,
+		Payload:       events.RoleDeleted{RoleID: role.ID, Name: role.Name},
+	}); err != nil {
+		logger.Error("failed to record event", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to delete role"}}, nil
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		logger.Error("failed to commit transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to delete role"}}, nil
 	}
 
 	apiRole := converter.FromDBRoleToAPIRole(role)
@@ -275,8 +323,15 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleIDStr string, newRo
 		Description: newRole.Description,
 	}
 
+	tx, err := s.DBConn.Begin(ctx)
+	if err != nil {
+		logger.Error("failed to start transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to update role"}}, nil
+	}
+	defer tx.Rollback(ctx)
+
 	// update role
-	if err := s.DB.UpdateRole(ctx, s.DBConn, params); err != nil {
+	if err := s.DB.UpdateRole(ctx, tx, params); err != nil {
 		logger.Error("failed to update role", "error", err, "role_id", roleID)
 
 		return openapi.ImplResponse{
@@ -289,7 +344,7 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleIDStr string, newRo
 	}
 
 	// get role again
-	role, err = s.DB.GetRole(ctx, s.DBConn, role.ID)
+	role, err = s.DB.GetRole(ctx, tx, role.ID)
 	if err != nil {
 		logger.Error("failed to retrieve updated role", "error", err)
 		return openapi.ImplResponse{
@@ -299,6 +354,21 @@ func (s *RoleApiService) UpdateRole(ctx context.Context, roleIDStr string, newRo
 				Message: "failed to find updated role",
 			},
 		}, nil
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   role.ID,
+		AggregateType: events.AggregateTypeRole,
+		EventType:     events.EventTypeRoleUpdated,
+		Payload:       events.RoleUpdated{RoleID: role.ID, Name: newRole.Name, Description: newRole.Description},
+	}); err != nil {
+		logger.Error("failed to record event", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to update role"}}, nil
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		logger.Error("failed to commit transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to update role"}}, nil
 	}
 
 	return openapi.ImplResponse{
@@ -348,6 +418,13 @@ func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleIDStr string, s
 		dbScopes = append(dbScopes, dbSc)
 	}
 
+	tx, err := s.DBConn.Begin(ctx)
+	if err != nil {
+		logger.Error("failed to start transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to add scope to role"}}, nil
+	}
+	defer tx.Rollback(ctx)
+
 	// add scopes to role
 	for _, sc := range dbScopes {
 		// Generate snowflake ID for the role-scope association
@@ -363,7 +440,7 @@ func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleIDStr string, s
 			}, nil
 		}
 
-		_, err = s.DB.CreateRoleScopeWithID(ctx, s.DBConn, db.CreateRoleScopeWithIDParams{
+		_, err = s.DB.CreateRoleScopeWithID(ctx, tx, db.CreateRoleScopeWithIDParams{
 			ID:      roleScopeID,
 			RoleID:  role.ID,
 			ScopeID: sc.ID,
@@ -391,6 +468,21 @@ func (s *RoleApiService) AddScopeToRole(ctx context.Context, roleIDStr string, s
 				},
 			}, nil
 		}
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   role.ID,
+		AggregateType: events.AggregateTypeRole,
+		EventType:     events.EventTypeRoleScopesAdded,
+		Payload:       events.RoleScopesAdded{RoleID: role.ID, Scopes: scopes},
+	}); err != nil {
+		logger.Error("failed to record event", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to add scope to role"}}, nil
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		logger.Error("failed to commit transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to add scope to role"}}, nil
 	}
 
 	return openapi.ImplResponse{
@@ -499,12 +591,19 @@ func (s *RoleApiService) RemoveScopeFromRole(ctx context.Context, roleIDStr stri
 		}, nil
 	}
 
+	tx, err := s.DBConn.Begin(ctx)
+	if err != nil {
+		logger.Error("failed to start transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to remove scope from role"}}, nil
+	}
+	defer tx.Rollback(ctx)
+
 	// remove scope from role
 	params := db.DeleteRoleScopeParams{
 		RoleID:  role.ID,
 		ScopeID: scope.ID,
 	}
-	if err := s.DB.DeleteRoleScope(ctx, s.DBConn, params); err != nil {
+	if err := s.DB.DeleteRoleScope(ctx, tx, params); err != nil {
 		logger.Error("failed to remove scope from role", "error", err)
 
 		return openapi.ImplResponse{
@@ -514,6 +613,21 @@ func (s *RoleApiService) RemoveScopeFromRole(ctx context.Context, roleIDStr stri
 				Message: "failed to remove scope from role",
 			},
 		}, nil
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   role.ID,
+		AggregateType: events.AggregateTypeRole,
+		EventType:     events.EventTypeRoleScopeRemoved,
+		Payload:       events.RoleScopeRemoved{RoleID: role.ID, ScopeID: scope.ID},
+	}); err != nil {
+		logger.Error("failed to record event", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to remove scope from role"}}, nil
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		logger.Error("failed to commit transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError, Body: openapi.Error{Code: http.StatusInternalServerError, Message: "failed to remove scope from role"}}, nil
 	}
 
 	return openapi.ImplResponse{
