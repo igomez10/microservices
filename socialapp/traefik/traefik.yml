@@ -3,15 +3,17 @@
 ---
 api:
   dashboard: true
-  insecure: true
+  insecure: false
 
 entryPoints:
   web:
     address: ":80"
   websecure:
     address: ":443"
-  weblocal:
-    address: ":11111"
+  webinternal:
+    address: ":8081"
+  websecureinternal:
+    address: ":8443"
 
 certificatesResolvers:
   # letsencryptstaging:

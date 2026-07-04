@@ -298,11 +298,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`grafana.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.entrypoints=websecureinternal"
       - "traefik.http.routers.grafana.tls=true"
       - "traefik.http.routers.grafana.tls.certresolver=letsencrypt-dns"
       - "traefik.http.routers.grafana-http.rule=Host(`grafana.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.grafana-http.entrypoints=web"
+      - "traefik.http.routers.grafana-http.entrypoints=webinternal"
       - "traefik.http.routers.grafana-http.middlewares=https-redirect"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     restart: always
@@ -361,11 +361,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.prometheus.rule=Host(`prometheus.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.entrypoints=websecureinternal"
       - "traefik.http.routers.prometheus.tls=true"
       - "traefik.http.routers.prometheus.tls.certresolver=letsencrypt-dns"
       - "traefik.http.routers.prometheus-http.rule=Host(`prometheus.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.prometheus-http.entrypoints=web"
+      - "traefik.http.routers.prometheus-http.entrypoints=webinternal"
       - "traefik.http.routers.prometheus-http.middlewares=https-redirect"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
     restart: always
@@ -678,11 +678,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.kafkaui.rule=Host(`kafkaui.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.kafkaui.entrypoints=websecure"
+      - "traefik.http.routers.kafkaui.entrypoints=websecureinternal"
       - "traefik.http.routers.kafkaui.tls=true"
       - "traefik.http.routers.kafkaui.tls.certresolver=letsencrypt-dns"
       - "traefik.http.routers.kafkaui-http.rule=Host(`kafkaui.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.kafkaui-http.entrypoints=web"
+      - "traefik.http.routers.kafkaui-http.entrypoints=webinternal"
       - "traefik.http.routers.kafkaui-http.middlewares=https-redirect"
       - "traefik.http.services.kafkaui.loadbalancer.server.port=8080"
     environment:
@@ -840,11 +840,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.unleash.rule=Host(`unleash.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.unleash.entrypoints=websecure"
+      - "traefik.http.routers.unleash.entrypoints=websecureinternal"
       - "traefik.http.routers.unleash.tls=true"
       - "traefik.http.routers.unleash.tls.certresolver=letsencrypt-dns"
       - "traefik.http.routers.unleash-http.rule=Host(`unleash.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.unleash-http.entrypoints=web"
+      - "traefik.http.routers.unleash-http.entrypoints=webinternal"
       - "traefik.http.routers.unleash-http.middlewares=https-redirect"
       - "traefik.http.services.unleash.loadbalancer.server.port=4242"
     ports:
@@ -945,11 +945,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.otel.rule=Host(`otel.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.otel.entrypoints=websecure"
+      - "traefik.http.routers.otel.entrypoints=websecureinternal"
       - "traefik.http.routers.otel.tls=true"
       - "traefik.http.routers.otel.tls.certresolver=letsencrypt-dns"
       - "traefik.http.routers.otel-http.rule=Host(`otel.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.otel-http.entrypoints=web"
+      - "traefik.http.routers.otel-http.entrypoints=webinternal"
       - "traefik.http.routers.otel-http.middlewares=https-redirect"
       - "traefik.http.services.otel.loadbalancer.server.port=4318"
     logging:
@@ -1000,11 +1000,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.loki.rule=Host(`loki.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.loki.entrypoints=websecure"
+      - "traefik.http.routers.loki.entrypoints=websecureinternal"
       - "traefik.http.routers.loki.tls=true"
       - "traefik.http.routers.loki.tls.certresolver=letsencrypt-dns"
       - "traefik.http.routers.loki-http.rule=Host(`loki.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.loki-http.entrypoints=web"
+      - "traefik.http.routers.loki-http.entrypoints=webinternal"
       - "traefik.http.routers.loki-http.middlewares=https-redirect"
       - "traefik.http.services.loki.loadbalancer.server.port=3100"
     volumes:
@@ -1028,11 +1028,11 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.portainer.rule=Host(`portainer.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.entrypoints=websecureinternal"
       - "traefik.http.routers.portainer.tls=true"
       - "traefik.http.routers.portainer.tls.certresolver=letsencrypt-dns"
       - "traefik.http.routers.portainer-http.rule=Host(`portainer.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.portainer-http.entrypoints=web"
+      - "traefik.http.routers.portainer-http.entrypoints=webinternal"
       - "traefik.http.routers.portainer-http.middlewares=https-redirect"
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
     ports:
@@ -1098,19 +1098,19 @@ services:
     environment:
       - CF_DNS_API_TOKEN=${CF_DNS_API_TOKEN}
     ports:
-      - "80:80"
-      - "443:443"
-      - "8087:8080"
-      - "11111:11111"
+      - "${PUBLIC_BIND_IP:?set PUBLIC_BIND_IP to the OCI private interface IP}:80:80"
+      - "${PUBLIC_BIND_IP:?set PUBLIC_BIND_IP to the OCI private interface IP}:443:443"
+      - "${TAILSCALE_IP:?set TAILSCALE_IP to this host's Tailscale IPv4}:${INTERNAL_HTTP_BIND_PORT:-80}:8081"
+      - "${TAILSCALE_IP:?set TAILSCALE_IP to this host's Tailscale IPv4}:${INTERNAL_HTTPS_BIND_PORT:-443}:8443"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=websecureinternal"
       - "traefik.http.routers.traefik-dashboard.tls=true"
       - "traefik.http.routers.traefik-dashboard.tls.certresolver=letsencrypt-dns"
       - "traefik.http.routers.traefik-dashboard.service=api@internal"
       - "traefik.http.routers.traefik-dashboard-http.rule=Host(`traefik.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.traefik-dashboard-http.entrypoints=web"
+      - "traefik.http.routers.traefik-dashboard-http.entrypoints=webinternal"
       - "traefik.http.routers.traefik-dashboard-http.middlewares=https-redirect"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
@@ -1148,12 +1148,12 @@ services:
       - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
       # HTTPS router
       - "traefik.http.routers.whoamiinternal.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.whoamiinternal.entrypoints=websecure"
+      - "traefik.http.routers.whoamiinternal.entrypoints=websecureinternal"
       - "traefik.http.routers.whoamiinternal.tls=true"
       - "traefik.http.routers.whoamiinternal.tls.certresolver=letsencrypt-dns"
       # HTTP router with redirect
       - "traefik.http.routers.whoamiinternal-http.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.whoamiinternal-http.entrypoints=web"
+      - "traefik.http.routers.whoamiinternal-http.entrypoints=webinternal"
       - "traefik.http.routers.whoamiinternal-http.middlewares=https-redirect"
       # Service
       - "traefik.http.services.whoamiinternal.loadbalancer.server.port=80"
