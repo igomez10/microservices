@@ -37,7 +37,6 @@ const (
 	errMsgInvalidBasicAuth   = `{"code": 401, "message": "Invalid basic auth format"}`
 	errMsgInvalidCredentials = `{"code": 401, "message": "Invalid username or password"}`
 	errMsgErrorGettingUser   = `{"code": 500, "message": "Error while getting user"}`
-	errMsgErrorGettingRoles  = `{"code": 500, "message": "Error while getting user roles"}`
 	errMsgErrorGettingScopes = `{"code": 500, "message": "Error while getting role scopes"}`
 	errMsgScopeNotAllowed    = `{"code": 401, "message": "Scope %q not allowed"}`
 	errMsgInvalidScope       = `{"code": 400, "message": "Invalid scope %q: scope is not defined in API specification"}`
@@ -45,12 +44,6 @@ const (
 	// Scope query limits
 	maxScopesPerRole = 10000
 )
-
-// Prometheus metrics for Gandalf middleware
-var gandalfTokenCache = promauto.NewCounterVec(prometheus.CounterOpts{
-	Name: "gandalf_token_cache",
-	Help: "The total number of gandalf token cache operations",
-}, []string{"cache", "status"})
 
 // authenticationDuration tracks the duration of authentication operations
 var authenticationDuration = promauto.NewHistogramVec(
