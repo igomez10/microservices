@@ -1,7 +1,6 @@
 package gandalf
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"net/http"
