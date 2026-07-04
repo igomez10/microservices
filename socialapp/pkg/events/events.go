@@ -26,11 +26,11 @@ const (
 
 	EventTypeCommentCreated = "CommentCreated"
 
-	EventTypeRoleCreated       = "RoleCreated"
-	EventTypeRoleUpdated       = "RoleUpdated"
-	EventTypeRoleDeleted       = "RoleDeleted"
-	EventTypeRoleScopesAdded   = "RoleScopesAdded"
-	EventTypeRoleScopeRemoved  = "RoleScopeRemoved"
+	EventTypeRoleCreated      = "RoleCreated"
+	EventTypeRoleUpdated      = "RoleUpdated"
+	EventTypeRoleDeleted      = "RoleDeleted"
+	EventTypeRoleScopesAdded  = "RoleScopesAdded"
+	EventTypeRoleScopeRemoved = "RoleScopeRemoved"
 
 	EventTypeScopeCreated = "ScopeCreated"
 	EventTypeScopeUpdated = "ScopeUpdated"
