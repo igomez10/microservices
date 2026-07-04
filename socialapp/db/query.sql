@@ -414,6 +414,11 @@ INSERT INTO events (
   $1, $2, $3, $4, $5, $6
 );
 
+-- name: GetLatestEventVersionForAggregate :one
+SELECT COALESCE(MAX(version), 0)::BIGINT AS version
+FROM events
+WHERE aggregate_id = $1 AND aggregate_type = $2;
+
 -- SHORTLY
 
 -- name: GetURLFromAlias :one

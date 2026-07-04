@@ -146,6 +146,7 @@ func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 	commentApiService := &comment.CommentService{
 		DB:                 config.Queries,
 		DBConn:             config.DBPool,
+		EventRecorder:      eventRec,
 		SnowflakeGenerator: commentSnowflakeGen,
 	}
 	commentApiController := openapi.NewCommentAPIController(commentApiService)
@@ -169,6 +170,7 @@ func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 	roleAPIService := &role.RoleApiService{
 		DB:                 config.Queries,
 		DBConn:             config.DBPool,
+		EventRecorder:      eventRec,
 		SnowflakeGenerator: roleSnowflakeGen,
 	}
 	roleAPIController := openapi.NewRoleAPIController(roleAPIService)
@@ -177,6 +179,7 @@ func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 	scopeAPIService := &scope.ScopeApiService{
 		DB:                 config.Queries,
 		DBConn:             config.DBPool,
+		EventRecorder:      eventRec,
 		SnowflakeGenerator: scopeSnowflakeGen,
 	}
 	scopeAPIController := openapi.NewScopeAPIController(scopeAPIService)

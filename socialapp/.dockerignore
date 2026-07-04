@@ -19,3 +19,5 @@ Integration.Dockerfile
 docker-compose.yml
 .git*
 logs/*
+tmp/*
+frontend/node_modules

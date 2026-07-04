@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS comments (
     like_count BIGINT NOT NULL DEFAULT 0,
     user_id BIGINT NOT NULL,
     CONSTRAINT fk_user_id
-      FOREIGN KEY(user_id) 
+      FOREIGN KEY(user_id)
 	  REFERENCES users(id),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -154,6 +154,9 @@ CREATE TABLE IF NOT EXISTS events (
 );
 CREATE INDEX IF NOT EXISTS events_aggregate_id_idx ON events (aggregate_id);
 CREATE INDEX IF NOT EXISTS events_aggregate_type_idx ON events (aggregate_type);
+-- Each aggregate's version is unique: enforces a strict, gap-checkable ordering
+-- of events per entity and provides optimistic-concurrency protection.
+CREATE UNIQUE INDEX IF NOT EXISTS events_aggregate_version_idx ON events (aggregate_id, aggregate_type, version);
 CREATE INDEX IF NOT EXISTS events_version_idx ON events (version);
 CREATE INDEX IF NOT EXISTS events_event_type_idx ON events (event_type);
 CREATE INDEX IF NOT EXISTS events_created_at_idx ON events (created_at);
@@ -174,8 +177,8 @@ CREATE INDEX IF NOT EXISTS urls_alias_idx ON urls (alias);
 
 --  SEEDING DATA
 INSERT INTO users (
-    id , username , hashed_password , hashed_password_expires_at , salt , first_name , last_name , email , created_at , updated_at , deleted_at ) 
-VALUES 
+    id , username , hashed_password , hashed_password_expires_at , salt , first_name , last_name , email , created_at , updated_at , deleted_at )
+VALUES
 (1, 'admin', 'LPWJbW+u2por79jDW+uClI+VvxrX7HpT5eX53kdNd4U=', '2030-01-01 00:00:00', 'MTUyNzJkYjgtZjVjNi00YjIxLTk3ZDktZDJkMTEzODM5NjQ1', 'first_name', 'last_name', 'email@email.com', '2020-01-01 00:00:00', '2020-01-01 00:00:00', NULL),
 (2, 'someotheruser', 'LPWJbW+u2por79jDW+uClI+VvxrX7HpT5eX53kdNd4U=', '2030-01-01 00:00:00', 'MTUyNzJkYjgtZjVjNi00YjIxLTk3ZDktZDJkMTEzODM5NjQ1', 'first_name', 'last_name', 'email@email.com', '2020-01-01 00:00:00', '2020-01-01 00:00:00', NULL);
 
@@ -344,4 +347,10 @@ INSERT INTO users_to_roles (id, role_id, user_id) VALUES
 -- SELECT setval('roles_id_seq', 150, true);
 -- SELECT setval('scopes_id_seq', 150, true);
 -- SELECT setval('roles_to_scopes_id_seq', 150, true);
--- SELECT setval('users_to_roles_id_seq', 150, true);  
+-- SELECT setval('users_to_roles_id_seq', 150, true);
+
+-- Change Data Capture (Apache Flink CDC): the Postgres source needs complete
+-- before-images for UPDATE/DELETE events, otherwise non-key columns arrive NULL
+-- and Flink CDC's schema inference fails. REPLICA IDENTITY FULL includes every
+-- column in the WAL for the captured tables. Keep in sync with flink/pipeline.yaml.
+ALTER TABLE events REPLICA IDENTITY FULL;

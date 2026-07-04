@@ -16,6 +16,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/eventRecorder"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	"github.com/igomez10/microservices/socialapp/pkg/events"
 	"github.com/igomez10/microservices/socialapp/pkg/snowflake"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgerrcode"
@@ -174,7 +175,19 @@ func (s *UserApiService) CreateUser(ctx context.Context, createUserReq openapi.C
 	}
 
 	// create event
-	if err := s.EventRecorder.RecordEvent(ctx, tx, createUserReq, createdUser.ID); err != nil {
+	userCreatedEvent := eventRecorder.Event{
+		AggregateID:   createdUser.ID,
+		AggregateType: events.AggregateTypeUser,
+		EventType:     events.EventTypeUserCreated,
+		Payload: events.UserCreated{
+			UserID:    createdUser.ID,
+			Username:  createdUser.Username,
+			Email:     createdUser.Email,
+			FirstName: createdUser.FirstName,
+			LastName:  createdUser.LastName,
+		},
+	}
+	if err := s.EventRecorder.RecordEvent(ctx, tx, userCreatedEvent); err != nil {
 		logger.Error("Error recording event", "error", err)
 		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
@@ -209,7 +222,28 @@ func (s *UserApiService) DeleteUser(ctx context.Context, username string) (opena
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "DeleteUser")
 	defer span.End()
 	logger := contexthelper.GetLoggerInContext(ctx)
-	if err := s.DB.DeleteUserByUsername(ctx, s.DBConn, username); err != nil {
+
+	tx, err := s.DBConn.Begin(ctx)
+	if err != nil {
+		logger.Error("Error starting transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError}, nil
+	}
+	defer tx.Rollback(ctx)
+
+	// look up the user first so the event can reference its aggregate id
+	existingUser, err := s.DB.GetUserByUsername(ctx, tx, username)
+	if err != nil {
+		logger.Error("Error getting user", "error", err)
+		return openapi.ImplResponse{
+			Code: http.StatusNotFound,
+			Body: openapi.Error{
+				Code:    http.StatusNotFound,
+				Message: "Error deleting user",
+			},
+		}, nil
+	}
+
+	if err := s.DB.DeleteUserByUsername(ctx, tx, username); err != nil {
 		logger.Error("Error deleting user", "error", err)
 		return openapi.ImplResponse{
 			Code: http.StatusNotFound,
@@ -218,6 +252,21 @@ func (s *UserApiService) DeleteUser(ctx context.Context, username string) (opena
 				Message: "Error deleting user",
 			},
 		}, nil
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   existingUser.ID,
+		AggregateType: events.AggregateTypeUser,
+		EventType:     events.EventTypeUserDeleted,
+		Payload:       events.UserDeleted{UserID: existingUser.ID, Username: existingUser.Username},
+	}); err != nil {
+		logger.Error("Error recording event", "error", err)
+		return openapi.Response(http.StatusInternalServerError, nil), nil
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		logger.Error("Error committing transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError}, nil
 	}
 
 	return openapi.Response(http.StatusOK, nil), nil
@@ -460,6 +509,27 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 		}, nil
 	}
 
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   updatedUser.ID,
+		AggregateType: events.AggregateTypeUser,
+		EventType:     events.EventTypeUserUpdated,
+		Payload: events.UserUpdated{
+			UserID:    updatedUser.ID,
+			Username:  updatedUser.Username,
+			Email:     updatedUser.Email,
+			FirstName: updatedUser.FirstName,
+			LastName:  updatedUser.LastName,
+		},
+	}); err != nil {
+		logger.Error("Error recording event", "error", err)
+		return openapi.Response(http.StatusInternalServerError, nil), nil
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		logger.Error("Error committing transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError}, nil
+	}
+
 	apiUser := converter.FromDBUserToAPIUser(updatedUser)
 
 	return openapi.Response(http.StatusOK, apiUser), nil
@@ -519,6 +589,21 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 		}, nil
 	}
 
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   followerUser.ID,
+		AggregateType: events.AggregateTypeUser,
+		EventType:     events.EventTypeUserFollowed,
+		Payload: events.UserFollowed{
+			FollowerID:       followerUser.ID,
+			FollowerUsername: followerUser.Username,
+			FollowedID:       followedUser.ID,
+			FollowedUsername: followedUser.Username,
+		},
+	}); err != nil {
+		logger.Error("Error recording event", "error", err)
+		return openapi.Response(http.StatusInternalServerError, nil), nil
+	}
+
 	if err := tx.Commit(ctx); err != nil {
 		logger.Error("Error committing transaction", "error", err)
 		return openapi.ImplResponse{
@@ -570,8 +655,16 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "UnfollowUser")
 	defer span.End()
 	logger := contexthelper.GetLoggerInContext(ctx)
+
+	tx, err := s.DBConn.Begin(ctx)
+	if err != nil {
+		logger.Error("Error starting transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError}, nil
+	}
+	defer tx.Rollback(ctx)
+
 	// validate the user exists
-	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, s.DBConn, followedUsername)
+	followedUser, errGetFollowed := s.DB.GetUserByUsername(ctx, tx, followedUsername)
 	if errGetFollowed != nil {
 		logger.Error("Error getting followed user", "error", errGetFollowed)
 		return openapi.ImplResponse{
@@ -583,7 +676,7 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 		}, nil
 	}
 
-	followerUser, errGetFollower := s.DB.GetUserByUsername(ctx, s.DBConn, followerUsername)
+	followerUser, errGetFollower := s.DB.GetUserByUsername(ctx, tx, followerUsername)
 	if errGetFollower != nil {
 		logger.Error("Error getting follower user", "error", errGetFollower)
 		return openapi.ImplResponse{
@@ -595,12 +688,11 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 		}, nil
 	}
 
-	//  add follow connection
-	err := s.DB.UnfollowUser(ctx, s.DBConn, db.UnfollowUserParams{
+	//  remove follow connection
+	if err := s.DB.UnfollowUser(ctx, tx, db.UnfollowUserParams{
 		FollowerID: followerUser.ID,
 		FollowedID: followedUser.ID,
-	})
-	if err != nil {
+	}); err != nil {
 		logger.Error("Error unfollowing user", "error", err)
 		return openapi.ImplResponse{
 			Code: http.StatusInternalServerError,
@@ -609,6 +701,26 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 				Message: "Error unfollowing user",
 			},
 		}, nil
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   followerUser.ID,
+		AggregateType: events.AggregateTypeUser,
+		EventType:     events.EventTypeUserUnfollowed,
+		Payload: events.UserUnfollowed{
+			FollowerID:       followerUser.ID,
+			FollowerUsername: followerUser.Username,
+			FollowedID:       followedUser.ID,
+			FollowedUsername: followedUser.Username,
+		},
+	}); err != nil {
+		logger.Error("Error recording event", "error", err)
+		return openapi.Response(http.StatusInternalServerError, nil), nil
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		logger.Error("Error committing transaction", "error", err)
+		return openapi.ImplResponse{Code: http.StatusInternalServerError}, nil
 	}
 
 	return openapi.Response(http.StatusOK, nil), nil
@@ -735,6 +847,16 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 				Message: "Error updating password",
 			},
 		}, nil
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   createUserReq.ID,
+		AggregateType: events.AggregateTypeUser,
+		EventType:     events.EventTypeUserPasswordChanged,
+		Payload:       events.UserPasswordChanged{UserID: createUserReq.ID, Username: createUserReq.Username},
+	}); err != nil {
+		logger.Error("Error recording event", "error", err)
+		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
 	if err := tx.Commit(ctx); err != nil {
@@ -924,6 +1046,16 @@ func (s *UserApiService) UpdateRolesForUser(ctx context.Context, username string
 				},
 			}, nil
 		}
+	}
+
+	if err := s.EventRecorder.RecordEvent(ctx, tx, eventRecorder.Event{
+		AggregateID:   dbUser.ID,
+		AggregateType: events.AggregateTypeUser,
+		EventType:     events.EventTypeUserRolesUpdated,
+		Payload:       events.UserRolesUpdated{UserID: dbUser.ID, Username: dbUser.Username, Roles: roles},
+	}); err != nil {
+		logger.Error("Error recording event", "error", err)
+		return openapi.Response(http.StatusInternalServerError, nil), nil
 	}
 
 	if err := tx.Commit(ctx); err != nil {

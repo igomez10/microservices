@@ -52,6 +52,11 @@ func (m *mockDB) CreateEventWithID(ctx context.Context, db db.DBTX, arg db.Creat
 	panic("unimplemented")
 }
 
+// GetLatestEventVersionForAggregate implements dbpgx.Querier.
+func (m *mockDB) GetLatestEventVersionForAggregate(ctx context.Context, db db.DBTX, arg db.GetLatestEventVersionForAggregateParams) (int64, error) {
+	panic("unimplemented")
+}
+
 // CreateRoleScopeWithID implements dbpgx.Querier.
 func (m *mockDB) CreateRoleScopeWithID(ctx context.Context, db db.DBTX, arg db.CreateRoleScopeWithIDParams) (db.RolesToScope, error) {
 	panic("unimplemented")

@@ -26,6 +26,7 @@ import (
 	"github.com/jessevdk/go-flags"
 	_ "github.com/lib/pq"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	otelruntime "go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
@@ -480,6 +481,11 @@ func setupTelemetry(ctx context.Context, opts *appOptions, instanceID string) (*
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	otel.SetTracerProvider(tp)
 	otel.SetMeterProvider(meterProvider)
+
+	// Collect Go runtime metrics (CPU, memory, GC, goroutines) via the global meter provider.
+	if err := otelruntime.Start(otelruntime.WithMeterProvider(meterProvider)); err != nil {
+		return nil, nil, nil, nil, nil, fmt.Errorf("runtime metrics: %w", err)
+	}
 
 	agentURL, err := url.Parse(opts.AgentURL)
 	if err != nil {
