@@ -571,8 +571,9 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_LISTENERS: PLAINTEXT://:9092,KRAFT://:9097,PLAINTEXT_HOST://:29092
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker1:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker1:9092,PLAINTEXT_HOST://broker1.internal.${EXPOSED_HOST}:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,KRAFT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: ${KAFKA_AUTO_CREATE_TOPICS_ENABLE}
       KAFKA_CONTROLLER_LISTENER_NAMES: KRAFT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
@@ -605,8 +606,9 @@ services:
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_LISTENERS: PLAINTEXT://:9092,KRAFT://:9098,PLAINTEXT_HOST://:29093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092,PLAINTEXT_HOST://localhost:29093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker2:9092,PLAINTEXT_HOST://broker2.internal.${EXPOSED_HOST}:29093
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,KRAFT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: ${KAFKA_AUTO_CREATE_TOPICS_ENABLE}
       KAFKA_CONTROLLER_LISTENER_NAMES: KRAFT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
@@ -643,8 +645,9 @@ services:
     environment:
       KAFKA_BROKER_ID: 3
       KAFKA_LISTENERS: PLAINTEXT://:9092,KRAFT://:9099,PLAINTEXT_HOST://:29094
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092,PLAINTEXT_HOST://localhost:29094
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker3:9092,PLAINTEXT_HOST://broker3.internal.${EXPOSED_HOST}:29094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,KRAFT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: ${KAFKA_AUTO_CREATE_TOPICS_ENABLE}
       KAFKA_CONTROLLER_LISTENER_NAMES: KRAFT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
@@ -765,40 +768,41 @@ services:
     cpus: 0.5
     mem_limit: 512m
 
-  debezium:
-    container_name: debezium
-    image: quay.io/debezium/connect:3.0
+  flink-jobmanager:
+    container_name: flink-jobmanager
+    image: flink:1.20.1-scala_2.12-java11
+    command: jobmanager
     ports:
-      - "8083:8083"
+      - "8081:8081"
     environment:
-      - BOOTSTRAP_SERVERS=broker1:9092,broker2:9092,broker3:9092
-      - GROUP_ID=1
-      - CONFIG_STORAGE_TOPIC=debezium_storage_config
-      - OFFSET_STORAGE_TOPIC=debezium_storage_offsets
-      - STATUS_STORAGE_TOPIC=debezium_storage_status
-    volumes:
-      - ./debezium/plugins:/kafka/connect/plugins:ro
-      - ./debezium/config:/kafka/connect/config:ro
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        rest.address: flink-jobmanager
+        rest.bind-address: 0.0.0.0
+        jobmanager.memory.process.size: 1600m
+        restart-strategy.type: fixed-delay
+        restart-strategy.fixed-delay.attempts: 2147483647
+        restart-strategy.fixed-delay.delay: 10 s
     depends_on:
-      - database
       - broker1
       - broker2
       - broker3
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8083/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/overview"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 30s
     deploy:
       resources:
         limits:
-          cpus: "2"
-          memory: 4G
+          cpus: "1"
+          memory: 2G
         reservations:
           cpus: "0.5"
-          memory: 512M
+          memory: 1G
     logging:
       driver: loki
       options:
@@ -812,27 +816,81 @@ services:
         max-size: "10m"
         max-file: "3"
 
-        # debezium-ui:
-        #   image: debezium/debezium-ui:latest
-        #   container_name: debezium-ui
-        #   ports:
-        #     - "8084:8080"
-        #   environment:
-        #     - KAFKA_CONNECT_URIS=http://debezium:8083
-        #   depends_on:
-        #     - debezium
-        #   restart: always
-        #   healthcheck:
-        #     test: [ "CMD", "curl", "-f", "http://localhost:8080" ]
-        #     interval: 5s
-        #     timeout: 5s
-        #     retries: 5
-        #   cpus: 1
-        #   mem_limit: 1024m
-        #   logging:
-        #     driver: loki
-        #     options:
-        #       loki-url: "http://localhost:3100/loki/api/v1/push"
+  flink-taskmanager:
+    container_name: flink-taskmanager
+    image: flink:1.20.1-scala_2.12-java11
+    command: taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        taskmanager.memory.process.size: 2048m
+    depends_on:
+      - flink-jobmanager
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
+        labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
+
+  flink-cdc-job:
+    container_name: flink-cdc-job
+    build:
+      context: ./flink
+      dockerfile: Dockerfile
+    environment:
+      - JOBMANAGER_HOST=flink-jobmanager
+      - JOBMANAGER_REST_PORT=8081
+    depends_on:
+      database:
+        condition: service_healthy
+      flink-jobmanager:
+        condition: service_started
+      broker1:
+        condition: service_started
+      broker2:
+        condition: service_started
+      broker3:
+        condition: service_started
+    restart: on-failure
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-batch-size: "5000"
+        loki-retries: "3"
+        loki-max-backoff: "1000ms"
+        loki-timeout: "1000ms"
+        loki-batch-wait: "5s"
+        labels: "service_name"
+        max-size: "10m"
+        max-file: "3"
+
   unleash:
     init: true
     container_name: unleash

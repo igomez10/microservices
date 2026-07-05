@@ -1,0 +1,37 @@
+# Apache Flink CDC pipeline: PostgreSQL -> Kafka
+#
+# Streams change data from the socialapp Postgres database into Kafka. Schemas
+# are inferred automatically by the pipeline framework (no per-table column
+# definitions required). By default the Kafka sink writes one topic per table,
+# named `<namespace>.<schema>.<table>` (e.g. socialapp.public.users), encoded as
+# debezium-json — matching the topic layout the previous Debezium connector used.
+#
+# Requires the source database to run with wal_level=logical (already configured
+# on the `database` service in docker-compose.yml).
+
+source:
+  type: postgres
+  name: socialapp-events-postgres-source
+  hostname: database
+  port: 5432
+  username: postgres
+  password: password
+  # namespace(database).schema.table selectors. Captures the same tables the
+  # previous Debezium connector did (notably excludes the sensitive
+  # `credentials` table). These tables must have REPLICA IDENTITY FULL so that
+  # UPDATE/DELETE before-images are complete (see db/setup/schema.sql).
+  tables: socialapp.public.events
+  # Logical replication slot Flink CDC creates/uses on Postgres.
+  slot.name: flink_cdc_socialapp
+  decoding.plugin.name: pgoutput
+
+sink:
+  type: kafka
+  name: socialapp-kafka-sink
+  properties.bootstrap.servers: broker1:9092,broker2:9092,broker3:9092
+  # Debezium-compatible JSON envelope (before/after/op/source).
+  value.format: debezium-json
+
+pipeline:
+  name: socialapp-postgres-to-kafka
+  parallelism: 1
