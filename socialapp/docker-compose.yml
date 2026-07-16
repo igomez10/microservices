@@ -1065,10 +1065,12 @@ services:
       - "traefik.http.routers.loki-http.entrypoints=webinternal"
       - "traefik.http.routers.loki-http.middlewares=https-redirect"
       - "traefik.http.services.loki.loadbalancer.server.port=3100"
+    env_file:
+      - .env
     volumes:
       - ./loki/loki-config.yaml:/etc/loki/local-config.yaml
       - loki_data:/loki
-    command: -config.file=/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml -config.expand-env=true
     cpus: 2
     mem_limit: 4096M
     deploy:
