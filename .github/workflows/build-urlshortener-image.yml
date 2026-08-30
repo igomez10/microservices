@@ -1,0 +1,58 @@
+# Builds the urlshortener container image and pushes it to GHCR, so the
+# Kubernetes deployment in microservices-infrastructure has something to pull.
+# Mirrors build-socialapp-image.yml; same reasoning applies — deploy-urlshortener.yml
+# builds on the target host and publishes no artifact.
+name: URLShortener Image
+
+on:
+  push:
+    branches:
+      - mainline
+    paths:
+      - "urlshortener/**"
+      - ".github/workflows/build-urlshortener-image.yml"
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/urlshortener
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: urlshortener
+          file: urlshortener/Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:mainline
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Report digest
+        run: |
+          echo "Pushed ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          echo "Pin that tag in microservices-infrastructure:"
+          echo "  homelab/apps/urlshortener/manifests/app.yaml"
