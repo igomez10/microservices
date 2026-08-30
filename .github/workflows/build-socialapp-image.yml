@@ -58,6 +58,22 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build and push migrate image
+        uses: docker/build-push-action@v6
+        with:
+          # App directory as context: the migrate image needs db/setup/schema.sql
+          # as well as setup/, so it cannot use setup/ as context the way the
+          # compose `setup` service does.
+          context: socialapp
+          file: socialapp/setup/Migrate.Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/socialapp-migrate:mainline
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/socialapp-migrate:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Report digest
         run: |
           echo "Pushed ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
