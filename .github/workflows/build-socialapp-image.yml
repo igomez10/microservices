@@ -1,0 +1,65 @@
+# Builds the socialapp container image and pushes it to GitHub Container
+# Registry, so that something outside this repo — the Kubernetes deployment in
+# microservices-infrastructure — has an image to pull.
+#
+# deploy-socialapp.yml does not do this: it runs tests and then POSTs to
+# deployer.gomezignacio.com, which builds from source on the target host. That
+# works for the compose stack and leaves no published artifact behind.
+name: Socialapp Image
+
+on:
+  push:
+    branches:
+      - mainline
+    paths:
+      - "socialapp/**"
+      - ".github/workflows/build-socialapp-image.yml"
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/socialapp
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required for pushing to GHCR with the built-in GITHUB_TOKEN.
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: socialapp
+          file: socialapp/Dockerfile
+          push: true
+          # linux/amd64 is what k8s-01 runs. arm64 is built too so the same
+          # image still works on an Apple Silicon laptop and on the arm64 OCI
+          # instances.
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:mainline
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Report digest
+        run: |
+          echo "Pushed ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          echo "Pin that tag (or its digest) in microservices-infrastructure:"
+          echo "  homelab/apps/socialapp/manifests/app.yaml"
