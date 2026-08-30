@@ -74,6 +74,19 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Build and push integration tests image
+        uses: docker/build-push-action@v6
+        with:
+          context: socialapp
+          file: socialapp/Integration.Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/socialapp-tests:mainline
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/socialapp-tests:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Report digest
         run: |
           echo "Pushed ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"

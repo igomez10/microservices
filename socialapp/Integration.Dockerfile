@@ -1,16 +1,20 @@
-FROM golang AS builder
+FROM --platform=$BUILDPLATFORM golang AS builder
 WORKDIR /app
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
-RUN go mod tidy
 COPY . .
-RUN CGO_ENABLED=0 go build -o app ./integration_tests
-
+# TARGETARCH comes from the requested platform, so this builds for amd64 and
+# arm64 alike. The Makefile target pins --platform=linux/arm64, which produces
+# a binary that cannot exec on the amd64 cluster.
+ARG TARGETARCH
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o /tests ./integration_tests
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-COPY --from=builder /app/app ./app
-CMD ["./app"]
-
+# The binary was in /root/, which alpine ships as 0750 root:root — unreadable
+# to any other user, so the image could only run as root. Kubernetes runs it
+# with runAsNonRoot, so it lives at / instead.
+COPY --from=builder /tests /tests
+WORKDIR /
+CMD ["/tests"]
