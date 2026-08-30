@@ -23,6 +23,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      digest_app: ${{ steps.build_app.outputs.digest }}
+      digest_migrate: ${{ steps.build_migrate.outputs.digest }}
+      digest_frontend: ${{ steps.build_frontend.outputs.digest }}
     permissions:
       contents: read
       # Required for pushing to GHCR with the built-in GITHUB_TOKEN.
@@ -43,6 +47,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
+        id: build_app
         uses: docker/build-push-action@v6
         with:
           context: socialapp
@@ -59,6 +64,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and push migrate image
+        id: build_migrate
         uses: docker/build-push-action@v6
         with:
           # App directory as context: the migrate image needs db/setup/schema.sql
@@ -88,6 +94,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and push frontend image
+        id: build_frontend
         uses: docker/build-push-action@v6
         with:
           context: socialapp/frontend
@@ -105,3 +112,66 @@ jobs:
           echo "Pushed ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
           echo "Pin that tag (or its digest) in microservices-infrastructure:"
           echo "  homelab/apps/socialapp/manifests/app.yaml"
+
+  # ── Promotion ───────────────────────────────────────────────────────────────
+  # Writes the digests this build produced into the deployment manifests, so
+  # the version running in the cluster is recorded in Git. Without this step
+  # the manifests would have to track a moving tag, which means no deploy
+  # history, no diff to review, and no rollback other than rebuilding.
+  #
+  # Digests, not :<sha> tags: a digest cannot be repointed, so what Git says is
+  # deployed is exactly what runs.
+  #
+  # Requires INFRA_REPO_TOKEN — a token with contents:write on
+  # igomez10/microservices-infrastructure. The default GITHUB_TOKEN is scoped
+  # to this repository and cannot push to another one.
+  promote:
+    needs: build
+    runs-on: ubuntu-latest
+    # Serialised: two image workflows finishing together would otherwise race
+    # on the same branch and one push would be rejected.
+    concurrency:
+      group: infra-manifest-write
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout infrastructure repo
+        uses: actions/checkout@v4
+        with:
+          repository: igomez10/microservices-infrastructure
+          token: ${{ secrets.INFRA_REPO_TOKEN }}
+          ref: main
+
+      - name: Pin new digests
+        env:
+          DIGEST_APP: ${{ needs.build.outputs.digest_app }}
+          DIGEST_MIGRATE: ${{ needs.build.outputs.digest_migrate }}
+          DIGEST_FRONTEND: ${{ needs.build.outputs.digest_frontend }}
+        run: |
+          set -euo pipefail
+          if grep -q "ghcr.io/igomez10/socialapp@" homelab/apps/socialapp/manifests/app.yaml; then
+            sed -i -E "s|ghcr.io/igomez10/socialapp@sha256:[a-f0-9]+|ghcr.io/igomez10/socialapp@${DIGEST_APP}|g" homelab/apps/socialapp/manifests/app.yaml
+          fi
+          if grep -q "ghcr.io/igomez10/socialapp-migrate@" homelab/apps/socialapp/manifests/migrate.yaml; then
+            sed -i -E "s|ghcr.io/igomez10/socialapp-migrate@sha256:[a-f0-9]+|ghcr.io/igomez10/socialapp-migrate@${DIGEST_MIGRATE}|g" homelab/apps/socialapp/manifests/migrate.yaml
+          fi
+          if grep -q "ghcr.io/igomez10/socialapp-frontend@" homelab/apps/socialapp/manifests/frontend.yaml; then
+            sed -i -E "s|ghcr.io/igomez10/socialapp-frontend@sha256:[a-f0-9]+|ghcr.io/igomez10/socialapp-frontend@${DIGEST_FRONTEND}|g" homelab/apps/socialapp/manifests/frontend.yaml
+          fi
+
+          # Compare the working tree, not whether the files matched: a rebuild
+          # that produces identical digests changes nothing, and committing
+          # nothing is an error.
+          if git diff --quiet; then
+            echo "manifests already reference these digests; nothing to do"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "deploy(socialapp): ${GITHUB_SHA:0:12}" \
+                     -m "Built from ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
+          # Rebase rather than force: another app's promotion may have landed
+          # while this one was building.
+          git pull --rebase origin main
+          git push origin main
