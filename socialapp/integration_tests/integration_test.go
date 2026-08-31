@@ -19,7 +19,6 @@ func TestMain(m *testing.M) {
 		time.Sleep(time.Duration(jitterInSeconds))
 	}
 
-	Setup()
 	code := m.Run()
 	os.Exit(code)
 }
