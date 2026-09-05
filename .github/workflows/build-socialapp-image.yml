@@ -80,6 +80,22 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # The CLI as an image, consumed by the socialapp-bootstrap Job in
+      # microservices-infrastructure. Repo-root-relative context like the
+      # others; the Dockerfile builds ./cmd/cli rather than the server.
+      - name: Build and push CLI image
+        uses: docker/build-push-action@v6
+        with:
+          context: socialapp
+          file: socialapp/Cli.Dockerfile
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/socialapp-cli:mainline
+            ${{ env.REGISTRY }}/${{ github.repository_owner }}/socialapp-cli:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Build and push integration tests image
         uses: docker/build-push-action@v6
         with:

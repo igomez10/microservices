@@ -23,6 +23,9 @@
 		},
 		{
 			"path": "../microservices-docker-elk"
+		},
+		{
+			"path": "../homepage"
 		}
 	],
 	"settings": {
