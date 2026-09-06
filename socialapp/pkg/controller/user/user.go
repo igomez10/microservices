@@ -872,7 +872,13 @@ func (s *UserApiService) ChangePassword(ctx context.Context, req openapi.ChangeP
 
 func (s *UserApiService) ResetPassword(_ context.Context, _ openapi.ResetPasswordRequest) (openapi.ImplResponse, error) {
 	// log := contexthelper.GetLoggerInContext(ctx)
-	panic("not implemented") // TODO: Implement
+    // The reset password endpoint is currently a placeholder.
+    // Returning 501 Not Implemented allows the service to start
+    // without panicking while clearly indicating the missing
+    // functionality.  A real implementation would look up the
+    // user by email, generate a temporary token, and send an
+    // email with a reset link.
+    return openapi.Response(http.StatusNotImplemented, "Reset password not implemented"), nil
 }
 
 func (s *UserApiService) GetRolesForUser(ctx context.Context, username string) (openapi.ImplResponse, error) {
