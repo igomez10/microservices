@@ -53,7 +53,7 @@ func GetCmd() *cli.Command {
 			}
 
 			scopeIDStr := cmd.Args().Get(0)
-			if _, err := strconv.ParseInt(scopeIDStr, 10, 32); err != nil {
+			if _, err := strconv.ParseInt(scopeIDStr, 10, 64); err != nil {
 				return fmt.Errorf("invalid scope ID: %v", err)
 			}
 

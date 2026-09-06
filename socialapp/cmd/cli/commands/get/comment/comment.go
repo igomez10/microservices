@@ -50,7 +50,7 @@ func GetCmd() *cli.Command {
 				return fmt.Errorf("comment id argument is required")
 			}
 			commentIDStr := c.Args().Get(0)
-			if _, err := strconv.ParseInt(commentIDStr, 10, 32); err != nil {
+			if _, err := strconv.ParseInt(commentIDStr, 10, 64); err != nil {
 				return fmt.Errorf("invalid comment id: %v", err)
 			}
 

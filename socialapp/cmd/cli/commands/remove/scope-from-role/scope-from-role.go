@@ -43,13 +43,13 @@ func GetCmd() *cli.Command {
 			}
 
 			roleIDStr := cmd.Args().Get(0)
-			roleID, err := strconv.ParseInt(roleIDStr, 10, 32)
+			roleID, err := strconv.ParseInt(roleIDStr, 10, 64)
 			if err != nil {
 				return fmt.Errorf("invalid role ID: %v", err)
 			}
 
 			scopeIDStr := cmd.Args().Get(1)
-			scopeID, err := strconv.ParseInt(scopeIDStr, 10, 32)
+			scopeID, err := strconv.ParseInt(scopeIDStr, 10, 64)
 			if err != nil {
 				return fmt.Errorf("invalid scope ID: %v", err)
 			}

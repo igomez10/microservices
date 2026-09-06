@@ -43,7 +43,7 @@ func GetCmd() *cli.Command {
 			}
 
 			roleIDStr := cmd.Args().Get(0)
-			if _, err := strconv.ParseInt(roleIDStr, 10, 32); err != nil {
+			if _, err := strconv.ParseInt(roleIDStr, 10, 64); err != nil {
 				return fmt.Errorf("invalid role ID: %v", err)
 			}
 
