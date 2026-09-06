@@ -64,7 +64,7 @@ func GetCmd() *cli.Command {
 				return err
 			}
 
-			httpClient, err := auth.GetHTTPClient(ctx, envName, username, password, []string{scopes.SocialappRolesUpdate.String()})
+			httpClient, err := auth.GetHTTPClient(ctx, envName, username, password, []string{scopes.SocialappRolesScopesCreate.String()})
 			if err != nil {
 				return fmt.Errorf("failed to get authenticated client: %w", err)
 			}

@@ -11,6 +11,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/client"
 	"github.com/igomez10/microservices/socialapp/cmd/cli/cliflags"
 	"github.com/igomez10/microservices/socialapp/cmd/cli/pkg/auth"
+	"github.com/igomez10/microservices/socialapp/pkg/scopes"
 	"github.com/urfave/cli/v3"
 )
 
@@ -72,7 +73,7 @@ func GetCmd() *cli.Command {
 			limit := int32(cmd.Int("limit"))
 			offset := int32(cmd.Int("offset"))
 
-			httpClient, err := auth.GetHTTPClient(ctx, envName, username, password, []string{"socialapp.roles.read"})
+			httpClient, err := auth.GetHTTPClient(ctx, envName, username, password, []string{scopes.SocialappRolesScopesList.String()})
 			if err != nil {
 				return fmt.Errorf("failed to get authenticated client: %w", err)
 			}
