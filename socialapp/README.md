@@ -1,5 +1,29 @@
 # Documentation for Socialapp
 
+## Quick Start
+
+The following steps will get the service running locally with Docker Compose.
+
+```bash
+# Clone the repo and change into the project directory
+git clone https://github.com/igomez10/microservices.git
+cd microservices/socialapp
+
+# Build and start all containers
+make start
+
+# The API will be available at http://localhost:8080/v1/
+# You can use the CLI to interact with it:
+./cmd/cli/main --help
+```
+
+If you prefer to run the Go service directly (without Docker), use the
+development command which watches for file changes and restarts automatically:
+
+```bash
+make start-dev-server
+```
+
 <a name="documentation-for-api-endpoints"></a>
 ## Documentation for API Endpoints
 

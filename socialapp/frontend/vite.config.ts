@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
       proxy: {
         '/api': {
           target: apiTarget,
+          // Local Traefik HTTPS uses a self-signed cert in dev.
+          // Allow proxying to that endpoint directly to avoid auth-breaking redirects.
+          secure: false,
           changeOrigin: true,
           rewrite: (pathValue) => pathValue.replace(/^\/api/, '')
         }
