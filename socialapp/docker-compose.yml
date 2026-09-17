@@ -27,153 +27,6 @@ volumes:
   tempo_data: {}
 
 services:
-  socialapp:
-    init: true
-    deploy:
-      replicas: 3
-      resources:
-        limits:
-          cpus: "0.5"
-          memory: 512M
-        reservations:
-          cpus: "0.25"
-          memory: 256M
-    build:
-      context: .
-      dockerfile: Dockerfile
-    networks:
-      - elk
-      - default
-    command:
-      - "/main"
-      - "--port=8086"
-      - "--propertiesSubdomain=${PROPERTIES_SUBDOMAIN}"
-      - "--agentURL=http://otel-collector:4317"
-      - "--urlShortenerSubdomain=${URL_SHORTENER}"
-      - "--urlShortenerURL=http://urlshortener:8089"
-      - "--socialappSubdomain=${SOCIALAPP_SUBDOMAIN}"
-      - "--kibanaSubdomain=${KIBANA_SUBDOMAIN}"
-      - "--kibanaURL=http://kibana:5601"
-      - "--puttyknifeDomain=puttyknife-server.${EXPOSED_HOST}"
-      - "--puttyknife-url=http://puttyknife-server:8096"
-      - "--jwtSecret=${JWT_SECRET}"
-    volumes:
-      - ./openapi.yaml:/openapi.yaml:ro
-    env_file:
-      - .env
-    environment:
-      DATABASE_URL: postgres://postgres:password@database:5432/socialapp?sslmode=disable
-      REDIS_URL: redis://redis:6379
-      LOCAL_SUBDOMAIN: socialapp.${EXPOSED_HOST}
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
-      OTEL_SERVICE_NAME: socialapp
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      # Middleware for HTTPS redirect
-      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
-      # Middleware for frontend API path rewriting
-      - "traefik.http.middlewares.frontend-api-strip.stripprefix.prefixes=/api"
-      # HTTPS router
-      - "traefik.http.routers.socialapp1.service=socialapp"
-      - "traefik.http.routers.socialapp1.entrypoints=websecure"
-      - "traefik.http.routers.socialapp1.rule=Host(`socialapp.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.socialapp1.tls=true"
-      - "traefik.http.routers.socialapp1.tls.certresolver=letsencrypt"
-      # HTTP router with redirect
-      - "traefik.http.routers.socialapp1-http.entrypoints=web"
-      - "traefik.http.routers.socialapp1-http.rule=Host(`socialapp.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.socialapp1-http.middlewares=https-redirect"
-      # Frontend API route on frontend host
-      - "traefik.http.routers.frontend-api.service=socialapp"
-      - "traefik.http.routers.frontend-api.entrypoints=websecure"
-      - "traefik.http.routers.frontend-api.rule=Host(`frontend.${EXPOSED_HOST}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.frontend-api.priority=100"
-      - "traefik.http.routers.frontend-api.middlewares=frontend-api-strip"
-      - "traefik.http.routers.frontend-api.tls=true"
-      - "traefik.http.routers.frontend-api.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.frontend-api-http.entrypoints=web"
-      - "traefik.http.routers.frontend-api-http.rule=Host(`frontend.${EXPOSED_HOST}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.frontend-api-http.middlewares=https-redirect"
-      # Service
-      - "traefik.http.services.socialapp.loadbalancer.server.port=8086"
-
-      # puttyknife-server (fixed typo)
-      # HTTPS router
-      - "traefik.http.routers.puttyknife-server.service=socialapp"
-      - "traefik.http.routers.puttyknife-server.entrypoints=websecure"
-      - "traefik.http.routers.puttyknife-server.rule=Host(`puttyknife-server.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.puttyknife-server.tls=true"
-      - "traefik.http.routers.puttyknife-server.tls.certresolver=letsencrypt"
-      # HTTP router with redirect
-      - "traefik.http.routers.puttyknife-server-http.entrypoints=web"
-      - "traefik.http.routers.puttyknife-server-http.rule=Host(`puttyknife-server.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.puttyknife-server-http.middlewares=https-redirect"
-
-    depends_on:
-      database:
-        condition: service_healthy
-      redis:
-        condition: service_started
-    healthcheck:
-      test:
-        [
-          "CMD-SHELL",
-          "wget --no-verbose --tries=1 -O /dev/null http://localhost:8086/health || exit 1",
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "5000"
-        loki-retries: "3"
-        loki-max-backoff: "1000ms"
-        loki-timeout: "1000ms"
-        loki-batch-wait: "5s"
-        labels: "service_name"
-        max-size: "10m"
-        max-file: "3"
-
-  frontend:
-    init: true
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    networks:
-      - default
-    labels:
-      - "traefik.enable=true"
-      # HTTPS router
-      - "traefik.http.routers.frontend.service=frontend"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.rule=Host(`frontend.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.frontend.priority=10"
-      - "traefik.http.routers.frontend.tls=true"
-      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
-      # HTTP router with redirect
-      - "traefik.http.routers.frontend-http.entrypoints=web"
-      - "traefik.http.routers.frontend-http.rule=Host(`frontend.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.frontend-http.middlewares=https-redirect"
-      # Service
-      - "traefik.http.services.frontend.loadbalancer.server.port=80"
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "5000"
-        loki-retries: "3"
-        loki-max-backoff: "1000ms"
-        loki-timeout: "1000ms"
-        loki-batch-wait: "5s"
-        labels: "service_name"
-        max-size: "10m"
-        max-file: "3"
 
   database:
     image: postgres:15-bookworm
@@ -727,15 +580,12 @@ services:
     environment:
       "ADD_TEST_JITTER": 1
       "OTEL_EXPORTER_OTLP_ENDPOINT": "http://otel-collector:4317"
-      "APP_HOST": "${TEST_PROTOCOL_SCHEME}://socialapp.${EXPOSED_HOST}"
+      "APP_HOST": "${TEST_PROTOCOL_SCHEME}://socialapp.${EXPOSED_HOST}/api"
     restart: "unless-stopped"
     cpus: 2
     mem_limit: 4096m
-    extra_hosts:
-      - "socialapp.${EXPOSED_HOST}:172.28.0.151"
     networks:
       - default
-      - dns
     logging:
       driver: loki
       options:
