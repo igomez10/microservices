@@ -13,6 +13,9 @@ on:
       - mainline
     paths:
       - "socialapp/**"
+      # The chart is deployment config, not image input: a chart-only change
+      # should not rebuild and re-pin every image.
+      - "!socialapp/helm/**"
       - ".github/workflows/build-socialapp-image.yml"
   workflow_dispatch:
 
@@ -126,11 +129,11 @@ jobs:
       - name: Report digest
         run: |
           echo "Pushed ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          echo "Pin that tag (or its digest) in microservices-infrastructure:"
-          echo "  homelab/apps/socialapp/manifests/app.yaml"
+          echo "The promote job pins its digest in microservices-infrastructure:"
+          echo "  homelab/apps/socialapp/helm/values.yaml"
 
   # ── Promotion ───────────────────────────────────────────────────────────────
-  # Writes the digests this build produced into the deployment manifests, so
+  # Writes the digests this build produced into the deployment values, so
   # the version running in the cluster is recorded in Git. Without this step
   # the manifests would have to track a moving tag, which means no deploy
   # history, no diff to review, and no rollback other than rebuilding.
@@ -165,21 +168,19 @@ jobs:
           DIGEST_FRONTEND: ${{ needs.build.outputs.digest_frontend }}
         run: |
           set -euo pipefail
-          if grep -q "ghcr.io/igomez10/socialapp@" homelab/apps/socialapp/manifests/app.yaml; then
-            sed -i -E "s|ghcr.io/igomez10/socialapp@sha256:[a-f0-9]+|ghcr.io/igomez10/socialapp@${DIGEST_APP}|g" homelab/apps/socialapp/manifests/app.yaml
-          fi
-          if grep -q "ghcr.io/igomez10/socialapp-migrate@" homelab/apps/socialapp/manifests/migrate.yaml; then
-            sed -i -E "s|ghcr.io/igomez10/socialapp-migrate@sha256:[a-f0-9]+|ghcr.io/igomez10/socialapp-migrate@${DIGEST_MIGRATE}|g" homelab/apps/socialapp/manifests/migrate.yaml
-          fi
-          if grep -q "ghcr.io/igomez10/socialapp-frontend@" homelab/apps/socialapp/manifests/frontend.yaml; then
-            sed -i -E "s|ghcr.io/igomez10/socialapp-frontend@sha256:[a-f0-9]+|ghcr.io/igomez10/socialapp-frontend@${DIGEST_FRONTEND}|g" homelab/apps/socialapp/manifests/frontend.yaml
-          fi
+          # All three images are pinned in the one values file for the socialapp
+          # Helm chart (socialapp/helm/socialapp in this repo). The patterns are
+          # distinct: `socialapp@` cannot match `socialapp-migrate@`.
+          VALUES=homelab/apps/socialapp/helm/values.yaml
+          sed -i -E "s|ghcr.io/igomez10/socialapp@sha256:[a-f0-9]+|ghcr.io/igomez10/socialapp@${DIGEST_APP}|g" "$VALUES"
+          sed -i -E "s|ghcr.io/igomez10/socialapp-migrate@sha256:[a-f0-9]+|ghcr.io/igomez10/socialapp-migrate@${DIGEST_MIGRATE}|g" "$VALUES"
+          sed -i -E "s|ghcr.io/igomez10/socialapp-frontend@sha256:[a-f0-9]+|ghcr.io/igomez10/socialapp-frontend@${DIGEST_FRONTEND}|g" "$VALUES"
 
           # Compare the working tree, not whether the files matched: a rebuild
           # that produces identical digests changes nothing, and committing
           # nothing is an error.
           if git diff --quiet; then
-            echo "manifests already reference these digests; nothing to do"
+            echo "values already reference these digests; nothing to do"
             exit 0
           fi
           git config user.name  "github-actions[bot]"

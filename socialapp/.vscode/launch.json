@@ -22,7 +22,10 @@
             "host": "127.0.0.1",
             "cwd": "${workspaceFolder:socialapp}",
             "substitutePath": [
-                { "from": "${workspaceFolder:socialapp}", "to": "${workspaceFolder:socialapp}" }
+                {
+                    "from": "${workspaceFolder:socialapp}",
+                    "to": "${workspaceFolder:socialapp}"
+                }
             ],
             "showLog": true,
             "trace": "log",
@@ -42,9 +45,9 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "integration_tests/main.go",
+            "program": "${workspaceFolder:socialapp}/integration_tests",
             "args": [],
-            "cwd": ".",
+            "cwd": "${workspaceFolder:socialapp}",
             "env": {
                 "APP_HOST": "http://localhost:8086",
             },

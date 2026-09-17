@@ -1,0 +1,63 @@
+# Defaults for the socialapp chart. Anything that describes a particular
+# cluster (domains, in-cluster service addresses, image digests) belongs in
+# that deployment's own values file, not here. The homelab one is
+# homelab/apps/socialapp/helm/values.yaml in igomez10/microservices-infrastructure.
+
+# Added to every object's metadata, never to selectors: selectors are
+# immutable on a Deployment, so a label change there would force a recreate.
+commonLabels:
+  app.kubernetes.io/part-of: socialapp
+
+api:
+  # A full image reference. Deployments should pin a digest
+  # (ghcr.io/igomez10/socialapp@sha256:...) so what Git says is what runs; CI
+  # rewrites that line on each build. The moving tag is only a default.
+  image: ghcr.io/igomez10/socialapp:mainline
+  replicas: 3
+  port: 8086
+
+  # Rendered into the `socialapp` ConfigMap and loaded with envFrom.
+  # cmd/main.go parses these through go-flags struct tags, and most are
+  # `required:"true"`, so the process exits at startup if any is empty.
+  config:
+    PORT: "8086"
+    LOG_LEVEL: info
+    OTEL_SERVICE_NAME: socialapp
+
+  # Name of a pre-existing Secret holding DATABASE_URL, REDIS_URL and
+  # JWT_SECRET. Not created by the chart: a connection string embeds a
+  # password, and it is composed out of band.
+  existingSecret: socialapp
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+migrate:
+  image: ghcr.io/igomez10/socialapp-migrate:mainline
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+frontend:
+  image: ghcr.io/igomez10/socialapp-frontend:mainline
+  replicas: 2
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+smokeTest:
+  enabled: true
+  image: curlimages/curl:8.11.1

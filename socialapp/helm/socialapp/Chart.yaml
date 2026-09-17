@@ -1,0 +1,10 @@
+apiVersion: v2
+name: socialapp
+description: >-
+  The stateless half of socialapp on Kubernetes: the API, its schema migration
+  Job, the web frontend, and a post-sync smoke test. The datastores it talks to
+  (PostgreSQL, Redis) are not in this chart; they are deployed separately by
+  igomez10/microservices-infrastructure.
+type: application
+version: 0.1.0
+appVersion: mainline

@@ -1,0 +1,82 @@
+{{- if .Values.smokeTest.enabled }}
+# Post-deploy smoke test: a few read-only assertions against this release, run
+# after every Argo CD sync. If they fail, the sync fails.
+#
+# Not the integration suite (Integration.Dockerfile): that creates users,
+# comments and follows and cleans none of it up, so pointed at a live
+# deployment it writes to the database the app serves from on every sync. Run
+# it deliberately, against an environment you are willing to have written to.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: socialapp-smoke-test
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "socialapp.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  # No retries: a rerun that passes would hide a real failure.
+  backoffLimit: 0
+  activeDeadlineSeconds: 180
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: socialapp-smoke-test
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: smoke
+          image: {{ .Values.smokeTest.image }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          command: [sh, -c]
+          args:
+            - |
+              set -eu
+
+              API={{ include "socialapp.apiURL" . }}
+              WEB=http://socialapp-frontend.{{ .Release.Namespace }}.svc.cluster.local
+
+              check() {
+                name="$1"; url="$2"; expect="$3"
+                code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$url")"
+                if [ "$code" = "$expect" ]; then
+                  echo "ok    $name ($code)"
+                else
+                  echo "FAIL  $name: expected $expect, got $code  [$url]" >&2
+                  return 1
+                fi
+              }
+
+              # The API answers, which means it started and its config parsed.
+              check "api /health" "$API/health" 200
+
+              # The frontend serves the SPA.
+              check "frontend /" "$WEB/" 200
+
+              # And the frontend's /api proxy reaches the API with the prefix
+              # stripped. This is the wiring most likely to break silently: the
+              # SPA loads fine while every API call 404s.
+              check "frontend /api/health" "$WEB/api/health" 200
+
+              echo "smoke tests passed"
+{{- end }}

@@ -1,0 +1,159 @@
+# The socialapp web frontend: the static Vite build served by nginx, from
+# socialapp/frontend/Dockerfile.
+#
+# The app calls its API at the same origin under /api, with the prefix stripped
+# before it reaches the backend (src/App.tsx falls back to '/api'). In compose
+# that rewrite is a Traefik stripprefix middleware. On Kubernetes there is no
+# Traefik in front, so nginx does it, hence this ConfigMap replacing the
+# image's own default.conf.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: socialapp-frontend-nginx
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "socialapp.labels" . | nindent 4 }}
+data:
+  default.conf: |
+    server {
+      # 8080, not the image's 80: a port below 1024 needs CAP_NET_BIND_SERVICE,
+      # and this runs as an unprivileged uid with all capabilities dropped.
+      listen 8080;
+      server_name _;
+
+      root /usr/share/nginx/html;
+      index index.html;
+
+      # SPA fallback — every unmatched path returns index.html so client-side
+      # routing works on a hard refresh.
+      location / {
+        try_files $uri $uri/ /index.html;
+      }
+
+      location /assets/ {
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+      }
+
+      # The trailing slash on proxy_pass is what strips /api: a request for
+      # /api/users is forwarded as /users. Without it the backend would see
+      # /api/users and 404. This is the nginx equivalent of compose's
+      # frontend-api-strip middleware.
+      location /api/ {
+        proxy_pass {{ include "socialapp.apiURL" . }}/;
+        proxy_http_version 1.1;
+        # The backend routes on Host (its subdomain options), so pass the
+        # client's host through rather than the upstream's.
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+      }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: socialapp-frontend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "socialapp.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: socialapp-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: socialapp-frontend
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "socialapp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.frontend.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: socialapp-frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: socialapp-frontend
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: socialapp-frontend
+      securityContext:
+        # 101 is the nginx user in the official image.
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        # Required, not decorative: without it the emptyDirs below are mounted
+        # root-owned 0755 and uid 101 cannot write to them.
+        fsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: nginx
+          image: {{ .Values.frontend.image }}
+          imagePullPolicy: IfNotPresent
+          # Explicit, so the image's docker-entrypoint.sh is bypassed — it
+          # rewrites files under /etc/nginx, which is mounted read-only here.
+          #
+          # No `pid` override: nginx.conf already sets `pid /run/nginx.pid;`
+          # and a second one from -g is a fatal "pid directive is duplicate".
+          # /run is an emptyDir below instead, so the default path is writable.
+          command: [nginx]
+          args: ["-g", "daemon off;"]
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 3
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+              readOnly: true
+            # readOnlyRootFilesystem means every path nginx writes has to be a
+            # volume. Both of these are root-owned 0755 in the image.
+            - name: run
+              mountPath: /run
+            - name: cache
+              mountPath: /var/cache/nginx
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: socialapp-frontend-nginx
+        - name: run
+          emptyDir: {}
+        - name: cache
+          emptyDir: {}

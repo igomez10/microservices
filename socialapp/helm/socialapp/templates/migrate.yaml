@@ -1,0 +1,53 @@
+# Schema migration, run as an Argo CD sync hook rather than as an init
+# container in every replica: a hook Job runs exactly once per sync, before the
+# rollout, so a schema change is one Job with one log.
+#
+# `Sync` with wave 1, not `PreSync`, so it orders before the API Deployment
+# (wave 2). The database itself is not in this chart; the image's pg_isready
+# loop waits for it.
+#
+# The guard against re-running is inside the image (a checksum recorded in
+# schema_bootstrap), so re-running this Job is safe and a no-op.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: socialapp-migrate
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "socialapp.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: socialapp-migrate
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: migrate
+          image: {{ .Values.migrate.image }}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.api.existingSecret }}
+                  key: DATABASE_URL
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
+          resources:
+            {{- toYaml .Values.migrate.resources | nindent 12 }}

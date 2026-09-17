@@ -1,0 +1,108 @@
+# The socialapp API, built from socialapp/Dockerfile.
+#
+# Object names are fixed rather than derived from the release name: the
+# frontend's nginx config and the smoke test address these Services by name,
+# and the live objects predate the chart.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: socialapp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "socialapp.labels" . | nindent 4 }}
+data:
+  {{- range $k, $v := .Values.api.config }}
+  {{ $k }}: {{ $v | toString | quote }}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: socialapp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "socialapp.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: socialapp
+  ports:
+    - name: http
+      port: {{ .Values.api.port }}
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: socialapp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "socialapp.labels" . | nindent 4 }}
+  annotations:
+    # After the migrate hook (wave 1), so new pods never start against an
+    # unmigrated schema.
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: {{ .Values.api.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: socialapp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: socialapp
+    spec:
+      affinity:
+        podAntiAffinity:
+          # Preferred, not required: on a single node a required rule would
+          # leave all but one replica Pending forever.
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: socialapp
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: socialapp
+          image: {{ .Values.api.image }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: {{ .Values.api.port }}
+          envFrom:
+            - configMapRef:
+                name: socialapp
+            # DATABASE_URL, REDIS_URL and JWT_SECRET, composed out of band.
+            - secretRef:
+                name: {{ .Values.api.existingSecret }}
+          # /health is registered unauthenticated
+          # (internal/routers/socialapprouter/socialapprouter.go), so it is
+          # reachable without a token.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
