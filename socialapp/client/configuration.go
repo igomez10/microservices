@@ -97,7 +97,7 @@ func NewConfiguration() *Configuration {
 		Debug:         false,
 		Servers: ServerConfigurations{
 			{
-				URL:         "https://socialapp.gomezignacio.com",
+				URL:         "https://socialapp.gomezignacio.com/api",
 				Description: "Production",
 			},
 			{

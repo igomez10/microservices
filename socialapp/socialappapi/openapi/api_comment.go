@@ -13,6 +13,7 @@ package openapi
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -56,37 +57,37 @@ func (c *CommentAPIController) Routes() Routes {
 		"GetUserFeed": Route{
 			"GetUserFeed",
 			strings.ToUpper("Get"),
-			"/v1/feed",
+			"/api/v1/feed",
 			c.GetUserFeed,
 		},
 		"GetComment": Route{
 			"GetComment",
 			strings.ToUpper("Get"),
-			"/v1/comments/{id}",
+			"/api/v1/comments/{id}",
 			c.GetComment,
 		},
 		"SearchComments": Route{
 			"SearchComments",
 			strings.ToUpper("Get"),
-			"/v1/comments",
+			"/api/v1/comments",
 			c.SearchComments,
 		},
 		"CreateComment": Route{
 			"CreateComment",
 			strings.ToUpper("Post"),
-			"/v1/comments",
+			"/api/v1/comments",
 			c.CreateComment,
 		},
 		"LikeComment": Route{
 			"LikeComment",
 			strings.ToUpper("Post"),
-			"/like",
+			"/api/like",
 			c.LikeComment,
 		},
 		"UnlikeComment": Route{
 			"UnlikeComment",
 			strings.ToUpper("Delete"),
-			"/like",
+			"/api/like",
 			c.UnlikeComment,
 		},
 	}
@@ -98,37 +99,37 @@ func (c *CommentAPIController) OrderedRoutes() []Route {
 		Route{
 			"GetUserFeed",
 			strings.ToUpper("Get"),
-			"/v1/feed",
+			"/api/v1/feed",
 			c.GetUserFeed,
 		},
 		Route{
 			"GetComment",
 			strings.ToUpper("Get"),
-			"/v1/comments/{id}",
+			"/api/v1/comments/{id}",
 			c.GetComment,
 		},
 		Route{
 			"SearchComments",
 			strings.ToUpper("Get"),
-			"/v1/comments",
+			"/api/v1/comments",
 			c.SearchComments,
 		},
 		Route{
 			"CreateComment",
 			strings.ToUpper("Post"),
-			"/v1/comments",
+			"/api/v1/comments",
 			c.CreateComment,
 		},
 		Route{
 			"LikeComment",
 			strings.ToUpper("Post"),
-			"/like",
+			"/api/like",
 			c.LikeComment,
 		},
 		Route{
 			"UnlikeComment",
 			strings.ToUpper("Delete"),
-			"/like",
+			"/api/like",
 			c.UnlikeComment,
 		},
 	}
@@ -215,6 +216,11 @@ func (c *CommentAPIController) CreateComment(w http.ResponseWriter, r *http.Requ
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&createCommentRequestParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
@@ -242,6 +248,11 @@ func (c *CommentAPIController) LikeComment(w http.ResponseWriter, r *http.Reques
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&likeRequestParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
@@ -269,6 +280,11 @@ func (c *CommentAPIController) UnlikeComment(w http.ResponseWriter, r *http.Requ
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&likeRequestParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}

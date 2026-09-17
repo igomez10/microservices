@@ -57,31 +57,31 @@ func (c *ScopeAPIController) Routes() Routes {
 		"ListScopes": Route{
 			"ListScopes",
 			strings.ToUpper("Get"),
-			"/v1/scopes",
+			"/api/v1/scopes",
 			c.ListScopes,
 		},
 		"CreateScope": Route{
 			"CreateScope",
 			strings.ToUpper("Post"),
-			"/v1/scopes",
+			"/api/v1/scopes",
 			c.CreateScope,
 		},
 		"GetScope": Route{
 			"GetScope",
 			strings.ToUpper("Get"),
-			"/v1/scopes/{id}",
+			"/api/v1/scopes/{id}",
 			c.GetScope,
 		},
 		"UpdateScope": Route{
 			"UpdateScope",
 			strings.ToUpper("Put"),
-			"/v1/scopes/{id}",
+			"/api/v1/scopes/{id}",
 			c.UpdateScope,
 		},
 		"DeleteScope": Route{
 			"DeleteScope",
 			strings.ToUpper("Delete"),
-			"/v1/scopes/{id}",
+			"/api/v1/scopes/{id}",
 			c.DeleteScope,
 		},
 	}
@@ -93,31 +93,31 @@ func (c *ScopeAPIController) OrderedRoutes() []Route {
 		Route{
 			"ListScopes",
 			strings.ToUpper("Get"),
-			"/v1/scopes",
+			"/api/v1/scopes",
 			c.ListScopes,
 		},
 		Route{
 			"CreateScope",
 			strings.ToUpper("Post"),
-			"/v1/scopes",
+			"/api/v1/scopes",
 			c.CreateScope,
 		},
 		Route{
 			"GetScope",
 			strings.ToUpper("Get"),
-			"/v1/scopes/{id}",
+			"/api/v1/scopes/{id}",
 			c.GetScope,
 		},
 		Route{
 			"UpdateScope",
 			strings.ToUpper("Put"),
-			"/v1/scopes/{id}",
+			"/api/v1/scopes/{id}",
 			c.UpdateScope,
 		},
 		Route{
 			"DeleteScope",
 			strings.ToUpper("Delete"),
-			"/v1/scopes/{id}",
+			"/api/v1/scopes/{id}",
 			c.DeleteScope,
 		},
 	}
@@ -178,6 +178,11 @@ func (c *ScopeAPIController) CreateScope(w http.ResponseWriter, r *http.Request)
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&scopeParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
@@ -227,6 +232,11 @@ func (c *ScopeAPIController) UpdateScope(w http.ResponseWriter, r *http.Request)
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&scopeParam); err != nil && !errors.Is(err, io.EOF) {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}

@@ -57,49 +57,49 @@ func (c *RoleAPIController) Routes() Routes {
 		"ListRoles": Route{
 			"ListRoles",
 			strings.ToUpper("Get"),
-			"/v1/roles",
+			"/api/v1/roles",
 			c.ListRoles,
 		},
 		"CreateRole": Route{
 			"CreateRole",
 			strings.ToUpper("Post"),
-			"/v1/roles",
+			"/api/v1/roles",
 			c.CreateRole,
 		},
 		"GetRole": Route{
 			"GetRole",
 			strings.ToUpper("Get"),
-			"/v1/roles/{id}",
+			"/api/v1/roles/{id}",
 			c.GetRole,
 		},
 		"UpdateRole": Route{
 			"UpdateRole",
 			strings.ToUpper("Put"),
-			"/v1/roles/{id}",
+			"/api/v1/roles/{id}",
 			c.UpdateRole,
 		},
 		"DeleteRole": Route{
 			"DeleteRole",
 			strings.ToUpper("Delete"),
-			"/v1/roles/{id}",
+			"/api/v1/roles/{id}",
 			c.DeleteRole,
 		},
 		"ListScopesForRole": Route{
 			"ListScopesForRole",
 			strings.ToUpper("Get"),
-			"/v1/roles/{id}/scopes",
+			"/api/v1/roles/{id}/scopes",
 			c.ListScopesForRole,
 		},
 		"AddScopeToRole": Route{
 			"AddScopeToRole",
 			strings.ToUpper("Post"),
-			"/v1/roles/{id}/scopes",
+			"/api/v1/roles/{id}/scopes",
 			c.AddScopeToRole,
 		},
 		"RemoveScopeFromRole": Route{
 			"RemoveScopeFromRole",
 			strings.ToUpper("Delete"),
-			"/v1/roles/{role_id}/scopes/{scope_id}",
+			"/api/v1/roles/{role_id}/scopes/{scope_id}",
 			c.RemoveScopeFromRole,
 		},
 	}
@@ -111,49 +111,49 @@ func (c *RoleAPIController) OrderedRoutes() []Route {
 		Route{
 			"ListRoles",
 			strings.ToUpper("Get"),
-			"/v1/roles",
+			"/api/v1/roles",
 			c.ListRoles,
 		},
 		Route{
 			"CreateRole",
 			strings.ToUpper("Post"),
-			"/v1/roles",
+			"/api/v1/roles",
 			c.CreateRole,
 		},
 		Route{
 			"GetRole",
 			strings.ToUpper("Get"),
-			"/v1/roles/{id}",
+			"/api/v1/roles/{id}",
 			c.GetRole,
 		},
 		Route{
 			"UpdateRole",
 			strings.ToUpper("Put"),
-			"/v1/roles/{id}",
+			"/api/v1/roles/{id}",
 			c.UpdateRole,
 		},
 		Route{
 			"DeleteRole",
 			strings.ToUpper("Delete"),
-			"/v1/roles/{id}",
+			"/api/v1/roles/{id}",
 			c.DeleteRole,
 		},
 		Route{
 			"ListScopesForRole",
 			strings.ToUpper("Get"),
-			"/v1/roles/{id}/scopes",
+			"/api/v1/roles/{id}/scopes",
 			c.ListScopesForRole,
 		},
 		Route{
 			"AddScopeToRole",
 			strings.ToUpper("Post"),
-			"/v1/roles/{id}/scopes",
+			"/api/v1/roles/{id}/scopes",
 			c.AddScopeToRole,
 		},
 		Route{
 			"RemoveScopeFromRole",
 			strings.ToUpper("Delete"),
-			"/v1/roles/{role_id}/scopes/{scope_id}",
+			"/api/v1/roles/{role_id}/scopes/{scope_id}",
 			c.RemoveScopeFromRole,
 		},
 	}
@@ -214,6 +214,11 @@ func (c *RoleAPIController) CreateRole(w http.ResponseWriter, r *http.Request) {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&roleParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
@@ -263,6 +268,11 @@ func (c *RoleAPIController) UpdateRole(w http.ResponseWriter, r *http.Request) {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&roleParam); err != nil && !errors.Is(err, io.EOF) {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
@@ -366,6 +376,11 @@ func (c *RoleAPIController) AddScopeToRole(w http.ResponseWriter, r *http.Reques
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&requestBodyParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}

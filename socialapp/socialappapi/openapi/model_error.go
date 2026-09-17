@@ -11,6 +11,11 @@
 
 package openapi
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 // Error - Standard error payload returned by the API.
 type Error struct {
 
@@ -21,18 +26,70 @@ type Error struct {
 	Message string `json:"message"`
 }
 
-// AssertErrorRequired checks if the required fields are not zero-ed
-func AssertErrorRequired(obj Error) error {
-	elements := map[string]interface{}{
-		"code":    obj.Code,
-		"message": obj.Message,
+// UnmarshalJSON validates required property keys then unmarshals into Error
+func (o *Error) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"code",
+		"message",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"code":    false,
+		"message": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"code":    {},
+		"message": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded Error
+
+	if value, exists := allProperties["code"]; exists {
+		if err = json.Unmarshal(value, &decoded.Code); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["message"]; exists {
+		if err = json.Unmarshal(value, &decoded.Message); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertErrorRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertErrorRequired(obj Error) error {
 	return nil
 }
 

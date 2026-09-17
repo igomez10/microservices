@@ -24,11 +24,11 @@ var _ MappedNullable = &Comment{}
 // Comment User-generated comment.
 type Comment struct {
 	// Unique comment identifier.
-	Id *string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
+	Id *string `json:"id,omitempty" validate:"regexp=^-?\\d+$"`
 	// Comment text.
 	Content string `json:"content"`
 	// Number of likes for the comment.
-	LikeCount *string `json:"like_count,omitempty" validate:"regexp=^-?\\\\d+$"`
+	LikeCount *string `json:"like_count,omitempty" validate:"regexp=^-?\\d+$"`
 	// Timestamp when the comment was created.
 	CreatedAt *time.Time `json:"created_at,omitempty"`
 	// Username of the comment author.

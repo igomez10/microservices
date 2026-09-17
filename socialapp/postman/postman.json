@@ -2244,7 +2244,7 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "https://socialapp.gomezignacio.com",
+			"value": "https://socialapp.gomezignacio.com/api",
 			"type": "string"
         }
 	]

@@ -24,7 +24,7 @@ var _ MappedNullable = &Scope{}
 // Scope OAuth scope used for access control.
 type Scope struct {
 	// Unique scope identifier.
-	Id *string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
+	Id *string `json:"id,omitempty" validate:"regexp=^-?\\d+$"`
 	// Scope name (for example, `socialapp.roles.read`).
 	Name string `json:"name"`
 	// Description of the permission granted by this scope.

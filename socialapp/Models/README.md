@@ -3,7 +3,7 @@
 <a name="documentation-for-api-endpoints"></a>
 ## Documentation for API Endpoints
 
-All URIs are relative to *https://socialapp.gomezignacio.com*
+All URIs are relative to *https://socialapp.gomezignacio.com/api*
 
 | Class | Method | HTTP request | Description |
 |------------ | ------------- | ------------- | -------------|

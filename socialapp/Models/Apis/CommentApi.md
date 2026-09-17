@@ -1,6 +1,6 @@
 # CommentApi
 
-All URIs are relative to *https://socialapp.gomezignacio.com*
+All URIs are relative to *https://socialapp.gomezignacio.com/api*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|

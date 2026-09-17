@@ -24,7 +24,7 @@ var _ MappedNullable = &Role{}
 // Role Role assigned to users for authorization.
 type Role struct {
 	// Unique role identifier.
-	Id *string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
+	Id *string `json:"id,omitempty" validate:"regexp=^-?\\d+$"`
 	// Unique role name.
 	Name string `json:"name"`
 	// Description of what the role grants.

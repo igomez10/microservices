@@ -54,7 +54,7 @@ func (c *FollowingAPIController) Routes() Routes {
 		"GetUserFollowers": Route{
 			"GetUserFollowers",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}/followers",
+			"/api/v1/users/{username}/followers",
 			c.GetUserFollowers,
 		},
 	}
@@ -66,7 +66,7 @@ func (c *FollowingAPIController) OrderedRoutes() []Route {
 		Route{
 			"GetUserFollowers",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}/followers",
+			"/api/v1/users/{username}/followers",
 			c.GetUserFollowers,
 		},
 	}

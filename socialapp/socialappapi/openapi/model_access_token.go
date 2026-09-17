@@ -11,6 +11,11 @@
 
 package openapi
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 // AccessToken - OAuth access token response.
 type AccessToken struct {
 
@@ -27,19 +32,84 @@ type AccessToken struct {
 	ExpiresIn int32 `json:"expires_in"`
 }
 
-// AssertAccessTokenRequired checks if the required fields are not zero-ed
-func AssertAccessTokenRequired(obj AccessToken) error {
-	elements := map[string]interface{}{
-		"access_token": obj.AccessToken,
-		"token_type":   obj.TokenType,
-		"expires_in":   obj.ExpiresIn,
+// UnmarshalJSON validates required property keys then unmarshals into AccessToken
+func (o *AccessToken) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"access_token",
+		"token_type",
+		"expires_in",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"access_token": false,
+		"token_type":   false,
+		"expires_in":   false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"access_token": {},
+		"token_type":   {},
+		"scopes":       {},
+		"expires_in":   {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded AccessToken
+
+	if value, exists := allProperties["access_token"]; exists {
+		if err = json.Unmarshal(value, &decoded.AccessToken); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["token_type"]; exists {
+		if err = json.Unmarshal(value, &decoded.TokenType); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["scopes"]; exists {
+		if err = json.Unmarshal(value, &decoded.Scopes); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["expires_in"]; exists {
+		if err = json.Unmarshal(value, &decoded.ExpiresIn); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertAccessTokenRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertAccessTokenRequired(obj AccessToken) error {
 	return nil
 }
 

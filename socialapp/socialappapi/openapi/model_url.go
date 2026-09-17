@@ -12,6 +12,8 @@
 package openapi
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -34,18 +36,88 @@ type Url struct {
 	DeletedAt time.Time `json:"deleted_at,omitempty"`
 }
 
-// AssertUrlRequired checks if the required fields are not zero-ed
-func AssertUrlRequired(obj Url) error {
-	elements := map[string]interface{}{
-		"url":   obj.Url,
-		"alias": obj.Alias,
+// UnmarshalJSON validates required property keys then unmarshals into Url
+func (o *Url) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"url",
+		"alias",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"url":   false,
+		"alias": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"url":        {},
+		"alias":      {},
+		"created_at": {},
+		"updated_at": {},
+		"deleted_at": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded Url
+
+	if value, exists := allProperties["url"]; exists {
+		if err = json.Unmarshal(value, &decoded.Url); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["alias"]; exists {
+		if err = json.Unmarshal(value, &decoded.Alias); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["created_at"]; exists {
+		if err = json.Unmarshal(value, &decoded.CreatedAt); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["updated_at"]; exists {
+		if err = json.Unmarshal(value, &decoded.UpdatedAt); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["deleted_at"]; exists {
+		if err = json.Unmarshal(value, &decoded.DeletedAt); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertUrlRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertUrlRequired(obj Url) error {
 	return nil
 }
 

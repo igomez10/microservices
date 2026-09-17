@@ -24,7 +24,7 @@ var _ MappedNullable = &CreateUserResponse{}
 // CreateUserResponse Response payload returned after user creation.
 type CreateUserResponse struct {
 	// Unique user identifier.
-	Id string `json:"id" validate:"regexp=^-?\\\\d+$"`
+	Id string `json:"id" validate:"regexp=^-?\\d+$"`
 	// Unique username for the account.
 	Username string `json:"username"`
 	// User first name.

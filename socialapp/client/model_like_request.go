@@ -23,7 +23,7 @@ var _ MappedNullable = &LikeRequest{}
 // LikeRequest Like or unlike a comment.
 type LikeRequest struct {
 	// Unique identifier of the comment.
-	CommentId string `json:"comment_id" validate:"regexp=^-?\\\\d+$"`
+	CommentId string `json:"comment_id" validate:"regexp=^-?\\d+$"`
 }
 
 type _LikeRequest LikeRequest

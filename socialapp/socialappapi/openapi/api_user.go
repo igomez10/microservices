@@ -57,91 +57,91 @@ func (c *UserAPIController) Routes() Routes {
 		"Welcome": Route{
 			"Welcome",
 			strings.ToUpper("Get"),
-			"/",
+			"/api/",
 			c.Welcome,
 		},
 		"ListUsers": Route{
 			"ListUsers",
 			strings.ToUpper("Get"),
-			"/v1/users",
+			"/api/v1/users",
 			c.ListUsers,
 		},
 		"CreateUser": Route{
 			"CreateUser",
 			strings.ToUpper("Post"),
-			"/v1/users",
+			"/api/v1/users",
 			c.CreateUser,
 		},
 		"ResetPassword": Route{
 			"ResetPassword",
 			strings.ToUpper("Put"),
-			"/v1/password",
+			"/api/v1/password",
 			c.ResetPassword,
 		},
 		"ChangePassword": Route{
 			"ChangePassword",
 			strings.ToUpper("Post"),
-			"/v1/password",
+			"/api/v1/password",
 			c.ChangePassword,
 		},
 		"GetUserComments": Route{
 			"GetUserComments",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}/comments",
+			"/api/v1/users/{username}/comments",
 			c.GetUserComments,
 		},
 		"GetUserFollowers": Route{
 			"GetUserFollowers",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}/followers",
+			"/api/v1/users/{username}/followers",
 			c.GetUserFollowers,
 		},
 		"GetFollowingUsers": Route{
 			"GetFollowingUsers",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}/following",
+			"/api/v1/users/{username}/following",
 			c.GetFollowingUsers,
 		},
 		"FollowUser": Route{
 			"FollowUser",
 			strings.ToUpper("Post"),
-			"/v1/users/{followedUsername}/followers/{followerUsername}",
+			"/api/v1/users/{followedUsername}/followers/{followerUsername}",
 			c.FollowUser,
 		},
 		"UnfollowUser": Route{
 			"UnfollowUser",
 			strings.ToUpper("Delete"),
-			"/v1/users/{followedUsername}/followers/{followerUsername}",
+			"/api/v1/users/{followedUsername}/followers/{followerUsername}",
 			c.UnfollowUser,
 		},
 		"GetUserByUsername": Route{
 			"GetUserByUsername",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}",
+			"/api/v1/users/{username}",
 			c.GetUserByUsername,
 		},
 		"UpdateUser": Route{
 			"UpdateUser",
 			strings.ToUpper("Put"),
-			"/v1/users/{username}",
+			"/api/v1/users/{username}",
 			c.UpdateUser,
 		},
 		"DeleteUser": Route{
 			"DeleteUser",
 			strings.ToUpper("Delete"),
-			"/v1/users/{username}",
+			"/api/v1/users/{username}",
 			c.DeleteUser,
 		},
 		"GetRolesForUser": Route{
 			"GetRolesForUser",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}/roles",
+			"/api/v1/users/{username}/roles",
 			c.GetRolesForUser,
 		},
 		"UpdateRolesForUser": Route{
 			"UpdateRolesForUser",
 			strings.ToUpper("Put"),
-			"/v1/users/{username}/roles",
+			"/api/v1/users/{username}/roles",
 			c.UpdateRolesForUser,
 		},
 	}
@@ -153,91 +153,91 @@ func (c *UserAPIController) OrderedRoutes() []Route {
 		Route{
 			"Welcome",
 			strings.ToUpper("Get"),
-			"/",
+			"/api/",
 			c.Welcome,
 		},
 		Route{
 			"ListUsers",
 			strings.ToUpper("Get"),
-			"/v1/users",
+			"/api/v1/users",
 			c.ListUsers,
 		},
 		Route{
 			"CreateUser",
 			strings.ToUpper("Post"),
-			"/v1/users",
+			"/api/v1/users",
 			c.CreateUser,
 		},
 		Route{
 			"ResetPassword",
 			strings.ToUpper("Put"),
-			"/v1/password",
+			"/api/v1/password",
 			c.ResetPassword,
 		},
 		Route{
 			"ChangePassword",
 			strings.ToUpper("Post"),
-			"/v1/password",
+			"/api/v1/password",
 			c.ChangePassword,
 		},
 		Route{
 			"GetUserComments",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}/comments",
+			"/api/v1/users/{username}/comments",
 			c.GetUserComments,
 		},
 		Route{
 			"GetUserFollowers",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}/followers",
+			"/api/v1/users/{username}/followers",
 			c.GetUserFollowers,
 		},
 		Route{
 			"GetFollowingUsers",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}/following",
+			"/api/v1/users/{username}/following",
 			c.GetFollowingUsers,
 		},
 		Route{
 			"FollowUser",
 			strings.ToUpper("Post"),
-			"/v1/users/{followedUsername}/followers/{followerUsername}",
+			"/api/v1/users/{followedUsername}/followers/{followerUsername}",
 			c.FollowUser,
 		},
 		Route{
 			"UnfollowUser",
 			strings.ToUpper("Delete"),
-			"/v1/users/{followedUsername}/followers/{followerUsername}",
+			"/api/v1/users/{followedUsername}/followers/{followerUsername}",
 			c.UnfollowUser,
 		},
 		Route{
 			"GetUserByUsername",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}",
+			"/api/v1/users/{username}",
 			c.GetUserByUsername,
 		},
 		Route{
 			"UpdateUser",
 			strings.ToUpper("Put"),
-			"/v1/users/{username}",
+			"/api/v1/users/{username}",
 			c.UpdateUser,
 		},
 		Route{
 			"DeleteUser",
 			strings.ToUpper("Delete"),
-			"/v1/users/{username}",
+			"/api/v1/users/{username}",
 			c.DeleteUser,
 		},
 		Route{
 			"GetRolesForUser",
 			strings.ToUpper("Get"),
-			"/v1/users/{username}/roles",
+			"/api/v1/users/{username}/roles",
 			c.GetRolesForUser,
 		},
 		Route{
 			"UpdateRolesForUser",
 			strings.ToUpper("Put"),
-			"/v1/users/{username}/roles",
+			"/api/v1/users/{username}/roles",
 			c.UpdateRolesForUser,
 		},
 	}
@@ -321,6 +321,11 @@ func (c *UserAPIController) CreateUser(w http.ResponseWriter, r *http.Request) {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&createUserRequestParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
@@ -348,6 +353,11 @@ func (c *UserAPIController) ResetPassword(w http.ResponseWriter, r *http.Request
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&resetPasswordRequestParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
@@ -375,6 +385,11 @@ func (c *UserAPIController) ChangePassword(w http.ResponseWriter, r *http.Reques
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&changePasswordRequestParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
@@ -556,6 +571,11 @@ func (c *UserAPIController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&userParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
@@ -622,6 +642,11 @@ func (c *UserAPIController) UpdateRolesForUser(w http.ResponseWriter, r *http.Re
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&requestBodyParam); err != nil && !errors.Is(err, io.EOF) {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}

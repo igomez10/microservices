@@ -11,6 +11,11 @@
 
 package openapi
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 // CreateCommentRequest - Request payload for creating a comment.
 type CreateCommentRequest struct {
 
@@ -21,18 +26,70 @@ type CreateCommentRequest struct {
 	Username string `json:"username"`
 }
 
-// AssertCreateCommentRequestRequired checks if the required fields are not zero-ed
-func AssertCreateCommentRequestRequired(obj CreateCommentRequest) error {
-	elements := map[string]interface{}{
-		"content":  obj.Content,
-		"username": obj.Username,
+// UnmarshalJSON validates required property keys then unmarshals into CreateCommentRequest
+func (o *CreateCommentRequest) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"content",
+		"username",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"content":  false,
+		"username": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"content":  {},
+		"username": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded CreateCommentRequest
+
+	if value, exists := allProperties["content"]; exists {
+		if err = json.Unmarshal(value, &decoded.Content); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["username"]; exists {
+		if err = json.Unmarshal(value, &decoded.Username); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertCreateCommentRequestRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertCreateCommentRequestRequired(obj CreateCommentRequest) error {
 	return nil
 }
 

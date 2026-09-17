@@ -11,6 +11,11 @@
 
 package openapi
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 // CreateUserRequest - Request payload for creating a user account.
 type CreateUserRequest struct {
 
@@ -30,21 +35,94 @@ type CreateUserRequest struct {
 	Email string `json:"email"`
 }
 
-// AssertCreateUserRequestRequired checks if the required fields are not zero-ed
-func AssertCreateUserRequestRequired(obj CreateUserRequest) error {
-	elements := map[string]interface{}{
-		"username":   obj.Username,
-		"password":   obj.Password,
-		"first_name": obj.FirstName,
-		"last_name":  obj.LastName,
-		"email":      obj.Email,
+// UnmarshalJSON validates required property keys then unmarshals into CreateUserRequest
+func (o *CreateUserRequest) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"username",
+		"password",
+		"first_name",
+		"last_name",
+		"email",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"username":   false,
+		"password":   false,
+		"first_name": false,
+		"last_name":  false,
+		"email":      false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"username":   {},
+		"password":   {},
+		"first_name": {},
+		"last_name":  {},
+		"email":      {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded CreateUserRequest
+
+	if value, exists := allProperties["username"]; exists {
+		if err = json.Unmarshal(value, &decoded.Username); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["password"]; exists {
+		if err = json.Unmarshal(value, &decoded.Password); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["first_name"]; exists {
+		if err = json.Unmarshal(value, &decoded.FirstName); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["last_name"]; exists {
+		if err = json.Unmarshal(value, &decoded.LastName); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["email"]; exists {
+		if err = json.Unmarshal(value, &decoded.Email); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertCreateUserRequestRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertCreateUserRequestRequired(obj CreateUserRequest) error {
 	return nil
 }
 

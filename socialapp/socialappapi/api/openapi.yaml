@@ -15,7 +15,7 @@ info:
   version: 1.0.0
 servers:
 - description: Production
-  url: https://socialapp.gomezignacio.com
+  url: https://socialapp.gomezignacio.com/api
 - description: Local development (API server)
   url: http://localhost:8080
 - description: Local development (alternate port)
@@ -126,6 +126,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/User"
                 type: array
+                default: null
           description: List of all the users
         "401":
           content:
@@ -284,6 +285,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Comment"
                 type: array
+                default: null
           description: User feed
         "401":
           content:
@@ -355,6 +357,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Comment"
                 type: array
+                default: null
           description: User comments
         "401":
           content:
@@ -403,6 +406,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/User"
                 type: array
+                default: null
           description: User followers
         "401":
           content:
@@ -452,6 +456,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/User"
                 type: array
+                default: null
           description: Followed users
         "401":
           content:
@@ -725,6 +730,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Role"
                 type: array
+                default: null
           description: Roles for a user
         "401":
           content:
@@ -769,6 +775,7 @@ paths:
               items:
                 type: string
               type: array
+              default: null
         description: Update all roles for a user
       responses:
         "200":
@@ -778,6 +785,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Role"
                 type: array
+                default: null
           description: Roles for a user
         "401":
           content:
@@ -890,6 +898,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Comment"
                 type: array
+                default: null
           description: The most recent matching comments
         "401":
           content:
@@ -1109,6 +1118,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Role"
                 type: array
+                default: null
           description: List of roles
         "401":
           content:
@@ -1349,6 +1359,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Scope"
                 type: array
+                default: null
           description: List of scopes
         "401":
           content:
@@ -1393,6 +1404,7 @@ paths:
               items:
                 type: string
               type: array
+              default: null
         description: Add a scope to a role
         required: true
       responses:
@@ -1529,6 +1541,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/Scope"
                 type: array
+                default: null
           description: List of scopes
         "401":
           content:
@@ -2032,6 +2045,7 @@ components:
           items:
             type: string
           type: array
+          default: null
         expires_in:
           description: Access token lifetime in seconds.
           type: integer

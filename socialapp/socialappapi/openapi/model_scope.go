@@ -12,6 +12,8 @@
 package openapi
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -19,7 +21,7 @@ import (
 type Scope struct {
 
 	// Unique scope identifier.
-	Id string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
+	Id string `json:"id,omitempty" validate:"regexp=^-?\\d+$"`
 
 	// Scope name (for example, `socialapp.roles.read`).
 	Name string `json:"name"`
@@ -31,18 +33,82 @@ type Scope struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
-// AssertScopeRequired checks if the required fields are not zero-ed
-func AssertScopeRequired(obj Scope) error {
-	elements := map[string]interface{}{
-		"name":        obj.Name,
-		"description": obj.Description,
+// UnmarshalJSON validates required property keys then unmarshals into Scope
+func (o *Scope) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"name",
+		"description",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"name":        false,
+		"description": false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"id":          {},
+		"name":        {},
+		"description": {},
+		"created_at":  {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded Scope
+
+	if value, exists := allProperties["id"]; exists {
+		if err = json.Unmarshal(value, &decoded.Id); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["name"]; exists {
+		if err = json.Unmarshal(value, &decoded.Name); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["description"]; exists {
+		if err = json.Unmarshal(value, &decoded.Description); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["created_at"]; exists {
+		if err = json.Unmarshal(value, &decoded.CreatedAt); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertScopeRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertScopeRequired(obj Scope) error {
 	return nil
 }
 

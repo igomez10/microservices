@@ -14,7 +14,7 @@ info:
     name: MIT
     url: https://opensource.org/licenses/MIT
 servers:
-  - url: https://socialapp.gomezignacio.com
+  - url: https://socialapp.gomezignacio.com/api
     description: Production
   - url: http://localhost:8080
     description: Local development (API server)

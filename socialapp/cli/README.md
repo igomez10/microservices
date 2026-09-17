@@ -99,7 +99,7 @@ In Zsh, the generated `_socialapp-cli` Zsh completion file must be copied to one
 
 ## Documentation for API Endpoints
 
-All URIs are relative to **
+All URIs are relative to */api*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------

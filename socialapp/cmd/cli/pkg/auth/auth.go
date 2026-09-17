@@ -25,12 +25,12 @@ type Environment struct {
 var Environments = map[string]Environment{
 	"live": {
 		Host:          "socialapp.gomezignacio.com",
-		TokenEndpoint: "https://socialapp.gomezignacio.com/v1/oauth/token",
+		TokenEndpoint: "https://socialapp.gomezignacio.com/api/v1/oauth/token",
 		Scheme:        "https",
 	},
 	"local": {
 		Host:          "localhost:8086",
-		TokenEndpoint: "http://localhost:8086/v1/oauth/token",
+		TokenEndpoint: "http://localhost:8086/api/v1/oauth/token",
 		Scheme:        "http",
 	},
 }

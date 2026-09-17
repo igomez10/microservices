@@ -52,7 +52,7 @@ func (c *AuthenticationAPIController) Routes() Routes {
 		"GetAccessToken": Route{
 			"GetAccessToken",
 			strings.ToUpper("Post"),
-			"/v1/oauth/token",
+			"/api/v1/oauth/token",
 			c.GetAccessToken,
 		},
 	}
@@ -64,7 +64,7 @@ func (c *AuthenticationAPIController) OrderedRoutes() []Route {
 		Route{
 			"GetAccessToken",
 			strings.ToUpper("Post"),
-			"/v1/oauth/token",
+			"/api/v1/oauth/token",
 			c.GetAccessToken,
 		},
 	}

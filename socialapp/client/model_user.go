@@ -24,7 +24,7 @@ var _ MappedNullable = &User{}
 // User User profile information.
 type User struct {
 	// Unique user identifier.
-	Id *string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
+	Id *string `json:"id,omitempty" validate:"regexp=^-?\\d+$"`
 	// Unique username for the account.
 	Username string `json:"username"`
 	// User first name.

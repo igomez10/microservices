@@ -8,7 +8,7 @@
 # ! openapi-generator (https://openapi-generator.tech)
 # ! FROM OPENAPI SPECIFICATION IN JSON.
 # !
-# ! Generator version: 7.22.0
+# ! Generator version: 7.25.0
 # !
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -1784,7 +1784,7 @@ call_getAccessToken() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/oauth/token" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/oauth/token" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -1820,7 +1820,7 @@ call_createComment() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/comments" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/comments" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -1898,7 +1898,7 @@ call_getComment() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/comments/{id}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/comments/{id}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -1934,7 +1934,7 @@ call_getUserFeed() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/feed" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/feed" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -1970,7 +1970,7 @@ call_likeComment() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/like" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/like" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2048,7 +2048,7 @@ call_searchComments() {
     local query_parameter_names=(username start_time end_time  )
     local path
 
-    if ! path=$(build_request_path "/v1/comments" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/comments" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2084,7 +2084,7 @@ call_unlikeComment() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/like" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/like" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2162,7 +2162,7 @@ call_getUserFollowers() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/users/{username}/followers" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users/{username}/followers" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2198,7 +2198,7 @@ call_addScopeToRole() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/roles/{id}/scopes" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/roles/{id}/scopes" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2276,7 +2276,7 @@ call_createRole() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/roles" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/roles" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2354,7 +2354,7 @@ call_deleteRole() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/roles/{id}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/roles/{id}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2390,7 +2390,7 @@ call_getRole() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/roles/{id}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/roles/{id}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2426,7 +2426,7 @@ call_listRoles() {
     local query_parameter_names=(limit offset  )
     local path
 
-    if ! path=$(build_request_path "/v1/roles" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/roles" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2462,7 +2462,7 @@ call_listScopesForRole() {
     local query_parameter_names=(limit offset  )
     local path
 
-    if ! path=$(build_request_path "/v1/roles/{id}/scopes" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/roles/{id}/scopes" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2498,7 +2498,7 @@ call_removeScopeFromRole() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/roles/{role_id}/scopes/{scope_id}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/roles/{role_id}/scopes/{scope_id}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2534,7 +2534,7 @@ call_updateRole() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/roles/{id}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/roles/{id}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2612,7 +2612,7 @@ call_createScope() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/scopes" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/scopes" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2690,7 +2690,7 @@ call_deleteScope() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/scopes/{id}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/scopes/{id}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2726,7 +2726,7 @@ call_getScope() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/scopes/{id}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/scopes/{id}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2762,7 +2762,7 @@ call_listScopes() {
     local query_parameter_names=(limit offset  )
     local path
 
-    if ! path=$(build_request_path "/v1/scopes" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/scopes" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2798,7 +2798,7 @@ call_updateScope() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/scopes/{id}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/scopes/{id}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2876,7 +2876,7 @@ call_createUrl() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/urls" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/urls" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2954,7 +2954,7 @@ call_deleteUrl() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/urls/{alias}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/urls/{alias}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -2990,7 +2990,7 @@ call_getUrl() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/urls/{alias}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/urls/{alias}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3026,7 +3026,7 @@ call_getUrlData() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/urls/{alias}/data" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/urls/{alias}/data" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3062,7 +3062,7 @@ call_changePassword() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/password" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/password" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3140,7 +3140,7 @@ call_createUser() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/users" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3218,7 +3218,7 @@ call_deleteUser() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/users/{username}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users/{username}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3254,7 +3254,7 @@ call_followUser() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/users/{followedUsername}/followers/{followerUsername}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users/{followedUsername}/followers/{followerUsername}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3290,7 +3290,7 @@ call_getFollowingUsers() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/users/{username}/following" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users/{username}/following" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3326,7 +3326,7 @@ call_getRolesForUser() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/users/{username}/roles" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users/{username}/roles" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3362,7 +3362,7 @@ call_getUserByUsername() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/users/{username}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users/{username}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3398,7 +3398,7 @@ call_getUserComments() {
     local query_parameter_names=(limit offset  )
     local path
 
-    if ! path=$(build_request_path "/v1/users/{username}/comments" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users/{username}/comments" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3434,7 +3434,7 @@ call_getUserFollowers() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/users/{username}/followers" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users/{username}/followers" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3470,7 +3470,7 @@ call_listUsers() {
     local query_parameter_names=(limit offset search  )
     local path
 
-    if ! path=$(build_request_path "/v1/users" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3506,7 +3506,7 @@ call_resetPassword() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/password" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/password" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3584,7 +3584,7 @@ call_unfollowUser() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/users/{followedUsername}/followers/{followerUsername}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users/{followedUsername}/followers/{followerUsername}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3620,7 +3620,7 @@ call_updateRolesForUser() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/users/{username}/roles" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users/{username}/roles" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3698,7 +3698,7 @@ call_updateUser() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/v1/users/{username}" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/v1/users/{username}" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi
@@ -3776,7 +3776,7 @@ call_welcome() {
     local query_parameter_names=(  )
     local path
 
-    if ! path=$(build_request_path "/" path_parameter_names query_parameter_names); then
+    if ! path=$(build_request_path "/api/" path_parameter_names query_parameter_names); then
         ERROR_MSG=$path
         exit 1
     fi

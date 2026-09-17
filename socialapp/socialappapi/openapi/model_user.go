@@ -12,6 +12,8 @@
 package openapi
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 )
 
@@ -19,7 +21,7 @@ import (
 type User struct {
 
 	// Unique user identifier.
-	Id string `json:"id,omitempty" validate:"regexp=^-?\\\\d+$"`
+	Id string `json:"id,omitempty" validate:"regexp=^-?\\d+$"`
 
 	// Unique username for the account.
 	Username string `json:"username"`
@@ -37,20 +39,98 @@ type User struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
-// AssertUserRequired checks if the required fields are not zero-ed
-func AssertUserRequired(obj User) error {
-	elements := map[string]interface{}{
-		"username":   obj.Username,
-		"first_name": obj.FirstName,
-		"last_name":  obj.LastName,
-		"email":      obj.Email,
+// UnmarshalJSON validates required property keys then unmarshals into User
+func (o *User) UnmarshalJSON(data []byte) (err error) {
+	// Presence is checked against required fields that exist on this struct,
+	// including fields promoted from embedded allOf parents.
+	requiredProperties := []string{
+		"username",
+		"first_name",
+		"last_name",
+		"email",
 	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
+
+	requiredNullableProperties := map[string]bool{
+		"username":   false,
+		"first_name": false,
+		"last_name":  false,
+		"email":      false,
+	}
+
+	allowedJsonKeys := map[string]struct{}{
+		"id":         {},
+		"username":   {},
+		"first_name": {},
+		"last_name":  {},
+		"email":      {},
+		"created_at": {},
+	}
+
+	allProperties := make(map[string]json.RawMessage)
+
+	err = json.Unmarshal(data, &allProperties)
+
+	if err != nil {
+		return err
+	}
+
+	for _, requiredProperty := range requiredProperties {
+		value, exists := allProperties[requiredProperty]
+		if !exists {
+			return &RequiredError{Field: requiredProperty}
+		}
+		if string(value) == "null" && !requiredNullableProperties[requiredProperty] {
+			return &RequiredError{Field: requiredProperty}
 		}
 	}
 
+	for key := range allProperties {
+		if _, exists := allowedJsonKeys[key]; !exists {
+			return fmt.Errorf("json: unknown field %q", key)
+		}
+	}
+
+	var decoded User
+
+	if value, exists := allProperties["id"]; exists {
+		if err = json.Unmarshal(value, &decoded.Id); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["username"]; exists {
+		if err = json.Unmarshal(value, &decoded.Username); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["first_name"]; exists {
+		if err = json.Unmarshal(value, &decoded.FirstName); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["last_name"]; exists {
+		if err = json.Unmarshal(value, &decoded.LastName); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["email"]; exists {
+		if err = json.Unmarshal(value, &decoded.Email); err != nil {
+			return err
+		}
+	}
+	if value, exists := allProperties["created_at"]; exists {
+		if err = json.Unmarshal(value, &decoded.CreatedAt); err != nil {
+			return err
+		}
+	}
+
+	*o = decoded
+
+	return nil
+}
+
+// AssertUserRequired checks complex required fields (models, arrays, maps) and embedded parents.
+// Primitive required fields are validated for JSON request bodies in UnmarshalJSON so zero values remain valid.
+func AssertUserRequired(obj User) error {
 	return nil
 }
 

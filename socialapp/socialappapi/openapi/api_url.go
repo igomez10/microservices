@@ -13,6 +13,7 @@ package openapi
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -55,25 +56,25 @@ func (c *URLAPIController) Routes() Routes {
 		"GetUrl": Route{
 			"GetUrl",
 			strings.ToUpper("Get"),
-			"/v1/urls/{alias}",
+			"/api/v1/urls/{alias}",
 			c.GetUrl,
 		},
 		"DeleteUrl": Route{
 			"DeleteUrl",
 			strings.ToUpper("Delete"),
-			"/v1/urls/{alias}",
+			"/api/v1/urls/{alias}",
 			c.DeleteUrl,
 		},
 		"GetUrlData": Route{
 			"GetUrlData",
 			strings.ToUpper("Get"),
-			"/v1/urls/{alias}/data",
+			"/api/v1/urls/{alias}/data",
 			c.GetUrlData,
 		},
 		"CreateUrl": Route{
 			"CreateUrl",
 			strings.ToUpper("Post"),
-			"/v1/urls",
+			"/api/v1/urls",
 			c.CreateUrl,
 		},
 	}
@@ -85,25 +86,25 @@ func (c *URLAPIController) OrderedRoutes() []Route {
 		Route{
 			"GetUrl",
 			strings.ToUpper("Get"),
-			"/v1/urls/{alias}",
+			"/api/v1/urls/{alias}",
 			c.GetUrl,
 		},
 		Route{
 			"DeleteUrl",
 			strings.ToUpper("Delete"),
-			"/v1/urls/{alias}",
+			"/api/v1/urls/{alias}",
 			c.DeleteUrl,
 		},
 		Route{
 			"GetUrlData",
 			strings.ToUpper("Get"),
-			"/v1/urls/{alias}/data",
+			"/api/v1/urls/{alias}/data",
 			c.GetUrlData,
 		},
 		Route{
 			"CreateUrl",
 			strings.ToUpper("Post"),
-			"/v1/urls",
+			"/api/v1/urls",
 			c.CreateUrl,
 		},
 	}
@@ -166,6 +167,11 @@ func (c *URLAPIController) CreateUrl(w http.ResponseWriter, r *http.Request) {
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
 	if err := d.Decode(&urlParam); err != nil {
+		var requiredErr *RequiredError
+		if errors.As(err, &requiredErr) {
+			c.errorHandler(w, r, err, nil)
+			return
+		}
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
