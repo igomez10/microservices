@@ -1,0 +1,9 @@
+apiVersion: v2
+name: urlshortener
+description: >-
+  The stateless half of urlshortener on Kubernetes: the service, its schema
+  migration Job, and a post-sync smoke test. Its PostgreSQL is not in this
+  chart; it is deployed separately by igomez10/microservices-infrastructure.
+type: application
+version: 0.1.0
+appVersion: mainline

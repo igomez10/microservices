@@ -10,6 +10,9 @@ on:
       - mainline
     paths:
       - "urlshortener/**"
+      # The chart is deployment config, not image input: a chart-only change
+      # should not rebuild and re-pin every image.
+      - "!urlshortener/helm/**"
       - ".github/workflows/build-urlshortener-image.yml"
   workflow_dispatch:
 
@@ -75,11 +78,11 @@ jobs:
       - name: Report digest
         run: |
           echo "Pushed ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          echo "Pin that tag in microservices-infrastructure:"
-          echo "  homelab/apps/urlshortener/manifests/app.yaml"
+          echo "The promote job pins its digest in microservices-infrastructure:"
+          echo "  homelab/apps/urlshortener/helm/values.yaml"
 
   # ── Promotion ───────────────────────────────────────────────────────────────
-  # Writes the digests this build produced into the deployment manifests, so
+  # Writes the digests this build produced into the deployment values, so
   # the version running in the cluster is recorded in Git. Without this step
   # the manifests would have to track a moving tag, which means no deploy
   # history, no diff to review, and no rollback other than rebuilding.
@@ -113,18 +116,19 @@ jobs:
           DIGEST_MIGRATE: ${{ needs.build.outputs.digest_migrate }}
         run: |
           set -euo pipefail
-          if grep -q "ghcr.io/igomez10/urlshortener@" homelab/apps/urlshortener/manifests/app.yaml; then
-            sed -i -E "s|ghcr.io/igomez10/urlshortener@sha256:[a-f0-9]+|ghcr.io/igomez10/urlshortener@${DIGEST_APP}|g" homelab/apps/urlshortener/manifests/app.yaml
-          fi
-          if grep -q "ghcr.io/igomez10/urlshortener-migrate@" homelab/apps/urlshortener/manifests/migrate.yaml; then
-            sed -i -E "s|ghcr.io/igomez10/urlshortener-migrate@sha256:[a-f0-9]+|ghcr.io/igomez10/urlshortener-migrate@${DIGEST_MIGRATE}|g" homelab/apps/urlshortener/manifests/migrate.yaml
-          fi
+          # Both images are pinned in the one values file for the urlshortener
+          # Helm chart (urlshortener/helm/urlshortener in this repo). The
+          # patterns are distinct: `urlshortener@` cannot match
+          # `urlshortener-migrate@`.
+          VALUES=homelab/apps/urlshortener/helm/values.yaml
+          sed -i -E "s|ghcr.io/igomez10/urlshortener@sha256:[a-f0-9]+|ghcr.io/igomez10/urlshortener@${DIGEST_APP}|g" "$VALUES"
+          sed -i -E "s|ghcr.io/igomez10/urlshortener-migrate@sha256:[a-f0-9]+|ghcr.io/igomez10/urlshortener-migrate@${DIGEST_MIGRATE}|g" "$VALUES"
 
           # Compare the working tree, not whether the files matched: a rebuild
           # that produces identical digests changes nothing, and committing
           # nothing is an error.
           if git diff --quiet; then
-            echo "manifests already reference these digests; nothing to do"
+            echo "values already reference these digests; nothing to do"
             exit 0
           fi
           git config user.name  "github-actions[bot]"

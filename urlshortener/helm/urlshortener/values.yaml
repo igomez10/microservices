@@ -1,0 +1,53 @@
+# Defaults for the urlshortener chart. Anything that describes a particular
+# cluster (the collector address, image digests) belongs in that deployment's
+# own values file, not here. The homelab one is
+# homelab/apps/urlshortener/helm/values.yaml in igomez10/microservices-infrastructure.
+
+# Added to every object's metadata, never to selectors: selectors are
+# immutable on a Deployment, so a label change there would force a recreate.
+commonLabels:
+  app.kubernetes.io/part-of: urlshortener
+
+# A full image reference. Deployments should pin a digest
+# (ghcr.io/igomez10/urlshortener@sha256:...) so what Git says is what runs; CI
+# rewrites that line on each build. The moving tag is only a default.
+image: ghcr.io/igomez10/urlshortener:mainline
+replicas: 3
+
+# The URL API.
+port: 8089
+# The second listener: /health, metrics and profiling (NewMetaRouter in
+# cmd/main.go).
+metaPort: 8082
+
+logLevel: info
+
+# Required by the app (--agent-url is `required:"true"`); an unreachable
+# collector only makes trace export fail in the background.
+otelEndpoint: ""
+
+# Name of a pre-existing Secret with a DB_URL key. Not created by the chart:
+# the connection string embeds a password and is composed out of band.
+existingSecret: urlshortener
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+migrate:
+  image: ghcr.io/igomez10/urlshortener-migrate:mainline
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+smokeTest:
+  enabled: true
+  image: curlimages/curl:8.11.1

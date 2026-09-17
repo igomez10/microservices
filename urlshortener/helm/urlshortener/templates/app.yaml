@@ -1,0 +1,118 @@
+# The urlshortener service, built from urlshortener/Dockerfile.
+#
+# Object names are fixed rather than derived from the release name: socialapp
+# addresses this Service by name (URLSHORTENER_URL), and the live objects
+# predate the chart.
+apiVersion: v1
+kind: Service
+metadata:
+  name: urlshortener
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "urlshortener.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: urlshortener
+  ports:
+    - name: http
+      port: {{ .Values.port }}
+      targetPort: http
+    # The service's second listener, for metrics and profiling. Exposed on the
+    # Service so it can be scraped in-cluster; it is not the API port.
+    - name: meta
+      port: {{ .Values.metaPort }}
+      targetPort: meta
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: urlshortener
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "urlshortener.labels" . | nindent 4 }}
+  annotations:
+    # After the migrate hook (wave 1), so new pods never start against an
+    # unmigrated schema.
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: urlshortener
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: urlshortener
+    spec:
+      affinity:
+        podAntiAffinity:
+          # Preferred, not required: on a single node a required rule would
+          # leave all but one replica Pending forever.
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: urlshortener
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: urlshortener
+          image: {{ .Values.image }}
+          imagePullPolicy: IfNotPresent
+          # The image sets CMD but no ENTRYPOINT, so `args` alone would replace
+          # the binary itself rather than append to it. Both are set.
+          command: [/main]
+          args:
+            # 0.0.0.0 rather than the default empty/localhost bind — a process
+            # listening only on loopback is unreachable from the Service.
+            - --http-addr=0.0.0.0
+            - --port={{ .Values.port }}
+            - --meta.addr=0.0.0.0
+            - --meta.port={{ .Values.metaPort }}
+            - --agent-url={{ required "otelEndpoint is required: the app refuses to start without --agent-url" .Values.otelEndpoint }}
+          env:
+            # Not a flag: --db-url would put the password in the process table.
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.existingSecret }}
+                  key: DB_URL
+            - name: LOG_LEVEL
+              value: {{ .Values.logLevel }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.port }}
+            - name: meta
+              containerPort: {{ .Values.metaPort }}
+          # /health lives on the META port, not the API port. It is registered
+          # in NewMetaRouter() (cmd/main.go), while the router on the API port
+          # serves only the URL API, so a probe there returns 404 and would
+          # kill a healthy container.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: meta
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: meta
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+            readOnlyRootFilesystem: true
