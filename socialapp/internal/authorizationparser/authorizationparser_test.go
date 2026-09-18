@@ -129,6 +129,7 @@ paths:
       summary: Create user
       description: Create a new user in the system
       operationId: createUser
+      security: []
       tags:
         - User
       requestBody:

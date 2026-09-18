@@ -262,7 +262,10 @@ func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 		middleware.RealIP,
 	}
 
-	socialappRouter := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse)
+	socialappRouter, err := socialapprouter.NewSocialAppRouter(socialappMiddlewares, routers, authorizationParse)
+	if err != nil {
+		return nil, err
+	}
 
 	// Setup proxy routers (for Kibana, properties, etc.)
 	kibanaTargetURL, _ := url.Parse(config.KibanaURL)

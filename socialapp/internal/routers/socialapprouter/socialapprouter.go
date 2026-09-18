@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -22,7 +23,7 @@ type SocialAppRouter struct {
 
 type Middleware func(http.Handler) http.Handler
 
-func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers []openapi.Router, authorizationParse authorizationparser.EndpointAuthorizations) SocialAppRouter {
+func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers []openapi.Router, authorizationParse authorizationparser.EndpointAuthorizations) (SocialAppRouter, error) {
 	mainRouter := chi.NewRouter()
 
 	mainRouter.Mount("/debug", middleware.Profiler())
@@ -50,49 +51,57 @@ func NewSocialAppRouter(middlewares []func(http.Handler) http.Handler, routers [
 		})
 	})
 
-	// Main router group for api logic
-	mainRouter.Group(func(r chi.Router) {
+	// Main router groups for API logic.
+	for _, api := range routers {
+		for _, route := range api.Routes() {
+			var handler http.Handler
+			handler = route.HandlerFunc
 
-		for _, api := range routers {
-			for _, route := range api.Routes() {
-				var handler http.Handler
-				handler = route.HandlerFunc
-
-				r.Group(func(r chi.Router) {
-					// Add open telemetry traces before any middleware can short-circuit.
-					resourceName := fmt.Sprintf("%s_%s", route.Method, route.Pattern)
-					r.Use(otelhttp.NewMiddleware(
-						resourceName,
-						otelhttp.WithTracerProvider(otel.GetTracerProvider()),
-						otelhttp.WithPropagators(otel.GetTextMapPropagator()),
-					))
-
-					// use a  custom middleware to record the metrics on the route pattern.
-					pattern := pattern.Pattern{Pattern: route.Pattern}
-					r.Use(pattern.Middleware)
-
-					for i := range middlewares {
-						r.Use(middlewares[i])
-					}
-
-					// authorization
-					requiredScopesForEndpoint := authorizationParse[route.Pattern][route.Method]
-					mapRequiredScopes := map[string]bool{}
-					for _, scope := range requiredScopesForEndpoint {
-						mapRequiredScopes[scope] = true
-					}
-					authorizationRuler := authorization.Middleware{
-						RequiredScopes: mapRequiredScopes,
-					}
-
-					r.Use(authorizationRuler.Authorize)
-					r.Method(route.Method, route.Pattern, handler)
-				})
+			// Generated routes include the /api server base path, while OpenAPI
+			// path keys are relative to it. Preserve the distinction between an
+			// explicitly public operation (present with zero scopes) and missing
+			// policy metadata (a configuration error). Missing metadata must never
+			// silently turn a protected route into a public one.
+			specPath := strings.TrimPrefix(route.Pattern, "/api")
+			methods, pathFound := authorizationParse[specPath]
+			requiredScopesForEndpoint, methodFound := methods[route.Method]
+			if !pathFound || !methodFound {
+				return SocialAppRouter{}, fmt.Errorf("missing OpenAPI authorization policy for %s %s", route.Method, route.Pattern)
 			}
+
+			mainRouter.Group(func(r chi.Router) {
+				// Add open telemetry traces before any middleware can short-circuit.
+				resourceName := fmt.Sprintf("%s_%s", route.Method, route.Pattern)
+				r.Use(otelhttp.NewMiddleware(
+					resourceName,
+					otelhttp.WithTracerProvider(otel.GetTracerProvider()),
+					otelhttp.WithPropagators(otel.GetTextMapPropagator()),
+				))
+
+				// use a  custom middleware to record the metrics on the route pattern.
+				pattern := pattern.Pattern{Pattern: route.Pattern}
+				r.Use(pattern.Middleware)
+
+				for i := range middlewares {
+					r.Use(middlewares[i])
+				}
+
+				// authorization
+				mapRequiredScopes := map[string]bool{}
+				for _, scope := range requiredScopesForEndpoint {
+					mapRequiredScopes[scope] = true
+				}
+				authorizationRuler := authorization.Middleware{
+					RequiredScopes: mapRequiredScopes,
+				}
+
+				r.Use(authorizationRuler.Authorize)
+				r.Method(route.Method, route.Pattern, handler)
+			})
 		}
-	})
+	}
 	s := SocialAppRouter{
 		Router: mainRouter,
 	}
-	return s
+	return s, nil
 }

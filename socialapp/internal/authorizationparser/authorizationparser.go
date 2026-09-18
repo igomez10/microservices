@@ -14,8 +14,16 @@ func FromOpenAPIToEndpointScopes(doc *openapi3.T) EndpointAuthorizations {
 	for path, item := range doc.Paths.Map() {
 		// iterate over possible operations (methods of the path)
 		for method, operation := range item.Operations() {
-			// check if the operation has security requirements
-			if operation.Security != nil {
+			// An explicit empty security array means the operation is public.
+			// Keep an entry with zero scopes so callers can distinguish that
+			// deliberate policy from missing path or method metadata.
+			if operation.Security != nil && len(*operation.Security) == 0 {
+				if _, exist := res[path]; !exist {
+					res[path] = map[string][]string{method: {}}
+				} else {
+					res[path][method] = []string{}
+				}
+			} else if operation.Security != nil {
 				// iterate over security requirements of the operation
 				for _, secReq := range *operation.Security {
 					requiredScopes := secReq[SECURITY_REQUIREMENT_IDENTIFIER] // []string{"socialapp.users.read", "socialapp.users.write"}

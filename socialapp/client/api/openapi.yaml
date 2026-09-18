@@ -42,6 +42,7 @@ paths:
     get:
       description: Return a welcome message for the Socialapp API.
       operationId: welcome
+      security: []
       responses:
         "200":
           content:
@@ -149,6 +150,7 @@ paths:
     post:
       description: Create a new user.
       operationId: createUser
+      security: []
       requestBody:
         content:
           application/json:
@@ -1762,6 +1764,7 @@ paths:
     get:
       description: Resolve an alias and redirect to the destination URL.
       operationId: getUrl
+      security: []
       parameters:
       - description: The alias of the url
         example: abcdef
@@ -1798,6 +1801,7 @@ paths:
     get:
       description: Return metadata for a URL alias.
       operationId: getUrlData
+      security: []
       parameters:
       - description: The alias of the url
         example: abcdef
