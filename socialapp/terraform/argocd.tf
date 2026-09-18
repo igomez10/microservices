@@ -26,11 +26,18 @@ resource "argocd_project" "socialapp" {
   }
 
   spec {
-    description = "The socialapp app's own resources — both the `socialapp-data` Application (namespace, PostgreSQL, Redis, from socialapp/deploy/manifests) and `socialapp-app` (API, frontend, migration, smoke test, from socialapp/helm/socialapp), both in github.com/igomez10/microservices."
+    # At most 255 bytes: Kubernetes rejects a longer AppProject description.
+    description = "socialapp's own resources: socialapp-data (namespace, PostgreSQL, Redis) and socialapp-app (API, frontend, migration, smoke test), both rendered from github.com/igomez10/microservices."
 
     # This repo only. Both Applications render from it, and listing nothing
     # else means neither can be pointed at another repo without widening the
     # project first.
+    #
+    # Adding a repo here needs care: Argo CD enforces `repositories, update` on
+    # every repo a project update adds or removes, and Terraform's account
+    # (role:terraform, layers/20-cluster-platform/modules/argocd/values.yaml in
+    # the infrastructure repo) holds it for https://github.com/igomez10/* only.
+    # An SSH URL here fails the apply with a permission error — on purpose.
     source_repos = [
       var.application_repo_url,
     ]

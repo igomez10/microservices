@@ -118,13 +118,22 @@ Step 3 is the check that matters. Expect exactly **three in-place updates**
   infrastructure repo as `$repo`) is removed, `value_files` becomes
   `values.homelab.yaml`, and `values` gains the six public hostnames built
   from `var.domain`. The rendered manifests are byte-identical to before;
-- `argocd_project.socialapp` — the infrastructure repo leaves `source_repos`,
-  and the `description` is reworded.
+- `argocd_project.socialapp` — `description` only.
 
-The project updates first, because both Applications reference it. For the
-seconds between that and the Application updates, Argo CD may report both
-Applications as "repository not permitted". That is a comparison error: it
-does not sync or prune anything, and it clears when the apply finishes.
+The infrastructure repo also has to leave the project's `source_repos`, and
+Terraform cannot do that: its Argo CD account is not allowed to add or remove
+SSH-registered repos (see the comment on `source_repos` in `argocd.tf`). An
+apply that tries fails with `permission denied: repositories, update` before
+changing anything. Remove it as an admin, AFTER the apply has moved both
+Applications off it:
+
+```bash
+KUBECONFIG=~/.kube/homelab kubectl -n argocd patch appproject homelab-socialapp --type=json \
+  -p '[{"op":"test","path":"/spec/sourceRepos/0","value":"git@github.com:igomez10/microservices-infrastructure.git"},{"op":"remove","path":"/spec/sourceRepos/0"}]'
+```
+
+Done before the apply instead, both Applications report "repository not
+permitted" until the apply lands; nothing is synced or pruned meanwhile.
 
 Anything else is wrong:
 
