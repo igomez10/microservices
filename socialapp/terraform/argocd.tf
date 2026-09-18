@@ -85,6 +85,13 @@ resource "argocd_application" "socialapp_data" {
   # Application manages with it — including the database.
   cascade = false
 
+  # Argo CD writes argocd.argoproj.io/hydrate onto every Application itself.
+  # It is Argo's bookkeeping, not configuration: without this, every plan
+  # would propose stripping it, and every apply would, until Argo re-adds it.
+  lifecycle {
+    ignore_changes = [metadata[0].annotations["argocd.argoproj.io/hydrate"]]
+  }
+
   metadata {
     name      = "socialapp-data"
     namespace = "argocd"
@@ -172,6 +179,13 @@ resource "argocd_application" "socialapp_app" {
   # Explicit, so removing this resource from Terraform deletes the Application
   # object and nothing else.
   cascade = false
+
+  # Argo CD writes argocd.argoproj.io/hydrate onto every Application itself.
+  # It is Argo's bookkeeping, not configuration: without this, every plan
+  # would propose stripping it, and every apply would, until Argo re-adds it.
+  lifecycle {
+    ignore_changes = [metadata[0].annotations["argocd.argoproj.io/hydrate"]]
+  }
 
   metadata {
     name      = "socialapp-app"
