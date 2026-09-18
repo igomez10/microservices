@@ -62,10 +62,12 @@ func setupPostgresContainer(ctx context.Context, t *testing.T) (testcontainers.C
 	t.Helper()
 
 	req := testcontainers.ContainerRequest{
-		Image:        "postgres:15",
+		Image:        "postgres:15-bookworm",
 		Env:          map[string]string{"POSTGRES_USER": "postgres", "POSTGRES_PASSWORD": "password", "POSTGRES_DB": "socialapp"},
 		ExposedPorts: []string{"5432/tcp"},
-		WaitingFor:   wait.ForListeningPort("5432/tcp").WithStartupTimeout(90 * time.Second),
+		WaitingFor: wait.ForLog("database system is ready to accept connections").
+			WithOccurrence(2).
+			WithStartupTimeout(90 * time.Second),
 	}
 
 	container, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
