@@ -1,18 +1,14 @@
 provider "vault" {
-  address = "https://vault.homelab.internal.${var.domain}"
+  address = var.vault_address
 
   # Authentication is intentionally supplied through VAULT_TOKEN. Never put a
   # Vault token in Terraform configuration or a committed variable file.
 }
 
 provider "kafka" {
-  # Remote brokers' PLAINTEXT_HOST listeners, advertised as brokerN.internal.<EXPOSED_HOST>.
-  bootstrap_servers = [
-    "broker1.internal.${var.domain}:29092",
-    "broker2.internal.${var.domain}:29093",
-    "broker3.internal.${var.domain}:29094",
-  ]
-  tls_enabled = false
+  # The remote stack's PLAINTEXT_HOST listeners.
+  bootstrap_servers = var.kafka_bootstrap_servers
+  tls_enabled       = false
 }
 
 # Argo CD's API token, read ephemerally so it never lands in this root's state.
@@ -32,7 +28,7 @@ ephemeral "vault_kv_secret_v2" "argocd" {
 # grpc_web because the gateway sits in front of argocd-server: plain gRPC
 # through a proxy is where this provider's connection errors usually come from.
 provider "argocd" {
-  server_addr = "argocd.homelab.internal.${var.domain}:443"
+  server_addr = var.argocd_server_addr
   auth_token  = ephemeral.vault_kv_secret_v2.argocd.data["argocd_auth_token"]
   grpc_web    = true
 }

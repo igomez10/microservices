@@ -44,15 +44,19 @@ the CloudNativePG operator, Argo CD itself.
   from (`providers.tf`).
 - Google application-default credentials — for this root's own state and for
   the layer 30 remote-state read.
-- `domain` — the base domain every hostname is built from. It has no
-  default, because this repo is public and the domain is kept out of it. For
-  a local run put it in `terraform.tfvars` (gitignored):
+- Four host variables, none with a default, because this repo is public and
+  the domain is kept out of it. For a local run put them in `terraform.tfvars`
+  (gitignored):
   ```hcl
-  domain = "<your domain>"
+  domain                  = "<domain>"                 # public hostnames passed to the chart
+  vault_address           = "https://vault.<...>"      # scheme included
+  argocd_server_addr      = "argocd.<...>:443"         # host:port, no scheme
+  kafka_bootstrap_servers = ["broker1.<...>:29092", "broker2.<...>:29093", "broker3.<...>:29094"]
   ```
-  In Semaphore, set `TF_VAR_domain` on the environment.
-- Network reachability: the Vault and Argo CD APIs are on the tailnet, at
-  `vault.homelab.internal.<domain>` and `argocd.homelab.internal.<domain>`.
+  In Semaphore they are `TF_VAR_<name>` on the socialapp project's
+  environment, set in `layers/40-apps/modules/semaphore/project-socialapp.tf`
+  in the infrastructure repo (private).
+- Network reachability: the Vault and Argo CD APIs are on the tailnet.
 
 ## Running it
 

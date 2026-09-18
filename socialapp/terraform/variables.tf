@@ -5,12 +5,33 @@ variable "state_bucket" {
   nullable    = false
 }
 
-# No default on purpose. This repo is public, and the domain is kept out of
-# it: set it in terraform.tfvars (gitignored) for a local run, and as
-# TF_VAR_domain in the Semaphore environment.
+# None of the variables in this file that name a host has a default, on
+# purpose. This repo is public and the domain is kept out of it: set them in
+# terraform.tfvars (gitignored) for a local run, and as TF_VAR_<name> on the
+# Semaphore environment (layers/40-apps/modules/semaphore/project-socialapp.tf
+# in the infrastructure repo).
+
 variable "domain" {
   type        = string
-  description = "Base domain every hostname here is built from: the Vault and Argo CD APIs (vault. / argocd.homelab.internal.<domain>), the Kafka brokers (brokerN.internal.<domain>), and the public socialapp hostnames passed to the chart. Matches EXPOSED_HOST in the remote docker-compose .env."
+  description = "Base domain of the public socialapp hostnames passed to the chart (socialapp.<domain>, properties.<domain>, ...). Matches EXPOSED_HOST in the remote docker-compose .env."
+  nullable    = false
+}
+
+variable "vault_address" {
+  type        = string
+  description = "URL of the Vault API, scheme included (https://...). On the tailnet."
+  nullable    = false
+}
+
+variable "argocd_server_addr" {
+  type        = string
+  description = "Argo CD API as host:port, no scheme — what the argocd provider's server_addr expects. On the tailnet, through the Istio gateway."
+  nullable    = false
+}
+
+variable "kafka_bootstrap_servers" {
+  type        = list(string)
+  description = "Kafka brokers as host:port — the remote stack's PLAINTEXT_HOST listeners. Only contacted once kafka.tf's topics are uncommented. As an environment variable, HCL list syntax: TF_VAR_kafka_bootstrap_servers='[\"a:29092\",\"b:29093\"]'."
   nullable    = false
 }
 
