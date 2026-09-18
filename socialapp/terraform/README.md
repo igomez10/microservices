@@ -16,6 +16,7 @@ until it moved here.
 | `vault.tf` | `vault_policy.socialapp_databases` — read on `kv/socialapp/*`; `vault_kubernetes_auth_backend_role.socialapp` — lets the Vault Secrets Operator use it for the `socialapp` namespace |
 | `argocd.tf` | `argocd_project.homelab-socialapp`, and the `socialapp-data` and `socialapp-app` Applications |
 | `kafka.tf` | The CDC topics. Commented out; the provider is configured but never contacted |
+| `grafana.tf` | On the **homelab** Grafana: the `socialapp` folder and three dashboards (`dashboards/overview.json`, `resources.json`, `logs.json`), 16 alert rules, and the `socialapp-slack` contact point they route to directly (no shared notification policy) |
 | `remote-state.tf` | The one read of the infrastructure repo's state: layer 30's two Vault paths |
 
 Its state is `terraform/state/socialapp` in the `microservices-341219` GCS
@@ -44,7 +45,13 @@ the CloudNativePG operator, Argo CD itself.
   from (`providers.tf`).
 - Google application-default credentials — for this root's own state and for
   the layer 30 remote-state read.
-- Four host variables, none with a default, because this repo is public and
+- Two Vault values for Grafana: a service account token (role Editor) at
+  `kv/semaphore/terraform` → `grafana_homelab_auth`, read ephemerally; and the
+  Slack webhook at `kv/alerting/socialapp` → `slack_webhook_url`, read by a data
+  source and therefore stored in this root's state (the contact point's `url`
+  is not write-only). Store a token without it passing through your clipboard
+  history or shell history, e.g. `pbpaste | vault kv patch kv/semaphore/terraform grafana_homelab_auth=-`.
+- Five host variables, none with a default, because this repo is public and
   the domain is kept out of it. For a local run put them in `terraform.tfvars`
   (gitignored):
   ```hcl
@@ -52,6 +59,7 @@ the CloudNativePG operator, Argo CD itself.
   vault_address           = "https://vault.<...>"      # scheme included
   argocd_server_addr      = "argocd.<...>:443"         # host:port, no scheme
   kafka_bootstrap_servers = ["broker1.<...>:29092", "broker2.<...>:29093", "broker3.<...>:29094"]
+  grafana_url             = "https://grafana.homelab.<...>" # the cluster's Grafana, not the OCI VM's
   ```
   In Semaphore they are `TF_VAR_<name>` on the socialapp project's
   environment, set in `layers/40-apps/modules/semaphore/project-socialapp.tf`

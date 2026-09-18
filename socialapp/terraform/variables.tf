@@ -35,6 +35,12 @@ variable "kafka_bootstrap_servers" {
   nullable    = false
 }
 
+variable "grafana_url" {
+  type        = string
+  description = "URL of the homelab cluster's Grafana (kube-prometheus-stack, infrastructure layer 20), scheme included. NOT the OCI VM's compose-stack Grafana: socialapp's dashboards and alerts live on the instance that sees the cluster it runs in. On the tailnet."
+  nullable    = false
+}
+
 variable "application_repo_url" {
   type        = string
   description = "HTTPS URL of this repo, which both Argo CD Applications render from. Public, so Argo CD needs no repository credentials for it — an SSH URL would demand a key even to read."

@@ -31,6 +31,12 @@ terraform {
       source  = "argoproj-labs/argocd"
       version = "7.17.0"
     }
+    # Same major as layer 30 of the infrastructure repo, which configures the
+    # same Grafana instance's login.
+    grafana = {
+      source  = "grafana/grafana"
+      version = "~> 3.0"
+    }
   }
 
   # Same bucket as the infrastructure layers, a prefix of its own. Sharing the
