@@ -1,0 +1,52 @@
+# Homelab values for this chart, layered over values.yaml beside it. Rendered
+# by the `socialapp-app` Argo CD Application (../../terraform/argocd.tf).
+#
+# values.yaml owns the chart's defaults; this file owns what is specific to the
+# homelab cluster: domains, in-cluster service addresses, and exactly which
+# image digests run.
+#
+# It lives inside the chart directory, not under socialapp/deploy/, for one
+# reason: the image workflow commits digests here, and socialapp/helm/** is
+# excluded from that workflow's own trigger. A digest commit therefore cannot
+# start another build, whatever token pushed it.
+
+api:
+  # Pinned by digest, so the running version is recorded in Git and a rollback
+  # is a revert. The Socialapp Image workflow
+  # (.github/workflows/build-socialapp-image.yml) rewrites these three image
+  # lines on each build.
+  image: ghcr.io/igomez10/socialapp@sha256:1549b19811311e13da7134695516e11278dce0511cc63647616fc2bd15ca6268
+
+  config:
+    PORT: "8086"
+    LOG_LEVEL: info
+
+    # The public hostnames (SOCIALAPP_SUBDOMAIN, LOCAL_SUBDOMAIN,
+    # PROPERTIES_SUBDOMAIN, URLSHORTENER_SUBDOMAIN, KIBANA_SUBDOMAIN,
+    # PUTTYKNIFE_DOMAIN) are deliberately not here. This repo is public and the
+    # domain is kept out of it: the Argo CD Application passes them as inline
+    # Helm values built from Terraform's var.domain
+    # (../../terraform/argocd.tf), which override this file.
+
+    # The URL shortener is real and in-cluster — homelab/apps/urlshortener, in
+    # its own namespace, reached across namespaces by Service DNS.
+    URLSHORTENER_URL: http://urlshortener.urlshortener.svc.cluster.local:8089
+
+    # These two name services that exist in the compose stack on the OCI VM and
+    # do NOT exist in this cluster. They are set because the app refuses to
+    # start without them, not because they resolve. Kibana links and puttyknife
+    # lookups fail until those services arrive.
+    KIBANA_URL: http://kibana.socialapp.svc.cluster.local:5601
+    PUTTYKNIFE_URL: http://puttyknife-server.puttyknife.svc.cluster.local:8096
+
+    # The cluster-local collector (homelab/apps/otel-collector), which forwards
+    # traces to Tempo.
+    OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector.observability.svc.cluster.local:4317
+    LOGSTASH_HOST: logstash.socialapp.svc.cluster.local:5044
+    OTEL_SERVICE_NAME: socialapp
+
+migrate:
+  image: ghcr.io/igomez10/socialapp-migrate@sha256:723a4ac1b2d17f72796274d6ed7b6463056120797903f38db4bc9fa7f6b90839
+
+frontend:
+  image: ghcr.io/igomez10/socialapp-frontend@sha256:07a568556537848029ceb6a11b0d6d15ff79e0617ce2c8bdeb00d928cc3a9ebf

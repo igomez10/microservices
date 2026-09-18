@@ -4,12 +4,28 @@ on:
   pull_request:
     paths:
       - "socialapp/**"
+      # The Terraform root and the cluster manifests do not reach the compose
+      # stack this workflow deploys.
+      - "!socialapp/terraform/**"
+      - "!socialapp/deploy/**"
+      # The Helm chart, including the digest commits build-socialapp-image.yml
+      # makes to its values.homelab.yaml, is the cluster's; the compose stack
+      # never reads it.
+      - "!socialapp/helm/**"
       - ".github/workflows/deploy-socialapp.yml"
   push:
     branches:
       - mainline
     paths:
       - "socialapp/**"
+      # The Terraform root and the cluster manifests do not reach the compose
+      # stack this workflow deploys.
+      - "!socialapp/terraform/**"
+      - "!socialapp/deploy/**"
+      # The Helm chart, including the digest commits build-socialapp-image.yml
+      # makes to its values.homelab.yaml, is the cluster's; the compose stack
+      # never reads it.
+      - "!socialapp/helm/**"
       - ".github/workflows/deploy-socialapp.yml"
   workflow_dispatch:
 
@@ -61,9 +77,13 @@ jobs:
       - name: Deploy
         env:
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          # A secret rather than a repository variable: this repo is public,
+          # and so are its Actions logs. Secrets are masked in them; variables
+          # are printed in the clear.
+          DEPLOYER_URL: ${{ secrets.DEPLOYER_URL }}
         run: |
           curl --silent --show-error --fail-with-body --max-time 600 \
-            -X POST https://deployer.gomezignacio.com/deploy \
+            -X POST "$DEPLOYER_URL/deploy" \
             -H "Authorization: Bearer $DEPLOY_TOKEN" \
             -H "Content-Type: application/json" \
             -d "{\"project\": \"socialapp\", \"commit\": \"${{ github.sha }}\"}"

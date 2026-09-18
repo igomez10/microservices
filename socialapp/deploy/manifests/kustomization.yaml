@@ -1,0 +1,29 @@
+# The socialapp namespace and its stateful half: a replicated PostgreSQL
+# cluster and a single-node Redis. The CloudNativePG operator behind the
+# Postgres Cluster is a platform release in the infrastructure repo,
+# homelab/deploy/helmfile.yaml.
+#
+# Synced by the `socialapp-data` Argo CD Application, which is declared in
+# ../../terraform/argocd.tf. Sync is manual and never cascades: this is the
+# data.
+#
+# The stateless half (API, frontend, migration Job, smoke test) is the Helm
+# chart in ../../helm/socialapp, deployed by the separate `socialapp-app`
+# Application. That one syncs automatically.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: socialapp
+
+# Not `commonLabels`: that folds the label into selectors too, and the
+# operator owns the selectors on everything it generates.
+labels:
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/part-of: socialapp
+
+resources:
+  # First: everything below is created inside it.
+  - namespace.yaml
+  - postgres.yaml
+  - redis.yaml

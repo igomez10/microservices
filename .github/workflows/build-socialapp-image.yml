@@ -1,9 +1,9 @@
-# Builds the socialapp container image and pushes it to GitHub Container
-# Registry, so that something outside this repo — the Kubernetes deployment in
-# microservices-infrastructure — has an image to pull.
+# Builds the socialapp container images, pushes them to GitHub Container
+# Registry, and pins their digests in the chart's homelab values
+# (socialapp/helm/socialapp/values.homelab.yaml), which Argo CD deploys.
 #
 # deploy-socialapp.yml does not do this: it runs tests and then POSTs to
-# deployer.gomezignacio.com, which builds from source on the target host. That
+# the deployer service (secrets.DEPLOYER_URL), which builds from source on the target host. That
 # works for the compose stack and leaves no published artifact behind.
 name: Socialapp Image
 
@@ -14,8 +14,14 @@ on:
     paths:
       - "socialapp/**"
       # The chart is deployment config, not image input: a chart-only change
-      # should not rebuild and re-pin every image.
+      # should not rebuild and re-pin every image. It is also where `promote`
+      # commits digests, so this exclusion is what stops that commit from
+      # starting another build — see the promote job.
       - "!socialapp/helm/**"
+      # Same for the Terraform root and the data-side manifests: neither is
+      # image input, and a rebuild here would re-pin and redeploy for nothing.
+      - "!socialapp/terraform/**"
+      - "!socialapp/deploy/**"
       - ".github/workflows/build-socialapp-image.yml"
   workflow_dispatch:
 
@@ -129,8 +135,8 @@ jobs:
       - name: Report digest
         run: |
           echo "Pushed ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          echo "The promote job pins its digest in microservices-infrastructure:"
-          echo "  homelab/apps/socialapp/helm/values.yaml"
+          echo "The promote job pins its digest in:"
+          echo "  socialapp/helm/socialapp/values.homelab.yaml"
 
   # ── Promotion ───────────────────────────────────────────────────────────────
   # Writes the digests this build produced into the deployment values, so
@@ -141,25 +147,31 @@ jobs:
   # Digests, not :<sha> tags: a digest cannot be repointed, so what Git says is
   # deployed is exactly what runs.
   #
-  # Requires INFRA_REPO_TOKEN — a token with contents:write on
-  # igomez10/microservices-infrastructure. The default GITHUB_TOKEN is scoped
-  # to this repository and cannot push to another one.
+  # Commits to this repo's mainline — the branch whose pushes trigger this
+  # workflow — with the default GITHUB_TOKEN. That cannot loop, for two
+  # independent reasons: GitHub never starts workflow runs from a
+  # GITHUB_TOKEN push, and the file it changes is under socialapp/helm/**,
+  # which the `paths` filter above excludes. Keep both. Swapping in a PAT
+  # removes the first; moving the values file out of socialapp/helm removes
+  # the second.
   promote:
     needs: build
     runs-on: ubuntu-latest
-    # Serialised: two image workflows finishing together would otherwise race
-    # on the same branch and one push would be rejected.
+    permissions:
+      contents: write
+    # Serialised: two runs finishing together would otherwise race on mainline
+    # and one push would be rejected.
     concurrency:
-      group: infra-manifest-write
+      group: socialapp-promote
       cancel-in-progress: false
 
     steps:
-      - name: Checkout infrastructure repo
+      # The tip of mainline, not the commit that triggered this run: another
+      # push may have landed while the images were building.
+      - name: Checkout
         uses: actions/checkout@v4
         with:
-          repository: igomez10/microservices-infrastructure
-          token: ${{ secrets.INFRA_REPO_TOKEN }}
-          ref: main
+          ref: mainline
 
       - name: Pin new digests
         env:
@@ -168,10 +180,10 @@ jobs:
           DIGEST_FRONTEND: ${{ needs.build.outputs.digest_frontend }}
         run: |
           set -euo pipefail
-          # All three images are pinned in the one values file for the socialapp
-          # Helm chart (socialapp/helm/socialapp in this repo). The patterns are
-          # distinct: `socialapp@` cannot match `socialapp-migrate@`.
-          VALUES=homelab/apps/socialapp/helm/values.yaml
+          # All three images are pinned in the chart's homelab values file.
+          # The patterns are distinct: `socialapp@` cannot match
+          # `socialapp-migrate@`.
+          VALUES=socialapp/helm/socialapp/values.homelab.yaml
           sed -i -E "s|ghcr.io/igomez10/socialapp@sha256:[a-f0-9]+|ghcr.io/igomez10/socialapp@${DIGEST_APP}|g" "$VALUES"
           sed -i -E "s|ghcr.io/igomez10/socialapp-migrate@sha256:[a-f0-9]+|ghcr.io/igomez10/socialapp-migrate@${DIGEST_MIGRATE}|g" "$VALUES"
           sed -i -E "s|ghcr.io/igomez10/socialapp-frontend@sha256:[a-f0-9]+|ghcr.io/igomez10/socialapp-frontend@${DIGEST_FRONTEND}|g" "$VALUES"
@@ -185,10 +197,10 @@ jobs:
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add "$VALUES"
           git commit -m "deploy(socialapp): ${GITHUB_SHA:0:12}" \
-                     -m "Built from ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
-          # Rebase rather than force: another app's promotion may have landed
+                     -m "Built from ${GITHUB_SHA}"
+          # Rebase rather than force: another push may have landed on mainline
           # while this one was building.
-          git pull --rebase origin main
-          git push origin main
+          git pull --rebase origin mainline
+          git push origin HEAD:mainline

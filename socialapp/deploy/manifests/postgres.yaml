@@ -1,0 +1,108 @@
+# A three-instance PostgreSQL cluster: one primary and two streaming
+# replicas. CloudNativePG elects the primary and promotes a replica on
+# failure — `instances: 3` is the whole declaration of the topology, and the
+# roles are not pinned to particular pods on purpose. Which pod is primary is
+# the operator's business; clients use the -rw / -ro Services below.
+#
+# Services the operator creates:
+#   socialapp-postgres-rw   → the current primary        (reads and writes)
+#   socialapp-postgres-ro   → replicas only              (read-only queries)
+#   socialapp-postgres-r    → any instance               (round-robin reads)
+#
+# Applications should use -rw. Pointing at a pod directly defeats failover:
+# the name would keep resolving to a demoted instance.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: socialapp-postgres
+spec:
+  instances: 3
+
+  # unsupervised: the operator performs the switchover during a rolling minor
+  # upgrade itself, rather than waiting for a human to promote. On a
+  # single-node homelab there is nobody watching at 3am, and a supervised
+  # upgrade that stalls half-applied is worse than an automatic one.
+  primaryUpdateStrategy: unsupervised
+
+  # No superuser. The application connects as the `socialapp` role created
+  # below; nothing needs `postgres` day to day, and leaving it disabled means
+  # there is no superuser password to leak or rotate. CloudNativePG can be
+  # asked for one later if a migration genuinely needs it.
+  enableSuperuserAccess: false
+
+  bootstrap:
+    initdb:
+      database: socialapp
+      owner: socialapp
+      # Credentials come from a Secret created out of band, not generated.
+      # Same reasoning as the mongodb and postgresql releases (docs/10): a
+      # generated password is re-minted on re-render and breaks every client
+      # holding the old one. Without this key CloudNativePG would create
+      # socialapp-postgres-app itself with a random password.
+      secret:
+        name: socialapp-postgres-app
+
+  # 120Gi, not the 20Gi this started at: this cluster is the subscriber for
+  # logical replication from the ocivm socialapp database. The source is ~58GB
+  # but lands here at ~66GB — logical replication inserts into tables that
+  # already carry their indexes, so the result is less compact than the
+  # source's own files. Add ~5GB of WAL and the ceiling is what matters, since
+  # load tests keep growing the source. 80Gi left only 8GB of runway.
+  # Longhorn thin-provisions, so the volume occupies only what is written;
+  # `storage-over-provisioning-percentage` is 200 to let three of these
+  # schedule on a three-node cluster whose real usage is far lower.
+  storage:
+    size: 120Gi
+    storageClass: longhorn
+
+  # No separate walStorage. It is good practice where WAL and data can land on
+  # different disks, but local-path puts every volume on the same disk on
+  # k8s-01, so it would add three PVCs and a second thing that can fill up
+  # without isolating anything.
+
+  postgresql:
+    parameters:
+      # Still modest: three instances share 16Gi nodes with Kafka, Vault,
+      # ZITADEL and a sharded MongoDB. Postgres sizes nothing from cgroup
+      # limits on its own, so these are set rather than defaulted.
+      shared_buffers: 512MB
+      max_connections: "100"
+      # Raised for the ocivm logical-replication subscription. The initial
+      # COPY inserts ~58M rows into tables that already carry their indexes,
+      # so index maintenance — not the transfer — is the bottleneck.
+      maintenance_work_mem: 256MB
+      # Bulk load generates WAL far faster than the 1GB default tolerates;
+      # a small max_wal_size checkpoints constantly and stalls the copy.
+      max_wal_size: 4GB
+      # One apply worker for the subscription plus parallel table-sync
+      # workers. max_worker_processes has to cover both, with headroom for
+      # autovacuum and parallel query.
+      max_worker_processes: "16"
+      max_logical_replication_workers: "8"
+      max_sync_workers_per_subscription: "4"
+
+  # Raised alongside shared_buffers for the replication workload. The memory
+  # limit has to exceed shared_buffers + maintenance_work_mem * concurrent
+  # sync workers, or the postmaster is OOM-killed mid-copy.
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+
+  affinity:
+    enablePodAntiAffinity: true
+    # "preferred" is also the operator's default, stated explicitly because it
+    # is load-bearing here: "required" would leave two of the three instances
+    # Pending forever on a one-node cluster. It still spreads them the moment
+    # a second node joins.
+    podAntiAffinityType: preferred
+    topologyKey: kubernetes.io/hostname
+
+  monitoring:
+    # Off because it renders a PodMonitor, and that CRD comes from the
+    # monitoring release — a dependency this app should not carry just to
+    # exist. Flip it on once socialapp is actually being watched.
+    enablePodMonitor: false

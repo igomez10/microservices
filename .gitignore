@@ -51,3 +51,11 @@ socialapp/logs/socialapp-debug.log
 socialapp/.fuse_hidden0000001000000002
 
 socialapp/tmp/*
+
+# Terraform (socialapp/terraform). The lock file is deliberately NOT ignored:
+# it is what pins provider versions across the laptop and the Semaphore runner.
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log

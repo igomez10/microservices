@@ -1,7 +1,7 @@
 # Defaults for the socialapp chart. Anything that describes a particular
 # cluster (domains, in-cluster service addresses, image digests) belongs in
 # that deployment's own values file, not here. The homelab one is
-# homelab/apps/socialapp/helm/values.yaml in igomez10/microservices-infrastructure.
+# values.homelab.yaml, beside this file.
 
 # Added to every object's metadata, never to selectors: selectors are
 # immutable on a Deployment, so a label change there would force a recreate.

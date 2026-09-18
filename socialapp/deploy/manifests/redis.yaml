@@ -1,0 +1,173 @@
+# Single-node Redis for socialapp. One instance, deliberately: a lone Redis
+# has no failover, and the honest way to say that is to keep the topology
+# obviously singular rather than implying otherwise. Postgres next door is
+# replicated because CloudNativePG can promote a replica; Redis HA needs
+# Sentinel or Cluster, which is a different piece of work.
+#
+# Restarting loses nothing durable — the AOF on the PVC is replayed on start —
+# but it is a gap in availability, not just latency, while the pod restarts.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: socialapp-redis
+data:
+  # requirepass is NOT here — it is appended from the Secret at startup (see
+  # the init container). A ConfigMap is world-readable to anything with get on
+  # the namespace; the password belongs in the Secret.
+  redis.conf: |
+    dir /data
+    protected-mode yes
+
+    # AOF, not RDB. Both would mean two fork-based persistence paths competing
+    # for memory on a node that already runs Postgres, Kafka and MongoDB — and
+    # a fork during snapshot can transiently double Redis's resident memory.
+    # `save ""` disables RDB snapshots explicitly; the chart-free default would
+    # otherwise keep them on.
+    save ""
+    appendonly yes
+    appendfsync everysec
+
+    # Bounded well under the container limit below, leaving room for
+    # copy-on-write during AOF rewrite and for allocator fragmentation.
+    maxmemory 384mb
+    # noeviction: writes fail with an error once full rather than data
+    # disappearing silently. Correct default when it is unclear whether this
+    # holds cache or state. If socialapp uses it purely as a cache, switch to
+    # allkeys-lru — with noeviction a full cache stops accepting writes.
+    maxmemory-policy noeviction
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: socialapp-redis
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: socialapp-redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: redis
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: socialapp-redis
+spec:
+  serviceName: socialapp-redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: socialapp-redis
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: socialapp-redis
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        # Redis reads its password only from a config file — there is no
+        # environment variable for it, and `--requirepass` on the command line
+        # would put the password in the process table. So the config is
+        # assembled here: the ConfigMap's contents plus one line from the
+        # Secret, written to a file only this pod can read.
+        - name: render-config
+          image: redis:8.8.2-alpine
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              umask 077
+              { cat /config/redis.conf; printf 'requirepass %s\n' "$REDIS_PASSWORD"; } > /etc/redis/redis.conf
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: socialapp-redis
+                  key: password
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+          volumeMounts:
+            - name: config-src
+              mountPath: /config
+              readOnly: true
+            - name: config
+              mountPath: /etc/redis
+      containers:
+        - name: redis
+          image: redis:8.8.2-alpine
+          imagePullPolicy: IfNotPresent
+          args: [/etc/redis/redis.conf]
+          ports:
+            - name: redis
+              containerPort: 6379
+          env:
+            # redis-cli reads REDISCLI_AUTH from the environment, which keeps
+            # the password out of the probe's argv — `redis-cli -a <pw>` would
+            # show it in the process list on every probe.
+            - name: REDISCLI_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: socialapp-redis
+                  key: password
+          readinessProbe:
+            exec:
+              command: [redis-cli, ping]
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            exec:
+              command: [redis-cli, ping]
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: config
+              mountPath: /etc/redis
+              readOnly: true
+      volumes:
+        - name: config-src
+          configMap:
+            name: socialapp-redis
+        - name: config
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 8Gi
