@@ -113,7 +113,7 @@ func setupTestEnv(t *testing.T) *TestEnv {
 		DBPool:            dbPool,
 		RedisClient:       redisClient,
 		Server:            testServer,
-		BaseURL:           testServer.URL,
+		BaseURL:           testServer.URL + "/api",
 	}
 }
 
