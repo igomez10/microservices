@@ -10,7 +10,7 @@ os.environ.setdefault("DEPLOY_TOKEN", "test-token")
 os.environ.setdefault("MICROSERVICES_HOST_DIR", "/test/microservices")
 os.environ.setdefault("PUTTYKNIFE_HOST_DIR", "/test/puttyknife")
 
-from main import PROJECT_LOCKS, app  # noqa: E402
+from main import PROJECT_CONFIGS, PROJECT_LOCKS, app  # noqa: E402
 
 TOKEN = "test-token"
 BAD_TOKEN = "wrong-token"
@@ -84,6 +84,17 @@ async def test_deploy_invalid_project(client):
 
 
 # ── Successful deploy ─────────────────────────────────────────────────────────
+
+
+def test_socialapp_deploy_only_restarts_remaining_compose_services():
+    commands = PROJECT_CONFIGS["socialapp"]["commands"]("deadbeef")
+
+    assert "git fetch --all" in commands
+    assert "git checkout deadbeef" in commands
+    assert "docker compose build frontend" in commands
+    assert "docker compose up -d --no-deps frontend" in commands
+    assert "docker compose build socialapp" not in commands
+    assert "docker compose up -d --no-deps socialapp" not in commands
 
 
 @pytest.mark.asyncio

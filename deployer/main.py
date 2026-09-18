@@ -39,8 +39,6 @@ PROJECT_CONFIGS: dict[str, dict] = {
         "workdir": f"{MICROSERVICES_HOST_DIR}/socialapp",
         "commands": lambda commit: [
             *_git_commands(commit),
-            "docker compose build socialapp",
-            "docker compose up -d --no-deps socialapp",
             "docker compose build frontend",
             "docker compose up -d --no-deps frontend",
             "docker builder prune -f",
