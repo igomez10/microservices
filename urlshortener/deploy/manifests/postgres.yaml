@@ -1,0 +1,59 @@
+# urlshortener's own PostgreSQL, in its own namespace: one primary and two
+# streaming replicas, managed by the same CloudNativePG operator that runs
+# socialapp's cluster (cnpg-system, deploy/helmfile.yaml).
+#
+# Dedicated rather than a second database inside socialapp's cluster. The two
+# services are deployed and restarted independently, and sharing one Postgres
+# would make socialapp's maintenance window urlshortener's too — the point of
+# a separate namespace is a separate blast radius.
+#
+# Smaller than socialapp's on purpose: this schema is a single `urls` table
+# plus a sequence and an index. Storage and memory are sized for that, not
+# copied across.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: urlshortener-postgres
+spec:
+  instances: 3
+
+  primaryUpdateStrategy: unsupervised
+  enableSuperuserAccess: false
+
+  bootstrap:
+    initdb:
+      database: urlshortener
+      owner: urlshortener
+      # Created out of band, not generated — see ../README.md. The database is
+      # created here, which is why db/setup/schema.sql's first line
+      # (`CREATE DATABASE urlshortener;`) is skipped when the schema is
+      # applied.
+      secret:
+        name: urlshortener-postgres-app
+
+  storage:
+    size: 10Gi
+    storageClass: longhorn
+
+  postgresql:
+    parameters:
+      shared_buffers: 128MB
+      max_connections: "100"
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  affinity:
+    enablePodAntiAffinity: true
+    # Preferred, not required — k8s-01 is the only node. See the socialapp
+    # cluster for the full note.
+    podAntiAffinityType: preferred
+    topologyKey: kubernetes.io/hostname
+
+  monitoring:
+    enablePodMonitor: false

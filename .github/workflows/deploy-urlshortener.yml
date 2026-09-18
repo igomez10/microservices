@@ -6,6 +6,13 @@ on:
       - mainline
     paths:
       - 'urlshortener/**'
+      # The Terraform root, the cluster manifests and the Helm chart (including
+      # the digest commits build-urlshortener-image.yml makes to its
+      # values.homelab.yaml) are the cluster's; the compose stack this
+      # workflow deploys never reads them.
+      - '!urlshortener/terraform/**'
+      - '!urlshortener/deploy/**'
+      - '!urlshortener/helm/**'
 
 jobs:
   ci:
@@ -23,9 +30,13 @@ jobs:
       - name: Deploy
         env:
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          # A secret rather than a repository variable: this repo is public,
+          # and so are its Actions logs. Secrets are masked in them; variables
+          # are printed in the clear.
+          DEPLOYER_URL: ${{ secrets.DEPLOYER_URL }}
         run: |
           curl --silent --show-error --fail-with-body --max-time 600 \
-            -X POST https://deployer.gomezignacio.com/deploy \
+            -X POST "$DEPLOYER_URL/deploy" \
             -H "Authorization: Bearer $DEPLOY_TOKEN" \
             -H "Content-Type: application/json" \
             -d "{\"project\": \"urlshortener\", \"commit\": \"${{ github.sha }}\"}"

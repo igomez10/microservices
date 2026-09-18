@@ -1,0 +1,27 @@
+# The urlshortener namespace and its stateful half: its own PostgreSQL
+# cluster. The CloudNativePG operator behind that Cluster is a platform release
+# in the infrastructure repo, shared with socialapp.
+#
+# Synced by the `urlshortener-data` Argo CD Application, declared in
+# ../../terraform/argocd.tf. Sync is manual and never cascades: this is the
+# data.
+#
+# The stateless half (the service, its migration Job, a smoke test) is the Helm
+# chart in ../../helm/urlshortener, deployed by the separate `urlshortener-app`
+# Application. That one syncs automatically.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: urlshortener
+
+# Not `commonLabels`: that folds the label into selectors too, and the
+# operator owns the selectors on everything it generates.
+labels:
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/part-of: urlshortener
+
+resources:
+  # First: everything below is created inside it.
+  - namespace.yaml
+  - postgres.yaml

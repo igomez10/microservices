@@ -1,0 +1,27 @@
+# The urlshortener namespace, owned by the app that lives in it.
+#
+# It sits here rather than in kubernetes/bootstrap/namespaces.yaml so that this
+# folder is the whole app: one `kubectl apply -k` (or one Argo sync) creates
+# the namespace and everything in it. The platform namespaces — argocd,
+# istio-system, cert-manager, monitoring, and the rest — stay in bootstrap,
+# because they belong to no single app and have to exist before helmfile runs.
+#
+# The Pod Security labels are the reason this is a manifest at all rather than
+# a `CreateNamespace=true` sync option: a namespace conjured by a sync gets no
+# labels, and an unlabelled namespace silently inherits the cluster default
+# (privileged). Restricted-policy audit and warn stay on everywhere; fix
+# violations rather than suppressing them.
+#
+# `Prune=false` is deliberate. Argo deletes a pruned resource's contents with
+# it, so a namespace that disappears from Git — a bad render, a moved file —
+# would take the whole app with it. Deleting this namespace is a manual act.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: urlshortener
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
+  labels:
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted

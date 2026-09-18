@@ -1,0 +1,23 @@
+# Homelab values for this chart, layered over values.yaml beside it. Rendered
+# by the `urlshortener-app` Argo CD Application (../../terraform/argocd.tf).
+#
+# values.yaml owns the chart's defaults; this file owns what is specific to the
+# homelab cluster, including exactly which image digests run.
+#
+# It lives inside the chart directory for one reason: the image workflow
+# commits digests here, and urlshortener/helm/** is excluded from that
+# workflow's own trigger. A digest commit therefore cannot start another build,
+# whatever token pushed it.
+
+# Pinned by digest, so the running version is recorded in Git and a rollback is
+# a revert. The URLShortener Image workflow
+# (.github/workflows/build-urlshortener-image.yml) rewrites both image lines on
+# each build.
+image: ghcr.io/igomez10/urlshortener@sha256:59a8b49fe27c01c9609fcb91f277ebf4434cf2155d0407b77898597d482b06e7
+
+# The shared cluster collector (homelab/apps/otel-collector), the same endpoint
+# socialapp and puttyknife use.
+otelEndpoint: http://otel-collector.observability.svc.cluster.local:4317
+
+migrate:
+  image: ghcr.io/igomez10/urlshortener-migrate@sha256:608f91c40c36a0996d002b428ca9c8411e01000092215630d61e1d79c992fbe8

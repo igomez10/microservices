@@ -1,7 +1,7 @@
 # Defaults for the urlshortener chart. Anything that describes a particular
 # cluster (the collector address, image digests) belongs in that deployment's
-# own values file, not here. The homelab one is
-# homelab/apps/urlshortener/helm/values.yaml in igomez10/microservices-infrastructure.
+# own values file, not here. The homelab one is values.homelab.yaml, beside
+# this file.
 
 # Added to every object's metadata, never to selectors: selectors are
 # immutable on a Deployment, so a label change there would force a recreate.
