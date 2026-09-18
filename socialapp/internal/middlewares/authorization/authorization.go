@@ -32,8 +32,8 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 			return
 		}
 		if len(tokenScopes) == 0 && len(m.RequiredScopes) != 0 {
-			logger.Error(
-				"No scopes in context and required scopes are not empty",
+			logger.Info(
+				"Unauthenticated request to protected endpoint",
 				"token_scopes", tokenScopes,
 				"required_scopes", m.RequiredScopes,
 			)

@@ -1,6 +1,7 @@
 package authorization
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"log/slog"
@@ -14,6 +15,24 @@ import (
 
 func newTestLogger() *slog.Logger {
 	return slog.New(slog.NewJSONHandler(io.Discard, nil))
+}
+
+func TestAuthorize_AnonymousDenialLogsAtInfo(t *testing.T) {
+	var logs bytes.Buffer
+	logger := slog.New(slog.NewJSONHandler(&logs, nil))
+	req := httptest.NewRequest(http.MethodGet, "/test", nil)
+	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), logger))
+	req = contexthelper.SetRequestedScopesInContext(req, map[string]bool{})
+
+	middleware := &Middleware{RequiredScopes: map[string]bool{"read:users": true}}
+	middleware.Authorize(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {})).ServeHTTP(
+		httptest.NewRecorder(),
+		req,
+	)
+
+	assert.Contains(t, logs.String(), `"level":"INFO"`)
+	assert.Contains(t, logs.String(), `"msg":"Unauthenticated request to protected endpoint"`)
+	assert.NotContains(t, logs.String(), `"level":"ERROR"`)
 }
 
 func TestAuthorize(t *testing.T) {
