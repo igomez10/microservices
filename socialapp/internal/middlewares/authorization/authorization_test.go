@@ -3,6 +3,7 @@ package authorization
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"io"
 	"log/slog"
 	"net/http"
@@ -10,7 +11,9 @@ import (
 	"testing"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func newTestLogger() *slog.Logger {
@@ -410,12 +413,12 @@ func TestAuthorize_ErrorResponses(t *testing.T) {
 			handler.ServeHTTP(rec, req)
 
 			assert.Equal(t, tc.expectStatus, rec.Code)
-			assert.Contains(t, rec.Body.String(), tc.expectMessage)
+			assert.Equal(t, "application/json; charset=UTF-8", rec.Header().Get("Content-Type"))
 
-			// Verify the response contains the code field
-			body := rec.Body.String()
-			assert.Contains(t, body, "code")
-			assert.Contains(t, body, "message")
+			var response openapi.Error
+			require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &response))
+			assert.Equal(t, int32(tc.expectCode), response.Code)
+			assert.Contains(t, response.Message, tc.expectMessage)
 		})
 	}
 }

@@ -2,10 +2,23 @@ package authorization
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
+	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
+)
+
+var (
+	noScopesInContextError = openapi.Error{
+		Code:    http.StatusForbidden,
+		Message: "No scopes in context",
+	}
+	unauthenticatedError = openapi.Error{
+		Code:    http.StatusUnauthorized,
+		Message: "No scopes in context and required scopes are not empty",
+	}
 )
 
 type Middleware struct {
@@ -27,8 +40,7 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 		if !ok {
 			logger.Error("Failed to get token scopes from context")
 
-			w.WriteHeader(http.StatusForbidden)
-			w.Write([]byte(`{"code":403,"message":"No scopes in context"}`))
+			writeErrorResponse(w, logger, noScopesInContextError)
 			return
 		}
 		if len(tokenScopes) == 0 && len(m.RequiredScopes) != 0 {
@@ -37,8 +49,7 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 				"token_scopes", tokenScopes,
 				"required_scopes", m.RequiredScopes,
 			)
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(`{"code":401,"message":"No scopes in context and required scopes are not empty"}`))
+			writeErrorResponse(w, logger, unauthenticatedError)
 			return
 		}
 
@@ -47,8 +58,10 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 			if exist := tokenScopes[scopeName]; !exist {
 				logger.Info("Missing scope", "scope", scopeName, "token_scopes", tokenScopes)
 
-				w.WriteHeader(http.StatusForbidden)
-				w.Write([]byte(fmt.Sprintf(`{"code": 403, "message": "Scope %s missing from token"}`, scopeName)))
+				writeErrorResponse(w, logger, openapi.Error{
+					Code:    http.StatusForbidden,
+					Message: fmt.Sprintf("Scope %s missing from token", scopeName),
+				})
 				return
 			}
 		}
@@ -56,4 +69,11 @@ func (m *Middleware) Authorize(next http.Handler) http.Handler {
 		logger.Info("Authorization successful")
 		next.ServeHTTP(w, r)
 	})
+}
+
+func writeErrorResponse(w http.ResponseWriter, logger *slog.Logger, response openapi.Error) {
+	status := int(response.Code)
+	if err := openapi.EncodeJSONResponse(response, &status, nil, w); err != nil {
+		logger.Error("Failed to encode authorization error response", "error", err)
+	}
 }
