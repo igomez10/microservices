@@ -230,7 +230,7 @@ func NewRouter(ctx context.Context, config Config) (chi.Router, error) {
 		AllowlistedPaths: socialappAllowlistedPaths,
 		JWTSecret:        config.JWTSecret,
 		AllowBasicAuth:   false,
-		AuthEndpoint:     "/v1/oauth/token",
+		AuthEndpoint:     "/api/v1/oauth/token",
 	}
 
 	beaconMW := beacon.Beacon{}

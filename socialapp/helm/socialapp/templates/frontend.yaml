@@ -35,12 +35,11 @@ data:
         try_files $uri =404;
       }
 
-      # The trailing slash on proxy_pass is what strips /api: a request for
-      # /api/users is forwarded as /users. Without it the backend would see
-      # /api/users and 404. This is the nginx equivalent of compose's
-      # frontend-api-strip middleware.
+      # Preserve /api when proxying: the generated backend routes include that
+      # prefix (for example /api/v1/oauth/token). A trailing slash on
+      # proxy_pass would strip it and make every generated API route return 404.
       location /api/ {
-        proxy_pass {{ include "socialapp.apiURL" . }}/;
+        proxy_pass {{ include "socialapp.apiURL" . }};
         proxy_http_version 1.1;
         # The backend routes on Host (its subdomain options), so pass the
         # client's host through rather than the upstream's.

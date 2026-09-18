@@ -73,10 +73,11 @@ spec:
               # The frontend serves the SPA.
               check "frontend /" "$WEB/" 200
 
-              # And the frontend's /api proxy reaches the API with the prefix
-              # stripped. This is the wiring most likely to break silently: the
-              # SPA loads fine while every API call 404s.
-              check "frontend /api/health" "$WEB/api/health" 200
+              # The frontend must preserve /api when proxying generated API
+              # routes. An unauthenticated request reaches the application and
+              # returns its JSON 401; a plain-text 404 means nginx stripped the
+              # prefix before proxying.
+              check "frontend generated API route" "$WEB/api/v1/users/smoke-test" 401
 
               echo "smoke tests passed"
 {{- end }}
