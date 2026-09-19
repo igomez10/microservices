@@ -273,7 +273,12 @@ func ListUsersLifecycle(ctx context.Context) error {
 	apiClient = client.NewAPIClient(configuration)
 
 	if err := func() error {
-		createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
+		var err error
+		generatedUsername, createUsrReq, err := generatedUser(ctx, username1, password, "FirstName_example", "LastName_example", username1)
+		if err != nil {
+			return fmt.Errorf("error generating user data: %v", err)
+		}
+		username1 = generatedUsername
 		_, res, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 		if err != nil {
 			return fmt.Errorf("Error creating user: %v", err)
@@ -325,7 +330,11 @@ func CreateUserLifecycle(ctx context.Context) error {
 	username := fmt.Sprintf("Test-%d", time.Now().UnixNano())
 	password := "password"
 	email := fmt.Sprintf("Test-%d-@social.com", time.Now().UnixNano())
-	user := *client.NewCreateUserRequest(username, "password", "FirstName_example", "LastName_example", email) // User | Create a new user
+	username, generatedReq, err := generatedUser(ctx, username, password, "FirstName_example", "LastName_example", email)
+	if err != nil {
+		return fmt.Errorf("error generating user data: %v", err)
+	}
+	user := *generatedReq
 
 	if err := func() error {
 		_, r, err := apiClient.UserAPI.CreateUser(noAuthCtx).
@@ -445,12 +454,20 @@ func FollowLifeCycle(ctx context.Context) error {
 	username1 := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password1 := fmt.Sprintf("TestPassword-%d1", time.Now().UnixNano())
 	email1 := fmt.Sprintf("Test-%d-1@social.com", time.Now().UnixNano())
-	user1 := *client.NewCreateUserRequest(username1, password1, "FirstName_example", "LastName_example", email1) // User | Create a new user
+	username1, user1Req, err := generatedUser(ctx, username1, password1, "FirstName_example", "LastName_example", email1)
+	if err != nil {
+		return fmt.Errorf("error generating user1 data: %v", err)
+	}
+	user1 := *user1Req
 
 	username2 := fmt.Sprintf("Test-%d2", time.Now().UnixNano())
 	password2 := fmt.Sprintf("TestPassword-%d2", time.Now().UnixNano())
 	email2 := fmt.Sprintf("Test-%d-2@social.com", time.Now().UnixNano())
-	user2 := *client.NewCreateUserRequest(username2, password2, "FirstName_example", "LastName_example", email2) // User | Create a new user
+	username2, user2Req, err := generatedUser(ctx, username2, password2, "FirstName_example", "LastName_example", email2)
+	if err != nil {
+		return fmt.Errorf("error generating user2 data: %v", err)
+	}
+	user2 := *user2Req
 
 	// create users
 	if err := func() error {
@@ -561,12 +578,20 @@ func GetExpectedFeed(ctx context.Context) error {
 	username1 := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password1 := "password"
 	email1 := fmt.Sprintf("Test-%d-1@social.com", time.Now().UnixNano())
-	user1 := *client.NewCreateUserRequest(username1, password1, "FirstName_example", "LastName_example", email1) // User | Create a new user
+	username1, user1Req, err := generatedUser(ctx, username1, password1, "FirstName_example", "LastName_example", email1)
+	if err != nil {
+		return fmt.Errorf("error generating user1 data: %v", err)
+	}
+	user1 := *user1Req
 
 	username2 := fmt.Sprintf("Test-%d2", time.Now().UnixNano())
 	password2 := "secretPassword"
 	email2 := fmt.Sprintf("Test-%d-2@social.com", time.Now().UnixNano())
-	user2 := *client.NewCreateUserRequest(username2, password2, "FirstName_example", "LastName_example", email2) // User | Create a new user
+	username2, user2Req, err := generatedUser(ctx, username2, password2, "FirstName_example", "LastName_example", email2)
+	if err != nil {
+		return fmt.Errorf("error generating user2 data: %v", err)
+	}
+	user2 := *user2Req
 
 	// create users
 	if err := func() error {
@@ -640,7 +665,11 @@ func GetExpectedFeed(ctx context.Context) error {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
 	if err := func() error {
-		comment := *client.NewCreateCommentRequest("Test comment", username2)
+		commentReq, err := generatedComment(ctx, "Test comment", username2)
+		if err != nil {
+			return fmt.Errorf("error generating comment data: %v", err)
+		}
+		comment := *commentReq
 		_, r, err := apiClient.CommentAPI.
 			CreateComment(oauth2Ctx2).
 			CreateCommentRequest(comment).
@@ -706,12 +735,20 @@ func SearchCommentsLifecycle(ctx context.Context) error {
 	username1 := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password1 := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
 	email1 := fmt.Sprintf("%s-1@example.com", username1)
-	user1 := *client.NewCreateUserRequest(username1, password1, "Search", "AuthorOne", email1)
+	username1, user1Req, err := generatedUser(ctx, username1, password1, "Search", "AuthorOne", email1)
+	if err != nil {
+		return fmt.Errorf("error generating user1 data: %v", err)
+	}
+	user1 := *user1Req
 
 	username2 := fmt.Sprintf("Test-%d-search", time.Now().UnixNano())
 	password2 := fmt.Sprintf("Secret-%d", time.Now().UnixNano())
 	email2 := fmt.Sprintf("%s-2@example.com", username2)
-	user2 := *client.NewCreateUserRequest(username2, password2, "Search", "AuthorTwo", email2)
+	username2, user2Req, err := generatedUser(ctx, username2, password2, "Search", "AuthorTwo", email2)
+	if err != nil {
+		return fmt.Errorf("error generating user2 data: %v", err)
+	}
+	user2 := *user2Req
 
 	if err := func() error {
 		_, r1, err1 := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(user1).Execute()
@@ -755,7 +792,11 @@ func SearchCommentsLifecycle(ctx context.Context) error {
 	}
 
 	firstWindowStart := time.Now().UTC()
-	firstComment := *client.NewCreateCommentRequest("search-first", username1)
+	firstCommentReq, err := generatedComment(ctx, "search-first", username1)
+	if err != nil {
+		return fmt.Errorf("error generating first comment: %v", err)
+	}
+	firstComment := *firstCommentReq
 	createdFirst, r, err := apiClient.CommentAPI.CreateComment(oauth2Ctx1).CreateCommentRequest(firstComment).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `CommentAPI.CreateComment` for user1: %v\n %+v\n", err, r)
@@ -763,7 +804,11 @@ func SearchCommentsLifecycle(ctx context.Context) error {
 
 	time.Sleep(25 * time.Millisecond)
 
-	secondComment := *client.NewCreateCommentRequest("search-second", username2)
+	secondCommentReq, err := generatedComment(ctx, "search-second", username2)
+	if err != nil {
+		return fmt.Errorf("error generating second comment: %v", err)
+	}
+	secondComment := *secondCommentReq
 	createdSecond, r, err := apiClient.CommentAPI.CreateComment(oauth2Ctx2).CreateCommentRequest(secondComment).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `CommentAPI.CreateComment` for user2: %v\n %+v\n", err, r)
@@ -836,7 +881,10 @@ func GetAccessToken(ctx context.Context) error {
 	username := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
 	email := fmt.Sprintf("%s@example.com", username)
-	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", email)
+	username, createUsrReq, err := generatedUser(ctx, username, password, "FirstName_example", "LastName_example", email)
+	if err != nil {
+		return fmt.Errorf("error generating user data: %v", err)
+	}
 	// create user
 	if err := func() error {
 		_, _, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
@@ -896,7 +944,10 @@ func RegisterUserFlow(ctx context.Context) error {
 
 	username1 := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
-	createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
+	username1, createUsrReq, err := generatedUser(ctx, username1, password, "FirstName_example", "LastName_example", username1)
+	if err != nil {
+		return fmt.Errorf("error generating user data: %v", err)
+	}
 
 	// create a user, no auth needed
 	_, res, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
@@ -973,7 +1024,10 @@ func ChangePassword(ctx context.Context) error {
 
 	username := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
-	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
+	username, createUsrReq, err := generatedUser(ctx, username, password, "FirstName_example", "LastName_example", username)
+	if err != nil {
+		return fmt.Errorf("error generating user data: %v", err)
+	}
 
 	// create a user, no auth needed
 	_, res, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
@@ -1081,7 +1135,10 @@ func RoleLifecycle(ctx context.Context) error {
 
 	username := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
-	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
+	username, createUsrReq, err := generatedUser(ctx, username, password, "FirstName_example", "LastName_example", username)
+	if err != nil {
+		return fmt.Errorf("error generating user data: %v", err)
+	}
 
 	// create a user, no auth needed
 	_, res, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
@@ -1302,7 +1359,10 @@ func ScopeLifecycle(ctx context.Context) error {
 
 	username := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
-	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
+	username, createUsrReq, err := generatedUser(ctx, username, password, "FirstName_example", "LastName_example", username)
+	if err != nil {
+		return fmt.Errorf("error generating user data: %v", err)
+	}
 
 	// create a user, no auth needed
 	_, res, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
@@ -1442,7 +1502,10 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 
 	username := fmt.Sprintf(defaultUsername, time.Now().UnixNano())
 	password := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
-	createUsrReq := client.NewCreateUserRequest(username, password, "FirstName_example", "LastName_example", username)
+	username, createUsrReq, err := generatedUser(ctx, username, password, "FirstName_example", "LastName_example", username)
+	if err != nil {
+		return fmt.Errorf("error generating user data: %v", err)
+	}
 
 	// create a user, no auth needed
 	_, res, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
@@ -1550,8 +1613,13 @@ func CacheRequestSameUser(ctx context.Context) error {
 	password := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
 	apiClient = client.NewAPIClient(configuration)
 	if err := func() error {
-		createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
-		_, _, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+		var err error
+		generatedUsername, createUsrReq, err := generatedUser(ctx, username1, password, "FirstName_example", "LastName_example", username1)
+		if err != nil {
+			return fmt.Errorf("error generating user data: %v", err)
+		}
+		username1 = generatedUsername
+		_, _, err = apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 		if err != nil {
 			return fmt.Errorf("Error creating user: %v", err)
 		}
@@ -1644,8 +1712,13 @@ func URLLifeCycle(ctx context.Context) error {
 	password := fmt.Sprintf(defaultPassword, time.Now().UnixNano())
 	apiClient = client.NewAPIClient(configuration)
 	if err := func() error {
-		createUsrReq := client.NewCreateUserRequest(username1, password, "FirstName_example", "LastName_example", username1)
-		_, _, err := apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
+		var err error
+		generatedUsername, createUsrReq, err := generatedUser(ctx, username1, password, "FirstName_example", "LastName_example", username1)
+		if err != nil {
+			return fmt.Errorf("error generating user data: %v", err)
+		}
+		username1 = generatedUsername
+		_, _, err = apiClient.UserAPI.CreateUser(proxyCtx).CreateUserRequest(*createUsrReq).Execute()
 		if err != nil {
 			return fmt.Errorf("Error creating user: %v", err)
 		}

@@ -12,9 +12,8 @@ import (
 const DefaultGeminiModel = "gemini-2.5-flash-lite"
 
 type GeminiConfig struct {
-	APIKey  string
-	Model   string
-	Backend genai.Backend
+	APIKey string
+	Model  string
 }
 
 type GeminiProvider struct {
@@ -32,14 +31,9 @@ func NewGeminiProvider(ctx context.Context, cfg GeminiConfig) (*GeminiProvider, 
 		model = DefaultGeminiModel
 	}
 
-	backend := cfg.Backend
-	if backend == genai.BackendUnspecified {
-		backend = genai.BackendGeminiAPI
-	}
-
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
 		APIKey:  cfg.APIKey,
-		Backend: backend,
+		Backend: genai.BackendVertexAI,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("create gemini client: %w", err)
@@ -57,25 +51,19 @@ func (p *GeminiProvider) Generate(ctx context.Context, req GenerateRequest) (Gen
 		return GenerateResponse{}, errors.New("prompt is required")
 	}
 
-	model := strings.TrimSpace(req.Model)
-	if model == "" {
-		model = p.model
+	cfg := &genai.GenerateContentConfig{}
+	if req.Temperature != 0 {
+		cfg.Temperature = &req.Temperature
 	}
 
-	cfg := &genai.GenerateContentConfig{}
-	if req.Temperature != nil {
-		cfg.Temperature = req.Temperature
-	}
-	if strings.TrimSpace(req.ResponseMIMEType) != "" {
-		cfg.ResponseMIMEType = req.ResponseMIMEType
-	}
+	cfg.ResponseMIMEType = string(req.ResponseMIMEType)
 	if req.ResponseJSONSchema != nil {
 		cfg.ResponseJsonSchema = req.ResponseJSONSchema
 	}
 
 	resp, err := p.client.Models.GenerateContent(
 		ctx,
-		model,
+		p.model,
 		genai.Text(prompt),
 		cfg,
 	)
