@@ -27,7 +27,6 @@ volumes:
   tempo_data: {}
 
 services:
-
   database:
     image: postgres:15-bookworm
     container_name: database
@@ -78,24 +77,6 @@ services:
         reservations:
           cpus: "1"
           memory: 1G
-
-  setup:
-    build:
-      context: setup
-      dockerfile: Dockerfile
-    container_name: setup
-    command: ["sh", "-c", "chmod +x /setup/init.sh && /setup/init.sh"]
-    restart: "no"
-    depends_on:
-      - database
-    networks:
-      - elk
-      - default
-    env_file:
-      - .env
-    volumes:
-      - ./setup:/setup
-      - ./db/setup/schema.sql:/schema.sql:ro
 
   postgres-exporter:
     container_name: postgres-exporter
@@ -599,7 +580,6 @@ services:
         max-size: "10m"
         max-file: "3"
 
-
   unleash:
     init: true
     container_name: unleash
@@ -974,7 +954,6 @@ services:
         labels: "service_name"
         max-size: "10m"
         max-file: "3"
-
 
   deployer:
     build:
