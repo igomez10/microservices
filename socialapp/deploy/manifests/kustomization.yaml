@@ -1,7 +1,7 @@
 # The socialapp namespace and its stateful half: a replicated PostgreSQL
 # cluster and a single-node Redis. The CloudNativePG operator behind the
 # Postgres Cluster is a platform release in the infrastructure repo,
-# homelab/deploy/helmfile.yaml.
+# layers/20-cluster-platform/modules/cloudnative-pg.
 #
 # Synced by the `socialapp-data` Argo CD Application, which is declared in
 # ../../terraform/argocd.tf. Sync is manual and never cascades: this is the
