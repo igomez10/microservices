@@ -41,6 +41,12 @@ variable "grafana_url" {
   nullable    = false
 }
 
+variable "zitadel_domain" {
+  type        = string
+  description = "ZITADEL's hostname, no scheme — what the zitadel provider's domain expects. On the tailnet."
+  nullable    = false
+}
+
 variable "application_repo_url" {
   type        = string
   description = "HTTPS URL of this repo, which both Argo CD Applications render from. Public, so Argo CD needs no repository credentials for it — an SSH URL would demand a key even to read."

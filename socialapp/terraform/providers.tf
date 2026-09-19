@@ -46,3 +46,15 @@ provider "argocd" {
   auth_token  = ephemeral.vault_kv_secret_v2.semaphore_terraform.data["argocd_auth_token"]
   grpc_web    = true
 }
+
+# A ZITADEL personal access token from the same ephemeral read, so it never
+# lands in state: kv/semaphore/terraform → zitadel_access_token. The same token
+# layer 30 of the infrastructure repo runs with — ZITADEL's IAM admin PAT, the
+# iam-admin-pat Secret in the zitadel namespace — rather than one scoped to this
+# root, for the reason Argo CD's token is shared: one credential to rotate.
+# The cost is that it is instance-wide, so this root could change any login in
+# the homelab; zitadel.tf keeps to its own machine user.
+provider "zitadel" {
+  domain       = var.zitadel_domain
+  access_token = ephemeral.vault_kv_secret_v2.semaphore_terraform.data["zitadel_access_token"]
+}

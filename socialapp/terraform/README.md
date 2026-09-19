@@ -17,6 +17,7 @@ until it moved here.
 | `argocd.tf` | `argocd_project.homelab-socialapp`, and the `socialapp-data` and `socialapp-app` Applications |
 | `kafka.tf` | The CDC topics. Commented out; the provider is configured but never contacted |
 | `grafana.tf` | On the **homelab** Grafana: the `socialapp` folder and three dashboards (`dashboards/overview.json`, `resources.json`, `logs.json`), 16 alert rules, and the `socialapp-slack` contact point they route to directly (no shared notification policy) |
+| `zitadel.tf` | `zitadel_machine_user.socialapp_api` — the identity socialapp calls other services as — and its `zitadel_machine_key`, registered by public key only, read from `kv/socialapp/zitadel-public` (see **ZITADEL key** below) |
 | `remote-state.tf` | The one read of the infrastructure repo's state: layer 30's two Vault paths |
 
 Its state is `terraform/state/socialapp` in the `microservices-341219` GCS
@@ -51,7 +52,11 @@ the CloudNativePG operator, Argo CD itself.
   source and therefore stored in this root's state (the contact point's `url`
   is not write-only). Store a token without it passing through your clipboard
   history or shell history, e.g. `pbpaste | vault kv patch kv/semaphore/terraform grafana_homelab_auth=-`.
-- Five host variables, none with a default, because this repo is public and
+- A ZITADEL personal access token at `kv/semaphore/terraform` →
+  `zitadel_access_token`, read ephemerally, for `zitadel.tf`. It is the same
+  IAM admin PAT layer 30 of the infrastructure repo uses (the `iam-admin-pat`
+  Secret in the `zitadel` namespace), so it is instance-wide.
+- Six host variables, none with a default, because this repo is public and
   the domain is kept out of it. For a local run put them in `terraform.tfvars`
   (gitignored):
   ```hcl
@@ -60,6 +65,7 @@ the CloudNativePG operator, Argo CD itself.
   argocd_server_addr      = "argocd.<...>:443"         # host:port, no scheme
   kafka_bootstrap_servers = ["broker1.<...>:29092", "broker2.<...>:29093", "broker3.<...>:29094"]
   grafana_url             = "https://grafana.homelab.<...>" # the cluster's Grafana, not the OCI VM's
+  zitadel_domain          = "zitadel.<...>"            # host only, no scheme
   ```
   In Semaphore they are `TF_VAR_<name>` on the socialapp project's
   environment, set in `layers/40-apps/modules/semaphore/project-socialapp.tf`
@@ -81,6 +87,38 @@ resource lives in the one module so a single place holds the Semaphore API
 token. Its *Terraform provider credentials* environment is created empty; fill
 in `VAULT_TOKEN` and the Google credentials through the Semaphore UI so they
 are not written to layer 40's state.
+
+## ZITADEL key
+
+`socialapp-api` authenticates with an RSA key pair that is generated outside
+Terraform. Its two halves live at two Vault paths:
+
+| Path | Keys | Read by |
+|---|---|---|
+| `kv/socialapp/zitadel` | `private_key`, `user_id`, `key_id` | socialapp, through the Vault Secrets Operator |
+| `kv/socialapp/zitadel-public` | `public_key` | this root, which registers it with ZITADEL |
+
+Keep them apart: this root reads the public path with a data source, which
+writes the whole secret into state — the private key must never be at that
+path. This root's `VAULT_TOKEN` needs read on `kv/socialapp/zitadel-public`.
+
+Creating or rotating the pair (the private key never touches disk):
+
+```bash
+key=$(openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048)
+printf '%s\n' "$key" | vault kv put kv/socialapp/zitadel private_key=-
+printf '%s\n' "$key" | openssl pkey -pubout | vault kv put kv/socialapp/zitadel-public public_key=-
+unset key
+
+terraform apply
+vault kv patch kv/socialapp/zitadel \
+  user_id="$(terraform output -raw zitadel_user_id)" \
+  key_id="$(terraform output -raw zitadel_key_id)"
+```
+
+A rotation replaces the ZITADEL key, so the old private key stops working as
+soon as the apply finishes. Patch `key_id` straight after, and restart
+socialapp once the Vault Secrets Operator has synced the new values.
 
 ## One-time migration from layer 40
 

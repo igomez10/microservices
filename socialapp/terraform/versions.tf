@@ -37,6 +37,12 @@ terraform {
       source  = "grafana/grafana"
       version = "~> 3.0"
     }
+    # Same constraint as layer 30 of the infrastructure repo, which manages the
+    # rest of this ZITADEL instance.
+    zitadel = {
+      source  = "zitadel/zitadel"
+      version = "~> 3.4"
+    }
   }
 
   # Same bucket as the infrastructure layers, a prefix of its own. Sharing the
