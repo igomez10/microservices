@@ -1,0 +1,75 @@
+name: Socialapp OpenAPI Drift
+
+# Fails when the committed generated artifacts no longer match openapi.yaml.
+# The generator version comes from socialapp/openapitools.json, so this job
+# needs only Node and a JRE.
+
+on:
+  pull_request:
+    paths:
+      - "socialapp/openapi.yaml"
+      - "socialapp/openapitools.json"
+      - "socialapp/package.json"
+      - "socialapp/Makefile"
+      - ".github/workflows/socialapp-openapi-drift.yml"
+  push:
+    branches:
+      - mainline
+    paths:
+      - "socialapp/openapi.yaml"
+      - "socialapp/openapitools.json"
+      - "socialapp/package.json"
+      - "socialapp/Makefile"
+      - ".github/workflows/socialapp-openapi-drift.yml"
+  workflow_dispatch:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: socialapp/package-lock.json
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: socialapp/go.mod
+
+      - name: Install goimports
+        run: go install golang.org/x/tools/cmd/goimports@latest
+
+      - name: Install generator wrapper
+        run: |
+          cd socialapp
+          npm ci
+
+      - name: Install frontend dependencies
+        run: |
+          cd socialapp/frontend
+          npm ci
+
+      - name: Regenerate and check for drift
+        run: |
+          cd socialapp
+          make check-openapi-drift
+
+      - name: Show drift
+        if: failure()
+        run: |
+          cd socialapp
+          echo "Generated artifacts are stale. Run 'make generate-openapi' and commit the result."
+          git diff --stat

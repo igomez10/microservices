@@ -1,0 +1,8 @@
+{
+  "name": "socialapp-codegen",
+  "private": true,
+  "description": "Pins the OpenAPI generator used to produce the committed artifacts (see Makefile: generate-openapi). Not an application package.",
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.27.0"
+  }
+}

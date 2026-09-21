@@ -21,83 +21,109 @@ compose-prune:
 	cd ../urlshortener && docker compose down --volumes --remove-orphans
 	cd ../../docker-elk && docker compose down --volumes  --remove-orphans
 
-generate-openapi:
-	set -e
-	# openapi-generator-cli version-manager set 7.11.0
-	#  generate server:
-	rm -rf ./socialappapi
-	openapi-generator generate --input-spec openapi.yaml  \
-	--generator-name go-server \
-	--output socialappapi \
-	--ignore-file-override \
-	--git-repo-id=microservices/socialapp \
-	--git-user-id=igomez10 \
-	--additional-properties=packageName=openapi \
-	--additional-properties=outputAsLibrary=true \
-	--additional-properties=packageVersion=1.18.0 \
-	--additional-properties=serverPort=8080 \
-	--additional-properties=featureCORS=true \
-	--additional-properties=hideGenerationTimestamp=true \
-	--additional-properties=addResponseHeaders=true \
-	--additional-properties=onlyInterfaces=true \
-	--additional-properties=router=chi
-	rm -rf socialappapi/openapi
-	mv socialappapi/go socialappapi/openapi
+# ---------------------------------------------------------------------------
+# OpenAPI code generation
+#
+# Every artifact below is generated from openapi.yaml and committed to the repo.
+# Run `make generate-openapi` after editing the spec, or a single sub-target
+# (e.g. `make generate-openapi-server`) while iterating.
+# `make check-openapi-drift` verifies the committed output still matches the spec.
+#
+# Output differs between generator versions. The version is pinned in
+# openapitools.json and fetched by the npm wrapper, so CI needs only Node.
+# Override OPENAPI_GENERATOR to use a locally installed binary instead.
+# ---------------------------------------------------------------------------
+OPENAPI_GENERATOR         ?= npx @openapitools/openapi-generator-cli
+OPENAPI_GENERATOR_VERSION ?= 7.25.0
+OPENAPI_SPEC              := openapi.yaml
+OPENAPI_GIT_USER_ID       := igomez10
+OPENAPI_GIT_REPO_ID       := microservices/socialapp
+OPENAPI_OUTPUTS           := socialappapi client Models postman jmeter \
+                             frontend/src/api/types.ts
 
-	# generate go client
+.PHONY: generate-openapi generate-openapi-server generate-openapi-client \
+	generate-openapi-docs generate-openapi-jmeter generate-openapi-postman \
+	generate-frontend-types validate-openapi check-openapi-generator \
+	check-openapi-drift
+
+check-openapi-generator:
+	@v="$$($(OPENAPI_GENERATOR) version 2>/dev/null | tail -1)"; \
+	if [ "$$v" != "$(OPENAPI_GENERATOR_VERSION)" ]; then \
+		echo "openapi-generator $(OPENAPI_GENERATOR_VERSION) required, found $$v"; \
+		echo "Regenerating with another version produces unrelated diffs."; \
+		echo "Install the pinned version, or bump OPENAPI_GENERATOR_VERSION and regenerate everything."; \
+		exit 1; \
+	fi
+
+validate-openapi: check-openapi-generator
+	$(OPENAPI_GENERATOR) validate -i $(OPENAPI_SPEC)
+
+generate-openapi: generate-openapi-server generate-openapi-client \
+	generate-openapi-docs generate-openapi-jmeter generate-openapi-postman \
+	generate-frontend-types
+
+# Server: interfaces and chi controllers only (onlyInterfaces=true).
+# The implementations are hand-written in pkg/controller.
+generate-openapi-server: validate-openapi
+	rm -rf socialappapi
+	$(OPENAPI_GENERATOR) generate --input-spec $(OPENAPI_SPEC) \
+		--generator-name go-server \
+		--output socialappapi \
+		--git-repo-id=$(OPENAPI_GIT_REPO_ID) \
+		--git-user-id=$(OPENAPI_GIT_USER_ID) \
+		--additional-properties=packageName=openapi \
+		--additional-properties=outputAsLibrary=true \
+		--additional-properties=serverPort=8080 \
+		--additional-properties=featureCORS=true \
+		--additional-properties=hideGenerationTimestamp=true \
+		--additional-properties=addResponseHeaders=true \
+		--additional-properties=onlyInterfaces=true \
+		--additional-properties=router=chi
+	# outputAsLibrary emits the package into socialappapi/go; the import path
+	# used across the module is socialappapi/openapi.
+	mv socialappapi/go socialappapi/openapi
+	gofmt -w socialappapi
+	goimports -w socialappapi
+
+generate-openapi-client: validate-openapi
 	rm -rf client
-	openapi-generator generate --input-spec openapi.yaml  \
-        --generator-name go \
-        --output client \
-		--git-repo-id=microservices/socialapp \
-		--git-user-id=igomez10 \
+	$(OPENAPI_GENERATOR) generate --input-spec $(OPENAPI_SPEC) \
+		--generator-name go \
+		--output client \
+		--git-repo-id=$(OPENAPI_GIT_REPO_ID) \
+		--git-user-id=$(OPENAPI_GIT_USER_ID) \
 		--additional-properties=packageName=client \
 		--additional-properties=isGoSubmodule=true \
-		--additional-properties=packageName=client \
-		--additional-properties=structPrefix=true
-	rm client/go.mod
-	rm client/go.sum
-	rm client/test/* # remove tests in client sdk
+		--additional-properties=structPrefix=true \
+		--global-property=apiTests=false,modelTests=false
+	# the client ships as part of this module rather than its own; the generator
+	# emits go.mod/go.sum regardless of isGoSubmodule
+	rm -f client/go.mod client/go.sum
+	gofmt -w client
+	goimports -w client
 
-	# generate documentation
+generate-openapi-docs: validate-openapi
 	rm -rf Models
-	openapi-generator generate -i openapi.yaml  \
-	--output Models \
-	--generator-name markdown
+	$(OPENAPI_GENERATOR) generate --input-spec $(OPENAPI_SPEC) \
+		--generator-name markdown \
+		--output Models
 
-	# generate schema
-	rm -rf generated-schema
-	openapi-generator generate -i openapi.yaml  \
-	--generator-name mysql-schema \
-	--output generated-schema \
-	--additional-properties=namedParametersEnabled=true \
-	--additional-properties=identifierNamingConvention=snake_case
-
-	# format go code
-	go fmt ./...
-	goimports -w .
-
-	# generate cli
-	rm -rf cli
-	openapi-generator generate --input-spec openapi.yaml \
-		--generator-name bash \
-        --output cli \
-		--additional-properties=generateZshCompletion=true \
-		--additional-properties=scriptName=socialapp-cli
-
-	# generate jmeter
+generate-openapi-jmeter: validate-openapi
 	rm -rf jmeter
-	openapi-generator generate --input-spec openapi.yaml \
+	$(OPENAPI_GENERATOR) generate --input-spec $(OPENAPI_SPEC) \
 		--generator-name jmeter \
 		--output jmeter
 
-	# generate postman collection
+generate-openapi-postman: validate-openapi
 	rm -rf postman
-	openapi-generator generate --input-spec openapi.yaml \
+	$(OPENAPI_GENERATOR) generate --input-spec $(OPENAPI_SPEC) \
 		--generator-name postman-collection \
 		--output postman
-	# generate frontend types
-	$(MAKE) generate-frontend-types
+
+# Fails if the committed generated code no longer matches openapi.yaml.
+# Intended for CI.
+check-openapi-drift: generate-openapi
+	git diff --exit-code -- $(OPENAPI_OUTPUTS)
 
 generate-frontend-types:
 	cd frontend && npm run generate:api
