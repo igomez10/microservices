@@ -225,7 +225,7 @@ List comments for a user
 |------------- | ------------- | ------------- | -------------|
 | **username** | **String**| Username of the user | [default to null] |
 | **limit** | **Integer**| How many items to return at one time (max 100) | [optional] [default to 20] |
-| **offset** | **Integer**| The number of items to skip before starting to collect the result set set | [optional] [default to null] |
+| **offset** | **Integer**| The number of items to skip before starting to collect the result set | [optional] [default to null] |
 
 ### Return type
 

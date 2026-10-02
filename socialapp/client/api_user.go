@@ -974,7 +974,7 @@ func (r UserAPIGetUserCommentsRequest) Limit(limit int32) UserAPIGetUserComments
 	return r
 }
 
-// The number of items to skip before starting to collect the result set set
+// The number of items to skip before starting to collect the result set
 func (r UserAPIGetUserCommentsRequest) Offset(offset int32) UserAPIGetUserCommentsRequest {
 	r.offset = &offset
 	return r

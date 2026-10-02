@@ -528,7 +528,7 @@ import (
 func main() {
 	username := "johndoe" // string | Username of the user
 	limit := int32(20) // int32 | How many items to return at one time (max 100) (optional) (default to 20)
-	offset := int32(0) // int32 | The number of items to skip before starting to collect the result set set (optional)
+	offset := int32(0) // int32 | The number of items to skip before starting to collect the result set (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -559,7 +559,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 
  **limit** | **int32** | How many items to return at one time (max 100) | [default to 20]
- **offset** | **int32** | The number of items to skip before starting to collect the result set set | 
+ **offset** | **int32** | The number of items to skip before starting to collect the result set | 
 
 ### Return type
 

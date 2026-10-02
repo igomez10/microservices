@@ -1212,7 +1212,7 @@ export interface operations {
                  */
                 limit?: number;
                 /**
-                 * @description The number of items to skip before starting to collect the result set set
+                 * @description The number of items to skip before starting to collect the result set
                  * @example 0
                  */
                 offset?: number;

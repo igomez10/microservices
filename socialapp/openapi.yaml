@@ -281,9 +281,7 @@ paths:
             maximum: 100
             minimum: 1
           style: form
-        - description:
-            The number of items to skip before starting to collect the result set
-            set
+        - description: The number of items to skip before starting to collect the result set
           example: 0
           explode: true
           in: query
