@@ -34,11 +34,11 @@ All URIs are relative to *https://socialapp.gomezignacio.com/api*
 *URLApi* | [**getUrlData**](Apis/URLApi.md#getUrlData) | **GET** /v1/urls/{alias}/data | Get URL metadata |
 | *UserApi* | [**changePassword**](Apis/UserApi.md#changePassword) | **POST** /v1/password | Change password |
 *UserApi* | [**createUser**](Apis/UserApi.md#createUser) | **POST** /v1/users | Create user |
-*UserApi* | [**deleteUser**](Apis/UserApi.md#deleteUser) | **DELETE** /v1/users/{username} | Deletes a particular user |
+*UserApi* | [**deleteUser**](Apis/UserApi.md#deleteUser) | **DELETE** /v1/users/{username} | Delete a user |
 *UserApi* | [**followUser**](Apis/UserApi.md#followUser) | **POST** /v1/users/{followedUsername}/followers/{followerUsername} | Add a user as a follower |
 *UserApi* | [**getFollowingUsers**](Apis/UserApi.md#getFollowingUsers) | **GET** /v1/users/{username}/following | Get all followed users for a user |
 *UserApi* | [**getRolesForUser**](Apis/UserApi.md#getRolesForUser) | **GET** /v1/users/{username}/roles | Get all roles for a user |
-*UserApi* | [**getUserByUsername**](Apis/UserApi.md#getUserByUsername) | **GET** /v1/users/{username} | Get a particular user by username |
+*UserApi* | [**getUserByUsername**](Apis/UserApi.md#getUserByUsername) | **GET** /v1/users/{username} | Get a user by username |
 *UserApi* | [**getUserComments**](Apis/UserApi.md#getUserComments) | **GET** /v1/users/{username}/comments | List comments for a user |
 *UserApi* | [**getUserFollowers**](Apis/UserApi.md#getUserFollowers) | **GET** /v1/users/{username}/followers | Get all followers for a user |
 *UserApi* | [**listUsers**](Apis/UserApi.md#listUsers) | **GET** /v1/users | List users |

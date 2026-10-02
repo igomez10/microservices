@@ -29,7 +29,7 @@ type URLAPICreateUrlRequest struct {
 	uRL        *URL
 }
 
-// Create a new url
+// The URL and alias to create.
 func (r URLAPICreateUrlRequest) URL(uRL URL) URLAPICreateUrlRequest {
 	r.uRL = &uRL
 	return r
@@ -172,7 +172,7 @@ DeleteUrl Delete URL alias
 Delete a URL alias and its metadata.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param alias The alias of the url
+	@param alias The alias of the URL
 	@return URLAPIDeleteUrlRequest
 */
 func (a *URLAPIService) DeleteUrl(ctx context.Context, alias string) URLAPIDeleteUrlRequest {
@@ -274,7 +274,7 @@ GetUrl Redirect using URL alias
 Resolve an alias and redirect to the destination URL.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param alias The alias of the url
+	@param alias The alias of the URL
 	@return URLAPIGetUrlRequest
 */
 func (a *URLAPIService) GetUrl(ctx context.Context, alias string) URLAPIGetUrlRequest {
@@ -376,7 +376,7 @@ GetUrlData Get URL metadata
 Return metadata for a URL alias.
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param alias The alias of the url
+	@param alias The alias of the URL
 	@return URLAPIGetUrlDataRequest
 */
 func (a *URLAPIService) GetUrlData(ctx context.Context, alias string) URLAPIGetUrlDataRequest {

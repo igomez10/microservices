@@ -101,11 +101,11 @@ Class | Method | HTTP request | Description
 *URLAPI* | [**GetUrlData**](docs/URLAPI.md#geturldata) | **Get** /v1/urls/{alias}/data | Get URL metadata
 *UserAPI* | [**ChangePassword**](docs/UserAPI.md#changepassword) | **Post** /v1/password | Change password
 *UserAPI* | [**CreateUser**](docs/UserAPI.md#createuser) | **Post** /v1/users | Create user
-*UserAPI* | [**DeleteUser**](docs/UserAPI.md#deleteuser) | **Delete** /v1/users/{username} | Deletes a particular user
+*UserAPI* | [**DeleteUser**](docs/UserAPI.md#deleteuser) | **Delete** /v1/users/{username} | Delete a user
 *UserAPI* | [**FollowUser**](docs/UserAPI.md#followuser) | **Post** /v1/users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
 *UserAPI* | [**GetFollowingUsers**](docs/UserAPI.md#getfollowingusers) | **Get** /v1/users/{username}/following | Get all followed users for a user
 *UserAPI* | [**GetRolesForUser**](docs/UserAPI.md#getrolesforuser) | **Get** /v1/users/{username}/roles | Get all roles for a user
-*UserAPI* | [**GetUserByUsername**](docs/UserAPI.md#getuserbyusername) | **Get** /v1/users/{username} | Get a particular user by username
+*UserAPI* | [**GetUserByUsername**](docs/UserAPI.md#getuserbyusername) | **Get** /v1/users/{username} | Get a user by username
 *UserAPI* | [**GetUserComments**](docs/UserAPI.md#getusercomments) | **Get** /v1/users/{username}/comments | List comments for a user
 *UserAPI* | [**GetUserFollowers**](docs/UserAPI.md#getuserfollowers) | **Get** /v1/users/{username}/followers | Get all followers for a user
 *UserAPI* | [**ListUsers**](docs/UserAPI.md#listusers) | **Get** /v1/users | List users

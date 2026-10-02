@@ -22,7 +22,7 @@ var _ MappedNullable = &Error{}
 
 // Error Standard error payload returned by the API.
 type Error struct {
-	// HTTP-like error code.
+	// HTTP status code.
 	Code int32 `json:"code"`
 	// Human-readable error message.
 	Message string `json:"message"`

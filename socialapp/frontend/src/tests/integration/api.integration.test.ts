@@ -1,5 +1,5 @@
 import { apiRequest, type ApiResponse } from '@/api/client'
-import type { CreateUserRequest, Role } from '@/api/social'
+import type { CreateUserRequest, Role, User } from '@/api/social'
 
 const baseUrl = process.env.INTEGRATION_API_BASE_URL ?? 'http://localhost:8086'
 const clientId = process.env.INTEGRATION_CLIENT_ID
@@ -66,7 +66,7 @@ describeIf('integration api', () => {
     const listRes = await authed({ path: '/v1/users', method: 'GET' })
     assertOk(listRes, 'listUsers')
 
-    const searchRes = await authed({
+    const searchRes = await authed<User[]>({
       path: '/v1/users',
       method: 'GET',
       queryParams: { search: username }
@@ -245,7 +245,7 @@ describeIf('integration api', () => {
     })
     assertOk(scopeRes, 'createScope')
 
-    let resolvedRoleId: number | undefined
+    let resolvedRoleId: string | undefined
 
     try {
       const listRoles = await authed<Role[]>({ path: '/v1/roles', method: 'GET' })

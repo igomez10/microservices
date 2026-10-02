@@ -543,7 +543,7 @@ func (c *UserAPIController) UnfollowUser(w http.ResponseWriter, r *http.Request)
 	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
 }
 
-// GetUserByUsername - Get a particular user by username
+// GetUserByUsername - Get a user by username
 func (c *UserAPIController) GetUserByUsername(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
 	if usernameParam == "" {
@@ -597,7 +597,7 @@ func (c *UserAPIController) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	_ = EncodeJSONResponse(result.Body, &result.Code, result.Headers, w)
 }
 
-// DeleteUser - Deletes a particular user
+// DeleteUser - Delete a user
 func (c *UserAPIController) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	usernameParam := chi.URLParam(r, "username")
 	if usernameParam == "" {

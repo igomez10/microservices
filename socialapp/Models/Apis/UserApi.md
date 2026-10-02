@@ -6,11 +6,11 @@ All URIs are relative to *https://socialapp.gomezignacio.com/api*
 |------------- | ------------- | -------------|
 | [**changePassword**](UserApi.md#changePassword) | **POST** /v1/password | Change password |
 | [**createUser**](UserApi.md#createUser) | **POST** /v1/users | Create user |
-| [**deleteUser**](UserApi.md#deleteUser) | **DELETE** /v1/users/{username} | Deletes a particular user |
+| [**deleteUser**](UserApi.md#deleteUser) | **DELETE** /v1/users/{username} | Delete a user |
 | [**followUser**](UserApi.md#followUser) | **POST** /v1/users/{followedUsername}/followers/{followerUsername} | Add a user as a follower |
 | [**getFollowingUsers**](UserApi.md#getFollowingUsers) | **GET** /v1/users/{username}/following | Get all followed users for a user |
 | [**getRolesForUser**](UserApi.md#getRolesForUser) | **GET** /v1/users/{username}/roles | Get all roles for a user |
-| [**getUserByUsername**](UserApi.md#getUserByUsername) | **GET** /v1/users/{username} | Get a particular user by username |
+| [**getUserByUsername**](UserApi.md#getUserByUsername) | **GET** /v1/users/{username} | Get a user by username |
 | [**getUserComments**](UserApi.md#getUserComments) | **GET** /v1/users/{username}/comments | List comments for a user |
 | [**getUserFollowers**](UserApi.md#getUserFollowers) | **GET** /v1/users/{username}/followers | Get all followers for a user |
 | [**listUsers**](UserApi.md#listUsers) | **GET** /v1/users | List users |
@@ -79,7 +79,7 @@ No authorization required
 # **deleteUser**
 > User deleteUser(username)
 
-Deletes a particular user
+Delete a user
 
     Delete a user by username.
 
@@ -188,7 +188,7 @@ Get all roles for a user
 # **getUserByUsername**
 > User getUserByUsername(username)
 
-Get a particular user by username
+Get a user by username
 
     Get a user by username.
 
@@ -225,7 +225,7 @@ List comments for a user
 |------------- | ------------- | ------------- | -------------|
 | **username** | **String**| Username of the user | [default to null] |
 | **limit** | **Integer**| How many items to return at one time (max 100) | [optional] [default to 20] |
-| **offset** | **Integer**| The number of items to skip before starting to collect the result set | [optional] [default to null] |
+| **offset** | **Integer**| The number of items to skip before starting to collect the result set set | [optional] [default to null] |
 
 ### Return type
 

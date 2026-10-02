@@ -54,23 +54,9 @@ paths:
               example: Welcome to the Socialapp API
           description: Welcome message
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              example:
-                code: 401
-                message: Unauthorized
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-              example:
-                code: 500
-                message: Unexpected error
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       summary: Get API welcome message
       tags:
         - User
@@ -128,19 +114,11 @@ paths:
                   last_name: Doe
                   email: johndoe@mail.com
                   created_at: "2020-01-01T00:00:00Z"
-          description: List of all the users
+          description: List of users
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.users.list
@@ -179,17 +157,11 @@ paths:
                 created_at: "2020-01-01T00:00:00Z"
           description: User was created successfully
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       summary: Create user
       tags:
         - User
@@ -215,17 +187,9 @@ paths:
                 $ref: "#/components/schemas/User"
           description: Password was changed successfully
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.users.update
@@ -252,17 +216,9 @@ paths:
                 $ref: "#/components/schemas/User"
           description: Password was reset successfully
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.users.update
@@ -289,17 +245,9 @@ paths:
                   username: johndoe
           description: User feed
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.feed.read
@@ -334,7 +282,7 @@ paths:
             minimum: 1
           style: form
         - description:
-            The number of items to skip before starting to collect the result
+            The number of items to skip before starting to collect the result set
             set
           example: 0
           explode: true
@@ -361,17 +309,11 @@ paths:
                   username: johndoe
           description: User comments
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.comments.read
@@ -409,17 +351,11 @@ paths:
                   created_at: "2020-01-01T00:00:00Z"
           description: User followers
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.follower.read
@@ -458,17 +394,11 @@ paths:
                   created_at: "2020-01-01T00:00:00Z"
           description: Followed users
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.following.list
@@ -502,17 +432,11 @@ paths:
         "200":
           description: User was unfollowed successfully
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.follower.delete
@@ -545,17 +469,11 @@ paths:
         "200":
           description: User was followed successfully
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.follower.create
@@ -583,6 +501,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/User"
           description: User was deleted successfully
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "404":
           content:
             application/json:
@@ -590,15 +510,11 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Username not found
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.users.delete
-      summary: Deletes a particular user
+      summary: Delete a user
       tags:
         - User
     get:
@@ -623,15 +539,11 @@ paths:
           description: User details by username
           headers:
             x-next:
-              description: A link to the next page of responses
+              description: A link to the next page of results
               schema:
                 type: string
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         "404":
           content:
             application/json:
@@ -647,7 +559,7 @@ paths:
       security:
         - OAuth2:
             - socialapp.users.read
-      summary: Get a particular user by username
+      summary: Get a user by username
       tags:
         - User
     put:
@@ -683,17 +595,13 @@ paths:
                 $ref: "#/components/schemas/User"
           description: User was updated successfully
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.users.update
@@ -729,17 +637,11 @@ paths:
                   created_at: "2020-01-01T00:00:00Z"
           description: Roles for a user
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.users.roles.list
@@ -782,17 +684,11 @@ paths:
                 type: array
           description: Roles for a user
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.users.roles.update
@@ -831,23 +727,15 @@ paths:
           description: Details about a comment by ID
           headers:
             x-next:
-              description: A link to the next page of responses
+              description: A link to the next page of results
               explode: false
               schema:
                 type: string
               style: simple
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.comments.read
@@ -895,17 +783,9 @@ paths:
                 type: array
           description: The most recent matching comments
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.comments.read
@@ -933,17 +813,9 @@ paths:
                 $ref: "#/components/schemas/Comment"
           description: New comment was created
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.comments.create
@@ -971,11 +843,7 @@ paths:
                 $ref: "#/components/schemas/Comment"
           description: Updated comment with the new like count
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         "404":
           content:
             application/json:
@@ -983,11 +851,7 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Comment not found
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.comments.update
@@ -1014,11 +878,7 @@ paths:
                 $ref: "#/components/schemas/Comment"
           description: Updated comment with the new like count
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         "404":
           content:
             application/json:
@@ -1026,11 +886,7 @@ paths:
                 $ref: "#/components/schemas/Error"
           description: Comment not found
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.comments.update
@@ -1055,17 +911,9 @@ paths:
                 expires_in: 3600
           description: Access token
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - BasicAuth: []
       summary: Get an access token
@@ -1076,7 +924,7 @@ paths:
       description: List roles with offset-based pagination.
       operationId: listRoles
       parameters:
-        - description: The numbers of roles to return
+        - description: The number of roles to return
           example: 20
           explode: false
           in: query
@@ -1089,7 +937,7 @@ paths:
             maximum: 100
             minimum: 1
           style: form
-        - description: The number of items to skip before starting to collect the result
+        - description: The number of items to skip before starting to collect the result set
           example: 0
           explode: false
           in: query
@@ -1114,17 +962,9 @@ paths:
                   created_at: "2020-01-01T00:00:00Z"
           description: List of roles
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.roles.list
@@ -1152,17 +992,11 @@ paths:
                 $ref: "#/components/schemas/Role"
           description: New role was created
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.roles.create
@@ -1198,17 +1032,11 @@ paths:
                 created_at: "2020-01-01T00:00:00Z"
           description: Role is returned
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.roles.read
@@ -1247,17 +1075,11 @@ paths:
                 $ref: "#/components/schemas/Role"
           description: Role was updated
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.roles.update
@@ -1283,17 +1105,11 @@ paths:
         "200":
           description: Role was deleted successfully
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.roles.delete
@@ -1316,7 +1132,7 @@ paths:
             format: int64
             pattern: '^-?\d+$'
           style: simple
-        - description: The numbers of scopes to return
+        - description: The number of scopes to return
           example: 20
           explode: false
           in: query
@@ -1329,7 +1145,7 @@ paths:
             maximum: 100
             minimum: 1
           style: form
-        - description: The number of items to skip before starting to collect the result
+        - description: The number of items to skip before starting to collect the result set
           example: 0
           explode: false
           in: query
@@ -1354,17 +1170,11 @@ paths:
                   created_at: "2020-01-01T00:00:00Z"
           description: List of scopes
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.roles.scopes.list
@@ -1401,17 +1211,11 @@ paths:
         "200":
           description: List of scopes
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
         "404":
           content:
             application/json:
@@ -1459,17 +1263,9 @@ paths:
         "204":
           description: Scope was removed from the role
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
         "404":
           content:
             application/json:
@@ -1493,7 +1289,7 @@ paths:
       description: List scopes with offset-based pagination.
       operationId: listScopes
       parameters:
-        - description: The numbers of scopes to return
+        - description: The number of scopes to return
           example: 20
           explode: false
           in: query
@@ -1506,7 +1302,7 @@ paths:
             maximum: 100
             minimum: 1
           style: form
-        - description: The number of items to skip before starting to collect the result
+        - description: The number of items to skip before starting to collect the result set
           example: 0
           explode: false
           in: query
@@ -1531,17 +1327,9 @@ paths:
                   created_at: "2020-01-01T00:00:00Z"
           description: List of scopes
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.scopes.list
@@ -1569,17 +1357,11 @@ paths:
                 $ref: "#/components/schemas/Scope"
           description: New scope was created
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.scopes.create
@@ -1614,17 +1396,11 @@ paths:
                 created_at: "2020-01-01T00:00:00Z"
           description: Scope is returned
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.scopes.read
@@ -1662,17 +1438,11 @@ paths:
                 $ref: "#/components/schemas/Scope"
           description: Scope was updated
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.scopes.update
@@ -1697,17 +1467,11 @@ paths:
         "204":
           description: Scope was deleted successfully
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
         default:
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unexpected error
+          $ref: "#/components/responses/UnexpectedError"
       security:
         - OAuth2:
             - socialapp.scopes.delete
@@ -1721,7 +1485,7 @@ paths:
       operationId: getUrl
       security: []
       parameters:
-        - description: The alias of the url
+        - description: The alias of the URL
           example: "abcdef"
           explode: false
           in: path
@@ -1732,12 +1496,12 @@ paths:
           style: simple
       responses:
         "200":
-          description: Redirect to the url
+          description: Redirect to the URL
         "308":
-          description: Redirect to the url
+          description: Redirect to the URL
           headers:
             Location:
-              description: The url
+              description: The destination URL
               schema:
                 type: string
               required: true
@@ -1754,7 +1518,7 @@ paths:
       description: Delete a URL alias and its metadata.
       operationId: deleteUrl
       parameters:
-        - description: The alias of the url
+        - description: The alias of the URL
           example: "abcdef"
           explode: false
           in: path
@@ -1784,7 +1548,7 @@ paths:
       operationId: getUrlData
       security: []
       parameters:
-        - description: The alias of the url
+        - description: The alias of the URL
           example: "abcdef"
           explode: false
           in: path
@@ -1821,7 +1585,7 @@ paths:
             example:
               alias: example
               url: https://example.com
-        description: Create a new url
+        description: The URL and alias to create.
         required: true
       responses:
         "200":
@@ -1831,11 +1595,7 @@ paths:
                 $ref: "#/components/schemas/URL"
           description: Url is returned
         "401":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-          description: Unauthorized
+          $ref: "#/components/responses/Unauthorized"
         "409":
           content:
             application/json:
@@ -1849,6 +1609,43 @@ paths:
         - URL
 
 components:
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: 401
+            message: Unauthorized
+    UnexpectedError:
+      description: Unexpected error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: 500
+            message: Unexpected error
+    NotFound:
+      description: The requested resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: 404
+            message: Resource not found
+    Conflict:
+      description: The resource already exists
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            code: 409
+            message: Resource already exists
   schemas:
     CreateCommentRequest:
       description: Request payload for creating a comment.
@@ -1858,9 +1655,11 @@ components:
       properties:
         content:
           description: Text content of the comment.
+          example: "This is a comment"
           type: string
         username:
           description: Username of the comment author.
+          example: johndoe
           type: string
       required:
         - content
@@ -1878,18 +1677,23 @@ components:
       properties:
         username:
           description: Unique username for the account.
+          example: johndoe
           type: string
         password:
           description: Plain-text password used during account creation.
+          example: "Secure123!"
           type: string
         first_name:
           description: User first name.
+          example: John
           type: string
         last_name:
           description: User last name.
+          example: Doe
           type: string
         email:
           description: User email address.
+          example: johndoe@mail.com
           format: email
           type: string
       required:
@@ -1912,24 +1716,30 @@ components:
       properties:
         id:
           description: Unique user identifier.
+          example: "1305234176287309824"
           type: string
           format: int64
           pattern: '^-?\d+$'
         username:
           description: Unique username for the account.
+          example: johndoe
           type: string
         first_name:
           description: User first name.
+          example: John
           type: string
         last_name:
           description: User last name.
+          example: Doe
           type: string
         email:
           description: User email address.
+          example: johndoe@mail.com
           format: email
           type: string
         created_at:
           description: Timestamp when the user was created.
+          example: "2020-01-01T00:00:00Z"
           format: date-time
           type: string
       required:
@@ -1952,24 +1762,30 @@ components:
       properties:
         id:
           description: Unique user identifier.
+          example: "1305234176287309824"
           type: string
           format: int64
           pattern: '^-?\d+$'
         username:
           description: Unique username for the account.
+          example: johndoe
           type: string
         first_name:
           description: User first name.
+          example: John
           type: string
         last_name:
           description: User last name.
+          example: Doe
           type: string
         email:
           description: User email address.
+          example: johndoe@mail.com
           format: email
           type: string
         created_at:
           description: Timestamp when the user was created.
+          example: "2020-01-01T00:00:00Z"
           format: date-time
           type: string
 
@@ -1987,23 +1803,28 @@ components:
       properties:
         id:
           description: Unique comment identifier.
+          example: "1305234176287309825"
           type: string
           format: int64
           pattern: '^-?\d+$'
         content:
           description: Comment text.
+          example: "This is a comment"
           type: string
         like_count:
           description: Number of likes for the comment.
+          example: "42"
           type: string
           format: int64
           pattern: '^-?\d+$'
         created_at:
           description: Timestamp when the comment was created.
+          example: "2020-01-01T00:00:00Z"
           format: date-time
           type: string
         username:
           description: Username of the comment author.
+          example: johndoe
           type: string
       required:
         - content
@@ -2016,6 +1837,7 @@ components:
       properties:
         comment_id:
           description: Unique identifier of the comment.
+          example: "1305234176287309825"
           type: string
           format: int64
           pattern: '^-?\d+$'
@@ -2031,9 +1853,11 @@ components:
       properties:
         access_token:
           description: Access token used for authenticated requests.
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
           type: string
         token_type:
           description: Type of token returned by the authorization server.
+          example: Bearer
           type: string
         scopes:
           description: Granted OAuth scopes.
@@ -2042,6 +1866,7 @@ components:
           type: array
         expires_in:
           description: Access token lifetime in seconds.
+          example: 3600
           type: integer
       required:
         - access_token
@@ -2055,11 +1880,13 @@ components:
         message: Not found
       properties:
         code:
-          description: HTTP-like error code.
+          description: HTTP status code.
+          example: 404
           format: int32
           type: integer
         message:
           description: Human-readable error message.
+          example: "User not found"
           type: string
       required:
         - code
@@ -2073,9 +1900,11 @@ components:
       properties:
         old_password:
           description: Current password.
+          example: "Secure123!"
           type: string
         new_password:
           description: New password.
+          example: "EvenMoreSecure456!"
           type: string
       required:
         - new_password
@@ -2088,6 +1917,7 @@ components:
       properties:
         email:
           description: Email address associated with the user account.
+          example: johndoe@mail.com
           format: email
           type: string
       required:
@@ -2097,21 +1927,25 @@ components:
       description: Role assigned to users for authorization.
       example:
         name: admin
-        description: Administrator Role
+        description: Administrator role
       properties:
         id:
           description: Unique role identifier.
+          example: "1305234176287309826"
           type: string
           format: int64
           pattern: '^-?\d+$'
         name:
           description: Unique role name.
+          example: administrator
           type: string
         description:
           description: Description of what the role grants.
+          example: "Grants full administrative access"
           type: string
         created_at:
           description: Timestamp when the role was created.
+          example: "2020-01-01T00:00:00Z"
           format: date-time
           type: string
       required:
@@ -2126,17 +1960,21 @@ components:
       properties:
         id:
           description: Unique scope identifier.
+          example: "1305234176287309827"
           type: string
           format: int64
           pattern: '^-?\d+$'
         name:
           description: Scope name (for example, `socialapp.roles.read`).
+          example: socialapp.users.read
           type: string
         description:
           description: Description of the permission granted by this scope.
+          example: "Grants read access to user records"
           type: string
         created_at:
           description: Timestamp when the scope was created.
+          example: "2020-01-01T00:00:00Z"
           format: date-time
           type: string
       required:
@@ -2154,21 +1992,26 @@ components:
       properties:
         url:
           description: Destination URL.
+          example: https://example.com/a-very-long-destination-url
           type: string
           format: uri
         alias:
           description: Short alias used to reference the URL.
+          example: short-alias
           type: string
         created_at:
           description: Timestamp when the alias was created.
+          example: "2020-01-01T00:00:00Z"
           format: date-time
           type: string
         updated_at:
           description: Timestamp when the alias was last updated.
+          example: "2020-01-02T00:00:00Z"
           format: date-time
           type: string
         deleted_at:
           description: Timestamp when the alias was deleted.
+          example: "2020-01-03T00:00:00Z"
           format: date-time
           type: string
       required:
