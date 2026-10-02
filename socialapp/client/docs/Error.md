@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Code** | **int32** | HTTP-like error code. | 
+**Code** | **int32** | HTTP status code. | 
 **Message** | **string** | Human-readable error message. | 
 
 ## Methods

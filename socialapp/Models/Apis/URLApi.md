@@ -22,7 +22,7 @@ Create URL alias
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **URL** | [**URL**](../Models/URL.md)| Create a new url | |
+| **URL** | [**URL**](../Models/URL.md)| The URL and alias to create. | |
 
 ### Return type
 
@@ -49,7 +49,7 @@ Delete URL alias
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **alias** | **String**| The alias of the url | [default to null] |
+| **alias** | **String**| The alias of the URL | [default to null] |
 
 ### Return type
 
@@ -76,7 +76,7 @@ Redirect using URL alias
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **alias** | **String**| The alias of the url | [default to null] |
+| **alias** | **String**| The alias of the URL | [default to null] |
 
 ### Return type
 
@@ -103,7 +103,7 @@ Get URL metadata
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **alias** | **String**| The alias of the url | [default to null] |
+| **alias** | **String**| The alias of the URL | [default to null] |
 
 ### Return type
 

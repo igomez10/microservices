@@ -33,7 +33,7 @@ import (
 )
 
 func main() {
-	scope := *openapiclient.NewScope("Name_example", "Description_example") // Scope | Create a new scope
+	scope := *openapiclient.NewScope("socialapp.users.read", "Grants read access to user records") // Scope | Create a new scope
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -237,8 +237,8 @@ import (
 )
 
 func main() {
-	limit := int32(20) // int32 | The numbers of scopes to return (optional) (default to 20)
-	offset := int32(0) // int32 | The number of items to skip before starting to collect the result (optional)
+	limit := int32(20) // int32 | The number of scopes to return (optional) (default to 20)
+	offset := int32(0) // int32 | The number of items to skip before starting to collect the result set (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -263,8 +263,8 @@ Other parameters are passed through a pointer to a apiListScopesRequest struct v
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **limit** | **int32** | The numbers of scopes to return | [default to 20]
- **offset** | **int32** | The number of items to skip before starting to collect the result | 
+ **limit** | **int32** | The number of scopes to return | [default to 20]
+ **offset** | **int32** | The number of items to skip before starting to collect the result set | 
 
 ### Return type
 
@@ -306,7 +306,7 @@ import (
 
 func main() {
 	id := "123" // string | id of the scope
-	scope := *openapiclient.NewScope("Name_example", "Description_example") // Scope | Update a scope (optional)
+	scope := *openapiclient.NewScope("socialapp.users.read", "Grants read access to user records") // Scope | Update a scope (optional)
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)

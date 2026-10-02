@@ -79,7 +79,7 @@ export function createSocialApi(ctx: ApiContext) {
       authed({ path: '/v1/users/{username}/roles', method: 'GET', pathParams: { username } }),
     updateRolesForUser: (username: string, roles: string[]): Promise<ApiResponse<Role[]>> =>
       authed({ path: '/v1/users/{username}/roles', method: 'PUT', pathParams: { username }, body: roles }),
-    getComment: (id: number): Promise<ApiResponse<Comment>> =>
+    getComment: (id: string): Promise<ApiResponse<Comment>> =>
       authed({ path: '/v1/comments/{id}', method: 'GET', pathParams: { id } }),
     searchComments: (params?: {
       username?: string

@@ -132,6 +132,17 @@ func (a *RoleAPIService) AddScopeToRoleExecute(r RoleAPIAddScopeToRoleRequest) (
 			newErr.model = v
 			return localVarHTTPResponse, newErr
 		}
+		if localVarHTTPResponse.StatusCode == 409 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
 		if localVarHTTPResponse.StatusCode == 404 {
 			var v Error
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
@@ -276,6 +287,17 @@ func (a *RoleAPIService) CreateRoleExecute(r RoleAPICreateRoleRequest) (*Role, *
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		if localVarHTTPResponse.StatusCode == 409 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
 		var v Error
 		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 		if err != nil {
@@ -386,6 +408,17 @@ func (a *RoleAPIService) DeleteRoleExecute(r RoleAPIDeleteRoleRequest) (*http.Re
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 401 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 404 {
 			var v Error
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
@@ -510,6 +543,17 @@ func (a *RoleAPIService) GetRoleExecute(r RoleAPIGetRoleRequest) (*Role, *http.R
 			newErr.model = v
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
+		if localVarHTTPResponse.StatusCode == 404 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
 		var v Error
 		err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 		if err != nil {
@@ -540,13 +584,13 @@ type RoleAPIListRolesRequest struct {
 	offset     *int32
 }
 
-// The numbers of roles to return
+// The number of roles to return
 func (r RoleAPIListRolesRequest) Limit(limit int32) RoleAPIListRolesRequest {
 	r.limit = &limit
 	return r
 }
 
-// The number of items to skip before starting to collect the result
+// The number of items to skip before starting to collect the result set
 func (r RoleAPIListRolesRequest) Offset(offset int32) RoleAPIListRolesRequest {
 	r.offset = &offset
 	return r
@@ -684,13 +728,13 @@ type RoleAPIListScopesForRoleRequest struct {
 	offset     *int32
 }
 
-// The numbers of scopes to return
+// The number of scopes to return
 func (r RoleAPIListScopesForRoleRequest) Limit(limit int32) RoleAPIListScopesForRoleRequest {
 	r.limit = &limit
 	return r
 }
 
-// The number of items to skip before starting to collect the result
+// The number of items to skip before starting to collect the result set
 func (r RoleAPIListScopesForRoleRequest) Offset(offset int32) RoleAPIListScopesForRoleRequest {
 	r.offset = &offset
 	return r
@@ -790,6 +834,17 @@ func (a *RoleAPIService) ListScopesForRoleExecute(r RoleAPIListScopesForRoleRequ
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 401 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 404 {
 			var v Error
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
@@ -1059,6 +1114,17 @@ func (a *RoleAPIService) UpdateRoleExecute(r RoleAPIUpdateRoleRequest) (*Role, *
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 401 {
+			var v Error
+			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
+			if err != nil {
+				newErr.error = err.Error()
+				return localVarReturnValue, localVarHTTPResponse, newErr
+			}
+			newErr.error = formatErrorMessage(localVarHTTPResponse.Status, &v)
+			newErr.model = v
+			return localVarReturnValue, localVarHTTPResponse, newErr
+		}
+		if localVarHTTPResponse.StatusCode == 404 {
 			var v Error
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {

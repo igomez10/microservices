@@ -313,7 +313,7 @@ export default function App() {
   const [postedCommentNotice, setPostedCommentNotice] = useState<Comment | null>(null)
   const [discoveryStatus, setDiscoveryStatus] = useState<StatusState>(initialStatus)
   const [discoveryItems, setDiscoveryItems] = useState<Comment[]>([])
-  const [likedCommentIds, setLikedCommentIds] = useState<Set<number>>(() => new Set())
+  const [likedCommentIds, setLikedCommentIds] = useState<Set<string>>(() => new Set())
   const [likeStatus, setLikeStatus] = useState<StatusState>(initialStatus)
 
   const [commentLookupStatus, setCommentLookupStatus] = useState<StatusState>(initialStatus)
@@ -494,8 +494,8 @@ export default function App() {
   }
 
   const lookupComment = async () => {
-    const id = Number(commentLookupId)
-    if (!Number.isFinite(id)) {
+    const id = commentLookupId.trim()
+    if (!/^\d+$/.test(id)) {
       setStatus(setCommentLookupStatus, { status: '', error: 'Comment ID must be a number', loading: false })
       return
     }
@@ -560,16 +560,17 @@ export default function App() {
       return
     }
 
-    const isLiked = likedCommentIds.has(comment.id)
+    const commentId = comment.id
+    const isLiked = likedCommentIds.has(commentId)
     setStatus(setLikeStatus, { ...initialStatus, loading: true })
 
     const res = isLiked
-      ? await api.unlikeComment({ comment_id: comment.id })
-      : await api.likeComment({ comment_id: comment.id })
+      ? await api.unlikeComment({ comment_id: commentId })
+      : await api.likeComment({ comment_id: commentId })
 
     let updatedComment = res.data as Comment | undefined
     if (!updatedComment && res.ok) {
-      const commentRes = await api.getComment(comment.id)
+      const commentRes = await api.getComment(commentId)
       updatedComment = commentRes.data
     }
 
@@ -580,9 +581,9 @@ export default function App() {
       setLikedCommentIds((prev) => {
         const next = new Set(prev)
         if (isLiked) {
-          next.delete(comment.id as number)
+          next.delete(commentId)
         } else {
-          next.add(comment.id as number)
+          next.add(commentId)
         }
         return next
       })
@@ -1175,6 +1176,10 @@ export default function App() {
           </div>
 
           <div className="form-grid">
+            <div className="input-group">
+              <span className="input-label">User ID</span>
+              <div className="input input-mono">{profileForm.id ?? '\u2014'}</div>
+            </div>
             <div className="input-group">
               <span className="input-label">Username</span>
               <div className="input input-mono">{profileForm.username}</div>

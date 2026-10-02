@@ -34,7 +34,7 @@ import (
 )
 
 func main() {
-	createCommentRequest := *openapiclient.NewCreateCommentRequest("Content_example", "Username_example") // CreateCommentRequest | Create a new comment
+	createCommentRequest := *openapiclient.NewCreateCommentRequest("This is a comment", "johndoe") // CreateCommentRequest | Create a new comment
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -231,7 +231,7 @@ import (
 )
 
 func main() {
-	likeRequest := *openapiclient.NewLikeRequest("CommentId_example") // LikeRequest | Comment like request
+	likeRequest := *openapiclient.NewLikeRequest("1305234176287309825") // LikeRequest | Comment like request
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -368,7 +368,7 @@ import (
 )
 
 func main() {
-	likeRequest := *openapiclient.NewLikeRequest("CommentId_example") // LikeRequest | Comment unlike request
+	likeRequest := *openapiclient.NewLikeRequest("1305234176287309825") // LikeRequest | Comment unlike request
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)

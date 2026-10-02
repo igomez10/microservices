@@ -104,7 +104,7 @@
         {
         "key": "alias",
         "value": "",
-        "description": "The alias of the url"
+        "description": "The alias of the URL"
         }
     ],
     "query": [
@@ -156,7 +156,7 @@
         {
         "key": "alias",
         "value": "",
-        "description": "The alias of the url"
+        "description": "The alias of the URL"
         }
     ],
     "query": [
@@ -209,7 +209,7 @@
         {
         "key": "alias",
         "value": "",
-        "description": "The alias of the url"
+        "description": "The alias of the URL"
         }
     ],
     "query": [
@@ -616,7 +616,7 @@
                 "description": "Delete a user by username.",
                  "item": [
                             {
-                                "name": "Deletes a particular user",
+                                "name": "Delete a user",
                                 "request": {
     "method": "DELETE",
     "header": [
@@ -668,7 +668,7 @@
                 "description": "Get a user by username.",
                  "item": [
                             {
-                                "name": "Get a particular user by username",
+                                "name": "Get a user by username",
                                 "request": {
     "method": "GET",
     "header": [
@@ -1529,13 +1529,13 @@
         {
         "key": "limit",
         "value": "20",
-        "description": "The numbers of roles to return",
+        "description": "The number of roles to return",
         "disabled": true
         },
         {
         "key": "offset",
         "value": "0",
-        "description": "The number of items to skip before starting to collect the result",
+        "description": "The number of items to skip before starting to collect the result set",
         "disabled": true
         }
     ]
@@ -1815,13 +1815,13 @@
         {
         "key": "limit",
         "value": "20",
-        "description": "The numbers of scopes to return",
+        "description": "The number of scopes to return",
         "disabled": true
         },
         {
         "key": "offset",
         "value": "0",
-        "description": "The number of items to skip before starting to collect the result",
+        "description": "The number of items to skip before starting to collect the result set",
         "disabled": true
         }
     ]
@@ -1990,13 +1990,13 @@
         {
         "key": "limit",
         "value": "20",
-        "description": "The numbers of scopes to return",
+        "description": "The number of scopes to return",
         "disabled": true
         },
         {
         "key": "offset",
         "value": "0",
-        "description": "The number of items to skip before starting to collect the result",
+        "description": "The number of items to skip before starting to collect the result set",
         "disabled": true
         }
     ]

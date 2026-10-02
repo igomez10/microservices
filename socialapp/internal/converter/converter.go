@@ -50,6 +50,7 @@ func FromDBRoleToAPIRole(dbRole db.Role) openapi.Role {
 
 func FromDBUserToAPIUser(u db.User) openapi.User {
 	apiUser := openapi.User{
+		Id:        formatID(u.ID),
 		Username:  u.Username,
 		FirstName: u.FirstName,
 		LastName:  u.LastName,

@@ -184,7 +184,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get a particular user by username
+         * Get a user by username
          * @description Get a user by username.
          */
         get: operations["getUserByUsername"];
@@ -195,7 +195,7 @@ export interface paths {
         put: operations["updateUser"];
         post?: never;
         /**
-         * Deletes a particular user
+         * Delete a user
          * @description Delete a user by username.
          */
         delete: operations["deleteUser"];
@@ -540,9 +540,15 @@ export interface components {
          *     }
          */
         CreateCommentRequest: {
-            /** @description Text content of the comment. */
+            /**
+             * @description Text content of the comment.
+             * @example This is a comment
+             */
             content: string;
-            /** @description Username of the comment author. */
+            /**
+             * @description Username of the comment author.
+             * @example johndoe
+             */
             username: string;
         };
         /**
@@ -556,17 +562,30 @@ export interface components {
          *     }
          */
         CreateUserRequest: {
-            /** @description Unique username for the account. */
+            /**
+             * @description Unique username for the account.
+             * @example johndoe
+             */
             username: string;
-            /** @description Plain-text password used during account creation. */
+            /**
+             * @description Plain-text password used during account creation.
+             * @example Secure123!
+             */
             password: string;
-            /** @description User first name. */
+            /**
+             * @description User first name.
+             * @example John
+             */
             first_name: string;
-            /** @description User last name. */
+            /**
+             * @description User last name.
+             * @example Doe
+             */
             last_name: string;
             /**
              * Format: email
              * @description User email address.
+             * @example johndoe@mail.com
              */
             email: string;
         };
@@ -585,22 +604,34 @@ export interface components {
             /**
              * Format: int64
              * @description Unique user identifier.
+             * @example 1305234176287309824
              */
             id: string;
-            /** @description Unique username for the account. */
+            /**
+             * @description Unique username for the account.
+             * @example johndoe
+             */
             username: string;
-            /** @description User first name. */
+            /**
+             * @description User first name.
+             * @example John
+             */
             first_name: string;
-            /** @description User last name. */
+            /**
+             * @description User last name.
+             * @example Doe
+             */
             last_name: string;
             /**
              * Format: email
              * @description User email address.
+             * @example johndoe@mail.com
              */
             email: string;
             /**
              * Format: date-time
              * @description Timestamp when the user was created.
+             * @example 2020-01-01T00:00:00Z
              */
             created_at: string;
         };
@@ -618,22 +649,34 @@ export interface components {
             /**
              * Format: int64
              * @description Unique user identifier.
+             * @example 1305234176287309824
              */
             id?: string;
-            /** @description Unique username for the account. */
+            /**
+             * @description Unique username for the account.
+             * @example johndoe
+             */
             username: string;
-            /** @description User first name. */
+            /**
+             * @description User first name.
+             * @example John
+             */
             first_name: string;
-            /** @description User last name. */
+            /**
+             * @description User last name.
+             * @example Doe
+             */
             last_name: string;
             /**
              * Format: email
              * @description User email address.
+             * @example johndoe@mail.com
              */
             email: string;
             /**
              * Format: date-time
              * @description Timestamp when the user was created.
+             * @example 2020-01-01T00:00:00Z
              */
             created_at?: string;
         };
@@ -648,21 +691,30 @@ export interface components {
             /**
              * Format: int64
              * @description Unique comment identifier.
+             * @example 1305234176287309825
              */
             id?: string;
-            /** @description Comment text. */
+            /**
+             * @description Comment text.
+             * @example This is a comment
+             */
             content: string;
             /**
              * Format: int64
              * @description Number of likes for the comment.
+             * @example 42
              */
             like_count?: string;
             /**
              * Format: date-time
              * @description Timestamp when the comment was created.
+             * @example 2020-01-01T00:00:00Z
              */
             created_at?: string;
-            /** @description Username of the comment author. */
+            /**
+             * @description Username of the comment author.
+             * @example johndoe
+             */
             username: string;
         };
         /**
@@ -675,6 +727,7 @@ export interface components {
             /**
              * Format: int64
              * @description Unique identifier of the comment.
+             * @example 1305234176287309825
              */
             comment_id: string;
         };
@@ -687,13 +740,22 @@ export interface components {
          *     }
          */
         AccessToken: {
-            /** @description Access token used for authenticated requests. */
+            /**
+             * @description Access token used for authenticated requests.
+             * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+             */
             access_token: string;
-            /** @description Type of token returned by the authorization server. */
+            /**
+             * @description Type of token returned by the authorization server.
+             * @example Bearer
+             */
             token_type: string;
             /** @description Granted OAuth scopes. */
             scopes?: string[];
-            /** @description Access token lifetime in seconds. */
+            /**
+             * @description Access token lifetime in seconds.
+             * @example 3600
+             */
             expires_in: number;
         };
         /**
@@ -706,10 +768,14 @@ export interface components {
         Error: {
             /**
              * Format: int32
-             * @description HTTP-like error code.
+             * @description HTTP status code.
+             * @example 404
              */
             code: number;
-            /** @description Human-readable error message. */
+            /**
+             * @description Human-readable error message.
+             * @example User not found
+             */
             message: string;
         };
         /**
@@ -720,9 +786,15 @@ export interface components {
          *     }
          */
         ChangePasswordRequest: {
-            /** @description Current password. */
+            /**
+             * @description Current password.
+             * @example Secure123!
+             */
             old_password: string;
-            /** @description New password. */
+            /**
+             * @description New password.
+             * @example EvenMoreSecure456!
+             */
             new_password: string;
         };
         /**
@@ -735,6 +807,7 @@ export interface components {
             /**
              * Format: email
              * @description Email address associated with the user account.
+             * @example johndoe@mail.com
              */
             email: string;
         };
@@ -742,22 +815,30 @@ export interface components {
          * @description Role assigned to users for authorization.
          * @example {
          *       "name": "admin",
-         *       "description": "Administrator Role"
+         *       "description": "Administrator role"
          *     }
          */
         Role: {
             /**
              * Format: int64
              * @description Unique role identifier.
+             * @example 1305234176287309826
              */
             id?: string;
-            /** @description Unique role name. */
+            /**
+             * @description Unique role name.
+             * @example administrator
+             */
             name: string;
-            /** @description Description of what the role grants. */
+            /**
+             * @description Description of what the role grants.
+             * @example Grants full administrative access
+             */
             description?: string;
             /**
              * Format: date-time
              * @description Timestamp when the role was created.
+             * @example 2020-01-01T00:00:00Z
              */
             created_at?: string;
         };
@@ -773,15 +854,23 @@ export interface components {
             /**
              * Format: int64
              * @description Unique scope identifier.
+             * @example 1305234176287309827
              */
             id?: string;
-            /** @description Scope name (for example, `socialapp.roles.read`). */
+            /**
+             * @description Scope name (for example, `socialapp.roles.read`).
+             * @example socialapp.users.read
+             */
             name: string;
-            /** @description Description of the permission granted by this scope. */
+            /**
+             * @description Description of the permission granted by this scope.
+             * @example Grants read access to user records
+             */
             description: string;
             /**
              * Format: date-time
              * @description Timestamp when the scope was created.
+             * @example 2020-01-01T00:00:00Z
              */
             created_at?: string;
         };
@@ -799,28 +888,96 @@ export interface components {
             /**
              * Format: uri
              * @description Destination URL.
+             * @example https://example.com/a-very-long-destination-url
              */
             url: string;
-            /** @description Short alias used to reference the URL. */
+            /**
+             * @description Short alias used to reference the URL.
+             * @example short-alias
+             */
             alias: string;
             /**
              * Format: date-time
              * @description Timestamp when the alias was created.
+             * @example 2020-01-01T00:00:00Z
              */
             created_at?: string;
             /**
              * Format: date-time
              * @description Timestamp when the alias was last updated.
+             * @example 2020-01-02T00:00:00Z
              */
             updated_at?: string;
             /**
              * Format: date-time
              * @description Timestamp when the alias was deleted.
+             * @example 2020-01-03T00:00:00Z
              */
             deleted_at?: string;
         };
     };
-    responses: never;
+    responses: {
+        /** @description Unauthorized */
+        Unauthorized: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "code": 401,
+                 *       "message": "Unauthorized"
+                 *     }
+                 */
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description Unexpected error */
+        UnexpectedError: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "code": 500,
+                 *       "message": "Unexpected error"
+                 *     }
+                 */
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description The requested resource does not exist */
+        NotFound: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "code": 404,
+                 *       "message": "Resource not found"
+                 *     }
+                 */
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+        /** @description The resource already exists */
+        Conflict: {
+            headers: {
+                [name: string]: unknown;
+            };
+            content: {
+                /**
+                 * @example {
+                 *       "code": 409,
+                 *       "message": "Resource already exists"
+                 *     }
+                 */
+                "application/json": components["schemas"]["Error"];
+            };
+        };
+    };
     parameters: never;
     requestBodies: never;
     headers: never;
@@ -847,36 +1004,8 @@ export interface operations {
                     "text/plain": string;
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": 401,
-                     *       "message": "Unauthorized"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    /**
-                     * @example {
-                     *       "code": 500,
-                     *       "message": "Unexpected error"
-                     *     }
-                     */
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     listUsers: {
@@ -904,7 +1033,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description List of all the users */
+            /** @description List of users */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -925,24 +1054,8 @@ export interface operations {
                     "application/json": components["schemas"]["User"][];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     createUser: {
@@ -987,24 +1100,9 @@ export interface operations {
                     "application/json": components["schemas"]["CreateUserResponse"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     resetPassword: {
@@ -1035,24 +1133,8 @@ export interface operations {
                     "application/json": components["schemas"]["User"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     changePassword: {
@@ -1084,24 +1166,8 @@ export interface operations {
                     "application/json": components["schemas"]["User"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     getUserFeed: {
@@ -1133,24 +1199,8 @@ export interface operations {
                     "application/json": components["schemas"]["Comment"][];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     getUserComments: {
@@ -1199,24 +1249,9 @@ export interface operations {
                     "application/json": components["schemas"]["Comment"][];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     getUserFollowers: {
@@ -1255,24 +1290,9 @@ export interface operations {
                     "application/json": components["schemas"]["User"][];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     getFollowingUsers: {
@@ -1311,24 +1331,9 @@ export interface operations {
                     "application/json": components["schemas"]["User"][];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     followUser: {
@@ -1358,24 +1363,9 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     unfollowUser: {
@@ -1405,24 +1395,9 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     getUserByUsername: {
@@ -1443,7 +1418,7 @@ export interface operations {
             /** @description User details by username */
             200: {
                 headers: {
-                    /** @description A link to the next page of responses */
+                    /** @description A link to the next page of results */
                     "x-next"?: string;
                     [name: string]: unknown;
                 };
@@ -1451,15 +1426,7 @@ export interface operations {
                     "application/json": components["schemas"]["User"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
             /** @description Username not found */
             404: {
                 headers: {
@@ -1517,24 +1484,10 @@ export interface operations {
                     "application/json": components["schemas"]["User"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     deleteUser: {
@@ -1561,6 +1514,7 @@ export interface operations {
                     "application/json": components["schemas"]["User"];
                 };
             };
+            401: components["responses"]["Unauthorized"];
             /** @description Username not found */
             404: {
                 headers: {
@@ -1570,15 +1524,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            default: components["responses"]["UnexpectedError"];
         };
     };
     getRolesForUser: {
@@ -1615,24 +1561,9 @@ export interface operations {
                     "application/json": components["schemas"]["Role"][];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     updateRolesForUser: {
@@ -1664,24 +1595,9 @@ export interface operations {
                     "application/json": components["schemas"]["Role"][];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     getComment: {
@@ -1702,7 +1618,7 @@ export interface operations {
             /** @description Details about a comment by ID */
             200: {
                 headers: {
-                    /** @description A link to the next page of responses */
+                    /** @description A link to the next page of results */
                     "x-next"?: string;
                     [name: string]: unknown;
                 };
@@ -1719,24 +1635,8 @@ export interface operations {
                     "application/json": components["schemas"]["Comment"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     searchComments: {
@@ -1764,24 +1664,8 @@ export interface operations {
                     "application/json": components["schemas"]["Comment"][];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     createComment: {
@@ -1813,24 +1697,8 @@ export interface operations {
                     "application/json": components["schemas"]["Comment"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     likeComment: {
@@ -1861,15 +1729,7 @@ export interface operations {
                     "application/json": components["schemas"]["Comment"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
             /** @description Comment not found */
             404: {
                 headers: {
@@ -1879,15 +1739,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            default: components["responses"]["UnexpectedError"];
         };
     };
     unlikeComment: {
@@ -1918,15 +1770,7 @@ export interface operations {
                     "application/json": components["schemas"]["Comment"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
             /** @description Comment not found */
             404: {
                 headers: {
@@ -1936,15 +1780,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            default: components["responses"]["UnexpectedError"];
         };
     };
     getAccessToken: {
@@ -1975,36 +1811,20 @@ export interface operations {
                     "application/json": components["schemas"]["AccessToken"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     listRoles: {
         parameters: {
             query?: {
                 /**
-                 * @description The numbers of roles to return
+                 * @description The number of roles to return
                  * @example 20
                  */
                 limit?: number;
                 /**
-                 * @description The number of items to skip before starting to collect the result
+                 * @description The number of items to skip before starting to collect the result set
                  * @example 0
                  */
                 offset?: number;
@@ -2034,24 +1854,8 @@ export interface operations {
                     "application/json": components["schemas"]["Role"][];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     createRole: {
@@ -2083,24 +1887,9 @@ export interface operations {
                     "application/json": components["schemas"]["Role"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     getRole: {
@@ -2135,24 +1924,9 @@ export interface operations {
                     "application/json": components["schemas"]["Role"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     updateRole: {
@@ -2190,24 +1964,9 @@ export interface operations {
                     "application/json": components["schemas"]["Role"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     deleteRole: {
@@ -2232,36 +1991,21 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     listScopesForRole: {
         parameters: {
             query?: {
                 /**
-                 * @description The numbers of scopes to return
+                 * @description The number of scopes to return
                  * @example 20
                  */
                 limit?: number;
                 /**
-                 * @description The number of items to skip before starting to collect the result
+                 * @description The number of items to skip before starting to collect the result set
                  * @example 0
                  */
                 offset?: number;
@@ -2297,24 +2041,9 @@ export interface operations {
                     "application/json": components["schemas"]["Scope"][];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     addScopeToRole: {
@@ -2359,15 +2088,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
             /** @description Role not found */
             404: {
                 headers: {
@@ -2377,15 +2098,8 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     removeScopeFromRole: {
@@ -2424,15 +2138,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
             /** @description Role not found */
             404: {
                 headers: {
@@ -2442,27 +2148,19 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            default: components["responses"]["UnexpectedError"];
         };
     };
     listScopes: {
         parameters: {
             query?: {
                 /**
-                 * @description The numbers of scopes to return
+                 * @description The number of scopes to return
                  * @example 20
                  */
                 limit?: number;
                 /**
-                 * @description The number of items to skip before starting to collect the result
+                 * @description The number of items to skip before starting to collect the result set
                  * @example 0
                  */
                 offset?: number;
@@ -2492,24 +2190,8 @@ export interface operations {
                     "application/json": components["schemas"]["Scope"][];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     createScope: {
@@ -2541,24 +2223,9 @@ export interface operations {
                     "application/json": components["schemas"]["Scope"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            409: components["responses"]["Conflict"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     getScope: {
@@ -2593,24 +2260,9 @@ export interface operations {
                     "application/json": components["schemas"]["Scope"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     updateScope: {
@@ -2648,24 +2300,9 @@ export interface operations {
                     "application/json": components["schemas"]["Scope"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     deleteScope: {
@@ -2690,24 +2327,9 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
-            /** @description Unexpected error */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
+            404: components["responses"]["NotFound"];
+            default: components["responses"]["UnexpectedError"];
         };
     };
     getUrl: {
@@ -2716,7 +2338,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description The alias of the url
+                 * @description The alias of the URL
                  * @example abcdef
                  */
                 alias: string;
@@ -2725,17 +2347,17 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Redirect to the url */
+            /** @description Redirect to the URL */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description Redirect to the url */
+            /** @description Redirect to the URL */
             308: {
                 headers: {
-                    /** @description The url */
+                    /** @description The destination URL */
                     Location: string;
                     [name: string]: unknown;
                 };
@@ -2758,7 +2380,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description The alias of the url
+                 * @description The alias of the URL
                  * @example abcdef
                  */
                 alias: string;
@@ -2791,7 +2413,7 @@ export interface operations {
             header?: never;
             path: {
                 /**
-                 * @description The alias of the url
+                 * @description The alias of the URL
                  * @example abcdef
                  */
                 alias: string;
@@ -2827,7 +2449,7 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        /** @description Create a new url */
+        /** @description The URL and alias to create. */
         requestBody: {
             content: {
                 /**
@@ -2849,15 +2471,7 @@ export interface operations {
                     "application/json": components["schemas"]["URL"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
+            401: components["responses"]["Unauthorized"];
             /** @description Url already exists */
             409: {
                 headers: {

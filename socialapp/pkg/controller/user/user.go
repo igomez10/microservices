@@ -468,8 +468,8 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	params := db.UpdateUserByUsernameParams{
 		OldUsername:             existingUsername,
 		NewUsername:             newUserData.Username,
-		FirstName:               newUserData.FirstName,
-		LastName:                newUserData.LastName,
+		FirstName:               existingDBUser.FirstName,
+		LastName:                existingDBUser.LastName,
 		Email:                   newUserData.Email,
 		HashedPassword:          existingDBUser.HashedPassword,
 		HashedPasswordExpiresAt: existingDBUser.HashedPasswordExpiresAt,

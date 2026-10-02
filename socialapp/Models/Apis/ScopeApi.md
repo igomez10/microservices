@@ -104,8 +104,8 @@ List scopes
 
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **limit** | **Integer**| The numbers of scopes to return | [optional] [default to 20] |
-| **offset** | **Integer**| The number of items to skip before starting to collect the result | [optional] [default to null] |
+| **limit** | **Integer**| The number of scopes to return | [optional] [default to 20] |
+| **offset** | **Integer**| The number of items to skip before starting to collect the result set | [optional] [default to null] |
 
 ### Return type
 

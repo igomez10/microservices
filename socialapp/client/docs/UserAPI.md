@@ -6,11 +6,11 @@ Method | HTTP request | Description
 ------------- | ------------- | -------------
 [**ChangePassword**](UserAPI.md#ChangePassword) | **Post** /v1/password | Change password
 [**CreateUser**](UserAPI.md#CreateUser) | **Post** /v1/users | Create user
-[**DeleteUser**](UserAPI.md#DeleteUser) | **Delete** /v1/users/{username} | Deletes a particular user
+[**DeleteUser**](UserAPI.md#DeleteUser) | **Delete** /v1/users/{username} | Delete a user
 [**FollowUser**](UserAPI.md#FollowUser) | **Post** /v1/users/{followedUsername}/followers/{followerUsername} | Add a user as a follower
 [**GetFollowingUsers**](UserAPI.md#GetFollowingUsers) | **Get** /v1/users/{username}/following | Get all followed users for a user
 [**GetRolesForUser**](UserAPI.md#GetRolesForUser) | **Get** /v1/users/{username}/roles | Get all roles for a user
-[**GetUserByUsername**](UserAPI.md#GetUserByUsername) | **Get** /v1/users/{username} | Get a particular user by username
+[**GetUserByUsername**](UserAPI.md#GetUserByUsername) | **Get** /v1/users/{username} | Get a user by username
 [**GetUserComments**](UserAPI.md#GetUserComments) | **Get** /v1/users/{username}/comments | List comments for a user
 [**GetUserFollowers**](UserAPI.md#GetUserFollowers) | **Get** /v1/users/{username}/followers | Get all followers for a user
 [**ListUsers**](UserAPI.md#ListUsers) | **Get** /v1/users | List users
@@ -43,7 +43,7 @@ import (
 )
 
 func main() {
-	changePasswordRequest := *openapiclient.NewChangePasswordRequest("OldPassword_example", "NewPassword_example") // ChangePasswordRequest | Change password request
+	changePasswordRequest := *openapiclient.NewChangePasswordRequest("Secure123!", "EvenMoreSecure456!") // ChangePasswordRequest | Change password request
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -109,7 +109,7 @@ import (
 )
 
 func main() {
-	createUserRequest := *openapiclient.NewCreateUserRequest("Username_example", "Password_example", "FirstName_example", "LastName_example", "Email_example") // CreateUserRequest | Create a new user
+	createUserRequest := *openapiclient.NewCreateUserRequest("johndoe", "Secure123!", "John", "Doe", "johndoe@mail.com") // CreateUserRequest | Create a new user
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -158,7 +158,7 @@ No authorization required
 
 > User DeleteUser(ctx, username).Execute()
 
-Deletes a particular user
+Delete a user
 
 
 
@@ -439,7 +439,7 @@ Name | Type | Description  | Notes
 
 > User GetUserByUsername(ctx, username).Execute()
 
-Get a particular user by username
+Get a user by username
 
 
 
@@ -740,7 +740,7 @@ import (
 )
 
 func main() {
-	resetPasswordRequest := *openapiclient.NewResetPasswordRequest("Email_example") // ResetPasswordRequest | Reset password
+	resetPasswordRequest := *openapiclient.NewResetPasswordRequest("johndoe@mail.com") // ResetPasswordRequest | Reset password
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -950,7 +950,7 @@ import (
 
 func main() {
 	username := "johndoe" // string | Username of the user
-	user := *openapiclient.NewUser("Username_example", "FirstName_example", "LastName_example", "Email_example") // User | Update a user
+	user := *openapiclient.NewUser("johndoe", "John", "Doe", "johndoe@mail.com") // User | Update a user
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)

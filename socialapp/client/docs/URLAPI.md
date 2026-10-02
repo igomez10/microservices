@@ -32,7 +32,7 @@ import (
 )
 
 func main() {
-	uRL := *openapiclient.NewURL("Url_example", "Alias_example") // URL | Create a new url
+	uRL := *openapiclient.NewURL("https://example.com/a-very-long-destination-url", "short-alias") // URL | The URL and alias to create.
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -57,7 +57,7 @@ Other parameters are passed through a pointer to a apiCreateUrlRequest struct vi
 
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
- **uRL** | [**URL**](URL.md) | Create a new url | 
+ **uRL** | [**URL**](URL.md) | The URL and alias to create. | 
 
 ### Return type
 
@@ -98,7 +98,7 @@ import (
 )
 
 func main() {
-	alias := "abcdef" // string | The alias of the url
+	alias := "abcdef" // string | The alias of the URL
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -116,7 +116,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**alias** | **string** | The alias of the url | 
+**alias** | **string** | The alias of the URL | 
 
 ### Other Parameters
 
@@ -166,7 +166,7 @@ import (
 )
 
 func main() {
-	alias := "abcdef" // string | The alias of the url
+	alias := "abcdef" // string | The alias of the URL
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -184,7 +184,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**alias** | **string** | The alias of the url | 
+**alias** | **string** | The alias of the URL | 
 
 ### Other Parameters
 
@@ -234,7 +234,7 @@ import (
 )
 
 func main() {
-	alias := "abcdef" // string | The alias of the url
+	alias := "abcdef" // string | The alias of the URL
 
 	configuration := openapiclient.NewConfiguration()
 	apiClient := openapiclient.NewAPIClient(configuration)
@@ -254,7 +254,7 @@ func main() {
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
 **ctx** | **context.Context** | context for authentication, logging, cancellation, deadlines, tracing, etc.
-**alias** | **string** | The alias of the url | 
+**alias** | **string** | The alias of the URL | 
 
 ### Other Parameters
 
