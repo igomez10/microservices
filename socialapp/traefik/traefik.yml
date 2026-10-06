@@ -59,12 +59,6 @@ accessLog:
 ping:
   entryPoint: "web"
 
-metrics:
-  otlp:
-    grpc:
-      endpoint: "otel-collector:4317"
-      insecure: true
-
 tracing:
   serviceName: "traefik"
   # addInternals: true

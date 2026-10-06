@@ -184,6 +184,7 @@ services:
       - ${PROMETHEUS_DATA_DIR:-prometheus_data}:/prometheus
     command:
       - "--storage.tsdb.retention.size=3GB"
+      - "--web.enable-admin-api"
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
@@ -351,10 +352,8 @@ services:
       - elk
     environment:
       - SOCIALAPP_HOST=socialapp.${EXPOSED_HOST}
-      - WHOAMI_HOST=whoami.${EXPOSED_HOST}
     extra_hosts:
       - "socialapp.${EXPOSED_HOST}:172.28.0.151"
-      - "whoami.${EXPOSED_HOST}:172.28.0.151"
 
   cadvisor:
     init: true
@@ -853,6 +852,9 @@ services:
       - "${TAILSCALE_IP:?set TAILSCALE_IP to this host's Tailscale IPv4}:${INTERNAL_HTTPS_BIND_PORT:-443}:8443"
     labels:
       - "traefik.enable=true"
+      # Shared HTTPS redirect middleware used by the *-http routers
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
       - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.internal.${EXPOSED_HOST}`)"
       - "traefik.http.routers.traefik-dashboard.entrypoints=websecureinternal"
       - "traefik.http.routers.traefik-dashboard.tls=true"
@@ -874,74 +876,6 @@ services:
         ipv4_address: 172.28.0.151
       default:
       elk:
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "5000"
-        loki-retries: "3"
-        loki-max-backoff: "1000ms"
-        loki-timeout: "1000ms"
-        loki-batch-wait: "5s"
-        labels: "service_name"
-        max-size: "10m"
-        max-file: "3"
-
-  whoamiinternal:
-    container_name: whoamiinternal
-    image: traefik/whoami
-    labels:
-      - "traefik.enable=true"
-      # Middleware for HTTPS redirect
-      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
-      # HTTPS router
-      - "traefik.http.routers.whoamiinternal.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.whoamiinternal.entrypoints=websecureinternal"
-      - "traefik.http.routers.whoamiinternal.tls=true"
-      - "traefik.http.routers.whoamiinternal.tls.certresolver=letsencrypt-dns"
-      # HTTP router with redirect
-      - "traefik.http.routers.whoamiinternal-http.rule=Host(`whoami.internal.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.whoamiinternal-http.entrypoints=webinternal"
-      - "traefik.http.routers.whoamiinternal-http.middlewares=https-redirect"
-      # Service
-      - "traefik.http.services.whoamiinternal.loadbalancer.server.port=80"
-    cpus: 0.5
-    mem_limit: 512m
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-        loki-batch-size: "5000"
-        loki-retries: "3"
-        loki-max-backoff: "1000ms"
-        loki-timeout: "1000ms"
-        loki-batch-wait: "5s"
-        labels: "service_name"
-        max-size: "10m"
-        max-file: "3"
-
-  whoami:
-    container_name: whoami
-    image: traefik/whoami
-    labels:
-      - "traefik.enable=true"
-      # Middleware for HTTPS redirect
-      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
-      # HTTPS router
-      - "traefik.http.routers.whoamihost.rule=Host(`whoami.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.whoamihost.entrypoints=websecure"
-      - "traefik.http.routers.whoamihost.tls=true"
-      - "traefik.http.routers.whoamihost.tls.certresolver=letsencrypt"
-      # HTTP router with redirect
-      - "traefik.http.routers.whoamihost-http.rule=Host(`whoami.${EXPOSED_HOST}`)"
-      - "traefik.http.routers.whoamihost-http.entrypoints=web"
-      - "traefik.http.routers.whoamihost-http.middlewares=https-redirect"
-      # Service
-      - "traefik.http.services.whoami.loadbalancer.server.port=80"
-    cpus: 0.5
-    mem_limit: 512m
     logging:
       driver: loki
       options:
