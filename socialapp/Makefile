@@ -223,7 +223,7 @@ test-e2e:
 test-contract:
 	../scripts/pact-check.sh
 	go test ./contracts -run Test.*Contract -count=1
-	go test ./pkg/controller/url -run TestURLApiService_GetUrlDataContract -count=1
+	go test ./pkg/controller/url -run 'TestURLApiService_.*Contract' -count=1
 
 # Run all tests
 test: test-unit test-integration test-e2e test-contract

@@ -53,7 +53,7 @@ func (s *URLApiService) CreateUrl(ctx context.Context, newURL server.Url, reques
 					Message: "url with alias already exists",
 					Code:    http.StatusConflict,
 				},
-			}, err
+			}, nil
 		}
 
 		// other error

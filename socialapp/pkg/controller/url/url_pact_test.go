@@ -114,3 +114,63 @@ func contractDirectoryPaths(t *testing.T) (string, string) {
 
 	return pactDir, logDir
 }
+
+func TestURLApiService_CreateUrlConflictContract(t *testing.T) {
+	pactDir, logDir := contractDirectoryPaths(t)
+
+	pact, err := consumer.NewV2Pact(consumer.MockHTTPProviderConfig{
+		Consumer: "socialapp",
+		Provider: "urlshortener",
+		PactDir:  pactDir,
+		LogDir:   logDir,
+	})
+	require.NoError(t, err)
+
+	alias := "contract-alias"
+	requestID := "contract-id-5678"
+	shortURL := "https://pact.socialapp/golden-url"
+
+	interaction := pact.AddInteraction()
+	testInteraction := interaction.Given("a url alias exists").
+		UponReceiving("a request to create a url with an existing alias").
+		WithRequest(http.MethodPost, "/v1/urls",
+			func(r *consumer.V2RequestBuilder) {
+				r.Header("X-Request-ID", matchers.String(requestID))
+				r.JSONBody(map[string]interface{}{
+					"url":   shortURL,
+					"alias": alias,
+				})
+			},
+		).
+		WillRespondWith(http.StatusConflict,
+			func(r *consumer.V2ResponseBuilder) {
+				r.Header("Content-Type", matchers.String("application/json"))
+				r.JSONBody(matchers.StructMatcher{
+					"code":    matchers.Integer(http.StatusConflict),
+					"message": matchers.String("url with alias already exists"),
+				})
+			},
+		)
+
+	err = testInteraction.ExecuteTest(t, func(config consumer.MockServerConfig) error {
+		service := newURLApiServiceForMock(config)
+		ctx := contexthelper.SetRequestIDInContext(context.Background(), requestID)
+
+		res, err := service.CreateUrl(ctx, openapi.Url{Url: shortURL, Alias: alias})
+		if err != nil {
+			return err
+		}
+		if res.Code != http.StatusConflict {
+			return fmt.Errorf("unexpected status %d, expected %d", res.Code, http.StatusConflict)
+		}
+		body, ok := res.Body.(openapi.Error)
+		if !ok {
+			return fmt.Errorf("unexpected body type %T", res.Body)
+		}
+		if want := fmt.Sprintf("url with alias %q already exists", alias); body.Message != want {
+			return fmt.Errorf("unexpected message %q, expected %q", body.Message, want)
+		}
+		return nil
+	})
+	require.NoError(t, err)
+}
