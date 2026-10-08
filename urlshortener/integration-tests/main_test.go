@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -111,6 +112,19 @@ func TestURLLifeCycle(t *testing.T) {
 	}
 	if r.StatusCode != http.StatusConflict {
 		t.Errorf("Expected status code %d, got %d", http.StatusConflict, r.StatusCode)
+	}
+	// the client only decodes the body into an Error model when it is one;
+	// a bare string body (e.g. the raw database error) leaves no model
+	var apiErr *urlClient.GenericOpenAPIError
+	if !errors.As(err, &apiErr) {
+		t.Fatalf("Expected *GenericOpenAPIError for duplicate alias, got %T: %v", err, err)
+	}
+	conflictBody, ok := apiErr.Model().(urlClient.Error)
+	if !ok {
+		t.Fatalf("Expected structured Error body for duplicate alias, got %q", apiErr.Body())
+	}
+	if conflictBody.Code != http.StatusConflict || conflictBody.Message != "url with alias already exists" {
+		t.Errorf("Unexpected conflict body: code=%d message=%q", conflictBody.Code, conflictBody.Message)
 	}
 
 	// get url

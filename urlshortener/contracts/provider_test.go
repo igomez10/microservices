@@ -78,6 +78,10 @@ func (m *mockDB) Seed(alias, shortURL string) {
 func (m *mockDB) CreateURL(_ context.Context, _ db.DBTX, arg db.CreateURLParams) (db.Url, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if _, ok := m.urls[arg.Alias]; ok {
+		// same text as the real postgres error; the controller matches on it
+		return db.Url{}, fmt.Errorf(`pq: duplicate key value violates unique constraint "urls_alias_key"`)
+	}
 	now := time.Now().UTC()
 	entry := db.Url{
 		ID:        now.Unix(),

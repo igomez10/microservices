@@ -40,6 +40,37 @@
         },
         "status": 200
       }
+    },
+    {
+      "description": "a request to create a url with an existing alias",
+      "providerState": "a url alias exists",
+      "request": {
+        "body": {
+          "alias": "contract-alias",
+          "url": "https://pact.socialapp/golden-url"
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "X-Request-ID": "contract-id-5678"
+        },
+        "method": "POST",
+        "path": "/v1/urls"
+      },
+      "response": {
+        "body": {
+          "code": 409,
+          "message": "url with alias already exists"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "$.body.code": {
+            "match": "integer"
+          }
+        },
+        "status": 409
+      }
     }
   ],
   "metadata": {
