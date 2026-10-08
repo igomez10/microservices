@@ -1667,7 +1667,7 @@ func URLLifeCycle(ctx context.Context) error {
 	}
 
 	// create url
-	newURL := client.NewURL("https://www.google.com", fmt.Sprintf("%d", time.Now().Unix()))
+	newURL := client.NewURL("https://www.google.com", fmt.Sprintf("%d", time.Now().UnixNano()))
 	_, r, err := apiClient.URLAPI.CreateUrl(oauth2Ctx).URL(*newURL).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `URLAPI.CreateURL`: %v %v", err, r)
