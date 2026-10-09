@@ -23,6 +23,12 @@ terraform {
       source  = "argoproj-labs/argocd"
       version = "7.17.0"
     }
+    # Same major as ../../socialapp/terraform and layer 30 of the
+    # infrastructure repo, which configure the same Grafana instance.
+    grafana = {
+      source  = "grafana/grafana"
+      version = "~> 3.0"
+    }
   }
 
   # Same bucket as the infrastructure layers, a prefix of its own.
