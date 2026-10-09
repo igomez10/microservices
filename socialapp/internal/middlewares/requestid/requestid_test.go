@@ -1,6 +1,8 @@
 package requestid
 
 import (
+	"bytes"
+	"encoding/json"
 	"io"
 	"log/slog"
 	"net/http"
@@ -9,6 +11,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
+	"go.opentelemetry.io/otel"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func newTestLogger() *slog.Logger {
@@ -357,5 +362,38 @@ func BenchmarkMiddleware(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		rr := httptest.NewRecorder()
 		handler.ServeHTTP(rr, req)
+	}
+}
+
+func TestMiddleware_LoggerCarriesTraceID(t *testing.T) {
+	// a real provider: the default no-op one yields an all-zero trace ID
+	prev := otel.GetTracerProvider()
+	otel.SetTracerProvider(sdktrace.NewTracerProvider())
+	t.Cleanup(func() { otel.SetTracerProvider(prev) })
+
+	var buf bytes.Buffer
+	var spanCtx trace.SpanContext
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		spanCtx = trace.SpanContextFromContext(r.Context())
+		contexthelper.GetLoggerInContext(r.Context()).Error("boom")
+		w.WriteHeader(http.StatusOK)
+	})
+
+	req := httptest.NewRequest("GET", "/test", nil)
+	req = req.WithContext(contexthelper.SetLoggerInContext(req.Context(), slog.New(slog.NewJSONHandler(&buf, nil))))
+	Middleware(testHandler).ServeHTTP(httptest.NewRecorder(), req)
+
+	var line map[string]any
+	if err := json.Unmarshal(buf.Bytes(), &line); err != nil {
+		t.Fatalf("log line is not JSON: %v: %q", err, buf.String())
+	}
+	if !spanCtx.IsValid() {
+		t.Fatal("expected a valid span in the request context")
+	}
+	if got, want := line["trace_id"], spanCtx.TraceID().String(); got != want {
+		t.Errorf("trace_id = %v, want %v", got, want)
+	}
+	if got, want := line["span_id"], spanCtx.SpanID().String(); got != want {
+		t.Errorf("span_id = %v, want %v", got, want)
 	}
 }
