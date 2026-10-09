@@ -13,11 +13,11 @@
 # a revert. The URLShortener Image workflow
 # (.github/workflows/build-urlshortener-image.yml) rewrites both image lines on
 # each build.
-image: ghcr.io/igomez10/urlshortener@sha256:5a58922b32313c178ef7e0cec18813cea5a47a8f3eee721da48322a9a8207b3b
+image: ghcr.io/igomez10/urlshortener@sha256:d394806c409985c2f885afc3f4f2e5878fcb0e712866a269ec036b49277dd0a4
 
 # The shared cluster collector (homelab/apps/otel-collector), the same endpoint
 # socialapp and puttyknife use.
 otelEndpoint: http://otel-collector.observability.svc.cluster.local:4317
 
 migrate:
-  image: ghcr.io/igomez10/urlshortener-migrate@sha256:9e2c6b9a6d45b5cd57a85eaafe5ed7b9ce1c7211a2b7634903a10e3401f1af67
+  image: ghcr.io/igomez10/urlshortener-migrate@sha256:6c8fc54a1fa3085b7f3e38a1a011c5215e76385aaca726c0cfc67f49f23fd2e8
