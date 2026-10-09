@@ -196,10 +196,16 @@ locals {
     # ── Deploys ──────────────────────────────────────────────────────────────
     # Both are Argo CD hooks with BeforeHookCreation, so a failed Job stays
     # until the next sync replaces it — the alert holds until then.
+    #
+    # On the Job's terminal Failed condition, not kube_job_status_failed: that
+    # counts failed pod attempts, and the migration Job retries
+    # (backoffLimit: 3), so one failed attempt followed by a successful retry
+    # would leave it nonzero and this alert firing on a sync that went fine.
+    # kube_job_failed{condition="true"} exists only once the Job has given up.
     migration_failed = {
       title       = "socialapp migration failed"
       datasource  = "prometheus"
-      expr        = "max by (job_name) (kube_job_status_failed{namespace=\"socialapp\", job_name=~\"socialapp-migrate.*\"})"
+      expr        = "max by (job_name) (kube_job_failed{namespace=\"socialapp\", job_name=~\"socialapp-migrate.*\", condition=\"true\"})"
       op          = "gt"
       threshold   = 0
       for         = "0m"
@@ -211,7 +217,7 @@ locals {
     smoke_test_failed = {
       title       = "socialapp smoke test failed"
       datasource  = "prometheus"
-      expr        = "max by (job_name) (kube_job_status_failed{namespace=\"socialapp\", job_name=~\"socialapp-smoke-test.*\"})"
+      expr        = "max by (job_name) (kube_job_failed{namespace=\"socialapp\", job_name=~\"socialapp-smoke-test.*\", condition=\"true\"})"
       op          = "gt"
       threshold   = 0
       for         = "0m"
