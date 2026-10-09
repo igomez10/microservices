@@ -20,7 +20,13 @@ func Middleware(next http.Handler) http.Handler {
 		r.Header.Set("X-Request-ID", requestID)
 
 		ctx = contexthelper.SetRequestIDInContext(ctx, requestID)
-		logger := contexthelper.GetLoggerInContext(ctx).With("X-Request-ID", requestID)
+		// trace_id is what Grafana's Loki derived field matches to link a log
+		// line to its trace in Tempo; every request-scoped logger inherits it
+		logger := contexthelper.GetLoggerInContext(ctx).With(
+			"X-Request-ID", requestID,
+			"trace_id", span.SpanContext().TraceID().String(),
+			"span_id", span.SpanContext().SpanID().String(),
+		)
 		ctx = contexthelper.SetLoggerInContext(ctx, logger)
 		r = r.WithContext(ctx)
 
