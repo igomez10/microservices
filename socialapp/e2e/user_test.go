@@ -17,7 +17,6 @@ import (
 
 	"log/slog"
 
-	"github.com/docker/go-connections/nat"
 	"github.com/go-redis/redis/v8"
 	"github.com/igomez10/microservices/socialapp/internal/middlewares/cache"
 	"github.com/igomez10/microservices/socialapp/internal/server"
@@ -65,7 +64,7 @@ func setupTestEnv(t *testing.T) *TestEnv {
 	// This avoids intermittent "port not found" failures from ConnectionString().
 	pgHost, err := pgContainer.Host(ctx)
 	require.NoError(t, err, "Failed to get PostgreSQL host")
-	pgPort, err := pgContainer.MappedPort(ctx, nat.Port("5432/tcp"))
+	pgPort, err := pgContainer.MappedPort(ctx, "5432/tcp")
 	require.NoError(t, err, "Failed to get PostgreSQL mapped port")
 	pgConnStr := fmt.Sprintf(
 		"postgres://postgres:password@%s:%s/socialapp?sslmode=disable",
@@ -95,7 +94,7 @@ func setupTestEnv(t *testing.T) *TestEnv {
 	// This has been more stable in practice than ConnectionString() for this suite.
 	redisHost, err := redisContainer.Host(ctx)
 	require.NoError(t, err, "Failed to get Redis host")
-	redisPort, err := redisContainer.MappedPort(ctx, nat.Port("6379/tcp"))
+	redisPort, err := redisContainer.MappedPort(ctx, "6379/tcp")
 	require.NoError(t, err, "Failed to get Redis mapped port")
 	redisConnStr := fmt.Sprintf("redis://%s:%s", redisHost, redisPort.Port())
 
