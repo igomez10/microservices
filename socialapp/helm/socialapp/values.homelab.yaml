@@ -15,7 +15,7 @@ api:
   # is a revert. The Socialapp Image workflow
   # (.github/workflows/build-socialapp-image.yml) rewrites these three image
   # lines on each build.
-  image: ghcr.io/igomez10/socialapp@sha256:2034bd1734669e30e54d6dca918465344fdf8c463b757a92c3e4360d66668f7f
+  image: ghcr.io/igomez10/socialapp@sha256:8154c0a1487f454b207623768ac88e32b52ce34ac2ff592e81955a8abfe82f17
 
   config:
     PORT: "8086"
@@ -46,7 +46,7 @@ api:
     OTEL_SERVICE_NAME: socialapp
 
 migrate:
-  image: ghcr.io/igomez10/socialapp-migrate@sha256:6fc280b0da29d724a7458e221e6c9cd5524fc2c45005cc53d1659795f3b01476
+  image: ghcr.io/igomez10/socialapp-migrate@sha256:bbac0d6daf605096629e52a880c2076ac4f2b9b7f266e0ee9283711fe09ccd63
 
 frontend:
-  image: ghcr.io/igomez10/socialapp-frontend@sha256:2ddbcfe18ce07a8227616d5d3f8cad68e87e9dff6fac44ba3016245357de0067
+  image: ghcr.io/igomez10/socialapp-frontend@sha256:c4faaa186fc4bb880873633b0ce298ab36115b40cbb86e59586df14789db7f69
