@@ -39,6 +39,7 @@ spec:
     parameters:
       shared_buffers: 128MB
       max_connections: "100"
+      wal_keep_size: 64MB
 
   resources:
     requests:
