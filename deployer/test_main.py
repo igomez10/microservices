@@ -86,15 +86,16 @@ async def test_deploy_invalid_project(client):
 # ── Successful deploy ─────────────────────────────────────────────────────────
 
 
-def test_socialapp_deploy_only_restarts_remaining_compose_services():
+def test_socialapp_deploy_only_redeploys_integration_tests():
     commands = PROJECT_CONFIGS["socialapp"]["commands"]("deadbeef")
 
     assert "git fetch --all" in commands
     assert "git checkout deadbeef" in commands
-    assert "docker compose build frontend" in commands
-    assert "docker compose up -d --no-deps frontend" in commands
-    assert "docker compose build socialapp" not in commands
-    assert "docker compose up -d --no-deps socialapp" not in commands
+    assert "docker compose build integration-tests-1" in commands
+    assert "docker compose up -d --no-deps integration-tests-1" in commands
+    # socialapp and frontend run in the homelab cluster, not in this compose stack.
+    docker_cmds = [c for c in commands if c.startswith("docker compose")]
+    assert not any("frontend" in c or c.endswith(" socialapp") for c in docker_cmds)
 
 
 @pytest.mark.asyncio

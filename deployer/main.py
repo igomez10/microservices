@@ -35,12 +35,14 @@ def _git_commands(commit: str) -> list[str]:
 
 
 PROJECT_CONFIGS: dict[str, dict] = {
+    # socialapp itself (API + frontend) runs in the homelab cluster via Argo CD;
+    # this host only runs the integration tests that load it.
     "socialapp": {
         "workdir": f"{MICROSERVICES_HOST_DIR}/socialapp",
         "commands": lambda commit: [
             *_git_commands(commit),
-            "docker compose build frontend",
-            "docker compose up -d --no-deps frontend",
+            "docker compose build integration-tests-1",
+            "docker compose up -d --no-deps integration-tests-1",
             "docker builder prune -f",
         ],
     },

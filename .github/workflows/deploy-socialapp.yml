@@ -68,9 +68,36 @@ jobs:
           cd socialapp
           make test-e2e
 
+  # socialapp itself is deployed to the homelab by build-socialapp-image.yml + Argo CD.
+  # The deployer on ocivm only rebuilds and restarts the integration tests (load
+  # generator), so only redeploy when something that image is built from changed.
+  changes:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/mainline'
+    runs-on: ubuntu-latest
+    outputs:
+      integration-tests: ${{ steps.filter.outputs.integration-tests }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            integration-tests:
+              - "socialapp/integration_tests/**"
+              - "socialapp/client/**"
+              - "socialapp/pkg/scopes/**"
+              - "socialapp/go.mod"
+              - "socialapp/go.sum"
+              - "socialapp/Integration.Dockerfile"
+              - "socialapp/.dockerignore"
+              - "socialapp/docker-compose.yml"
+              - ".github/workflows/deploy-socialapp.yml"
+
   deploy:
-    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/mainline')
-    needs: lint-and-test
+    if: >-
+      always() && needs.lint-and-test.result == 'success' &&
+      (github.event_name == 'workflow_dispatch' || needs.changes.outputs.integration-tests == 'true')
+    needs: [lint-and-test, changes]
     runs-on: ubuntu-latest
 
     steps:

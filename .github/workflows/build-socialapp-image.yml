@@ -2,9 +2,9 @@
 # Registry, and pins their digests in the chart's homelab values
 # (socialapp/helm/socialapp/values.homelab.yaml), which Argo CD deploys.
 #
-# deploy-socialapp.yml does not do this: it runs tests and then POSTs to
-# the deployer service (secrets.DEPLOYER_URL), which builds from source on the target host. That
-# works for the compose stack and leaves no published artifact behind.
+# deploy-socialapp.yml does not deploy socialapp: it runs tests and, when the
+# integration tests change, POSTs to the deployer on ocivm (secrets.DEPLOYER_URL),
+# which rebuilds and restarts only the integration-tests load generator there.
 name: Socialapp Image
 
 on:
