@@ -137,18 +137,8 @@ func getHTTPClient() *http.Client {
 	)
 	retryClient.RetryMax = 3
 	retryClient.HTTPClient.Timeout = 15 * time.Second
-	retryClient.CheckRetry = func(ctx context.Context, resp *http.Response, err error) (bool, error) {
-
-		if resp == nil || resp.Request == nil {
-			return false, err
-		}
-
-		if resp.StatusCode >= http.StatusInternalServerError {
-			return true, nil
-		}
-
-		return false, nil
-	}
+	// Keep the library's DefaultRetryPolicy: it retries connection errors/timeouts, 429 and 5xx (except 501),
+	// and gives up on cert/scheme/redirect errors and a cancelled context.
 	http.DefaultClient = retryClient.StandardClient()
 	return http.DefaultClient
 }
