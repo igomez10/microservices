@@ -48,6 +48,14 @@ func (s *UserApiService) Welcome(context.Context) (openapi.ImplResponse, error) 
 
 const DEFAULT_ROLE_NAME = "administrator"
 
+// reservedUsernames can never be taken by signup or rename. usernames are not unique in the DB and a
+// soft-deleted user frees its name, so without this anyone could claim "admin" once it is deleted.
+var reservedUsernames = map[string]bool{"admin": true, "administrator": true, "root": true}
+
+func isReservedUsername(username string) bool {
+	return reservedUsernames[strings.ToLower(strings.TrimSpace(username))]
+}
+
 func (s *UserApiService) CreateUser(ctx context.Context, createUserReq openapi.CreateUserRequest) (openapi.ImplResponse, error) {
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "CreateUser")
 	defer span.End()
@@ -62,6 +70,10 @@ func (s *UserApiService) CreateUser(ctx context.Context, createUserReq openapi.C
 	}
 	defer tx.Rollback(ctx)
 
+	if isReservedUsername(createUserReq.Username) {
+		logger.Error("Username is reserved", "username", createUserReq.Username)
+		return openapi.Response(http.StatusConflict, nil), nil
+	}
 	if _, err := s.DB.GetUserByUsername(ctx, tx, createUserReq.Username); err == nil {
 		logger.Error("Username already exists", "error", err)
 		return openapi.Response(http.StatusConflict, nil), nil
@@ -428,6 +440,16 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	if newUserData.Username != "" && newUserData.Username != existingDBUser.Username {
 		// validate we dont have a user with the same username that is not deleted
 		noCaseUsername := strings.ToLower(newUserData.Username)
+		if isReservedUsername(newUserData.Username) {
+			logger.Error("Username is reserved", "username", newUserData.Username)
+			return openapi.ImplResponse{
+				Code: http.StatusConflict,
+				Body: openapi.Error{
+					Code:    http.StatusConflict,
+					Message: "Username already exists",
+				},
+			}, nil
+		}
 		if _, err := s.DB.GetUserByUsername(ctx, tx, noCaseUsername); err == nil {
 			logger.Error("Username already exists", "error", err)
 

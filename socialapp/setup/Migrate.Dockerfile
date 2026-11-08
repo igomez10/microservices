@@ -28,12 +28,13 @@ COPY db/setup/schema.sql /schema.sql.orig
 RUN grep -vi '^[[:space:]]*CREATE DATABASE' /schema.sql.orig > /schema.sql \
  && rm /schema.sql.orig
 
+COPY db/setup/seed.sql /seed.sql
 COPY setup/apply.sql /apply.sql
 COPY setup/migrate.sh /migrate.sh
 
 # Readable and executable by any uid: Kubernetes runs this with runAsNonRoot
 # and a uid that does not exist in /etc/passwd.
-RUN chmod 0755 /migrate.sh && chmod 0444 /apply.sql /schema.sql
+RUN chmod 0755 /migrate.sh && chmod 0444 /apply.sql /schema.sql /seed.sql
 
 USER 65532:65532
 ENTRYPOINT ["/migrate.sh"]

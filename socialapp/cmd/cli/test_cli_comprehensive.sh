@@ -12,8 +12,9 @@ set -e
 # Configuration
 HOST="${HOST:-http://localhost:8086}"
 CLI="${CLI:-./socialapp-cli}"
-ADMIN_USER="${ADMIN_USER:-admin}"
-ADMIN_PASS="${ADMIN_PASS:-admin}"
+# No default: socialapp is public, so there is no shared admin password to fall back to.
+ADMIN_USER="${ADMIN_USER:?set ADMIN_USER and ADMIN_PASS (admin account from Vault kv/socialapp/admin)}"
+ADMIN_PASS="${ADMIN_PASS:?set ADMIN_PASS}"
 
 # Test data
 TIMESTAMP=$(date +%s)
