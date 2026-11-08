@@ -9,12 +9,12 @@
 --                          three try to insert the seed rows. The lock is held
 --                          until COMMIT and released automatically.
 --
---   schema_bootstrap       db/setup/schema.sql is NOT idempotent: it ends with
---                          seed INSERTs that have no ON CONFLICT clause, so a
---                          second run fails on users_pkey. Statement-level
---                          guards (IF NOT EXISTS) cover the CREATEs only, so
---                          the guard has to be at the file level. The checksum
---                          means an edited schema is recognised as new work.
+--   schema_bootstrap       the checksum means an edited schema.sql is
+--                          recognised as new work and re-applied; schema.sql
+--                          must therefore stay re-runnable (IF NOT EXISTS).
+--                          db/setup/seed.sql is NOT re-runnable and must never
+--                          touch a live database again, so it runs only when
+--                          schema_bootstrap is empty: the very first apply.
 --
 --   BEGIN/COMMIT           a pod killed mid-apply rolls back completely rather
 --                          than leaving a half-built schema behind.
@@ -31,11 +31,16 @@ CREATE TABLE IF NOT EXISTS schema_bootstrap (
 
 SELECT (NOT EXISTS (
     SELECT 1 FROM schema_bootstrap WHERE checksum = :'checksum'
-))::text AS needs_apply \gset
+))::text AS needs_apply,
+(NOT EXISTS (SELECT 1 FROM schema_bootstrap))::text AS first_apply \gset
 
 \if :needs_apply
     \echo 'migrate: applying schema'
     \i /schema.sql
+    \if :first_apply
+        \echo 'migrate: first bootstrap, applying seed'
+        \i /seed.sql
+    \endif
     INSERT INTO schema_bootstrap (checksum) VALUES (:'checksum');
 \else
     \echo 'migrate: schema already applied, nothing to do'

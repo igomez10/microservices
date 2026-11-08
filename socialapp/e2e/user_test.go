@@ -155,9 +155,10 @@ func initializeDatabase(ctx context.Context, pool *pgxpool.Pool) error {
 	}
 
 	var schemaSQL []byte
+	var schemaPath string
 	var err error
-	for _, path := range schemaPaths {
-		schemaSQL, err = os.ReadFile(path)
+	for _, schemaPath = range schemaPaths {
+		schemaSQL, err = os.ReadFile(schemaPath)
 		if err == nil {
 			break
 		}
@@ -166,6 +167,13 @@ func initializeDatabase(ctx context.Context, pool *pgxpool.Pool) error {
 	if err != nil {
 		return fmt.Errorf("failed to read schema.sql: %w", err)
 	}
+
+	// A fresh database gets the sample data too, as on the first migrate run (setup/apply.sql).
+	seedSQL, err := os.ReadFile(filepath.Join(filepath.Dir(schemaPath), "seed.sql"))
+	if err != nil {
+		return fmt.Errorf("failed to read seed.sql: %w", err)
+	}
+	schemaSQL = append(append(schemaSQL, '\n'), seedSQL...)
 
 	// Execute the schema
 	_, err = pool.Exec(ctx, string(schemaSQL))

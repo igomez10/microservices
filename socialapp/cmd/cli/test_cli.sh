@@ -22,8 +22,9 @@ TEST_PASSWORD="TestPass123!"
 TEST_EMAIL="test_$(date +%s)@example.com"
 TEST_FIRSTNAME="Test"
 TEST_LASTNAME="User"
-ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
-ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin}"
+# No default: socialapp is public, so there is no shared admin password to fall back to.
+ADMIN_USERNAME="${ADMIN_USERNAME:?set ADMIN_USERNAME and ADMIN_PASSWORD (admin account from Vault kv/socialapp/admin)}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:?set ADMIN_PASSWORD}"
 
 # Check if CLI binary exists
 if [ ! -f "$CLI_BINARY" ]; then

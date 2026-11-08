@@ -71,9 +71,9 @@ if [ ! -z "$ROLE_ID" ] && [ ! -z "$SCOPE_ID" ]; then
     echo ""
 fi
 
-# Test 9: Get user roles (for admin user)
+# Test 9: Get user roles (for the admin account)
 echo "Test 9: Get user roles"
-$CLI get user-roles admin --host $HOST
+$CLI get user-roles "${ADMIN_USERNAME:?set ADMIN_USERNAME}" --host $HOST
 echo "✓ Get user-roles passed"
 echo ""
 

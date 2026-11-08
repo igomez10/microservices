@@ -104,6 +104,12 @@ func createSchema(t *testing.T, ctx context.Context, conn *pgx.Conn) {
 	if err != nil {
 		t.Fatalf("failed to read schema file: %v", err)
 	}
+	// A fresh database gets the sample data too, as on the first migrate run (setup/apply.sql).
+	seed, err := os.ReadFile(filepath.Join(filepath.Dir(schemaPath), "seed.sql"))
+	if err != nil {
+		t.Fatalf("failed to read seed file: %v", err)
+	}
+	payload = append(append(payload, '\n'), seed...)
 
 	if _, err := conn.Exec(ctx, "BEGIN"); err != nil {
 		t.Fatalf("failed to begin tx: %v", err)

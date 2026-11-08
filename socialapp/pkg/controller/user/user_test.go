@@ -512,3 +512,14 @@ func TestSnowflakeID_UniquePerService(t *testing.T) {
 		t.Errorf("Expected positive ID from gen2, got %d", id2)
 	}
 }
+
+func TestIsReservedUsername(t *testing.T) {
+	for name, want := range map[string]bool{
+		"admin": true, "Admin": true, " ROOT ": true, "administrator": true,
+		"admins": false, "socialapp-admin": false, "testuser": false, "": false,
+	} {
+		if got := isReservedUsername(name); got != want {
+			t.Errorf("isReservedUsername(%q) = %v, want %v", name, got, want)
+		}
+	}
+}

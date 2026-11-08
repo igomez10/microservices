@@ -22,12 +22,13 @@ fi
 
 echo ""
 echo "3. Testing list users command..."
-if $CLI list users -u admin -p admin --host "$HOST" --pagesize 5 2>&1 | head -10; then
+: "${ADMIN_USERNAME:?set ADMIN_USERNAME and ADMIN_PASSWORD (admin account from Vault kv/socialapp/admin)}" "${ADMIN_PASSWORD:?set ADMIN_PASSWORD}"
+if $CLI list users -u "$ADMIN_USERNAME" -p "$ADMIN_PASSWORD" --host "$HOST" --pagesize 5 2>&1 | head -10; then
     echo ""
     echo "✓ List users command works"
 else
     echo "✗ List users command failed"
-    echo "Check admin credentials (default: admin/admin)"
+    echo "Check ADMIN_USERNAME / ADMIN_PASSWORD"
 fi
 
 echo ""
