@@ -446,7 +446,7 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 				Code: http.StatusConflict,
 				Body: openapi.Error{
 					Code:    http.StatusConflict,
-					Message: "Username already exists",
+					Message: "Username is reserved",
 				},
 			}, nil
 		}
