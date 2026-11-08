@@ -1,5 +1,7 @@
 FROM python:3.12-slim
 
+# docker-buildx-plugin is required: without it compose falls back to the classic
+# builder, which can't parse `FROM --platform=$BUILDPLATFORM` (Integration.Dockerfile).
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
@@ -13,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
        https://download.docker.com/linux/debian bookworm stable" \
        > /etc/apt/sources.list.d/docker.list \
     && apt-get update \
-    && apt-get install -y --no-install-recommends docker-ce-cli docker-compose-plugin \
+    && apt-get install -y --no-install-recommends docker-ce-cli docker-compose-plugin docker-buildx-plugin \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
