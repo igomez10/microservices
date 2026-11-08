@@ -2,23 +2,12 @@ package main
 
 import (
 	"context"
-	"log/slog"
 	"os"
 	"testing"
-	"time"
-
-	"github.com/google/uuid"
 )
 
 func TestMain(m *testing.M) {
-	// run tests
-	// add jitter
-	if os.Getenv("ADD_TEST_JITTER") != "" {
-		jitterInSeconds := uuid.New().ID() % 60
-		slog.Info("Adding test jitter", "jitter_seconds", int(jitterInSeconds))
-		time.Sleep(time.Duration(jitterInSeconds))
-	}
-
+	sleepJitter()
 	Setup()
 	code := m.Run()
 	os.Exit(code)

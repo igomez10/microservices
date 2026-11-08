@@ -74,6 +74,16 @@ func NewDefaultConfiguration(opts ...ConfigurationOpts) *client.Configuration {
 	return cfg
 }
 
+// sleepJitter staggers replicas started together (e.g. docker compose replicas) when ADD_TEST_JITTER is set.
+func sleepJitter() {
+	if os.Getenv("ADD_TEST_JITTER") == "" {
+		return
+	}
+	jitter := time.Duration(uuid.New().ID()%60) * time.Second
+	slog.Info("Adding test jitter", "jitter_seconds", int(jitter.Seconds()))
+	time.Sleep(jitter)
+}
+
 // add setup function
 func Setup() []ConfigurationOpts {
 	//  set the endpoint for the oauth token
@@ -158,6 +168,7 @@ func getTracer() trace.Tracer {
 func main() {
 	flag.Parse()
 	slog.Info("Starting integration tests")
+	sleepJitter()
 	ctx := context.Background()
 	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithInsecure(), otlptracegrpc.WithEndpointURL(*urlAgent))
 	if err != nil {
