@@ -2,6 +2,7 @@ package e2e
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -44,15 +45,25 @@ func TestReservedUsername_SignupAndRenameRejected(t *testing.T) {
 }
 
 // The seed must not ship a usable default credential.
-func TestSeededAdmin_CannotLogIn(t *testing.T) {
+func TestSeededUsers_HaveNoUsableCredentials(t *testing.T) {
 	env := setupTestEnv(t)
 	defer teardownTestEnv(t, env)
 
-	req, err := http.NewRequest(http.MethodPost, env.BaseURL+"/v1/oauth/token?scope="+scopes.SocialappUsersRead.String(), nil)
+	// Every seeded user has an empty hash, which no password can match.
+	var withPassword int
+	err := env.DBPool.QueryRow(context.Background(),
+		"SELECT count(*) FROM users WHERE hashed_password <> ''").Scan(&withPassword)
 	require.NoError(t, err)
-	req.SetBasicAuth("admin", "admin")
-	resp, err := http.DefaultClient.Do(req)
-	require.NoError(t, err)
-	resp.Body.Close()
-	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode)
+	assert.Zero(t, withPassword, "seeded users must not have a password hash")
+
+	// someotheruser is active, so this exercises the password check itself, not the soft-delete filter.
+	for _, username := range []string{"admin", "someotheruser"} {
+		req, err := http.NewRequest(http.MethodPost, env.BaseURL+"/v1/oauth/token?scope="+scopes.SocialappUsersRead.String(), nil)
+		require.NoError(t, err)
+		req.SetBasicAuth(username, "admin")
+		resp, err := http.DefaultClient.Do(req)
+		require.NoError(t, err)
+		resp.Body.Close()
+		assert.Equal(t, http.StatusUnauthorized, resp.StatusCode, "%s/admin must not log in", username)
+	}
 }
