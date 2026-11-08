@@ -1582,8 +1582,8 @@ func CacheRequestSameUser(ctx context.Context) error {
 	}
 
 	// List 5 users at a random offset so runs hit different cache entries. If there are fewer
-	// users than the offset, retry from 0 (which includes the user created above) so the load
-	// loop below never silently runs zero times.
+	// users than the offset, retry from 0 (never empty: at least the user created above exists)
+	// so the load loop below never silently runs zero times.
 	var listedUsers []client.User
 	var r *http.Response
 	for _, offset := range []int64{time.Now().UnixNano() % 5000, 0} {
