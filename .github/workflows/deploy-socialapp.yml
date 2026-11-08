@@ -89,6 +89,7 @@ jobs:
               - "socialapp/go.mod"
               - "socialapp/go.sum"
               - "socialapp/Integration.Dockerfile"
+              - "socialapp/.dockerignore"
               - "socialapp/docker-compose.yml"
               - ".github/workflows/deploy-socialapp.yml"
 
