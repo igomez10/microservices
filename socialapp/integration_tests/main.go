@@ -1581,22 +1581,32 @@ func CacheRequestSameUser(ctx context.Context) error {
 		return fmt.Errorf("Error getting oauth2 context: %v", err)
 	}
 
-	// List 100 users, different offset on every execution
-	offset := time.Now().UnixNano() % 5000
-	listedUsers, r, err := apiClient.UserAPI.
-		ListUsers(oauth2Ctx).
-		Limit(5).
-		Offset(int32(offset)).
-		Execute()
-
-	if err != nil {
-		return fmt.Errorf("Error when calling `UserAPI.ListUsers`: %v %v", err, r)
+	// List 5 users at a random offset so runs hit different cache entries. If there are fewer
+	// users than the offset, retry from 0 (which includes the user created above) so the load
+	// loop below never silently runs zero times.
+	var listedUsers []client.User
+	var r *http.Response
+	for _, offset := range []int64{time.Now().UnixNano() % 5000, 0} {
+		listedUsers, r, err = apiClient.UserAPI.
+			ListUsers(oauth2Ctx).
+			Limit(5).
+			Offset(int32(offset)).
+			Execute()
+		if err != nil {
+			return fmt.Errorf("Error when calling `UserAPI.ListUsers`: %v %v", err, r)
+		}
+		if r.StatusCode != http.StatusOK {
+			return fmt.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+		}
+		if len(listedUsers) > 0 {
+			break
+		}
 	}
-	if r.StatusCode != http.StatusOK {
-		return fmt.Errorf("Expected status code %d, got %d", http.StatusOK, r.StatusCode)
+	if len(listedUsers) == 0 {
+		return fmt.Errorf("ListUsers returned no users, even at offset 0")
 	}
 
-	// get user info 5 times
+	// get each user, their comments and the feed 50 times
 	for _, currentUser := range listedUsers {
 		for i := 0; i < 50; i++ {
 			_, r, err = apiClient.UserAPI.GetUserByUsername(oauth2Ctx, currentUser.Username).Execute()
