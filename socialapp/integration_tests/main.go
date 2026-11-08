@@ -815,14 +815,18 @@ func SearchCommentsLifecycle(ctx context.Context) error {
 		if res.StatusCode != http.StatusOK {
 			return fmt.Errorf("Expected status code %d, got %d", http.StatusOK, res.StatusCode)
 		}
-		if len(results) < 2 {
-			return fmt.Errorf("Expected at least 2 comments in time window, got %d", len(results))
+		// Other replicas may post comments inside the same window, so only check our own two comments and their order.
+		var ownIDs []string
+		for _, c := range results {
+			if c.GetId() == createdFirst.GetId() || c.GetId() == createdSecond.GetId() {
+				ownIDs = append(ownIDs, c.GetId())
+			}
 		}
-		if results[0].GetId() != createdSecond.GetId() {
-			return fmt.Errorf("Expected newest comment id %s, got %s", createdSecond.GetId(), results[0].GetId())
+		if len(ownIDs) != 2 {
+			return fmt.Errorf("Expected both created comments in time window, found %d of %d results", len(ownIDs), len(results))
 		}
-		if results[1].GetId() != createdFirst.GetId() {
-			return fmt.Errorf("Expected second newest comment id %s, got %s", createdFirst.GetId(), results[1].GetId())
+		if ownIDs[0] != createdSecond.GetId() || ownIDs[1] != createdFirst.GetId() {
+			return fmt.Errorf("Expected comments newest first [%s %s], got %v", createdSecond.GetId(), createdFirst.GetId(), ownIDs)
 		}
 		return nil
 	}(); err != nil {
