@@ -415,8 +415,8 @@ func TestListUsers_PassesSearchToDatabase(t *testing.T) {
 			if arg.Search != expectedSearch {
 				t.Fatalf("expected search %q, got %q", expectedSearch, arg.Search)
 			}
-			if arg.Limit != 20 {
-				t.Fatalf("expected limit 20, got %d", arg.Limit)
+			if arg.Limit != 50 {
+				t.Fatalf("expected limit 50, got %d", arg.Limit)
 			}
 			if arg.Offset != 40 {
 				t.Fatalf("expected offset 40, got %d", arg.Offset)
@@ -436,7 +436,7 @@ func TestListUsers_PassesSearchToDatabase(t *testing.T) {
 		DB: mockQuerier,
 	}
 
-	response, err := service.ListUsers(context.Background(), 20, 40, expectedSearch)
+	response, err := service.ListUsers(context.Background(), 50, 40, expectedSearch)
 	if err != nil {
 		t.Fatalf("ListUsers() returned error: %v", err)
 	}

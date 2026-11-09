@@ -220,11 +220,6 @@ func (s *ScopeApiService) ListScopes(ctx context.Context, limit int32, offset in
 	defer span.End()
 	logger := contexthelper.GetLoggerInContext(ctx).With("limit", int(limit), "offset", int(offset))
 
-	limit = limit % 20
-	if limit == 0 {
-		limit = 20
-	}
-
 	scopes, err := s.DB.ListScopes(ctx, s.DBConn, db.ListScopesParams{
 
 		Limit:  limit,
