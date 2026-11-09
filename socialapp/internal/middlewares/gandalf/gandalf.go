@@ -221,6 +221,19 @@ func (m *Middleware) handleBasicAuth(w http.ResponseWriter, r *http.Request, nex
 
 	// Get user from database
 	usr, err := m.getUserByUsername(r, username)
+	if err == pgx.ErrNoRows || (err == nil && !m.verifyPassword(password, usr)) {
+		// OAuth2 clients form-encode client_id and secret (RFC 6749 §2.3.1), e.g. Go's clientcredentials
+		// sends "!" as "%21"; browsers and curl send them raw. Raw failed, so try the decoded pair.
+		du, errU := url.QueryUnescape(username)
+		dp, errP := url.QueryUnescape(password)
+		if errU == nil && errP == nil && (du != username || dp != password) {
+			if du != username {
+				username = du
+				usr, err = m.getUserByUsername(r, du)
+			}
+			password = dp
+		}
+	}
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			logger.Debug("User not found in database",
@@ -382,13 +395,8 @@ func (m *Middleware) getUserByUsername(r *http.Request, username string) (db.Use
 // verifyPassword checks if the provided password matches the user's hashed password.
 // It uses the same hashing algorithm and salt that was used when the password was originally stored.
 func (m *Middleware) verifyPassword(password string, usr db.User) bool {
-	if user.EncryptPassword(password, usr.Salt) == usr.HashedPassword {
-		return true
-	}
-	// OAuth2 clients form-encode the secret before Basic auth (RFC 6749 §2.3.1), e.g. Go's
-	// clientcredentials turns "+" into "%2B"; browsers and curl send it raw. Accept both.
-	decoded, err := url.QueryUnescape(password)
-	return err == nil && decoded != password && user.EncryptPassword(decoded, usr.Salt) == usr.HashedPassword
+	encryptedPassword := user.EncryptPassword(password, usr.Salt)
+	return encryptedPassword == usr.HashedPassword
 }
 
 // parseRequestedScopes extracts and validates requested scopes from the request.
