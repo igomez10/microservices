@@ -17,6 +17,7 @@ import (
 	"github.com/igomez10/microservices/socialapp/internal/tracerhelper"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
 	"github.com/igomez10/microservices/socialapp/pkg/events"
+	"github.com/igomez10/microservices/socialapp/pkg/scopes"
 	"github.com/igomez10/microservices/socialapp/pkg/snowflake"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgerrcode"
@@ -46,7 +47,25 @@ func (s *UserApiService) Welcome(context.Context) (openapi.ImplResponse, error) 
 	return openapi.Response(http.StatusOK, "Welcome to the User API"), nil
 }
 
-const DEFAULT_ROLE_NAME = "administrator"
+const DEFAULT_ROLE_NAME = "user"
+
+// adminMarkerScope lets a token act on other users. Only administrators hold it, and whoever holds it
+// can already grant themselves any role, so it is the natural override for the self-only checks.
+var adminMarkerScope = scopes.SocialappUsersRolesUpdate.String()
+
+// actsOnSelfOrAdmin reports whether the caller may act on behalf of username: it is the caller's own
+// account, or the caller's token carries the admin marker scope.
+func actsOnSelfOrAdmin(ctx context.Context, username string) bool {
+	if caller, ok := contexthelper.GetUsernameInContext(ctx); ok && caller == username {
+		return true
+	}
+	tokenScopes, _ := contexthelper.GetRequestedScopesInContext(ctx)
+	return tokenScopes[adminMarkerScope]
+}
+
+func forbidden() openapi.ImplResponse {
+	return openapi.Response(http.StatusForbidden, openapi.Error{Code: http.StatusForbidden, Message: "Forbidden"})
+}
 
 // reservedUsernames can never be taken by signup or rename. usernames are not unique in the DB and a
 // soft-deleted user frees its name, so without this anyone could claim "admin" once it is deleted.
@@ -407,6 +426,9 @@ func (s *UserApiService) UpdateUser(ctx context.Context, existingUsername string
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "UpdateUser")
 	defer span.End()
 	logger := contexthelper.GetLoggerInContext(ctx)
+	if !actsOnSelfOrAdmin(ctx, existingUsername) {
+		return forbidden(), nil
+	}
 	// begin transaction
 	tx, err := s.DBConn.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
@@ -561,6 +583,9 @@ func (s *UserApiService) FollowUser(ctx context.Context, followedUsername string
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "FollowUser")
 	defer span.End()
 	logger := contexthelper.GetLoggerInContext(ctx)
+	if !actsOnSelfOrAdmin(ctx, followerUsername) {
+		return forbidden(), nil
+	}
 
 	tx, err := s.DBConn.Begin(ctx)
 	if err != nil {
@@ -677,6 +702,9 @@ func (s *UserApiService) UnfollowUser(ctx context.Context, followedUsername stri
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "UnfollowUser")
 	defer span.End()
 	logger := contexthelper.GetLoggerInContext(ctx)
+	if !actsOnSelfOrAdmin(ctx, followerUsername) {
+		return forbidden(), nil
+	}
 
 	tx, err := s.DBConn.Begin(ctx)
 	if err != nil {

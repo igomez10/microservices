@@ -3,11 +3,14 @@ package user
 import (
 	"context"
 	"net/http"
+	"net/http/httptest"
 	"strconv"
 	"testing"
 	"time"
 
+	"github.com/igomez10/microservices/socialapp/internal/contexthelper"
 	db "github.com/igomez10/microservices/socialapp/pkg/dbpgx"
+	"github.com/igomez10/microservices/socialapp/pkg/scopes"
 	"github.com/igomez10/microservices/socialapp/socialappapi/openapi"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -520,6 +523,39 @@ func TestIsReservedUsername(t *testing.T) {
 	} {
 		if got := isReservedUsername(name); got != want {
 			t.Errorf("isReservedUsername(%q) = %v, want %v", name, got, want)
+		}
+	}
+}
+
+func TestActsOnSelfOrAdmin(t *testing.T) {
+	ctxFor := func(caller string, tokenScopes map[string]bool) context.Context {
+		r := httptest.NewRequest(http.MethodGet, "/", nil)
+		if caller != "" {
+			r = contexthelper.SetUsernameInContext(r, caller)
+		}
+		if tokenScopes != nil {
+			r = contexthelper.SetRequestedScopesInContext(r, tokenScopes)
+		}
+		return r.Context()
+	}
+	userScopes := map[string]bool{scopes.SocialappUsersUpdate.String(): true}
+	adminScopes := map[string]bool{scopes.SocialappUsersUpdate.String(): true, scopes.SocialappUsersRolesUpdate.String(): true}
+
+	cases := []struct {
+		name   string
+		ctx    context.Context
+		target string
+		want   bool
+	}{
+		{"self", ctxFor("alice", userScopes), "alice", true},
+		{"other user without admin marker", ctxFor("alice", userScopes), "bob", false},
+		{"other user with admin marker", ctxFor("admin1", adminScopes), "bob", true},
+		{"no caller, no scopes", ctxFor("", nil), "bob", false},
+		{"username match is exact", ctxFor("Alice", userScopes), "alice", false},
+	}
+	for _, c := range cases {
+		if got := actsOnSelfOrAdmin(c.ctx, c.target); got != c.want {
+			t.Errorf("%s: actsOnSelfOrAdmin(..., %q) = %v, want %v", c.name, c.target, got, c.want)
 		}
 	}
 }

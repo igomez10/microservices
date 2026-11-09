@@ -561,6 +561,10 @@ services:
       "ADD_TEST_JITTER": 1
       "OTEL_EXPORTER_OTLP_ENDPOINT": "http://otel-collector:4317"
       "APP_HOST": "${TEST_PROTOCOL_SCHEME}://socialapp.${EXPOSED_HOST}/api"
+      # Administrator for the role/scope/user-role/URL-delete flows (Vault kv/socialapp/integration-admin).
+      # ":-" not ":?": a missing value must not break every compose command, including the deployer's.
+      "INTEGRATION_ADMIN_USERNAME": "${INTEGRATION_ADMIN_USERNAME:-}"
+      "INTEGRATION_ADMIN_PASSWORD": "${INTEGRATION_ADMIN_PASSWORD:-}"
     restart: "unless-stopped"
     cpus: 2
     mem_limit: 4096m
