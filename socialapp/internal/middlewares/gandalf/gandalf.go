@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -220,6 +221,19 @@ func (m *Middleware) handleBasicAuth(w http.ResponseWriter, r *http.Request, nex
 
 	// Get user from database
 	usr, err := m.getUserByUsername(r, username)
+	if err == pgx.ErrNoRows || (err == nil && !m.verifyPassword(password, usr)) {
+		// OAuth2 clients form-encode client_id and secret (RFC 6749 §2.3.1), e.g. Go's clientcredentials
+		// sends "!" as "%21"; browsers and curl send them raw. Raw failed, so try the decoded pair.
+		du, errU := url.QueryUnescape(username)
+		dp, errP := url.QueryUnescape(password)
+		if errU == nil && errP == nil && (du != username || dp != password) {
+			if du != username {
+				username = du
+				usr, err = m.getUserByUsername(r, du)
+			}
+			password = dp
+		}
+	}
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			logger.Debug("User not found in database",
