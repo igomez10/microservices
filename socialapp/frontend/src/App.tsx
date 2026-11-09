@@ -660,8 +660,10 @@ export default function App() {
     setRolesInput((rolesRes.data ?? []).map((role) => role.name).join(', '))
     setUserRoleUsername(username)
 
+    // Listing a user's roles is admin-only; a 403 just means the viewer is a regular user.
+    const rolesError = rolesRes.status === 403 ? '' : rolesRes.error
     const error =
-      userRes.error || commentsRes.error || followersRes.error || followingRes.error || rolesRes.error || ''
+      userRes.error || commentsRes.error || followersRes.error || followingRes.error || rolesError || ''
 
     setStatus(setProfileStatus, {
       status: `${userRes.status} ${userRes.statusText}`,

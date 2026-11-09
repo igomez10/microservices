@@ -50,7 +50,8 @@ func GetCmd() *cli.Command {
 			followedUsername := c.Args().Get(0)
 			followerUsername := c.Args().Get(1)
 
-			httpClient, err := auth.GetHTTPClient(ctx, envName, username, password, []string{"socialapp.follower.create"})
+			// users.roles.update is the admin marker for acting on behalf of another user; the server drops it for regular users.
+			httpClient, err := auth.GetHTTPClient(ctx, envName, username, password, []string{"socialapp.follower.create", "socialapp.users.roles.update"})
 			if err != nil {
 				return fmt.Errorf("failed to get authenticated client: %w", err)
 			}
