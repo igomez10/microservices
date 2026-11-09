@@ -330,11 +330,6 @@ func (s *UserApiService) GetUserComments(ctx context.Context, username string, l
 	defer span.End()
 	logger := contexthelper.GetLoggerInContext(ctx)
 
-	limit = limit % 100
-	if limit == 0 {
-		limit = 100
-	}
-
 	// validate the user exists
 	dbuser, errGetUser := s.DB.GetUserByUsername(ctx, s.DBConn, username)
 	if errGetUser != nil {
@@ -388,11 +383,6 @@ func (s *UserApiService) ListUsers(ctx context.Context, limit, offset int32, sea
 	logger := contexthelper.GetLoggerInContext(ctx)
 	ctx, span := tracerhelper.GetTracer().Start(ctx, "ListUsers")
 	defer span.End()
-
-	limit = limit % 20
-	if limit == 0 {
-		limit = 20
-	}
 
 	ctx, spanDBList := tracerhelper.GetTracer().Start(ctx, "db.ListUsers")
 	dbUsers, err := s.DB.ListUsers(ctx, s.DBConn, db.ListUsersParams{

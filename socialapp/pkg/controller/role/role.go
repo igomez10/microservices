@@ -247,11 +247,6 @@ func (s *RoleApiService) ListRoles(ctx context.Context, limit int32, offset int3
 	defer span.End()
 	logger := contexthelper.GetLoggerInContext(ctx).With("limit", int(limit), "offset", int(offset))
 
-	limit = limit % 20
-	if limit == 0 {
-		limit = 20
-	}
-
 	roles, err := s.DB.ListRoles(ctx, s.DBConn, dbpgx.ListRolesParams{
 		Limit:  limit,
 		Offset: offset,
@@ -516,11 +511,6 @@ func (s *RoleApiService) ListScopesForRole(ctx context.Context, roleIDStr string
 				Message: "role not found",
 			},
 		}, nil
-	}
-
-	limit = limit % 20
-	if limit == 0 {
-		limit = 20
 	}
 	// get role scopes from db
 	scopes, err := s.DB.ListRoleScopes(ctx, s.DBConn, db.ListRoleScopesParams{

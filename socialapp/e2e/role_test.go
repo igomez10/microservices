@@ -408,3 +408,27 @@ func TestCreateRole_SnowflakeIDReturned(t *testing.T) {
 	require.NoError(t, parseErr, "Role ID should be numeric, got %q", createdRole.Id)
 	assert.True(t, roleID > 0, "Role ID should be positive, got %d", roleID)
 }
+
+// TestListEndpoints_LimitAbove20 guards against handlers shrinking limit (limit=25 used to return 5 rows).
+func TestListEndpoints_LimitAbove20(t *testing.T) {
+	env := setupTestEnv(t)
+	defer teardownTestEnv(t, env)
+
+	testUser := createAdminTestUser(t, env)
+	token := getAuthToken(t, env, testUser, "socialapp.roles.scopes.list", "socialapp.scopes.list")
+
+	var adminRoleID int64
+	require.NoError(t, env.DBPool.QueryRow(t.Context(), "SELECT id FROM roles WHERE name = 'administrator'").Scan(&adminRoleID))
+
+	for _, path := range []string{fmt.Sprintf("/v1/roles/%d/scopes?limit=25", adminRoleID), "/v1/scopes?limit=25"} {
+		resp := makeAuthenticatedRequest(t, http.MethodGet, env.BaseURL+path, token, nil)
+		respBody, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		require.NoError(t, err)
+		require.Equal(t, http.StatusOK, resp.StatusCode, "%s: %s", path, respBody)
+
+		var got []openapi.Scope
+		require.NoError(t, json.Unmarshal(respBody, &got), "%s: %s", path, respBody)
+		assert.Len(t, got, 25, path)
+	}
+}
