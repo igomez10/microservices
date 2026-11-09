@@ -66,7 +66,9 @@ func GetCmd() *cli.Command {
 			}
 			targetUsername := c.Args().Get(0)
 
-			httpClient, err := auth.GetHTTPClient(ctx, envName, username, password, []string{"socialapp.users.update", "socialapp.users.read"})
+			// users.roles.update is the admin marker for editing other users; the server drops it for regular users.
+			httpClient, err := auth.GetHTTPClient(ctx, envName, username, password,
+				[]string{"socialapp.users.update", "socialapp.users.read", "socialapp.users.roles.update"})
 			if err != nil {
 				return fmt.Errorf("failed to get authenticated client: %w", err)
 			}

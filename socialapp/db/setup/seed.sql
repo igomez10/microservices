@@ -6,6 +6,13 @@
 --
 -- The sample users have no password (an empty hash never matches) and 'admin'
 -- is soft-deleted: no default credentials. Create real admins through the API.
+--
+-- New signups get the 'user' role (limited scopes); 'administrator' has every
+-- scope and nobody is seeded into it. To make the first admin on a new
+-- database, sign up through the API, then:
+--   INSERT INTO users_to_roles (role_id, user_id)
+--   SELECT r.id, u.id FROM roles r, users u
+--   WHERE r.name = 'administrator' AND u.username = '<username>' AND u.deleted_at IS NULL;
 INSERT INTO users (
     id , username , hashed_password , hashed_password_expires_at , salt , first_name , last_name , email , created_at , updated_at , deleted_at )
 VALUES
@@ -112,13 +119,10 @@ INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (34, 1, 34),
 (35, 1, 35),
 (36, 2, 1),
-(37, 2, 2),
 (38, 2, 3),
-(39, 2, 4),
 (40, 2, 5),
 (41, 2, 6),
 (42, 2, 7),
-(43, 2, 8),
 (44, 2, 9),
 (45, 2, 10),
 (46, 2, 11),
@@ -126,44 +130,16 @@ INSERT INTO roles_to_scopes (id, role_id, scope_id) VALUES
 (48, 2, 13),
 (49, 2, 14),
 (50, 2, 15),
-(51, 2, 16),
-(52, 2, 17),
-(53, 2, 18),
-(54, 2, 19),
-(55, 2, 20),
-(56, 2, 21),
-(57, 2, 22),
-(58, 2, 23),
-(59, 2, 24),
-(60, 2, 25),
-(61, 2, 26),
-(62, 2, 27),
-(63, 2, 28),
-(64, 2, 29),
-(65, 2, 30),
-(66, 2, 31),
-(67, 2, 32),
-(68, 2, 33),
-(69, 2, 34),
-(70, 2, 35),
 (71, 1, 36),
-(72, 2, 36),
 (73, 1, 37),
-(74, 2, 37),
 (75, 1, 38),
-(76, 2, 38),
 (77, 1, 39),
-(78, 2, 39),
 (79, 1, 40),
-(80, 2, 40),
 (81, 1, 41),
-(82, 2, 41),
 (83, 1, 42),
 (84, 2, 42),
 (85, 1, 43),
-(86, 2, 43),
 (87, 1, 44),
-(88, 2, 44),
 (89, 1, 45),
 (90, 2, 45);
 

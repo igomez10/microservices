@@ -150,6 +150,16 @@ func getOAuth2Context(initialContext context.Context, config clientcredentials.C
 	return initialContext, nil
 }
 
+// integrationAdminCredentials returns the administrator the role, scope, user-role and URL-delete flows
+// act as. Signups only get the limited "user" role, so these flows cannot use their own users.
+func integrationAdminCredentials() (string, string, error) {
+	username, password := os.Getenv("INTEGRATION_ADMIN_USERNAME"), os.Getenv("INTEGRATION_ADMIN_PASSWORD")
+	if username == "" || password == "" {
+		return "", "", fmt.Errorf("INTEGRATION_ADMIN_USERNAME and INTEGRATION_ADMIN_PASSWORD must be set (administrator account, Vault kv/socialapp/integration-admin)")
+	}
+	return username, password, nil
+}
+
 func getTracer() trace.Tracer {
 	tracer := otel.Tracer("")
 	return tracer
@@ -1098,9 +1108,14 @@ func RoleLifecycle(ctx context.Context) error {
 		return fmt.Errorf("Expected status code 201, got %d", res.StatusCode)
 	}
 
+	// Managing roles and scopes needs an administrator; signups only get the "user" role.
+	adminUser, adminPassword, err := integrationAdminCredentials()
+	if err != nil {
+		return err
+	}
 	conf := clientcredentials.Config{
-		ClientID:     username,
-		ClientSecret: password,
+		ClientID:     adminUser,
+		ClientSecret: adminPassword,
 		Scopes:       scopes,
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
@@ -1319,9 +1334,14 @@ func ScopeLifecycle(ctx context.Context) error {
 		return fmt.Errorf("Expected status code 201, got %d", res.StatusCode)
 	}
 
+	// Managing roles and scopes needs an administrator; signups only get the "user" role.
+	adminUser, adminPassword, err := integrationAdminCredentials()
+	if err != nil {
+		return err
+	}
 	conf := clientcredentials.Config{
-		ClientID:     username,
-		ClientSecret: password,
+		ClientID:     adminUser,
+		ClientSecret: adminPassword,
 		Scopes:       scopes,
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
@@ -1459,9 +1479,14 @@ func UserRoleLifeCycle(ctx context.Context) (err error) {
 		return fmt.Errorf("Expected status code 201, got %d", res.StatusCode)
 	}
 
+	// Managing roles and scopes needs an administrator; signups only get the "user" role.
+	adminUser, adminPassword, err := integrationAdminCredentials()
+	if err != nil {
+		return err
+	}
 	conf := clientcredentials.Config{
-		ClientID:     username,
-		ClientSecret: password,
+		ClientID:     adminUser,
+		ClientSecret: adminPassword,
 		Scopes:       scopes,
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
@@ -1672,7 +1697,7 @@ func URLLifeCycle(ctx context.Context) error {
 	conf := clientcredentials.Config{
 		ClientID:     username1,
 		ClientSecret: password,
-		Scopes:       []string{scopes.ShortlyUrlCreate.String(), scopes.ShortlyUrlDelete.String()},
+		Scopes:       []string{scopes.ShortlyUrlCreate.String()},
 		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
 	}
 
@@ -1703,7 +1728,21 @@ func URLLifeCycle(ctx context.Context) error {
 	}
 
 	// delete url
-	deleteUrlRes, err := apiClient.URLAPI.DeleteUrl(oauth2Ctx, newURL.Alias).Execute()
+	// URLs have no owner, so deleting one is admin-only.
+	adminUser, adminPassword, err := integrationAdminCredentials()
+	if err != nil {
+		return err
+	}
+	adminCtx, err := getOAuth2Context(proxyCtx, clientcredentials.Config{
+		ClientID:     adminUser,
+		ClientSecret: adminPassword,
+		Scopes:       []string{scopes.ShortlyUrlDelete.String()},
+		TokenURL:     configuration.Servers[0].URL + "/v1/oauth/token",
+	})
+	if err != nil {
+		return fmt.Errorf("Error getting admin oauth2 context: %v", err)
+	}
+	deleteUrlRes, err := apiClient.URLAPI.DeleteUrl(adminCtx, newURL.Alias).Execute()
 	if err != nil {
 		return fmt.Errorf("Error when calling `URLAPI.DeleteURL`: %v %v", err, deleteUrlRes)
 	}

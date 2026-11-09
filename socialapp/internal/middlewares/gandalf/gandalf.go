@@ -291,22 +291,28 @@ func (m *Middleware) handleBasicAuth(w http.ResponseWriter, r *http.Request, nex
 		slog.Int("allowed_scope_count", len(allowedScopes)),
 	)
 
-	// Validate requested scopes
+	// Grant the requested scopes the user's roles allow and drop the rest (OAuth 2.0 lets the server
+	// narrow the requested scope). Clients like the frontend request every scope regardless of role.
+	granted := make([]string, 0, len(requestedScopes))
 	for _, scopeName := range requestedScopes {
-		if _, exists := allowedScopes[scopeName]; !exists {
-			logger.Error("Requested scope not allowed for user",
+		if _, exists := allowedScopes[scopeName]; exists {
+			granted = append(granted, scopeName)
+		} else {
+			logger.Debug("Requested scope not allowed for user, dropping it",
 				slog.String("username", usr.Username),
 				slog.String("scope", scopeName),
 			)
-			m.writeUnauthorized(w, fmt.Sprintf(errMsgScopeNotAllowed, scopeName))
-			authenticationDuration.WithLabelValues(authResultFailedBasic).Observe(time.Since(start).Seconds())
-			return
 		}
 	}
-
-	logger.Debug("All requested scopes are allowed",
-		slog.String("username", usr.Username),
-	)
+	if len(requestedScopes) > 0 && len(granted) == 0 {
+		logger.Error("None of the requested scopes are allowed for user",
+			slog.String("username", usr.Username),
+		)
+		m.writeUnauthorized(w, fmt.Sprintf(errMsgScopeNotAllowed, requestedScopes[0]))
+		authenticationDuration.WithLabelValues(authResultFailedBasic).Observe(time.Since(start).Seconds())
+		return
+	}
+	requestedScopes = granted
 
 	// Convert to map and set in context
 	scopeMap := m.convertScopeSliceToMap(requestedScopes)

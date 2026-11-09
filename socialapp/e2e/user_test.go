@@ -288,10 +288,17 @@ func createTestUser(t *testing.T, env *TestEnv) TestUser {
 	}
 }
 
-// createAdminTestUser creates a user with the administrator role (has all scopes)
-// This is an alias for createTestUser since the API auto-assigns the admin role
+// createAdminTestUser creates a user and grants it the administrator role (all scopes).
+// Signups only get the limited "user" role, and no API lets a non-admin become admin, so grant it in the DB.
 func createAdminTestUser(t *testing.T, env *TestEnv) TestUser {
-	return createTestUser(t, env)
+	t.Helper()
+	u := createTestUser(t, env)
+	_, err := env.DBPool.Exec(context.Background(), `
+		INSERT INTO users_to_roles (role_id, user_id)
+		SELECT r.id, u.id FROM roles r, users u
+		WHERE r.name = 'administrator' AND u.username = $1 AND u.deleted_at IS NULL`, u.Username)
+	require.NoError(t, err)
+	return u
 }
 
 // TestCreateUser_Success tests successful user creation
